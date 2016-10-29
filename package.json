@@ -1,7 +1,7 @@
 {
   "name": "udia",
   "version": "0.0.0",
-  "description": "Web app",
+  "description": "web application",
   "main": "index.js",
   "scripts": {
     "start": "node --use_strict index.js",
@@ -14,10 +14,25 @@
   "keywords": [
     "Udia"
   ],
-  "author": "Udia",
+  "author": "Udia Software Incorporated",
+  "contributors": [
+    {
+      "name": "Alexander Wong",
+      "email": "admin@alexander-wong.com"
+    }
+  ],
   "license": "Apache 2.0",
   "bugs": {
     "url": "https://github.com/udia-software/udia/issues"
   },
-  "homepage": "https://github.com/udia-software/udia#readme"
+  "homepage": "https://github.com/udia-software/udia#readme",
+  "dependencies": {
+
+  },
+  "devDependencies": {
+
+  },
+  "engines": {
+    "node": ">=0.12.7"
+  }
 }
