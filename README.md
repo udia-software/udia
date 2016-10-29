@@ -6,16 +6,14 @@ Udia
 
 | Name        | Definition           | Default Value  |
 | ----------- |:--------------------:| --------------:|
-| `NODE_PORT` | port for web application | `3000` |
-| `NODE_IP` | ip address for web application | `'localhost'` |
-| `NODE_ENV` | environment for web application | `'production'` |
-| `NODE_CLUSTER_WORKERS` | processes for web application | `4` |
+| `GCLOUD_PROJECT` | your project id | `<your-project-id>` |
+| `GCLOUD_BUCKET` | your cloud bucket | `<your-cloud-bucket>` |
+| `DATA_BACKEND` | datastore | `datastore` |
 
 ## License
 Apache License, Version 2.0
 ```
 Copyright 2016 Udia Software Incorporated
-               Alexander Wong
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

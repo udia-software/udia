@@ -1,48 +1,105 @@
-/**
- * Created by udia on 2016-10-29.
- *
- * Copyright 2016 Udia Software Incorporated
- */
-const http         = require('http'),
-  fs           = require('fs'),
-  path         = require('path'),
-  contentTypes = require('./utils/content-types'),
-  sysInfo      = require('./utils/sys-info'),
-  env          = process.env;
+// Copyright 2016 Udia Software Incorporated
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-let server = http.createServer(function (req, res) {
-  let url = req.url;
-  if (url == '/') {
-    url += 'index.html';
-  }
+'use strict';
 
-  if (url == '/health') {
-    // respond to GET /health with status 200
-    res.writeHead(200);
-    res.end();
-  } else if (url == '/info/gen' || url == '/info/poll') {
-    // respond to GET /info with sysInfo
-    res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Cache-Control', 'no-cache, no-store');
-    res.end(JSON.stringify(sysInfo[url.slice(6)]()));
-  } else {
-    // respond to everything else as static file read
-    fs.readFile('./static' + url, function (err, data) {
-      if (err) {
-        res.writeHead(404);
-        res.end('Not found');
-      } else {
-        let ext = path.extname(url).slice(1);
-        res.setHeader('Content-Type', contentTypes[ext]);
-        if (ext === 'html') {
-          res.setHeader('Cache-Control', 'no-cache, no-store');
-        }
-        res.end(data);
-      }
-    });
-  }
+// Activate Google Cloud Trace and Debug when in production
+if (process.env.NODE_ENV === 'production') {
+  require('@google/cloud-trace').start();
+  require('@google/cloud-debug');
+}
+
+var path = require('path');
+var express = require('express');
+var session = require('express-session');
+var MemcachedStore = require('connect-memcached')(session);
+var passport = require('passport');
+var config = require('./config');
+var logging = require('./lib/logging');
+
+var app = express();
+
+app.disable('etag');
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'jade');
+app.set('trust proxy', true);
+
+// Add the request logger before anything else so that it can
+// accurately log requests.
+app.use(logging.requestLogger);
+
+// Configure the session and session storage.
+var sessionConfig = {
+  resave: false,
+  saveUninitialized: false,
+  secret: config.get('SECRET'),
+  signed: true
+};
+
+// In production use the App Engine Memcache instance to store session data,
+// otherwise fallback to the default MemoryStore in development.
+if (config.get('NODE_ENV') === 'production') {
+  sessionConfig.store = new MemcachedStore({
+    hosts: [config.get('MEMCACHE_URL')]
+  });
+}
+
+app.use(session(sessionConfig));
+
+// OAuth2
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(require('./lib/oauth2').router);
+
+// Books
+app.use('/books', require('./books/crud'));
+app.use('/api/books', require('./books/api'));
+
+// Redirect root to /books
+app.get('/', function(req, res) {
+  res.redirect('/books');
 });
 
-server.listen(env.NODE_PORT || 3000, env.NODE_IP || 'localhost', function () {
-  console.log(`Application worker ${process.pid} started...`);
+// Our application will need to respond to health checks when running on
+// Compute Engine with Managed Instance Groups.
+app.get('/_ah/health', function(req, res) {
+  res.status(200).send('ok');
 });
+
+// Add the error logger after all middleware and routes so that
+// it can log errors from the whole application. Any custom error
+// handlers should go after this.
+app.use(logging.errorLogger);
+
+// Basic 404 handler
+app.use(function(req, res) {
+  res.status(404).send('Not Found');
+});
+
+// Basic error handler
+app.use(function(err, req, res, next) {
+  /* jshint unused:false */
+  // If our routes specified a specific response, then send that. Otherwise,
+  // send a generic message so as not to leak anything.
+  res.status(500).send(err.response || 'Something broke!');
+});
+
+if (module === require.main) {
+  // Start the server
+  var server = app.listen(config.get('PORT'), function() {
+    var port = server.address().port;
+    console.log('App listening on port %s', port);
+  });
+}
+
+module.exports = app;
