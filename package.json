@@ -1,0 +1,23 @@
+{
+  "name": "udia",
+  "version": "0.0.0",
+  "description": "Web app",
+  "main": "index.js",
+  "scripts": {
+    "start": "node --use_strict index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/udia-software/udia.git"
+  },
+  "keywords": [
+    "Udia"
+  ],
+  "author": "Udia",
+  "license": "Apache 2.0",
+  "bugs": {
+    "url": "https://github.com/udia-software/udia/issues"
+  },
+  "homepage": "https://github.com/udia-software/udia#readme"
+}
