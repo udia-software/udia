@@ -6,9 +6,11 @@ Udia
 
 | Name        | Definition           | Default Value  |
 | ----------- |:--------------------:| --------------:|
-| `GCLOUD_PROJECT` | your project id | `<your-project-id>` |
-| `GCLOUD_BUCKET` | your cloud bucket | `<your-cloud-bucket>` |
-| `DATA_BACKEND` | datastore | `datastore` |
+| `GCLOUD_PROJECT` | your project id | `process.env.GCLOUD_PROJECT || ''` |
+| `CLOUD_BUCKET` | your cloud bucket | `process.env.CLOUD_BUCKET || ''` |
+| `DATA_BACKEND` | datastore | `process.env.DATA_BACKEND || 'datastore'` |
+| `OAUTH2_CLIENT_ID` | oauth2 id | `process.env.OAUTH2_CLIENT_ID || ''` |
+| `OAUTH2_CLIENT_SECRET` | oauth2 secret | `process.env.OAUTH2_CLIENT_SECRET || ''` |
 
 ## License
 Apache License, Version 2.0

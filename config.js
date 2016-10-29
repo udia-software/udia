@@ -17,6 +17,12 @@
 // variables, and files.
 var nconf = module.exports = require('nconf');
 var path = require('path');
+try {
+  var env = require('./env');
+} catch (ex) {
+  // If the env file doesn't exist, this might be a warning
+  console.warn('Local ./env.js file does not exist.');
+}
 
 // Memcache configuration settings
 var MEMCACHE_HOST = process.env.MEMCACHE_PORT_11211_TCP_ADDR || 'localhost';
@@ -49,16 +55,16 @@ nconf
   // 4. Defaults
   .defaults({
     // Typically you will create a bucket with the same name as your project ID.
-    CLOUD_BUCKET: '',
+    CLOUD_BUCKET: process.env.CLOUD_BUCKET || env.CLOUD_BUCKET || '',
 
     // dataBackend can be 'datastore', 'cloudsql', or 'mongodb'. Be sure to
     // configure the appropriate settings for each storage engine below.
     // If you are unsure, use datastore as it requires no additional
     // configuration.
-    DATA_BACKEND: 'datastore',
+    DATA_BACKEND: process.env.DATA_BACKEND || env.DATA_BACKEND || 'datastore',
 
     // This is the id of your project in the Google Cloud Developers Console.
-    GCLOUD_PROJECT: '',
+    GCLOUD_PROJECT: process.env.GCLOUD_PROJECT || env.GCLOUD_PROJECT || '',
 
     // Connection url for the Memcache instance used to store session data
     MEMCACHE_URL: MEMCACHE_HOST + ':' + MEMCACHE_PORT,
@@ -72,8 +78,8 @@ nconf
     MYSQL_PASSWORD: '',
     MYSQL_HOST: '',
 
-    OAUTH2_CLIENT_ID: '',
-    OAUTH2_CLIENT_SECRET: '',
+    OAUTH2_CLIENT_ID: process.env.OAUTH2_CLIENT_ID || env.OAUTH2_CLIENT_ID || '',
+    OAUTH2_CLIENT_SECRET: process.env.OAUTH2_CLIENT_SECRET || env.OAUTH2_CLIENT_SECRET || '',
     OAUTH2_CALLBACK: 'http://localhost:8080/auth/google/callback',
 
     // Port the HTTP server
