@@ -15,7 +15,7 @@
 
 var path = require('path');
 var projectId = process.env.GCLOUD_PROJECT;
-var test = '7-gce';
+var test = 'udia-test';
 
 module.exports = {
   test: test,

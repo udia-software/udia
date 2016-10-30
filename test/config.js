@@ -14,7 +14,7 @@
 'use strict';
 
 var path = require('path');
-var test = '7-gce';
+var test = 'udia-test';
 
 module.exports = {
   test: test,

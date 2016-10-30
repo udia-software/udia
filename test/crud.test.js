@@ -165,7 +165,7 @@ module.exports = function(DATA_BACKEND) {
       });
 
       it('should show a book', function(done) {
-        var expected = '<h4>my other book&nbsp;<small></small></h4>';
+        var expected = '<h4>my other book</h4>&nbsp;<small></small>';
         utils.getRequest(config)
           .get('/books/' + id)
           .expect(200)
