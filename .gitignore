@@ -40,4 +40,9 @@ jspm_packages
 
 .idea/
 .gcloud/
+.DS_Store
+
+# Hidden files for travis CI credentials an API secrets
+credentials.tar.gz
 env.js
+client-secret.json
