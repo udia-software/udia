@@ -39,8 +39,8 @@ export default {
     const route = await next();
 
     // Provide default values for title, description etc.
-    route.title = `${route.title || 'Untitled Page'} - www.reactstarterkit.com`;
-    route.description = route.description || '';
+    route.title = `${route.title || 'Untitled Page'} - udia.ca`;
+    route.description = route.description || 'Udia';
 
     return route;
   },
