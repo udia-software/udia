@@ -1,5 +1,5 @@
 # udia
-Udia
+[![Build Status](https://travis-ci.org/udia-software/udia.svg?branch=master)](https://travis-ci.org/udia-software/udia)
 
 ## License
 Apache License, Version 2.0
