@@ -22,7 +22,7 @@ todoSchema.static('createTodo', (todo:Object):Promise<any> => {
         return reject(new TypeError('Todo is not a valid object.'));
       }
 
-      var _todo = new Todo(todo);
+      let _todo = new Todo(todo);
 
       _todo.save((err, saved) => {
         err ? reject(err)

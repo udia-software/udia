@@ -25,7 +25,7 @@ type Todo = {
   templateUrl: 'todo/templates/todo.html',
   styleUrls: ['todo/styles/todo.css']
 })
-export class TodoCmp implements OnInit {
+export class TodoComponent implements OnInit {
   title: string = "ng2do";
   todos: Todo[] = [];
   todoForm: Todo;

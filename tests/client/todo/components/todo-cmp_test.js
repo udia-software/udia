@@ -34,27 +34,27 @@ var MockTodoService = (function (_super) {
 describe('todo_component', function () {
     describe('creation', function () {
         it('should create the component correctly', testing_1.async(function () {
-            var fixture = testing_1.TestBed.createComponent(todo_cmp_1.TodoCmp);
+            var fixture = testing_1.TestBed.createComponent(todo_cmp_1.TodoComponent);
             fixture.detectChanges();
             var compiled = fixture.debugElement.nativeElement;
             expect(compiled).toBeDefined();
         }));
         it('should inicialize the cmp correctly', testing_1.async(function () {
-            var fixture = testing_1.TestBed.createComponent(todo_cmp_1.TodoCmp);
+            var fixture = testing_1.TestBed.createComponent(todo_cmp_1.TodoComponent);
             var instance = fixture.debugElement.componentInstance;
             spyOn(instance, '_getAll').and.callFake(function () { });
             fixture.detectChanges();
             expect(instance._getAll).toHaveBeenCalled();
         }));
         it('should call add correctly', testing_1.async(function () {
-            var fixture = testing_1.TestBed.createComponent(todo_cmp_1.TodoCmp);
+            var fixture = testing_1.TestBed.createComponent(todo_cmp_1.TodoComponent);
             fixture.detectChanges();
             var instance = fixture.debugElement.componentInstance;
             var _todoMsg = 'yo';
             instance.add(_todoMsg);
         }));
         it('should call remove correctly', testing_1.async(function () {
-            var fixture = testing_1.TestBed.createComponent(todo_cmp_1.TodoCmp);
+            var fixture = testing_1.TestBed.createComponent(todo_cmp_1.TodoComponent);
             fixture.detectChanges();
             var instance = fixture.debugElement.componentInstance;
             var _id = 'abc123';

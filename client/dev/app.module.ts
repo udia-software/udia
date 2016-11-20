@@ -1,24 +1,30 @@
-import { NgModule } from '@angular/core';
-import { HttpModule } from '@angular/http';
-import { FormsModule, FormBuilder } from '@angular/forms';
-import { BrowserModule  } from '@angular/platform-browser';
-import { TodoCmp }   from './todo/components/todo-cmp';
-import { TodoService }   from './todo/services/todo-service';
+import {NgModule} from '@angular/core';
+import {BrowserModule} from '@angular/platform-browser';
+import {AUTH_PROVIDERS} from 'angular2-jwt';
+
+import {HttpModule} from '@angular/http';
+import {FormsModule, FormBuilder} from '@angular/forms';
+
+import {AppComponent} from './app/components/app.component';
+import {HomeComponent} from './home/components/home.component';
+import {routing, appRoutingProviders} from './app.routes';
 
 @NgModule({
-    imports: [
-      BrowserModule,
-      FormsModule,
-      HttpModule,
-    ],
-   declarations: [
-      TodoCmp,
-    ],
-    providers: [
-      TodoService,
-    ],
-    bootstrap: [
-      TodoCmp,
-    ],
+  declarations: [
+    AppComponent,
+    HomeComponent
+  ],
+  providers: [
+    appRoutingProviders,
+    AUTH_PROVIDERS
+  ],
+  imports: [
+    BrowserModule,
+    FormsModule,
+    HttpModule,
+    routing
+  ],
+  bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule {
+}

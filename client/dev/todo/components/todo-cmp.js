@@ -10,8 +10,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = require('@angular/core');
 var todo_service_1 = require('../services/todo-service');
-var TodoCmp = (function () {
-    function TodoCmp(_todoService) {
+var TodoComponent = (function () {
+    function TodoComponent(_todoService) {
         this._todoService = _todoService;
         this.title = "ng2do";
         this.todos = [];
@@ -19,10 +19,10 @@ var TodoCmp = (function () {
             "todoMessage": ""
         };
     }
-    TodoCmp.prototype.ngOnInit = function () {
+    TodoComponent.prototype.ngOnInit = function () {
         this._getAll();
     };
-    TodoCmp.prototype._getAll = function () {
+    TodoComponent.prototype._getAll = function () {
         var _this = this;
         this._todoService
             .getAll()
@@ -30,7 +30,7 @@ var TodoCmp = (function () {
             _this.todos = todos;
         });
     };
-    TodoCmp.prototype.add = function (message) {
+    TodoComponent.prototype.add = function (message) {
         var _this = this;
         this._todoService
             .add(message)
@@ -39,7 +39,7 @@ var TodoCmp = (function () {
             _this.todoForm.todoMessage = "";
         });
     };
-    TodoCmp.prototype.remove = function (id) {
+    TodoComponent.prototype.remove = function (id) {
         var _this = this;
         this._todoService
             .remove(id)
@@ -50,14 +50,14 @@ var TodoCmp = (function () {
             });
         });
     };
-    TodoCmp = __decorate([
+    TodoComponent = __decorate([
         core_1.Component({
             selector: 'todo-cmp',
             templateUrl: 'todo/templates/todo.html',
             styleUrls: ['todo/styles/todo.css']
         }), 
         __metadata('design:paramtypes', [todo_service_1.TodoService])
-    ], TodoCmp);
-    return TodoCmp;
+    ], TodoComponent);
+    return TodoComponent;
 }());
-exports.TodoCmp = TodoCmp;
+exports.TodoComponent = TodoComponent;
