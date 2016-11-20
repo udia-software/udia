@@ -1,0 +1,12 @@
+{
+  "generator-ng-fullstack": {
+    "username": "udia-software",
+    "appName": "udia",
+    "stack": "fullstack",
+    "server": "node",
+    "client": "ng2",
+    "transpilerServer": "typescript",
+    "secure": true,
+    "differentStaticServer": false
+  }
+}
