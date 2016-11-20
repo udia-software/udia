@@ -108,6 +108,7 @@ app.get('*', async (req, res, next) => {
     const route = await UniversalRouter.resolve(routes, {
       path: req.path,
       query: req.query,
+      user: req.user
     });
 
     if (route.redirect) {

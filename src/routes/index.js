@@ -31,6 +31,7 @@ export default {
 
     // Wildcard routes, e.g. { path: '*', ... } (must go last)
     require('./content').default,
+    require('./me').default,
     require('./notFound').default,
   ],
 

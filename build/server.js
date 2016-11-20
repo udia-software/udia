@@ -166,7 +166,7 @@ module.exports =
   
   var _routes2 = _interopRequireDefault(_routes);
   
-  var _assets = __webpack_require__(112);
+  var _assets = __webpack_require__(113);
   
   var _assets2 = _interopRequireDefault(_assets);
   
@@ -263,7 +263,8 @@ module.exports =
                         _context.next = 4;
                         return _universalRouter2.default.resolve(_routes2.default, {
                           path: req.path,
-                          query: req.query
+                          query: req.query,
+                          user: req.user
                         });
   
                       case 4:
@@ -286,7 +287,7 @@ module.exports =
                           _App2.default,
                           { context: context, __source: {
                               fileName: _jsxFileName,
-                              lineNumber: 119
+                              lineNumber: 120
                             },
                             __self: undefined
                           },
@@ -298,7 +299,7 @@ module.exports =
                         html = _server2.default.renderToStaticMarkup(_react2.default.createElement(_Html2.default, (0, _extends3.default)({}, data, {
                           __source: {
                             fileName: _jsxFileName,
-                            lineNumber: 123
+                            lineNumber: 124
                           },
                           __self: undefined
                         })));
@@ -366,13 +367,13 @@ module.exports =
         style: _ErrorPage3.default._getCss() // eslint-disable-line no-underscore-dangle
         , __source: {
           fileName: _jsxFileName,
-          lineNumber: 142
+          lineNumber: 143
         },
         __self: undefined
       },
       _server2.default.renderToString(_react2.default.createElement(_ErrorPage.ErrorPageWithoutStyle, { error: err, __source: {
           fileName: _jsxFileName,
-          lineNumber: 147
+          lineNumber: 148
         },
         __self: undefined
       }))
@@ -881,7 +882,7 @@ module.exports =
   
   var auth = exports.auth = {
   
-    jwt: { secret: process.env.JWT_SECRET || 'React Starter Kit' },
+    jwt: { secret: process.env.JWT_SECRET || 'Udia' },
   
     // https://developers.facebook.com/
     facebook: {
@@ -2618,10 +2619,10 @@ module.exports =
     path: '/',
   
     // Keep in mind, routes are evaluated in order
-    children: [__webpack_require__(62).default, __webpack_require__(87).default, __webpack_require__(91).default, __webpack_require__(95).default, __webpack_require__(99).default,
+    children: [__webpack_require__(62).default, __webpack_require__(84).default, __webpack_require__(88).default, __webpack_require__(92).default, __webpack_require__(96).default,
   
     // Wildcard routes, e.g. { path: '*', ... } (must go last)
-    __webpack_require__(104).default, __webpack_require__(108).default],
+    __webpack_require__(101).default, __webpack_require__(105).default, __webpack_require__(109).default],
   
     action: function action(_ref) {
       var _this = this;
@@ -2757,7 +2758,7 @@ module.exports =
   
               case 9:
                 return _context.abrupt('return', {
-                  title: 'React Starter Kit',
+                  title: 'Udia',
                   component: _react2.default.createElement(
                     _Layout2.default,
                     {
@@ -3058,7 +3059,7 @@ module.exports =
   
   var _Header2 = _interopRequireDefault(_Header);
   
-  var _Footer = __webpack_require__(84);
+  var _Footer = __webpack_require__(81);
   
   var _Footer2 = _interopRequireDefault(_Footer);
   
@@ -3225,7 +3226,7 @@ module.exports =
   
   var _Navigation2 = _interopRequireDefault(_Navigation);
   
-  var _logo = __webpack_require__(113);
+  var _logo = __webpack_require__(80);
   
   var _logo2 = _interopRequireDefault(_logo);
   
@@ -3784,11 +3785,13 @@ module.exports =
   };
 
 /***/ },
-/* 80 */,
-/* 81 */,
-/* 82 */,
-/* 83 */,
-/* 84 */
+/* 80 */
+/***/ function(module, exports, __webpack_require__) {
+
+  module.exports = __webpack_require__.p + "components/Header/logo.png?2b0267af62bf798bf60178adc36b947a";
+
+/***/ },
+/* 81 */
 /***/ function(module, exports, __webpack_require__) {
 
   'use strict';
@@ -3841,7 +3844,7 @@ module.exports =
   
   var _withStyles2 = _interopRequireDefault(_withStyles);
   
-  var _Footer = __webpack_require__(85);
+  var _Footer = __webpack_require__(82);
   
   var _Footer2 = _interopRequireDefault(_Footer);
   
@@ -3938,11 +3941,11 @@ module.exports =
   exports.default = (0, _withStyles2.default)(_Footer2.default)(Footer);
 
 /***/ },
-/* 85 */
+/* 82 */
 /***/ function(module, exports, __webpack_require__) {
 
   
-      var content = __webpack_require__(86);
+      var content = __webpack_require__(83);
       var insertCss = __webpack_require__(32);
   
       if (typeof content === 'string') {
@@ -3973,7 +3976,7 @@ module.exports =
     
 
 /***/ },
-/* 86 */
+/* 83 */
 /***/ function(module, exports, __webpack_require__) {
 
   exports = module.exports = __webpack_require__(31)();
@@ -3994,7 +3997,7 @@ module.exports =
   };
 
 /***/ },
-/* 87 */
+/* 84 */
 /***/ function(module, exports, __webpack_require__) {
 
   'use strict';
@@ -4026,7 +4029,7 @@ module.exports =
   
   var _Layout2 = _interopRequireDefault(_Layout);
   
-  var _Contact = __webpack_require__(88);
+  var _Contact = __webpack_require__(85);
   
   var _Contact2 = _interopRequireDefault(_Contact);
   
@@ -4062,7 +4065,7 @@ module.exports =
   };
 
 /***/ },
-/* 88 */
+/* 85 */
 /***/ function(module, exports, __webpack_require__) {
 
   'use strict';
@@ -4115,7 +4118,7 @@ module.exports =
   
   var _withStyles2 = _interopRequireDefault(_withStyles);
   
-  var _Contact = __webpack_require__(89);
+  var _Contact = __webpack_require__(86);
   
   var _Contact2 = _interopRequireDefault(_Contact);
   
@@ -4183,11 +4186,11 @@ module.exports =
   exports.default = (0, _withStyles2.default)(_Contact2.default)(Contact);
 
 /***/ },
-/* 89 */
+/* 86 */
 /***/ function(module, exports, __webpack_require__) {
 
   
-      var content = __webpack_require__(90);
+      var content = __webpack_require__(87);
       var insertCss = __webpack_require__(32);
   
       if (typeof content === 'string') {
@@ -4218,7 +4221,7 @@ module.exports =
     
 
 /***/ },
-/* 90 */
+/* 87 */
 /***/ function(module, exports, __webpack_require__) {
 
   exports = module.exports = __webpack_require__(31)();
@@ -4235,7 +4238,7 @@ module.exports =
   };
 
 /***/ },
-/* 91 */
+/* 88 */
 /***/ function(module, exports, __webpack_require__) {
 
   'use strict';
@@ -4267,7 +4270,7 @@ module.exports =
   
   var _Layout2 = _interopRequireDefault(_Layout);
   
-  var _Login = __webpack_require__(92);
+  var _Login = __webpack_require__(89);
   
   var _Login2 = _interopRequireDefault(_Login);
   
@@ -4303,7 +4306,7 @@ module.exports =
   };
 
 /***/ },
-/* 92 */
+/* 89 */
 /***/ function(module, exports, __webpack_require__) {
 
   'use strict';
@@ -4356,7 +4359,7 @@ module.exports =
   
   var _withStyles2 = _interopRequireDefault(_withStyles);
   
-  var _Login = __webpack_require__(93);
+  var _Login = __webpack_require__(90);
   
   var _Login2 = _interopRequireDefault(_Login);
   
@@ -4373,11 +4376,12 @@ module.exports =
     (0, _createClass3.default)(Login, [{
       key: 'render',
       value: function render() {
+        console.log();
         return _react2.default.createElement(
           'div',
           { className: _Login2.default.root, __source: {
               fileName: _jsxFileName,
-              lineNumber: 28
+              lineNumber: 29
             },
             __self: this
           },
@@ -4385,7 +4389,7 @@ module.exports =
             'div',
             { className: _Login2.default.container, __source: {
                 fileName: _jsxFileName,
-                lineNumber: 29
+                lineNumber: 30
               },
               __self: this
             },
@@ -4394,7 +4398,7 @@ module.exports =
               {
                 __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 30
+                  lineNumber: 31
                 },
                 __self: this
               },
@@ -4404,7 +4408,7 @@ module.exports =
               'p',
               { className: _Login2.default.lead, __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 31
+                  lineNumber: 32
                 },
                 __self: this
               },
@@ -4414,7 +4418,7 @@ module.exports =
               'div',
               { className: _Login2.default.formGroup, __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 32
+                  lineNumber: 33
                 },
                 __self: this
               },
@@ -4422,7 +4426,7 @@ module.exports =
                 'a',
                 { className: _Login2.default.facebook, href: '/login/facebook', __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 33
+                    lineNumber: 34
                   },
                   __self: this
                 },
@@ -4436,7 +4440,7 @@ module.exports =
                     xmlns: 'http://www.w3.org/2000/svg',
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 34
+                      lineNumber: 35
                     },
                     __self: this
                   },
@@ -4444,7 +4448,7 @@ module.exports =
                     d: 'M22 16l1-5h-5V7c0-1.544.784-2 3-2h2V0h-4c-4.072 0-7 2.435-7 7v4H7v5h5v14h6V16h4z',
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 41
+                      lineNumber: 42
                     },
                     __self: this
                   })
@@ -4454,7 +4458,7 @@ module.exports =
                   {
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 45
+                      lineNumber: 46
                     },
                     __self: this
                   },
@@ -4466,7 +4470,7 @@ module.exports =
               'div',
               { className: _Login2.default.formGroup, __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 48
+                  lineNumber: 49
                 },
                 __self: this
               },
@@ -4474,7 +4478,7 @@ module.exports =
                 'a',
                 { className: _Login2.default.google, href: '/login/google', __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 49
+                    lineNumber: 50
                   },
                   __self: this
                 },
@@ -4488,7 +4492,7 @@ module.exports =
                     xmlns: 'http://www.w3.org/2000/svg',
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 50
+                      lineNumber: 51
                     },
                     __self: this
                   },
@@ -4496,7 +4500,7 @@ module.exports =
                     d: 'M30 13h-4V9h-2v4h-4v2h4v4h2v-4h4m-15 2s-2-1.15-2-2c0 0-.5-1.828 1-3 ' + '1.537-1.2 3-3.035 3-5 0-2.336-1.046-5-3-6h3l2.387-1H10C5.835 0 2 3.345 2 7c0 ' + '3.735 2.85 6.56 7.086 6.56.295 0 .58-.006.86-.025-.273.526-.47 1.12-.47 1.735 ' + '0 1.037.817 2.042 1.523 2.73H9c-5.16 0-9 2.593-9 6 0 3.355 4.87 6 10.03 6 5.882 ' + '0 9.97-3 9.97-7 0-2.69-2.545-4.264-5-6zm-4-4c-2.395 0-5.587-2.857-6-6C4.587 ' + '3.856 6.607.93 9 1c2.394.07 4.603 2.908 5.017 6.052C14.43 10.195 13 13 11 ' + '13zm-1 15c-3.566 0-7-1.29-7-4 0-2.658 3.434-5.038 7-5 .832.01 2 0 2 0 1 0 ' + '2.88.88 4 2 1 1 1 2.674 1 3 0 3-1.986 4-7 4z',
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 57
+                      lineNumber: 58
                     },
                     __self: this
                   })
@@ -4506,7 +4510,7 @@ module.exports =
                   {
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 68
+                      lineNumber: 69
                     },
                     __self: this
                   },
@@ -4518,7 +4522,7 @@ module.exports =
               'div',
               { className: _Login2.default.formGroup, __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 71
+                  lineNumber: 72
                 },
                 __self: this
               },
@@ -4526,7 +4530,7 @@ module.exports =
                 'a',
                 { className: _Login2.default.twitter, href: '/login/twitter', __source: {
                     fileName: _jsxFileName,
-                    lineNumber: 72
+                    lineNumber: 73
                   },
                   __self: this
                 },
@@ -4540,7 +4544,7 @@ module.exports =
                     xmlns: 'http://www.w3.org/2000/svg',
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 73
+                      lineNumber: 74
                     },
                     __self: this
                   },
@@ -4548,7 +4552,7 @@ module.exports =
                     d: 'M30 6.708c-1.105.49-2.756 1.143-4 1.292 1.273-.762 2.54-2.56 ' + '3-4-.97.577-2.087 1.355-3.227 1.773L25 5c-1.12-1.197-2.23-2-4-2-3.398 0-6 ' + '2.602-6 6 0 .4.047.7.11.956L15 10C9 10 5.034 8.724 2 5c-.53.908-1 1.872-1 ' + '3 0 2.136 1.348 3.894 3 5-1.01-.033-2.17-.542-3-1 0 2.98 4.186 6.432 7 7-1 ' + '1-4.623.074-5 0 .784 2.447 3.31 3.95 6 4-2.105 1.648-4.647 2.51-7.53 2.51-.5 ' + '0-.988-.03-1.47-.084C2.723 27.17 6.523 28 10 28c11.322 0 17-8.867 17-17 ' + '0-.268.008-.736 0-1 1.2-.868 2.172-2.058 3-3.292z',
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 80
+                      lineNumber: 81
                     },
                     __self: this
                   })
@@ -4558,7 +4562,7 @@ module.exports =
                   {
                     __source: {
                       fileName: _jsxFileName,
-                      lineNumber: 90
+                      lineNumber: 91
                     },
                     __self: this
                   },
@@ -4570,100 +4574,11 @@ module.exports =
               'strong',
               { className: _Login2.default.lineThrough, __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 93
-                },
-                __self: this
-              },
-              'OR'
-            ),
-            _react2.default.createElement(
-              'form',
-              { method: 'post', __source: {
-                  fileName: _jsxFileName,
                   lineNumber: 94
                 },
                 __self: this
               },
-              _react2.default.createElement(
-                'div',
-                { className: _Login2.default.formGroup, __source: {
-                    fileName: _jsxFileName,
-                    lineNumber: 95
-                  },
-                  __self: this
-                },
-                _react2.default.createElement(
-                  'label',
-                  { className: _Login2.default.label, htmlFor: 'usernameOrEmail', __source: {
-                      fileName: _jsxFileName,
-                      lineNumber: 96
-                    },
-                    __self: this
-                  },
-                  'Username or email address:'
-                ),
-                _react2.default.createElement('input', {
-                  className: _Login2.default.input,
-                  id: 'usernameOrEmail',
-                  type: 'text',
-                  name: 'usernameOrEmail',
-                  autoFocus: true,
-                  __source: {
-                    fileName: _jsxFileName,
-                    lineNumber: 99
-                  },
-                  __self: this
-                })
-              ),
-              _react2.default.createElement(
-                'div',
-                { className: _Login2.default.formGroup, __source: {
-                    fileName: _jsxFileName,
-                    lineNumber: 107
-                  },
-                  __self: this
-                },
-                _react2.default.createElement(
-                  'label',
-                  { className: _Login2.default.label, htmlFor: 'password', __source: {
-                      fileName: _jsxFileName,
-                      lineNumber: 108
-                    },
-                    __self: this
-                  },
-                  'Password:'
-                ),
-                _react2.default.createElement('input', {
-                  className: _Login2.default.input,
-                  id: 'password',
-                  type: 'password',
-                  name: 'password',
-                  __source: {
-                    fileName: _jsxFileName,
-                    lineNumber: 111
-                  },
-                  __self: this
-                })
-              ),
-              _react2.default.createElement(
-                'div',
-                { className: _Login2.default.formGroup, __source: {
-                    fileName: _jsxFileName,
-                    lineNumber: 118
-                  },
-                  __self: this
-                },
-                _react2.default.createElement(
-                  'button',
-                  { className: _Login2.default.button, type: 'submit', __source: {
-                      fileName: _jsxFileName,
-                      lineNumber: 119
-                    },
-                    __self: this
-                  },
-                  'Log in'
-                )
-              )
+              'Thank you.'
             )
           )
         );
@@ -4678,11 +4593,11 @@ module.exports =
   exports.default = (0, _withStyles2.default)(_Login2.default)(Login);
 
 /***/ },
-/* 93 */
+/* 90 */
 /***/ function(module, exports, __webpack_require__) {
 
   
-      var content = __webpack_require__(94);
+      var content = __webpack_require__(91);
       var insertCss = __webpack_require__(32);
   
       if (typeof content === 'string') {
@@ -4713,7 +4628,7 @@ module.exports =
     
 
 /***/ },
-/* 94 */
+/* 91 */
 /***/ function(module, exports, __webpack_require__) {
 
   exports = module.exports = __webpack_require__(31)();
@@ -4740,7 +4655,7 @@ module.exports =
   };
 
 /***/ },
-/* 95 */
+/* 92 */
 /***/ function(module, exports, __webpack_require__) {
 
   'use strict';
@@ -4772,7 +4687,7 @@ module.exports =
   
   var _Layout2 = _interopRequireDefault(_Layout);
   
-  var _Register = __webpack_require__(96);
+  var _Register = __webpack_require__(93);
   
   var _Register2 = _interopRequireDefault(_Register);
   
@@ -4808,7 +4723,7 @@ module.exports =
   };
 
 /***/ },
-/* 96 */
+/* 93 */
 /***/ function(module, exports, __webpack_require__) {
 
   'use strict';
@@ -4861,7 +4776,7 @@ module.exports =
   
   var _withStyles2 = _interopRequireDefault(_withStyles);
   
-  var _Register = __webpack_require__(97);
+  var _Register = __webpack_require__(94);
   
   var _Register2 = _interopRequireDefault(_Register);
   
@@ -4929,11 +4844,11 @@ module.exports =
   exports.default = (0, _withStyles2.default)(_Register2.default)(Register);
 
 /***/ },
-/* 97 */
+/* 94 */
 /***/ function(module, exports, __webpack_require__) {
 
   
-      var content = __webpack_require__(98);
+      var content = __webpack_require__(95);
       var insertCss = __webpack_require__(32);
   
       if (typeof content === 'string') {
@@ -4964,7 +4879,7 @@ module.exports =
     
 
 /***/ },
-/* 98 */
+/* 95 */
 /***/ function(module, exports, __webpack_require__) {
 
   exports = module.exports = __webpack_require__(31)();
@@ -4981,7 +4896,7 @@ module.exports =
   };
 
 /***/ },
-/* 99 */
+/* 96 */
 /***/ function(module, exports, __webpack_require__) {
 
   'use strict';
@@ -4994,7 +4909,7 @@ module.exports =
   
   var _regenerator2 = _interopRequireDefault(_regenerator);
   
-  var _promise = __webpack_require__(100);
+  var _promise = __webpack_require__(97);
   
   var _promise2 = _interopRequireDefault(_promise);
   
@@ -5055,7 +4970,7 @@ module.exports =
                 _context.next = 4;
                 return new _promise2.default(function (resolve) {
                   !/* require.ensure */(function (require) {
-                    return resolve(__webpack_require__(101).default);
+                    return resolve(__webpack_require__(98).default);
                   }(__webpack_require__));
                 });
   
@@ -5093,13 +5008,13 @@ module.exports =
   };
 
 /***/ },
-/* 100 */
+/* 97 */
 /***/ function(module, exports) {
 
   module.exports = require("babel-runtime/core-js/promise");
 
 /***/ },
-/* 101 */
+/* 98 */
 /***/ function(module, exports, __webpack_require__) {
 
   'use strict';
@@ -5152,7 +5067,7 @@ module.exports =
   
   var _withStyles2 = _interopRequireDefault(_withStyles);
   
-  var _Admin = __webpack_require__(102);
+  var _Admin = __webpack_require__(99);
   
   var _Admin2 = _interopRequireDefault(_Admin);
   
@@ -5220,11 +5135,11 @@ module.exports =
   exports.default = (0, _withStyles2.default)(_Admin2.default)(Admin);
 
 /***/ },
-/* 102 */
+/* 99 */
 /***/ function(module, exports, __webpack_require__) {
 
   
-      var content = __webpack_require__(103);
+      var content = __webpack_require__(100);
       var insertCss = __webpack_require__(32);
   
       if (typeof content === 'string') {
@@ -5255,7 +5170,7 @@ module.exports =
     
 
 /***/ },
-/* 103 */
+/* 100 */
 /***/ function(module, exports, __webpack_require__) {
 
   exports = module.exports = __webpack_require__(31)();
@@ -5272,7 +5187,7 @@ module.exports =
   };
 
 /***/ },
-/* 104 */
+/* 101 */
 /***/ function(module, exports, __webpack_require__) {
 
   'use strict';
@@ -5325,7 +5240,7 @@ module.exports =
   
   var _Layout2 = _interopRequireDefault(_Layout);
   
-  var _Content = __webpack_require__(105);
+  var _Content = __webpack_require__(102);
   
   var _Content2 = _interopRequireDefault(_Content);
   
@@ -5417,7 +5332,7 @@ module.exports =
   };
 
 /***/ },
-/* 105 */
+/* 102 */
 /***/ function(module, exports, __webpack_require__) {
 
   'use strict';
@@ -5470,7 +5385,7 @@ module.exports =
   
   var _withStyles2 = _interopRequireDefault(_withStyles);
   
-  var _Content = __webpack_require__(106);
+  var _Content = __webpack_require__(103);
   
   var _Content2 = _interopRequireDefault(_Content);
   
@@ -5540,11 +5455,11 @@ module.exports =
   exports.default = (0, _withStyles2.default)(_Content2.default)(Content);
 
 /***/ },
-/* 106 */
+/* 103 */
 /***/ function(module, exports, __webpack_require__) {
 
   
-      var content = __webpack_require__(107);
+      var content = __webpack_require__(104);
       var insertCss = __webpack_require__(32);
   
       if (typeof content === 'string') {
@@ -5575,7 +5490,7 @@ module.exports =
     
 
 /***/ },
-/* 107 */
+/* 104 */
 /***/ function(module, exports, __webpack_require__) {
 
   exports = module.exports = __webpack_require__(31)();
@@ -5592,7 +5507,282 @@ module.exports =
   };
 
 /***/ },
+/* 105 */
+/***/ function(module, exports, __webpack_require__) {
+
+  'use strict';
+  
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  
+  var _regenerator = __webpack_require__(2);
+  
+  var _regenerator2 = _interopRequireDefault(_regenerator);
+  
+  var _asyncToGenerator2 = __webpack_require__(6);
+  
+  var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
+  
+  var _jsxFileName = '/Users/udia/sandbox/src/github.com/udia-software/udia/src/routes/me/index.js'; /**
+                                                                                                      * Copyright 2016 Udia Software Incorporated
+                                                                                                      *
+                                                                                                      * Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                      * you may not use this file except in compliance with the License.
+                                                                                                      * You may obtain a copy of the License at
+                                                                                                      *
+                                                                                                      *   http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                      *
+                                                                                                      * Unless required by applicable law or agreed to in writing, software
+                                                                                                      * distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                      * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                      * See the License for the specific language governing permissions and
+                                                                                                      * limitations under the License.
+                                                                                                      */
+  
+  var _react = __webpack_require__(15);
+  
+  var _react2 = _interopRequireDefault(_react);
+  
+  var _Layout = __webpack_require__(66);
+  
+  var _Layout2 = _interopRequireDefault(_Layout);
+  
+  var _Me = __webpack_require__(106);
+  
+  var _Me2 = _interopRequireDefault(_Me);
+  
+  function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+  
+  exports.default = {
+  
+    path: '*',
+  
+    action: function action(req) {
+      var _this = this;
+  
+      return (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee() {
+        var user;
+        return _regenerator2.default.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                user = req.user;
+                return _context.abrupt('return', {
+                  title: 'I',
+                  component: _react2.default.createElement(
+                    _Layout2.default,
+                    {
+                      __source: {
+                        fileName: _jsxFileName,
+                        lineNumber: 29
+                      },
+                      __self: _this
+                    },
+                    _react2.default.createElement(_Me2.default, { me: user, __source: {
+                        fileName: _jsxFileName,
+                        lineNumber: 29
+                      },
+                      __self: _this
+                    })
+                  )
+                });
+  
+              case 2:
+              case 'end':
+                return _context.stop();
+            }
+          }
+        }, _callee, _this);
+      }))();
+    }
+  };
+
+/***/ },
+/* 106 */
+/***/ function(module, exports, __webpack_require__) {
+
+  'use strict';
+  
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  
+  var _getPrototypeOf = __webpack_require__(20);
+  
+  var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
+  
+  var _classCallCheck2 = __webpack_require__(21);
+  
+  var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+  
+  var _createClass2 = __webpack_require__(22);
+  
+  var _createClass3 = _interopRequireDefault(_createClass2);
+  
+  var _possibleConstructorReturn2 = __webpack_require__(23);
+  
+  var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+  
+  var _inherits2 = __webpack_require__(24);
+  
+  var _inherits3 = _interopRequireDefault(_inherits2);
+  
+  var _jsxFileName = '/Users/udia/sandbox/src/github.com/udia-software/udia/src/routes/me/Me.js'; /**
+                                                                                                   * Copyright 2016 Udia Software Incorporated
+                                                                                                   *
+                                                                                                   * Licensed under the Apache License, Version 2.0 (the "License");
+                                                                                                   * you may not use this file except in compliance with the License.
+                                                                                                   * You may obtain a copy of the License at
+                                                                                                   *
+                                                                                                   *   http://www.apache.org/licenses/LICENSE-2.0
+                                                                                                   *
+                                                                                                   * Unless required by applicable law or agreed to in writing, software
+                                                                                                   * distributed under the License is distributed on an "AS IS" BASIS,
+                                                                                                   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                                                                                                   * See the License for the specific language governing permissions and
+                                                                                                   * limitations under the License.
+                                                                                                   */
+  
+  var _react = __webpack_require__(15);
+  
+  var _react2 = _interopRequireDefault(_react);
+  
+  var _withStyles = __webpack_require__(28);
+  
+  var _withStyles2 = _interopRequireDefault(_withStyles);
+  
+  var _Me = __webpack_require__(107);
+  
+  var _Me2 = _interopRequireDefault(_Me);
+  
+  function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+  
+  var Me = function (_React$Component) {
+    (0, _inherits3.default)(Me, _React$Component);
+  
+    function Me() {
+      (0, _classCallCheck3.default)(this, Me);
+      return (0, _possibleConstructorReturn3.default)(this, (Me.__proto__ || (0, _getPrototypeOf2.default)(Me)).apply(this, arguments));
+    }
+  
+    (0, _createClass3.default)(Me, [{
+      key: 'render',
+      value: function render() {
+        return _react2.default.createElement(
+          'div',
+          { className: _Me2.default.root, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 31
+            },
+            __self: this
+          },
+          _react2.default.createElement(
+            'div',
+            { className: _Me2.default.container, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 32
+              },
+              __self: this
+            },
+            _react2.default.createElement(
+              'h1',
+              { className: _Me2.default.title, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 33
+                },
+                __self: this
+              },
+              'Me'
+            ),
+            _react2.default.createElement(
+              'h3',
+              {
+                __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 34
+                },
+                __self: this
+              },
+              this.props.me.id
+            ),
+            _react2.default.createElement(
+              'h3',
+              {
+                __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 35
+                },
+                __self: this
+              },
+              this.props.me.email
+            )
+          )
+        );
+      }
+    }]);
+    return Me;
+  }(_react2.default.Component);
+  
+  Me.propTypes = {
+    me: _react.PropTypes.objectOf(_react.PropTypes.shape({
+      id: _react.PropTypes.string.isRequired,
+      email: _react.PropTypes.string.isRequired
+    })).isRequired
+  };
+  exports.default = (0, _withStyles2.default)(_Me2.default)(Me);
+
+/***/ },
+/* 107 */
+/***/ function(module, exports, __webpack_require__) {
+
+  
+      var content = __webpack_require__(108);
+      var insertCss = __webpack_require__(32);
+  
+      if (typeof content === 'string') {
+        content = [[module.id, content, '']];
+      }
+  
+      module.exports = content.locals || {};
+      module.exports._getContent = function() { return content; };
+      module.exports._getCss = function() { return content.toString(); };
+      module.exports._insertCss = function(options) { return insertCss(content, options) };
+      
+      // Hot Module Replacement
+      // https://webpack.github.io/docs/hot-module-replacement
+      // Only activated in browser context
+      if (false) {
+        var removeCss = function() {};
+        module.hot.accept("!!./../../../node_modules/css-loader/index.js?{\"importLoaders\":1,\"sourceMap\":true,\"modules\":true,\"localIdentName\":\"[name]-[local]-[hash:base64:5]\",\"minimize\":false}!./../../../node_modules/postcss-loader/index.js?pack=default!./Me.css", function() {
+          content = require("!!./../../../node_modules/css-loader/index.js?{\"importLoaders\":1,\"sourceMap\":true,\"modules\":true,\"localIdentName\":\"[name]-[local]-[hash:base64:5]\",\"minimize\":false}!./../../../node_modules/postcss-loader/index.js?pack=default!./Me.css");
+  
+          if (typeof content === 'string') {
+            content = [[module.id, content, '']];
+          }
+  
+          removeCss = insertCss(content, { replace: true });
+        });
+        module.hot.dispose(function() { removeCss(); });
+      }
+    
+
+/***/ },
 /* 108 */
+/***/ function(module, exports, __webpack_require__) {
+
+  exports = module.exports = __webpack_require__(31)();
+  // imports
+  
+  
+  // module
+  exports.push([module.id, "", "", {"version":3,"sources":[],"names":[],"mappings":"","file":"Me.css","sourceRoot":"webpack://"}]);
+  
+  // exports
+
+
+/***/ },
+/* 109 */
 /***/ function(module, exports, __webpack_require__) {
 
   'use strict';
@@ -5624,7 +5814,7 @@ module.exports =
   
   var _Layout2 = _interopRequireDefault(_Layout);
   
-  var _NotFound = __webpack_require__(109);
+  var _NotFound = __webpack_require__(110);
   
   var _NotFound2 = _interopRequireDefault(_NotFound);
   
@@ -5661,7 +5851,7 @@ module.exports =
   };
 
 /***/ },
-/* 109 */
+/* 110 */
 /***/ function(module, exports, __webpack_require__) {
 
   'use strict';
@@ -5714,7 +5904,7 @@ module.exports =
   
   var _withStyles2 = _interopRequireDefault(_withStyles);
   
-  var _NotFound = __webpack_require__(110);
+  var _NotFound = __webpack_require__(111);
   
   var _NotFound2 = _interopRequireDefault(_NotFound);
   
@@ -5782,11 +5972,11 @@ module.exports =
   exports.default = (0, _withStyles2.default)(_NotFound2.default)(NotFound);
 
 /***/ },
-/* 110 */
+/* 111 */
 /***/ function(module, exports, __webpack_require__) {
 
   
-      var content = __webpack_require__(111);
+      var content = __webpack_require__(112);
       var insertCss = __webpack_require__(32);
   
       if (typeof content === 'string') {
@@ -5817,7 +6007,7 @@ module.exports =
     
 
 /***/ },
-/* 111 */
+/* 112 */
 /***/ function(module, exports, __webpack_require__) {
 
   exports = module.exports = __webpack_require__(31)();
@@ -5834,16 +6024,10 @@ module.exports =
   };
 
 /***/ },
-/* 112 */
+/* 113 */
 /***/ function(module, exports) {
 
   module.exports = require("./assets");
-
-/***/ },
-/* 113 */
-/***/ function(module, exports, __webpack_require__) {
-
-  module.exports = __webpack_require__.p + "components/Header/logo.png?2b0267af62bf798bf60178adc36b947a";
 
 /***/ }
 /******/ ]);

@@ -48,7 +48,8 @@ passport.use(new FacebookStrategy({
         // There is already a Facebook account that belongs to you.
         // Sign in with that account or delete it, then link it with your current account.
         done();
-      } else {
+      }
+      else {
         const user = await User.create({
           id: req.user.id,
           email: profile._json.email,
@@ -75,7 +76,8 @@ passport.use(new FacebookStrategy({
           email: user.email,
         });
       }
-    } else {
+    }
+    else {
       const users = await User.findAll({
         attributes: ['id', 'email'],
         where: { '$logins.name$': loginName, '$logins.key$': profile.id },
