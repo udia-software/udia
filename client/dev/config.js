@@ -22,7 +22,10 @@ System.config({
     // other libraries
     'rxjs': 'npm:rxjs',
     'angular2-in-memory-web-api': 'npm:angular2-in-memory-web-api',
-    'angular2-jwt': 'npm:angular2-jwt/angular2-jwt.js'
+    'angular2-jwt': 'npm:angular2-jwt/angular2-jwt.js',
+    'auth0-js': 'npm:auth0-js',
+    'auth0-lock': 'npm:auth0-lock',
+    'ng-semantic': 'npm:ng-semantic/ng-semantic.js'
   },
   // packages tells the System loader how to load when no filename and/or no extension
   packages: {

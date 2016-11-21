@@ -3,10 +3,7 @@ import {Auth} from '../../auth/services/auth-service';
 
 @Component({
   selector: 'home',
-  template: `
-    <h4 *ngIf="auth.authenticated()">You are logged in</h4>
-    <h4 *ngIf="!auth.authenticated()">You are not logged in.</h4>
-  `
+  templateUrl: 'home/templates/home.html'
 })
 
 export class HomeComponent {

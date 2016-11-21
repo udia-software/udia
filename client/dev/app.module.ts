@@ -1,4 +1,5 @@
 import {NgModule} from '@angular/core';
+import {NgSemanticModule} from 'ng-semantic';
 import {BrowserModule} from '@angular/platform-browser';
 import {AUTH_PROVIDERS} from 'angular2-jwt';
 
@@ -22,6 +23,7 @@ import {routing, appRoutingProviders} from './app.routes';
     BrowserModule,
     FormsModule,
     HttpModule,
+    NgSemanticModule,
     routing
   ],
   bootstrap: [AppComponent],

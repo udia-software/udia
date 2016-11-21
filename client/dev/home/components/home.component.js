@@ -17,7 +17,7 @@ var HomeComponent = (function () {
     HomeComponent = __decorate([
         core_1.Component({
             selector: 'home',
-            template: "\n    <h4 *ngIf=\"auth.authenticated()\">You are logged in</h4>\n    <h4 *ngIf=\"!auth.authenticated()\">You are not logged in.</h4>\n  "
+            templateUrl: 'home/templates/home.html'
         }), 
         __metadata('design:paramtypes', [auth_service_1.Auth])
     ], HomeComponent);

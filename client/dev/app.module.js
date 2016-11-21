@@ -9,6 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = require('@angular/core');
+var ng_semantic_1 = require('ng-semantic');
 var platform_browser_1 = require('@angular/platform-browser');
 var angular2_jwt_1 = require('angular2-jwt');
 var http_1 = require('@angular/http');
@@ -33,6 +34,7 @@ var AppModule = (function () {
                 platform_browser_1.BrowserModule,
                 forms_1.FormsModule,
                 http_1.HttpModule,
+                ng_semantic_1.NgSemanticModule,
                 app_routes_1.routing
             ],
             bootstrap: [app_component_1.AppComponent],

@@ -1,12 +1,11 @@
-<nav class="navbar navbar-default">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="#">Udia</a>
-      <button class="btn btn-primary btn-margin" (click)="auth.login()" *ngIf="!auth.authenticated()">Log In</button>
-      <button class="btn btn-primary btn-margin" (click)="auth.logout()" *ngIf="auth.authenticated()">Log Out</button>
-    </div>
-  </div>
-</nav>
+<sm-menu title="Udia" class="inverted">
+  <sm-menu class="menu right secondary">
+    <sm-dropdown class="pointing link" title="Menu" [options]="{on: 'hover'}">
+      <sm-item (click)="auth.login()" *ngIf="!auth.authenticated()">Log In</sm-item>
+      <sm-item (click)="auth.logout()" *ngIf="auth.authenticated()">Log Out</sm-item>
+    </sm-dropdown>
+  </sm-menu>
+</sm-menu>
 
 <main class="container">
   <router-outlet></router-outlet>
