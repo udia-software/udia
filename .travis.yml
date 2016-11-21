@@ -5,10 +5,9 @@ node_js:
   - "6.9.1"
 
 before_script:
-  - npm install -g bower gulp-cli mocha
+  - npm install -g typings bower gulp-cli mocha
 
 script:
-  - gulp coverage_frontend
   - npm test
 
 services: mongodb
