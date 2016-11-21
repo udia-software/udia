@@ -1,9 +1,9 @@
 # udia
-[![Build Status](https://travis-ci.org/udia-software/udia.svg?branch=master)](https://travis-ci.org/udia-software/udia)
+[![Build Status](https://secure.travis-ci.org/udia-software/udia.png?branch=master)](https://travis-ci.org/udia-software/udia)
+[![Coverage Status](https://coveralls.io/repos/udia-software/udia/badge.svg?branch=master)](https://coveralls.io/r/udia-software/udia/?branch=master)
 
 ## License
-Apache License, Version 2.0
-```
+```text
 Copyright 2016 Udia Software Incorporated
 
 Licensed under the Apache License, Version 2.0 (the "License");
