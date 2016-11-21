@@ -15,9 +15,14 @@ module.exports = function(config) {
 
       // Zone.js dependencies
       'node_modules/zone.js/dist/zone.js',
-      'node_modules/zone.js/dist/jasmine-patch.js',
+      'node_modules/zone.js/dist/proxy.js',
+      'node_modules/zone.js/dist/sync-test.js',
       'node_modules/zone.js/dist/async-test.js',
       'node_modules/zone.js/dist/fake-async-test.js',
+      'node_modules/zone.js/dist/jasmine-patch.js',
+      'node_modules/zone.js/dist/long-stack-trace-zone.js',
+      'node_modules/zone.js/dist/task-tracking.js',
+      'node_modules/zone.js/dist/wtf.js',
 
       {pattern: 'node_modules/rxjs/**/*.js', included: false, watched: false},
       {pattern: 'node_modules/rxjs/**/*.js.map', included: false, watched: false},
@@ -26,8 +31,8 @@ module.exports = function(config) {
 
       // paths loaded via module imports
       // Angular itself
-      {pattern: 'node_modules/@angular/**/*.js', included: false, watched: true},
-      {pattern: 'node_modules/@angular/**/*.js.map', included: false, watched: true},
+      {pattern: 'node_modules/@angular/**/*.js', included: true, watched: true},
+      {pattern: 'node_modules/@angular/**/*.js.map', included: true, watched: true},
 
       // paths loaded via module imports
       {pattern: 'client/dev/**/*.js', included: false, watched: true},

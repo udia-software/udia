@@ -4,6 +4,6 @@ interface AuthConfiguration {
 }
 
 export const myConfig: AuthConfiguration = {
-  clientID: process.env.AUTH0_CLIENT_ID || 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-  domain: process.env.AUTH0_DOMAIN || 'domain.auth0.com'
+  domain: 'udia.auth0.com',
+  clientID: 'PADI4F7zUUWU2GfhplEa5k1HkGlKxeaE'
 };
