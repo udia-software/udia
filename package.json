@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "main": "src/udia.js",
   "scripts": {
-    "postinstall": "tsc",
+    "postinstall": "typings install && tsc",
     "start": "node index",
     "watch": "gulp",
     "dev": "tsc && concurrently \"npm start\" \"gulp\"",
