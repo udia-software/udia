@@ -5,8 +5,20 @@ import * as logger from "morgan";
 import * as path from "path";
 import errorHandler = require("errorhandler");
 import methodOverride = require("method-override");
+import mongoose = require("mongoose");
 
+// routes
 import {IndexRoute} from "./routes/index";
+
+// interfaces
+import {IUser} from "./interfaces/user";
+
+// models
+import {IModel} from "./models/model";
+import {IUserModel} from "./models/user";
+
+// schemas
+import {userSchema} from "./schemas/user";
 
 /**
  * The server.
@@ -16,6 +28,7 @@ import {IndexRoute} from "./routes/index";
 export class Server {
 
     public app: express.Application;
+    private model: IModel;
 
     /**
      * Bootstrap the application.
@@ -35,6 +48,9 @@ export class Server {
      * @constructor
      */
     constructor() {
+        // instance defaults
+        this.model = Object();
+
         //create expressjs application
         this.app = express();
 
@@ -65,6 +81,8 @@ export class Server {
      * @method config
      */
     public config() {
+        const MONGODB_CONNECTION: string = "mongodb://localhost:27017/udia";
+
         //add static paths
         this.app.use(express.static(path.join(__dirname, "public")));
 
@@ -88,6 +106,14 @@ export class Server {
 
         //use override middlware
         this.app.use(methodOverride());
+
+        //use q promises
+        global.Promise = require("q").Promise;
+        mongoose.Promise = global.Promise;
+
+        let connection: mongoose.Connection = mongoose.createConnection(MONGODB_CONNECTION);
+
+        this.model.user = connection.model<IUserModel>("User", userSchema);
 
         //catch 404 and forward to error handler
         this.app.use(function (err: any, req: express.Request, res: express.Response, next: express.NextFunction) {

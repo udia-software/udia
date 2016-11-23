@@ -12,6 +12,11 @@ They are ideas.
 
 Anyways, here's a web app.
 
+## Requirements
+
+- NodeJS (v6.9.1)
+- MongoDB (v3.2)
+
 ## License
 
 ```text
