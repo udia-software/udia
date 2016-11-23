@@ -51,6 +51,9 @@ jspm_packages
 
 ### Typings ###
 ## Ignore downloaded typings
+.tscache
+.baseDir.ts
 typings
 
+dist
 .idea
