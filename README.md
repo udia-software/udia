@@ -1,5 +1,7 @@
 # Udia
 
+[![Build Status](https://travis-ci.org/udia-software/udia.svg?branch=master)](https://travis-ci.org/udia-software/udia)
+
 ## Philosophy
 
 I believe that software is not beautiful because the final engineering solution is perfect, but because the development
