@@ -11,3 +11,5 @@ install:
   - npm install
 before_script:
   - grunt
+after_script:
+  - npm run coveralls

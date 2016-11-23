@@ -4,10 +4,10 @@
   "description": "An attempt to capture my own time.",
   "main": "index.js",
   "scripts": {
-    "dev": "NODE_ENV=development nodemon ./bin/www",
-    "grunt": "grunt",
+    "dev": "NODE_ENV=development `npm bin`/nodemon ./bin/www",
+    "grunt": "`npm bin`/grunt",
     "start": "node ./bin/www",
-    "test": "mocha dist/test",
+    "test": "`npm bin`/mocha dist/test",
     "coverage": "`npm bin`/istanbul cover `npm bin`/_mocha dist/test/**/*",
     "coveralls": "`npm bin`/istanbul cover `npm bin`/_mocha --report lcovonly -- -R spec dist/test/**/* && cat ./coverage/lcov.info | `npm bin`/coveralls && rm -rf ./coverage"
   },
