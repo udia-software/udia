@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "main": "server/index.js",
   "dependencies": {
-    
+
     "angular": "~1.5.5",
     "bootstrap-sass": "~3.3.7",
     "bootstrap": "~3.3.7",
@@ -18,7 +18,7 @@
     "angular-socket-io": "~0.7.0",
     "angular-ui-router": "~0.3.1",
     "angular-validation-match": "^1.9.0",
-    
+
     "core-js": "^2.2.1",
     "express": "^4.13.3",
     "morgan": "~1.7.0",
@@ -52,9 +52,9 @@
     "sprint-js": "~0.1.0"
   },
   "devDependencies": {
-    
+
     "angular-mocks": "~1.5.5",
-    
+
     "autoprefixer": "^6.0.0",
     "babel-core": "^6.6.5",
     "babel-eslint": "^6.0.4",
@@ -93,7 +93,7 @@
     "nodemon": "^1.3.7",
     "run-sequence": "^1.1.0",
     "lazypipe": "^1.0.1",
-    
+
     "webpack": "^1.12.14",
     "webpack-dev-middleware": "^1.5.1",
     "webpack-stream": "^3.2.0",
@@ -119,7 +119,7 @@
 
 
     "karma-webpack": "^1.7.0",
-    
+
     "through2": "^2.0.1",
     "open": "~0.0.4",
     "istanbul": "1.1.0-alpha.1",
@@ -153,5 +153,5 @@
     "update-webdriver": "node node_modules/protractor/bin/webdriver-manager update",
     "start": "node server"
   },
-  "private": true
+  "private": false
 }
