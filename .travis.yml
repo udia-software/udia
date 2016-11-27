@@ -8,6 +8,7 @@ matrix:
     - node_js: 5.12.0
 before_script:
   - npm install -g gulp-cli
+  - npm install -g node-gyp
   - gem install sass
   - bower install
 services: mongodb

@@ -577,7 +577,7 @@ grunt.initConfig({
         },
         openshift: {
             options: {
-                remote: 'openshift',
+                remote: process.env.OPENSHIFT_REMOTE_URL || 'openshift',
                 branch: 'master'
             }
         }
