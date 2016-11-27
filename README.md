@@ -1,5 +1,7 @@
 # Udia
 
+Software is beautiful because the struggle can be easily documented. 
+
 [![Build Status](https://travis-ci.org/udia-software/udia.svg?branch=master)]
 (https://travis-ci.org/udia-software/udia)
 [![npm version](https://badge.fury.io/js/udia.svg)]
