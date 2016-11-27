@@ -1,8 +1,10 @@
 # Udia
 
-In the pursuit of Udia, one must revisit the past. In the purest sense of the word.
+[![Build Status](https://travis-ci.org/udia-software/udia.svg?branch=master)](https://travis-ci.org/udia-software/udia)
 
-This project was graciously and freely generated with the [Angular Full-Stack Generator](https://github.com/DaftMonk/generator-angular-fullstack) version 4.1.0. Thank you, Angular Fullstack, and thank you [Awk34](https://github.com/Awk34). I always enjoyed looking at your commits.
+This project was graciously and freely generated with the [Angular Full-Stack Generator](https://github.com/DaftMonk/generator-angular-fullstack) version 4.1.0.
+
+Thank you, Angular Fullstack, and thank you [Awk34](https://github.com/Awk34). I always enjoyed looking at your commits.
 
 ## Getting Started
 
