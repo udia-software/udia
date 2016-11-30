@@ -16,8 +16,7 @@ import {
 import {
   UserResource
 } from './user.service';
-
-import uiRouter from 'angular-ui-router';
+const ngRoute = require('angular-route');
 
 function addInterceptor($httpProvider) {
   'ngInject';
@@ -25,7 +24,7 @@ function addInterceptor($httpProvider) {
   $httpProvider.interceptors.push('authInterceptor');
 }
 
-export default angular.module('udiaApp.auth', [constants, util, ngCookies, uiRouter])
+export default angular.module('udiaApp.auth', [constants, util, ngCookies, ngRoute])
   .factory('authInterceptor', authInterceptor)
   .run(routerDecorator)
   .factory('Auth', AuthService)

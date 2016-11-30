@@ -1,10 +1,9 @@
 'use strict';
 
-export default function routes($stateProvider) {
+export default function routes($routeProvider) {
   'ngInject';
 
-  $stateProvider.state('admin', {
-    url: '/admin',
+  $routeProvider.when('/admin', {
     template: require('./admin.html'),
     controller: 'AdminController',
     controllerAs: 'admin',

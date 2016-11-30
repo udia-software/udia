@@ -1,4 +1,4 @@
-// Generated on 2016-11-27 using generator-angular-fullstack 4.1.0
+// Generated on 2016-11-30 using generator-angular-fullstack 4.1.0
 'use strict';
 
 import _ from 'lodash';
@@ -32,8 +32,8 @@ const paths = {
         scripts: [
             `${clientPath}/**/!(*.spec|*.mock).js`
         ],
-        styles: [`${clientPath}/{app,components}/**/*.scss`],
-        mainStyle: `${clientPath}/app/app.scss`,
+        styles: [`${clientPath}/{app,components}/**/*.css`],
+        mainStyle: `${clientPath}/app/app.css`,
         views: `${clientPath}/{app,components}/**/*.html`,
         mainView: `${clientPath}/index.html`,
         test: [`${clientPath}/{app,components}/**/*.{spec,mock}.js`],
@@ -189,21 +189,22 @@ gulp.task('env:prod', () => {
  ********************/
 
 gulp.task('inject', cb => {
-    runSequence(['inject:scss'], cb);
+    runSequence(['inject:css'], cb);
 });
 
-gulp.task('inject:scss', () => {
+gulp.task('inject:css', () => {
     return gulp.src(paths.client.mainStyle)
         .pipe(plugins.inject(
             gulp.src(_.union(paths.client.styles, ['!' + paths.client.mainStyle]), {read: false})
                 .pipe(plugins.sort()),
             {
+                starttag: '/* inject:css */',
+                endtag: '/* endinject */',
                 transform: (filepath) => {
                     let newPath = filepath
                         .replace(`/${clientPath}/app/`, '')
                         .replace(`/${clientPath}/components/`, '../components/')
-                        .replace(/_(.*).scss/, (match, p1, offset, string) => p1)
-                        .replace('.scss', '');
+                        .replace(/_(.*).css/, (match, p1, offset, string) => p1);
                     return `@import '${newPath}';`;
                 }
             }))
@@ -243,7 +244,7 @@ gulp.task('webpack:e2e', function() {
 });
 
 gulp.task('styles', () => {
-    return gulp.src(paths.client.mainStyle)
+    return gulp.src(paths.client.styles)
         .pipe(styles())
         .pipe(gulp.dest('.tmp/app'));
 });
@@ -577,7 +578,7 @@ grunt.initConfig({
         },
         openshift: {
             options: {
-                remote: process.env.OPENSHIFT_REMOTE_URL || 'openshift',
+                remote: 'openshift',
                 branch: 'master'
             }
         }

@@ -11,18 +11,18 @@
     </div>
     <div uib-collapse="$ctrl.isCollapsed" class="navbar-collapse collapse" id="navbar-main">
       <ul class="nav navbar-nav">
-        <li ng-repeat="item in $ctrl.menu" ui-sref-active="active">
-            <a ui-sref="{{item.state}}">{{item.title}}</a>
+        <li ng-repeat="item in $ctrl.menu" ng-class="{active: $ctrl.isActive(item.link)}">
+            <a ng-href="{{item.link}}">{{item.title}}</a>
         </li>
-        <li ng-show="$ctrl.isAdmin()" ui-sref-active="active"><a ui-sref="admin">Admin</a></li>
+        <li ng-show="$ctrl.isAdmin()" ng-class="{active: $ctrl.isActive('/admin')}"><a href="/admin">Admin</a></li>
       </ul>
 
       <ul class="nav navbar-nav navbar-right">
-        <li ng-hide="$ctrl.isLoggedIn()" ui-sref-active="active"><a ui-sref="signup">Sign up</a></li>
-        <li ng-hide="$ctrl.isLoggedIn()" ui-sref-active="active"><a ui-sref="login">Login</a></li>
+        <li ng-hide="$ctrl.isLoggedIn()" ng-class="{active: $ctrl.isActive('/signup')}"><a href="/signup">Sign up</a></li>
+        <li ng-hide="$ctrl.isLoggedIn()" ng-class="{active: $ctrl.isActive('/login')}"><a href="/login">Login</a></li>
         <li ng-show="$ctrl.isLoggedIn()"><p class="navbar-text">Hello {{ $ctrl.getCurrentUser().name }}</p> </li>
-        <li ng-show="$ctrl.isLoggedIn()" ui-sref-active="active"><a ui-sref="settings"><span class="glyphicon glyphicon-cog"></span></a></li>
-        <li ng-show="$ctrl.isLoggedIn()"><a ui-sref="logout">Logout</a></li>
+        <li ng-show="$ctrl.isLoggedIn()" ng-class="{active: $ctrl.isActive('/settings')}"><a href="/settings"><span class="glyphicon glyphicon-cog"></span></a></li>
+        <li ng-show="$ctrl.isLoggedIn()"><a href="/logout">Logout</a></li>
       </ul>
     </div>
   </div>

@@ -1,24 +1,20 @@
 {
   "name": "udia",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "main": "server/index.js",
   "dependencies": {
-
+    
     "angular": "~1.5.5",
-    "bootstrap-sass": "~3.3.7",
-    "bootstrap": "~3.3.7",
-    "bootstrap-social": "^5.0.0",
     "angular-animate": "~1.5.5",
     "angular-aria": "~1.5.5",
     "angular-resource": "~1.5.5",
     "angular-cookies": "~1.5.5",
     "angular-sanitize": "~1.5.5",
-    "angular-ui-bootstrap": "^2.0.1",
+    "angular-route": "~1.5.5",
     "font-awesome": ">=4.1.0",
     "angular-socket-io": "~0.7.0",
-    "angular-ui-router": "~0.3.1",
     "angular-validation-match": "^1.9.0",
-
+    
     "core-js": "^2.2.1",
     "express": "^4.13.3",
     "morgan": "~1.7.0",
@@ -52,9 +48,9 @@
     "sprint-js": "~0.1.0"
   },
   "devDependencies": {
-
+    
     "angular-mocks": "~1.5.5",
-
+    
     "autoprefixer": "^6.0.0",
     "babel-core": "^6.6.5",
     "babel-eslint": "^6.0.4",
@@ -93,7 +89,7 @@
     "nodemon": "^1.3.7",
     "run-sequence": "^1.1.0",
     "lazypipe": "^1.0.1",
-
+    
     "webpack": "^1.12.14",
     "webpack-dev-middleware": "^1.5.1",
     "webpack-stream": "^3.2.0",
@@ -114,12 +110,11 @@
     "postcss-loader": "^0.11.1",
     "raw-loader": "^0.5.1",
     "style-loader": "^0.13.0",
-    "node-sass": "^3.8.0",
-    "sass-loader": "^4.0.1",
+
 
 
     "karma-webpack": "^1.7.0",
-
+    
     "through2": "^2.0.1",
     "open": "~0.0.4",
     "istanbul": "1.1.0-alpha.1",
@@ -137,8 +132,9 @@
     "karma-sourcemap-loader": "~0.3.7",
     "sinon-chai": "^2.8.0",
     "mocha": "^3.0.2",
-    "karma-mocha": "^1.0.1",
-    "karma-chai-plugins": "~0.7.0",
+    "jasmine-core": "^2.3.4",
+    "karma-jasmine": "^1.0.2",
+    "jasmine-spec-reporter": "^2.4.0",
     "phantomjs-prebuilt": "^2.1.4",
     "proxyquire": "^1.0.1",
     "strip-ansi": "^3.0.1",
@@ -153,5 +149,5 @@
     "update-webdriver": "node node_modules/protractor/bin/webdriver-manager update",
     "start": "node server"
   },
-  "private": false
+  "private": true
 }

@@ -7,9 +7,8 @@ describe('Login View', function() {
   var page;
 
   var loadPage = function() {
-    let promise = browser.get(config.baseUrl + '/login');
+    browser.get(config.baseUrl + '/login');
     page = require('./login.po');
-    return promise;
   };
 
   var testUser = {
@@ -18,35 +17,38 @@ describe('Login View', function() {
     password: 'test'
   };
 
-  before(function() {
-    return UserModel
-      .remove()
+  beforeEach(function(done) {
+    UserModel.remove()
       .then(function() {
-        return UserModel.create(testUser);
+        return UserModel.create(testUser)
+          .then(loadPage);
       })
-      .then(loadPage);
-  });
+      // .then(loadPage)
+      .finally(function() {
+        browser.wait(function() {
+          //console.log('waiting for angular...');
+          return browser.executeScript('return !!window.angular');
 
-  after(function() {
-    return UserModel.remove();
+        }, 5000).then(done);
+      });
   });
 
   it('should include login form with correct inputs and submit button', function() {
-    expect(page.form.email.getAttribute('type')).to.eventually.equal('email');
-    expect(page.form.email.getAttribute('name')).to.eventually.equal('email');
-    expect(page.form.password.getAttribute('type')).to.eventually.equal('password');
-    expect(page.form.password.getAttribute('name')).to.eventually.equal('password');
-    expect(page.form.submit.getAttribute('type')).to.eventually.equal('submit');
-    expect(page.form.submit.getText()).to.eventually.equal('Login');
+    expect(page.form.email.getAttribute('type')).toBe('email');
+    expect(page.form.email.getAttribute('name')).toBe('email');
+    expect(page.form.password.getAttribute('type')).toBe('password');
+    expect(page.form.password.getAttribute('name')).toBe('password');
+    expect(page.form.submit.getAttribute('type')).toBe('submit');
+    expect(page.form.submit.getText()).toBe('Login');
   });
 
   it('should include oauth buttons with correct classes applied', function() {
-    expect(page.form.oauthButtons.facebook.getText()).to.eventually.equal('Connect with Facebook');
-    expect(page.form.oauthButtons.facebook.getAttribute('class')).to.eventually.contain('btn-block');
-    expect(page.form.oauthButtons.google.getText()).to.eventually.equal('Connect with Google+');
-    expect(page.form.oauthButtons.google.getAttribute('class')).to.eventually.contain('btn-block');
-    expect(page.form.oauthButtons.twitter.getText()).to.eventually.equal('Connect with Twitter');
-    expect(page.form.oauthButtons.twitter.getAttribute('class')).to.eventually.contain('btn-block');
+    expect(page.form.oauthButtons.facebook.getText()).toBe('Connect with Facebook');
+    expect(page.form.oauthButtons.facebook.getAttribute('class')).toMatch('btn-block');
+    expect(page.form.oauthButtons.google.getText()).toBe('Connect with Google+');
+    expect(page.form.oauthButtons.google.getAttribute('class')).toMatch('btn-block');
+    expect(page.form.oauthButtons.twitter.getText()).toBe('Connect with Twitter');
+    expect(page.form.oauthButtons.twitter.getAttribute('class')).toMatch('btn-block');
   });
 
   describe('with local auth', function() {
@@ -60,29 +62,22 @@ describe('Login View', function() {
           5000,
           `Didn't find .hero-unit after 5s`
         ).then(() => {
-          expect(browser.getCurrentUrl()).to.eventually.equal(config.baseUrl + '/');
-          expect(navbar.navbarAccountGreeting.getText()).to.eventually.equal('Hello ' + testUser.name);
+          expect(browser.getCurrentUrl()).toBe(config.baseUrl + '/');
+          expect(navbar.navbarAccountGreeting.getText()).toBe('Hello ' + testUser.name);
         });
       });
     });
 
-    describe('and invalid credentials', function() {
-      before(function() {
-        return loadPage();
-      })
-
-      it('should indicate login failures', function() {
-        page.login({
-          email: testUser.email,
-          password: 'badPassword'
-        });
-
-        expect(browser.getCurrentUrl()).to.eventually.equal(config.baseUrl + '/login');
-
-        var helpBlock = page.form.element(by.css('.form-group.has-error .help-block.ng-binding'));
-        expect(helpBlock.getText()).to.eventually.equal('This password is not correct.');
+    it('should indicate login failures', function() {
+      page.login({
+        email: testUser.email,
+        password: 'badPassword'
       });
 
+      expect(browser.getCurrentUrl()).toBe(config.baseUrl + '/login');
+
+      var helpBlock = page.form.element(by.css('.form-group.has-error .help-block.ng-binding'));
+      expect(helpBlock.getText()).toBe('This password is not correct.');
     });
 
   });

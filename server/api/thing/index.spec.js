@@ -31,54 +31,54 @@ var thingIndex = proxyquire('./index.js', {
 
 describe('Thing API Router:', function() {
   it('should return an express router instance', function() {
-    expect(thingIndex).to.equal(routerStub);
+    thingIndex.should.equal(routerStub);
   });
 
   describe('GET /api/things', function() {
     it('should route to thing.controller.index', function() {
-      expect(routerStub.get
+      routerStub.get
         .withArgs('/', 'thingCtrl.index')
-        ).to.have.been.calledOnce;
+        .should.have.been.calledOnce;
     });
   });
 
   describe('GET /api/things/:id', function() {
     it('should route to thing.controller.show', function() {
-      expect(routerStub.get
+      routerStub.get
         .withArgs('/:id', 'thingCtrl.show')
-        ).to.have.been.calledOnce;
+        .should.have.been.calledOnce;
     });
   });
 
   describe('POST /api/things', function() {
     it('should route to thing.controller.create', function() {
-      expect(routerStub.post
+      routerStub.post
         .withArgs('/', 'thingCtrl.create')
-        ).to.have.been.calledOnce;
+        .should.have.been.calledOnce;
     });
   });
 
   describe('PUT /api/things/:id', function() {
     it('should route to thing.controller.upsert', function() {
-      expect(routerStub.put
+      routerStub.put
         .withArgs('/:id', 'thingCtrl.upsert')
-        ).to.have.been.calledOnce;
+        .should.have.been.calledOnce;
     });
   });
 
   describe('PATCH /api/things/:id', function() {
     it('should route to thing.controller.patch', function() {
-      expect(routerStub.patch
+      routerStub.patch
         .withArgs('/:id', 'thingCtrl.patch')
-        ).to.have.been.calledOnce;
+        .should.have.been.calledOnce;
     });
   });
 
   describe('DELETE /api/things/:id', function() {
     it('should route to thing.controller.destroy', function() {
-      expect(routerStub.delete
+      routerStub.delete
         .withArgs('/:id', 'thingCtrl.destroy')
-        ).to.have.been.calledOnce;
+        .should.have.been.calledOnce;
     });
   });
 });

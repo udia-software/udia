@@ -13,9 +13,9 @@ export default class SignupController {
 
 
   /*@ngInject*/
-  constructor(Auth, $state) {
+  constructor(Auth, $location) {
     this.Auth = Auth;
-    this.$state = $state;
+    this.$location = $location;
   }
 
   register(form) {
@@ -29,7 +29,7 @@ export default class SignupController {
       })
         .then(() => {
           // Account created, redirect to home
-          this.$state.go('main');
+          this.$location.path('/');
         })
         .catch(err => {
           err = err.data;
