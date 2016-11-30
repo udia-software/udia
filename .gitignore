@@ -1,7 +1,6 @@
 node_modules
 public
 .tmp
-.sass-cache
 .idea
 client/bower_components
 client/index.html

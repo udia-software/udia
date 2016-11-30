@@ -1,5 +1,5 @@
 import angular from 'angular';
-import uiRouter from 'angular-ui-router';
+const ngRoute = require('angular-route');
 import routing from './main.routes';
 
 export class MainController {
@@ -38,7 +38,7 @@ export class MainController {
   }
 }
 
-export default angular.module('udiaApp.main', [uiRouter])
+export default angular.module('udiaApp.main', [ngRoute])
   .config(routing)
   .component('main', {
     template: require('./main.html'),

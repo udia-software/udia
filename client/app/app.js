@@ -6,9 +6,8 @@ import ngCookies from 'angular-cookies';
 import ngResource from 'angular-resource';
 import ngSanitize from 'angular-sanitize';
 import 'angular-socket-io';
+const ngRoute = require('angular-route');
 
-import uiRouter from 'angular-ui-router';
-import uiBootstrap from 'angular-ui-bootstrap';
 // import ngMessages from 'angular-messages';
 // import ngValidationMatch from 'angular-validation-match';
 
@@ -27,10 +26,10 @@ import constants from './app.constants';
 import util from '../components/util/util.module';
 import socket from '../components/socket/socket.service';
 
-import './app.scss';
+import './app.css';
 
-angular.module('udiaApp', [ngCookies, ngResource, ngSanitize, 'btford.socket-io', uiRouter,
-  uiBootstrap, _Auth, account, admin, navbar, footer, main, constants, socket, util
+angular.module('udiaApp', [ngCookies, ngResource, ngSanitize, 'btford.socket-io', ngRoute, _Auth,
+  account, admin, navbar, footer, main, constants, socket, util
 ])
   .config(routeConfig)
   .run(function($rootScope, $location, Auth) {

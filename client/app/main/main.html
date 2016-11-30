@@ -1,3 +1,4 @@
+<!--
 <header class="hero-unit" id="banner">
   <div class="container">
     <h1>'Allo, 'Allo!</h1>
@@ -6,23 +7,40 @@
   </div>
 </header>
 
-<div class="container">
-  <div class="row">
-    <div class="col-lg-12">
-      <h1 class="page-header">Features:</h1>
-      <ul class="nav nav-tabs nav-stacked col-md-4 col-lg-4 col-sm-6" ng-repeat="thing in $ctrl.awesomeThings">
-        <li><a href="#" uib-tooltip="{{thing.info}}">{{thing.name}}<button type="button" class="close" ng-click="$ctrl.deleteThing(thing)">&times;</button></a></li>
-      </ul>
+Now.
+-->
+
+<div class="ui text container">
+  <br>
+  <h1 class="ui header">Features:</h1>
+  <br>
+</div>
+
+<div class="ui text container">
+  <div class="ui stackable grid container">
+    <div class="row" ng-repeat="thing in $ctrl.awesomeThings">
+      <div class="eight wide column">
+        <h3 class="ui header">{{thing.name}}</h3>
+        <p>{{thing.info}}</p>
+      </div>
+      <div class="1 wide right floated column">
+        <a ng-click="$ctrl.deleteThing(thing)">x</a>
+      </div>
     </div>
   </div>
+</div>
 
-  <form class="thing-form">
-    <label>Syncs in realtime across clients</label>
-    <p class="input-group">
-      <input type="text" class="form-control" placeholder="Add a new thing here." ng-model="$ctrl.newThing">
-      <span class="input-group-btn">
-        <button type="submit" class="btn btn-primary" ng-click="$ctrl.addThing()">Add New</button>
-      </span>
-    </p>
+<div class="ui text container">
+  <h4 class="ui horizontal header divider">
+    <a href="/">UDIA</a>
+  </h4>
+  <h3 class="ui header">Syncs in Real Time Across Clients</h3>
+  <form class="ui form">
+    <div class="field">
+      <label>Thing</label>
+      <input type="text" name="thing" placeholder="UDIA" ng-model="$ctrl.newThing">
+    </div>
+    <button class="ui button" ng-click="$ctrl.addThing()">Submit</button>
   </form>
 </div>
+

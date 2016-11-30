@@ -28,32 +28,32 @@ describe('User Model', function() {
   });
 
   it('should begin with no users', function() {
-    return expect(User.find({}).exec()).to
+    return User.find({}).exec().should
       .eventually.have.length(0);
   });
 
   it('should fail when saving a duplicate user', function() {
-    return expect(user.save()
+    return user.save()
       .then(function() {
         var userDup = genUser();
         return userDup.save();
-      })).to.be.rejected;
+      }).should.be.rejected;
   });
 
   describe('#email', function() {
     it('should fail when saving with a blank email', function() {
       user.email = '';
-      return expect(user.save()).to.be.rejected;
+      return user.save().should.be.rejected;
     });
 
     it('should fail when saving with a null email', function() {
       user.email = null;
-      return expect(user.save()).to.be.rejected;
+      return user.save().should.be.rejected;
     });
 
     it('should fail when saving without an email', function() {
       user.email = undefined;
-      return expect(user.save()).to.be.rejected;
+      return user.save().should.be.rejected;
     });
 
     describe('given user provider is google', function() {
@@ -63,7 +63,7 @@ describe('User Model', function() {
 
       it('should succeed when saving without an email', function() {
         user.email = null;
-        return expect(user.save()).to.be.fulfilled;
+        return user.save().should.be.fulfilled;
       });
     });
 
@@ -74,7 +74,7 @@ describe('User Model', function() {
 
       it('should succeed when saving without an email', function() {
         user.email = null;
-        return expect(user.save()).to.be.fulfilled;
+        return user.save().should.be.fulfilled;
       });
     });
 
@@ -85,7 +85,7 @@ describe('User Model', function() {
 
       it('should succeed when saving without an email', function() {
         user.email = null;
-        return expect(user.save()).to.be.fulfilled;
+        return user.save().should.be.fulfilled;
       });
     });
 
@@ -96,7 +96,7 @@ describe('User Model', function() {
 
       it('should succeed when saving without an email', function() {
         user.email = null;
-        return expect(user.save()).to.be.fulfilled;
+        return user.save().should.be.fulfilled;
       });
     });
   });
@@ -104,17 +104,17 @@ describe('User Model', function() {
   describe('#password', function() {
     it('should fail when saving with a blank password', function() {
       user.password = '';
-      return expect(user.save()).to.be.rejected;
+      return user.save().should.be.rejected;
     });
 
     it('should fail when saving with a null password', function() {
       user.password = null;
-      return expect(user.save()).to.be.rejected;
+      return user.save().should.be.rejected;
     });
 
     it('should fail when saving without a password', function() {
       user.password = undefined;
-      return expect(user.save()).to.be.rejected;
+      return user.save().should.be.rejected;
     });
 
     describe('given the user has been previously saved', function() {
@@ -123,19 +123,19 @@ describe('User Model', function() {
       });
 
       it('should authenticate user if valid', function() {
-        expect(user.authenticate('password')).to.be.true;
+        user.authenticate('password').should.be.true;
       });
 
       it('should not authenticate user if invalid', function() {
-        expect(user.authenticate('blah')).to.not.be.true;
+        user.authenticate('blah').should.not.be.true;
       });
 
       it('should remain the same hash unless the password is updated', function() {
         user.name = 'Test User';
-        return expect(user.save()
+        return user.save()
           .then(function(u) {
             return u.authenticate('password');
-          })).to.eventually.be.true;
+          }).should.eventually.be.true;
       });
     });
 
@@ -146,7 +146,7 @@ describe('User Model', function() {
 
       it('should succeed when saving without a password', function() {
         user.password = null;
-        return expect(user.save()).to.be.fulfilled;
+        return user.save().should.be.fulfilled;
       });
     });
 
@@ -157,7 +157,7 @@ describe('User Model', function() {
 
       it('should succeed when saving without a password', function() {
         user.password = null;
-        return expect(user.save()).to.be.fulfilled;
+        return user.save().should.be.fulfilled;
       });
     });
 
@@ -168,7 +168,7 @@ describe('User Model', function() {
 
       it('should succeed when saving without a password', function() {
         user.password = null;
-        return expect(user.save()).to.be.fulfilled;
+        return user.save().should.be.fulfilled;
       });
     });
 
@@ -179,7 +179,7 @@ describe('User Model', function() {
 
       it('should succeed when saving without a password', function() {
         user.password = null;
-        return expect(user.save()).to.be.fulfilled;
+        return user.save().should.be.fulfilled;
       });
     });
   });

@@ -18,10 +18,10 @@
       "babel": true,
       "flow": false,
       "html": true,
-      "sass": true,
-      "uirouter": true,
-      "bootstrap": true,
-      "uibootstrap": true,
+      "css": true,
+      "ngroute": true,
+      "bootstrap": false,
+      "uibootstrap": false,
       "socketio": true,
       "auth": true,
       "models": true,
@@ -31,10 +31,10 @@
       "googleAuth": true,
       "facebookAuth": true,
       "twitterAuth": true,
-      "mocha": true,
-      "jasmine": false,
+      "jasmine": true,
+      "mocha": false,
       "should": false,
-      "expect": true
+      "expect": false
     }
   },
   "generator-ng-component": {
@@ -47,10 +47,9 @@
     "moduleName": "",
     "modulePrompt": true,
     "filters": [
-      "uirouter",
-      "mocha",
-      "expect",
-      "uirouter",
+      "ngroute",
+      "jasmine",
+      "ngroute",
       "es6",
       "webpack"
     ],
@@ -58,7 +57,7 @@
       "babel",
       "js",
       "html",
-      "scss"
+      "css"
     ],
     "directiveSimpleTemplates": "",
     "directiveComplexTemplates": "",
