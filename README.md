@@ -1,5 +1,7 @@
 # Udia
 
+[![Join the chat at https://gitter.im/udiApp/Lobby](https://badges.gitter.im/udiApp/Lobby.svg)](https://gitter.im/udiApp/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Software is beautiful because the struggle can be easily documented. 
 
 [![Build Status](https://travis-ci.org/udia-software/udia.svg?branch=master)]
