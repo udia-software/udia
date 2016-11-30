@@ -15,28 +15,11 @@
   font-style: normal;
 }
 
-/**
- * App-wide Styles
- */
-
-.browserupgrade {
-  margin: 0.2em 0;
-  background: #ccc;
-  color: #000;
-  padding: 0.2em 0;
-}
-
-/* Responsive: Portrait tablets and up */
-@media screen and (min-width: 768px) {
-  .container {
-    max-width: 730px;
-  }
-}
-
 /* Component styles are injected through gulp */
 /* inject:css */
 @import 'admin/admin.css';
 @import 'main/main.css';
+@import 'node/node.css';
 @import '../components/footer/footer.css';
 @import '../components/oauth-buttons/oauth-buttons.css';
 /* endinject */

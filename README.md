@@ -24,6 +24,7 @@ Thank you, Angular Fullstack, and thank you [Awk34](https://github.com/Awk34). I
 - [Node.js and npm](nodejs.org) Node >= 4.x.x, npm >= 2.x.x
 - [Gulp](http://gulpjs.com/) (`npm install --global gulp`)
 - [MongoDB](https://www.mongodb.org/) - Keep a running daemon with `mongod`
+- [SemanticUI](https://semantic-ui.com) Setup by running `cd semantic; gulp build`
 
 ### Developing
 

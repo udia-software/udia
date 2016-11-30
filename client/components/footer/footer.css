@@ -1,6 +1,7 @@
 footer.footer {
-  text-align: center;
-  padding: 30px 0;
-  margin-top: 70px;
-  border-top: 1px solid #E5E5E5;
+  clear: both;
+  position: relative;
+  z-index: 10;
+  height: 3em;
+  margin-top: -3em;
 }

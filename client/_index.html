@@ -1,32 +1,40 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <base href="/">
-    <title>Angular Full-Stack Generator</title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width">
-    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <base href="/">
+  <title>Angular Full-Stack Generator</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width">
+
+  <style type="text/css">
+    /* Layout */
+    html, body, #container { height: 100%; margin: 0; padding: 0; }
+    body > #container { height: auto; min-height: 100%; }
+    #content { padding-bottom: 3em; }
+    #footer { clear: both; position: relative; z-index: 10; height: 3em; margin-top: -3em; }
+  </style>
+
+  <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="assets/semantic/semantic.min.css">
+  <script src="assets/semantic/semantic.min.js"></script>
+  <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
 </head>
 <body>
-    <!--[if lt IE 9]>
-      <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-    <![endif]-->
-
-    <!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
-    <script>
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-      ga('create', 'UA-XXXXX-X');
-      ga('send', 'pageview');
-    </script>
-
+<!--[if lt IE 9]>
+<p>You are using an outdated browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+<![endif]-->
+<div id="container">
+  <div id="content">
     <navbar></navbar>
-    <div ng-view=""></div>
-    <footer></footer>
+    <div class="pusher">
+      <div ng-view=""></div>
+    </div>
+  </div>
+</div>
+<div id="footer">
+  <footer></footer>
+</div>
 </body>
 </html>

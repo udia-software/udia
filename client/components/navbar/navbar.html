@@ -1,29 +1,17 @@
-<div class="navbar navbar-default navbar-static-top">
-  <div class="container">
-    <div class="navbar-header">
-      <button class="navbar-toggle" type="button" ng-click="$ctrl.isCollapsed = !$ctrl.isCollapsed">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a href="/" class="navbar-brand">udia</a>
-    </div>
-    <div uib-collapse="$ctrl.isCollapsed" class="navbar-collapse collapse" id="navbar-main">
-      <ul class="nav navbar-nav">
-        <li ng-repeat="item in $ctrl.menu" ng-class="{active: $ctrl.isActive(item.link)}">
-            <a ng-href="{{item.link}}">{{item.title}}</a>
-        </li>
-        <li ng-show="$ctrl.isAdmin()" ng-class="{active: $ctrl.isActive('/admin')}"><a href="/admin">Admin</a></li>
-      </ul>
-
-      <ul class="nav navbar-nav navbar-right">
-        <li ng-hide="$ctrl.isLoggedIn()" ng-class="{active: $ctrl.isActive('/signup')}"><a href="/signup">Sign up</a></li>
-        <li ng-hide="$ctrl.isLoggedIn()" ng-class="{active: $ctrl.isActive('/login')}"><a href="/login">Login</a></li>
-        <li ng-show="$ctrl.isLoggedIn()"><p class="navbar-text">Hello {{ $ctrl.getCurrentUser().name }}</p> </li>
-        <li ng-show="$ctrl.isLoggedIn()" ng-class="{active: $ctrl.isActive('/settings')}"><a href="/settings"><span class="glyphicon glyphicon-cog"></span></a></li>
-        <li ng-show="$ctrl.isLoggedIn()"><a href="/logout">Logout</a></li>
-      </ul>
+<div class="ui large top fixed hidden menu">
+  <div class="ui container">
+    <a class="item" ng-class="{active: $ctrl.isActive('/')}" href="/">UDIA</a>
+    <a ng-show="$ctrl.isAdmin()" ng-class="{active: $ctrl.isActive('/admin')}" href="/admin">Admin</a>
+    <div class="right menu">
+      <div class="item" ng-hide="$ctrl.isLoggedIn()">
+        <a class="ui button" href="/login">Log in</a>
+      </div>
+      <div class="item" ng-hide="$ctrl.isLoggedIn()">
+        <a class="ui button" href="/signup">Sign Up</a>
+      </div>
+      <div class="item" ng-show="$ctrl.isLoggedIn()">
+        <a class="ui button" href="/settings">Hi, {{ $ctrl.getCurrentUser().name }}</a>
+      </div>
     </div>
   </div>
 </div>
