@@ -25,16 +25,23 @@
 <!--[if lt IE 9]>
 <p>You are using an outdated browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
 <![endif]-->
-<div id="container">
+<div id="container" class="pushable">
   <div id="content">
     <navbar></navbar>
-    <div class="pusher">
-      <div ng-view=""></div>
-    </div>
+    <div ng-view=""></div>
   </div>
 </div>
 <div id="footer">
   <footer></footer>
 </div>
+<script>
+  $(document)
+    .ready(function () {
+      // fix menu when passed
+      $(window).one('scroll', function () {
+        $('.fixed.menu').transition('fade in');
+      });
+    });
+</script>
 </body>
 </html>
