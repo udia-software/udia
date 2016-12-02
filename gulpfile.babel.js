@@ -47,7 +47,8 @@ const paths = {
     json: [`${serverPath}/**/*.json`],
     test: {
       integration: [`${serverPath}/**/*.integration.js`, 'mocha.global.js'],
-      unit: [`${serverPath}/**/*.spec.js`, 'mocha.global.js']
+      unit: [`${serverPath}/**/*.spec.js`, 'mocha.global.js'],
+      all: [`${serverPath}/**/*.spec.js`, `${serverPath}/**/*.integration.js`, 'mocha.global.js']
     }
   },
   karma: 'karma.conf.js',
@@ -406,8 +407,7 @@ gulp.task('test:server:coverage', cb => {
   runSequence('coverage:pre',
     'env:all',
     'env:test',
-    'coverage:unit',
-    'coverage:integration',
+    'coverage:all',
     cb);
 });
 
@@ -422,15 +422,8 @@ gulp.task('coverage:pre', () => {
     .pipe(plugins.istanbul.hookRequire());
 });
 
-gulp.task('coverage:unit', () => {
-  return gulp.src(paths.server.test.unit)
-    .pipe(mocha())
-    .pipe(istanbul())
-  // Creating the reports after tests ran
-});
-
-gulp.task('coverage:integration', () => {
-  return gulp.src(paths.server.test.integration)
+gulp.task('coverage:all', () => {
+  return gulp.src(paths.server.test.all)
     .pipe(mocha())
     .pipe(istanbul())
   // Creating the reports after tests ran
