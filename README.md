@@ -3,6 +3,7 @@
 Software is beautiful because the struggle can be easily documented. 
 
 [![Build Status](https://travis-ci.org/udia-software/udia.svg?branch=master)](https://travis-ci.org/udia-software/udia)
+[![Coverage Status](https://coveralls.io/repos/github/udia-software/udia/badge.svg?branch=master)](https://coveralls.io/github/udia-software/udia?branch=master)
 [![npm version](https://badge.fury.io/js/udia.svg)](https://badge.fury.io/js/udia)
 [![GitHub version](https://badge.fury.io/gh/udia-software%2Fudia.svg)](https://badge.fury.io/gh/udia-software%2Fudia)
 [![Join the chat at https://gitter.im/udiApp/Lobby](https://badges.gitter.im/udiApp/Lobby.svg)](https://gitter.im/udiApp/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
