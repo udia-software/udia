@@ -4,6 +4,8 @@ node_js:
 before_install:
   - npm install -g iltorb
   - npm install -g gulp-cli
+after_success:
+  - npm run coveralls
 services: mongodb
 addons:
   apt:
