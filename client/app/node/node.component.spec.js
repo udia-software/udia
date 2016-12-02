@@ -1,8 +1,10 @@
 'use strict';
 
+import node from './node.component';
+
 describe('Component: NodeComponent', function() {
   // load the controller's module
-  beforeEach(module('udiaApp.node'));
+  beforeEach(angular.mock.module(node));
 
   var NodeComponent;
 
