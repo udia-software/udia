@@ -20,7 +20,7 @@
 @import 'admin/admin.css';
 @import 'main/main.css';
 @import 'node/node.css';
-@import '../components/navbar/navbar.css';
 @import '../components/footer/footer.css';
+@import '../components/navbar/navbar.css';
 @import '../components/oauth-buttons/oauth-buttons.css';
 /* endinject */
