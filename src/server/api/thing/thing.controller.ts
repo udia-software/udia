@@ -8,7 +8,7 @@ import {Thing} from "./thing.model";
 export class ThingController {
   static getAll(req: express.Request, res: express.Response): void {
     ThingDAO["getAll"]()
-      .then((things: any) => res.status(200).json(things))
+      .then((things: Thing[]) => res.status(200).json(things))
       .catch((error: any) => res.status(400).json(error));
   }
 

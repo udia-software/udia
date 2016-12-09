@@ -14,7 +14,7 @@ let httpsPort = normalizePort(process.env.HTTPS_PORT || 8443);
 let options = {
   key: fs.readFileSync(path.join(__dirname, "..", "cert", "key.pem")),
   cert: fs.readFileSync(path.join(__dirname, "..", "cert", "cert.pem"))
-}
+};
 
 let app = server.Server.bootstrap().app;
 let httpServer = http.createServer(app);

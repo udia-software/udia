@@ -1,15 +1,13 @@
+/**
+ * Created by alexander on 2016-12-09.
+ */
 let gulp = require("gulp");
 let ts = require("gulp-typescript");
 let del = require("del");
 
-let ngPaths = {
-  corejs: ["node_modules/core-js/client/shim.min.js", "node_modules/core-js/client/shim.min.js.map"],
-  zonejs: ["node_modules/zone.js/dist/zone.js"],
-  systemjs: ["node_modules/systemjs/dist/system.src.js"],
-  rxjs: ["node_modules/rxjs/**/*"],
-  reflectMetadata: ["node_modules/reflect-metadata/Reflect.js", "node_modules/reflect-metadata/Reflect.js.map"],
-  angular: ["node_modules/@angular/**/*"]
-};
+/*
+ --- Client files that the application developer controls directly ---
+ */
 
 gulp.task("client:html", function () {
   return gulp.src("src/client/**/*.html")
@@ -21,10 +19,24 @@ gulp.task("client:css", function () {
     .pipe(gulp.dest("dist/client"));
 });
 
-gulp.task("client:systemjsConfig", function () {
-  return gulp.src("src/client/systemjs.config.js")
+gulp.task("client:ico", function () {
+  return gulp.src("src/client/favicon.ico")
     .pipe(gulp.dest("dist/client"));
 });
+
+/*
+ --- Client files that the application developer does not control directly --
+ */
+
+// Relative paths for all angular 2 client dependencies from the repository source, after npm install
+let ngPaths = {
+  corejs: ["node_modules/core-js/client/shim.min.js", "node_modules/core-js/client/shim.min.js.map"],
+  zonejs: ["node_modules/zone.js/dist/zone.js"],
+  systemjs: ["node_modules/systemjs/dist/system.src.js"],
+  rxjs: ["node_modules/rxjs/**/*"],
+  reflectMetadata: ["node_modules/reflect-metadata/Reflect.js", "node_modules/reflect-metadata/Reflect.js.map"],
+  angular: ["node_modules/@angular/**/*"]
+};
 
 gulp.task("client:corejs", function () {
   return gulp.src(ngPaths.corejs)
@@ -56,6 +68,10 @@ gulp.task("client:angular", function () {
     .pipe(gulp.dest("dist/client/ngdeps/@angular"));
 });
 
+/*
+ --- TypeScript Build Step. Compile all client and server typescript files to the `dist` directory ---
+ */
+
 let tsProject = ts.createProject("tsconfig.json");
 
 gulp.task("typescript", function () {
@@ -64,14 +80,27 @@ gulp.task("typescript", function () {
     .pipe(gulp.dest("dist"));
 });
 
-gulp.task("clean", function () {
-  return del(["dist"])
+/*
+ --- Clean by deleting the `dist` directory and all *.js and *.map files in `src` and `test` ---
+ */
+
+gulp.task("clean", ["clean:dist", "clean:dev"]);
+
+gulp.task("clean:dist", function () {
+  return del(["dist"]);
+});
+
+gulp.task("clean:dev", function () {
+  return del.sync([
+    "src/**/*.js", "src/**/*.map", "!src",
+    "test/**/*.js", "test/**/*.map", "!test"
+  ]);
 });
 
 gulp.task("default",
   [
     // Client files
-    "client:html", "client:css", "client:systemjsConfig",
+    "client:html", "client:css", "client:ico",
     // Angular Dependencies on Client
     "client:corejs", "client:zonejs", "client:systemjs", "client:rxjs", "client:reflectMetadata", "client:angular",
     // All typescript compilation

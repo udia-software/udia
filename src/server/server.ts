@@ -17,19 +17,23 @@ import {ThingRoutes} from "./api/thing/thing.routes";
 
 /**
  * Representation of the server.
+ * This class simply creates the express application when instantiated.
+ * To serve the application, please refer to `bin/www`.
  *
  * @class Server
  */
 export class Server {
+  private MONGODB_URL: string = "mongodb://localhost:27017/udia";
+  private APP_SECRET: string = "SECRET_GOES_HERE";
+
   public app: express.Application;
-  private connection: mongoose.Connection;
 
   public static bootstrap(): Server {
     return new Server();
   }
 
   /**
-   * Create a new instance of the server.
+   * Create a new instance of the server, which is the express app and all the configurations.
    */
   constructor() {
     this.app = express();
@@ -41,7 +45,7 @@ export class Server {
   /**
    * Configure the express server middleware.
    */
-  private appConfig() {
+  private appConfig(): void {
     // Add static client paths
     this.app.use(express.static(path.join(__dirname, "..", "client")));
 
@@ -49,7 +53,7 @@ export class Server {
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({extended: true}));
 
-    this.app.use(cookieParser(process.env.APP_SECRET || "SECRET_GOES_HERE"));
+    this.app.use(cookieParser(process.env.APP_SECRET || this.APP_SECRET));
     this.app.use(methodOverride());
 
     // Catch 404 and forward to the error handler
@@ -71,19 +75,18 @@ export class Server {
   }
 
   /**
-   * Configure the mongo database connection.
+   * Configure the MongoDB connection.
    */
-  private dbConfig() {
-    const MONGODB_URL: string = "mongodb://localhost:27017/udia";
+  private dbConfig(): void {
     mongoose.Promise = require("bluebird");
-    this.connection = mongoose.createConnection(process.env.MONGODB_URL || MONGODB_URL);
-    console.log(this.connection);
+    mongoose.connect(process.env.MONGODB_URL || this.MONGODB_URL);
+    mongoose.connection.on("error", console.error.bind(console, "An error occurred with the DB connection!"));
   }
 
   /**
-   * Setup the express router to handle serving the API
+   * Setup the router endpoints to handle serving the REST API
    */
-  private api() {
+  private api(): void {
     let router: express.Router = express.Router();
     ThingRoutes.init(router);
     this.app.use(router);

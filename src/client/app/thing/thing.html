@@ -17,6 +17,7 @@
     <div *ngFor="let thing of things;"
          (click)="remove(thing._id);">
       <p>{{thing.message}}</p>
+      <p>{{thing.createdAt}}</p>
     </div>
   </div>
 </div>

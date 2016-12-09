@@ -22,7 +22,7 @@ export class ThingComponent implements OnInit {
 
   constructor(private _thingService: ThingService) {
     this.thingForm = {
-      "message": ""
+      "message": "",
     };
   }
 
