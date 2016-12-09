@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+  - "6.9.1"
+services:
+  - mongodb
+before_install:
+  - sleep 15
+  - mongo mydb_test --eval 'db.addUser("travis", "test");'
+  - npm install -g grunt-cli
+install:
+  - npm install

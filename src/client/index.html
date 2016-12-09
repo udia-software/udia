@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>UDIA</title>
+    <base href="/">
+
+    <!-- ngdeps and config are populated by the gulp build process and will exist in /dist/client -->
+    <script src="/ngdeps/corejs/shim.min.js"></script>
+    <script src="/ngdeps/zonejs/zone.js"></script>
+    <script src="/ngdeps/reflectmetadata/Reflect.js"></script>
+    <script src="/ngdeps/systemjs/system.src.js"></script>
+    <script src="/systemjs.config.js"></script>
+
+    <script>
+      System.import('app').catch(function(err){ console.error(err); });
+    </script>
+</head>
+<body>
+<my-app>Loading UDIA...</my-app>
+</body>
+</html>
