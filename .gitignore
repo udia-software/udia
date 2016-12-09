@@ -1,5 +1,6 @@
 node_modules
 .idea
 src/**/*.js
+src/**/*.map
 !src/client/systemjs.config.js
 dist

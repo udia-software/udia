@@ -1,0 +1,22 @@
+<div>
+  <form (submit)="add(thingForm.message)">
+    <h1>{{title}}</h1>
+
+    <input type="text"
+           name="message"
+           [(ngModel)]="thingForm.message"
+           placeholder="What's your thing?"
+           autofocus/>
+
+    <button type="submit"
+            [disabled]="!thingForm.message.length">+
+    </button>
+  </form>
+
+  <div>
+    <div *ngFor="let thing of things;"
+         (click)="remove(thing._id);">
+      <p>{{thing.message}}</p>
+    </div>
+  </div>
+</div>

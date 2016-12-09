@@ -13,6 +13,8 @@ import errorHandler = require("errorhandler");
 import methodOverride = require("method-override");
 import mongoose = require("mongoose");
 
+import {ThingRoutes} from "./api/thing/thing.routes";
+
 /**
  * Representation of the server.
  *
@@ -33,12 +35,13 @@ export class Server {
     this.app = express();
     this.appConfig();
     this.dbConfig();
+    this.api();
   }
 
   /**
    * Configure the express server middleware.
    */
-  public appConfig() {
+  private appConfig() {
     // Add static client paths
     this.app.use(express.static(path.join(__dirname, "..", "client")));
 
@@ -70,8 +73,19 @@ export class Server {
   /**
    * Configure the mongo database connection.
    */
-  public dbConfig() {
+  private dbConfig() {
     const MONGODB_URL: string = "mongodb://localhost:27017/udia";
+    mongoose.Promise = require("bluebird");
     this.connection = mongoose.createConnection(process.env.MONGODB_URL || MONGODB_URL);
+    console.log(this.connection);
+  }
+
+  /**
+   * Setup the express router to handle serving the API
+   */
+  private api() {
+    let router: express.Router = express.Router();
+    ThingRoutes.init(router);
+    this.app.use(router);
   }
 }

@@ -11,12 +11,17 @@ let ngPaths = {
   angular: ["node_modules/@angular/**/*"]
 };
 
-gulp.task("client:index", function () {
-  return gulp.src("src/client/index.html")
+gulp.task("client:html", function () {
+  return gulp.src("src/client/**/*.html")
     .pipe(gulp.dest("dist/client"));
 });
 
-gulp.task("client:systemjsConfig", function() {
+gulp.task("client:css", function () {
+  return gulp.src("src/client/**/*.css")
+    .pipe(gulp.dest("dist/client"));
+});
+
+gulp.task("client:systemjsConfig", function () {
   return gulp.src("src/client/systemjs.config.js")
     .pipe(gulp.dest("dist/client"));
 });
@@ -41,7 +46,7 @@ gulp.task("client:rxjs", function () {
     .pipe(gulp.dest("dist/client/ngdeps/rxjs"));
 });
 
-gulp.task("client:reflectMetadata", function() {
+gulp.task("client:reflectMetadata", function () {
   return gulp.src(ngPaths.reflectMetadata)
     .pipe(gulp.dest("dist/client/ngdeps/reflectmetadata"));
 });
@@ -59,14 +64,14 @@ gulp.task("typescript", function () {
     .pipe(gulp.dest("dist"));
 });
 
-gulp.task("clean", function() {
+gulp.task("clean", function () {
   return del(["dist"])
 });
 
 gulp.task("default",
   [
     // Client files
-    "client:index", "client:systemjsConfig",
+    "client:html", "client:css", "client:systemjsConfig",
     // Angular Dependencies on Client
     "client:corejs", "client:zonejs", "client:systemjs", "client:rxjs", "client:reflectMetadata", "client:angular",
     // All typescript compilation
