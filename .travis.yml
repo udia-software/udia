@@ -1,19 +1,15 @@
 language: node_js
 node_js:
-  - 6.9.1
+  - "6.9.1"
+services:
+  - mongodb
 before_install:
-  - npm install -g iltorb
+  - sleep 15
+  - mongo mydb_test --eval 'db.addUser("travis", "test");'
   - npm install -g gulp-cli
-after_success:
-  - npm run coveralls
-services: mongodb
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - g++-4.8
-env:
-  - CXX=g++-4.8
-matrix:
-  fast_finish: true
+install:
+  - npm install
+before_script:
+  - gulp
+after_script:
+  - npm run coverage

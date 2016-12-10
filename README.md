@@ -1,6 +1,6 @@
 # Udia
 
-Software is beautiful because the struggle can be easily documented. 
+Software is tragically beautiful because the struggle can be easily documented. 
 
 [![Build Status](https://travis-ci.org/udia-software/udia.svg?branch=master)](https://travis-ci.org/udia-software/udia)
 [![Coverage Status](https://coveralls.io/repos/github/udia-software/udia/badge.svg?branch=master)](https://coveralls.io/github/udia-software/udia?branch=master)
@@ -11,35 +11,19 @@ Software is beautiful because the struggle can be easily documented.
 [![Dependency Status](https://img.shields.io/david/udia-software/udia.svg)](https://david-dm.org/udia-software/udia)
 [![Dev-Dependency Status](https://img.shields.io/david/dev/udia-software/udia.svg)](https://david-dm.org/udia-software/udia#info=devDependencies)
 
-This project was graciously and freely generated with the [Angular Full-Stack Generator](https://github.com/DaftMonk/generator-angular-fullstack) version 4.1.0.
+## Environment Variables
 
-Thank you, Angular Fullstack, and thank you [Awk34](https://github.com/Awk34). I always enjoyed looking at your commits.
+All of the default values are set programmatically if the environment variable does not exist.
 
-## Getting Started
+To change the value without setting it in code, please set the environment variable.
 
-### Prerequisites
 
-- [Git](https://git-scm.com/)
-- [Node.js and npm](nodejs.org) Node >= 4.x.x, npm >= 2.x.x
-- [Gulp](http://gulpjs.com/) (`npm install --global gulp`)
-- [MongoDB](https://www.mongodb.org/) - Keep a running daemon with `mongod`
-- [SemanticUI](https://semantic-ui.com) Setup by running `cd semantic; gulp build`
-
-### Developing
-
-1. Run `npm install` to install server dependencies.
-
-2. Run `mongod` in a separate shell to keep an instance of the MongoDB Daemon running
-
-3. Run `gulp serve` to start the development server. It should automatically open the client in your browser when ready.
-
-## Build & development
-
-Run `gulp build` for building and `gulp serve` for preview.
-
-## Testing
-
-Running `npm test` will run the unit tests with karma.
+| Key           | Default Value                      |Description|
+| ------------- |:----------------------------------:|---:|
+| MONGODB_URL   | `"mongodb://localhost:27017/udia"` | The Mongo Connection String. ([See spec.](https://docs.mongodb.com/manual/reference/connection-string/)) |
+| APP_SECRET    | `"SECRET_GOES_HERE"`               | [Cookie Parser secret](https://github.com/expressjs/cookie-parser#cookieparsersecret-options) used for signing cookies. |
+| HTTP_PORT     | `8080`                             | Port to serve http. [http://localhost:8080](http://localhost:8080) |
+| HTTPS_PORT    | `8443`                             | Port to serve https. [https://localhost:8443](https://localhost:8443) |
 
 ## License
 
