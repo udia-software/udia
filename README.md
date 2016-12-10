@@ -1,15 +1,75 @@
 # Udia
 
-Software is tragically beautiful because the struggle can be easily documented. 
+A web application.
+
+Software is tragically beautiful because the struggle can be easily documented.
 
 [![Build Status](https://travis-ci.org/udia-software/udia.svg?branch=master)](https://travis-ci.org/udia-software/udia)
 [![Coverage Status](https://coveralls.io/repos/github/udia-software/udia/badge.svg?branch=master)](https://coveralls.io/github/udia-software/udia?branch=master)
 [![npm version](https://badge.fury.io/js/udia.svg)](https://badge.fury.io/js/udia)
 [![GitHub version](https://badge.fury.io/gh/udia-software%2Fudia.svg)](https://badge.fury.io/gh/udia-software%2Fudia)
-[![Join the chat at https://gitter.im/udiApp/Lobby](https://badges.gitter.im/udiApp/Lobby.svg)](https://gitter.im/udiApp/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/udia-software/Lobby](https://badges.gitter.im/udia-software/Lobby.svg)](https://gitter.im/udia-software/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [![Dependency Status](https://img.shields.io/david/udia-software/udia.svg)](https://david-dm.org/udia-software/udia)
 [![Dev-Dependency Status](https://img.shields.io/david/dev/udia-software/udia.svg)](https://david-dm.org/udia-software/udia#info=devDependencies)
+
+## About
+
+Uses a MEAN* stack. (MAGNET)
+* MongoDB - A free, open-source, cross-platform, document-oriented database program for all your NoSQL needs.
+  * [Download](https://www.mongodb.com/download-center#community) and [Documentation](https://docs.mongodb.com/)
+  * To run this application in your development environment, `mongod` needs to be running.
+* Angular - A Superheroic JavaScript MVW Framework created by Google.
+  * [Documentation](https://angular.io/docs/ts/latest/)
+  * Note: If you want to use Angular 1.x, please visit [generator-angular-fullstack](https://github.com/angular-fullstack/generator-angular-fullstack)
+* Gulp - A JavaScript streaming automation toolkit.
+  * [Documentation](https://github.com/gulpjs/gulp/blob/master/docs/getting-started.md)
+* NodeJS - Server side JavaScript runtime environment based on V8.
+  * [Download](https://nodejs.org/en/download/)
+* Express - Fast, unopinionated, minimalist web framework for Node.js
+  * [Documentation](http://expressjs.com/en/4x/api.html)
+* TypeScript - A typed superset of JavaScript that compiles to plain JavaScript.
+  * [Documentation](https://www.typescriptlang.org/docs/tutorial.html)
+
+## Prerequisites
+
+Ensure you have NodeJS, NPM, and Mongo installed.
+```bash
+# Your setup may look different than mine.
+$ node -v
+v6.9.1
+$ npm -v
+3.10.8
+$ mongo --version
+MongoDB shell version: 3.2.11
+```
+
+## Getting Started
+
+Clone this repository locally.
+```bash
+git clone https://github.com/udia-software/udia
+cd udia
+```
+
+Install all dependencies.
+```bash
+npm install
+```
+
+Run the default gulp task to build your application.
+```bash
+# if you have gulp-cli installed globally
+# npm install -g gulp-cli
+gulp
+# otherwise
+npm run gulp
+```
+
+Start your application. (Ensuring an instance of `mongod` is running)
+```bash
+npm start
+```
 
 ## Environment Variables
 
@@ -27,20 +87,8 @@ To change the value without setting it in code, please set the environment varia
 
 ## License
 
-```text
-The MIT License (MIT)
-Copyright (c) 2016 Udia Software Incorporated
+[MIT License](LICENSE)
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
-files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
-modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software
-is furnished to do so, subject to the following conditions:
+---
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
-OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-```
+###By [Udia](https://udia.ca)
