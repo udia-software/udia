@@ -49,10 +49,9 @@ export class Server {
     // Add static client paths
     this.app.use(express.static(path.join(__dirname, "..", "client")));
 
-    // Use JSON form and query string parser middleware
+    // Use JSON form and query string parser, cookie parser, and method override middleware
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({extended: true}));
-
     this.app.use(cookieParser(process.env.APP_SECRET || this.APP_SECRET));
     this.app.use(methodOverride());
 
@@ -71,6 +70,7 @@ export class Server {
 
     // Use helmet for better security for web applications
     this.app.use(helmet());
+    // Log all API calls
     this.app.use(logger("dev"));
   }
 

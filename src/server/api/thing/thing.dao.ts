@@ -4,7 +4,7 @@
 import * as mongoose from "mongoose";
 import * as Promise from "bluebird";
 import * as _ from "lodash";
-import thingSchema from "./thing.model";
+import thingSchema from "./thing.schema";
 
 thingSchema.static("getAll", (): Promise<any> => {
   return new Promise((resolve: Function, reject: Function) => {

@@ -3,7 +3,7 @@
  */
 import * as express from "express";
 import ThingDAO from "./thing.dao";
-import {Thing} from "./thing.model";
+import {Thing} from "./thing.schema";
 
 export class ThingController {
   static getAll(req: express.Request, res: express.Response): void {
