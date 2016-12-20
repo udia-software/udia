@@ -13,6 +13,7 @@ import errorHandler = require("errorhandler");
 import methodOverride = require("method-override");
 import mongoose = require("mongoose");
 
+import {UserRoutes} from "./api/user/user.routes";
 import {ThingRoutes} from "./api/thing/thing.routes";
 
 /**
@@ -88,6 +89,7 @@ export class Server {
    */
   private api(): void {
     let router: express.Router = express.Router();
+    UserRoutes.init(router);
     ThingRoutes.init(router);
     this.app.use(router);
   }
