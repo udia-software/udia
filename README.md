@@ -78,12 +78,13 @@ All of the default values are set programmatically if the environment variable d
 To change the value without setting it in code, please set the environment variable.
 
 
-| Key           | Default Value                      |Description|
-| ------------- |:----------------------------------:|---:|
-| MONGODB_URL   | `"mongodb://localhost:27017/udia"` | The Mongo Connection String. ([See spec.](https://docs.mongodb.com/manual/reference/connection-string/)) |
-| APP_SECRET    | `"SECRET_GOES_HERE"`               | [Cookie Parser secret](https://github.com/expressjs/cookie-parser#cookieparsersecret-options) used for signing cookies. |
-| HTTP_PORT     | `8080`                             | Port to serve http. [http://localhost:8080](http://localhost:8080) |
-| HTTPS_PORT    | `8443`                             | Port to serve https. [https://localhost:8443](https://localhost:8443) |
+| Key            | Default Value                      |Description|
+| -------------- |:----------------------------------:|---:|
+| MONGODB_URL    | `"mongodb://localhost:27017/udia"` | The Mongo Connection String. ([See spec.](https://docs.mongodb.com/manual/reference/connection-string/)) |
+| APP_SECRET     | `"SECRET_GOES_HERE"`               | [Cookie Parser secret](https://github.com/expressjs/cookie-parser#cookieparsersecret-options) used for signing cookies. |
+| SESSION_SECRET | `"SECRET_GOES_HERE"`               | JsonWebToken secret used to sign all the tokens. |
+| HTTP_PORT      | `8080`                             | Port to serve http. [http://localhost:8080](http://localhost:8080) |
+| HTTPS_PORT     | `8443`                             | Port to serve https. [https://localhost:8443](https://localhost:8443) |
 
 ## License
 
