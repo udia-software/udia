@@ -24,19 +24,21 @@ httpServer.listen(httpPort);
 httpServer.on("error", onError);
 httpServer.on("listening", onListening);
 
+httpsServer.listen(httpsPort);
+httpsServer.on("error", onError);
+httpsServer.on("listening", onListening);
+
+/*
 console.log("Running HTTP  on\t" +
   httpServer.address().address + "\t" +
   httpServer.address().family + "\tport " +
   httpServer.address().port);
 
-httpsServer.listen(httpsPort);
-httpsServer.on("error", onError);
-httpsServer.on("listening", onListening);
-
 console.log("Running HTTPS on\t" +
   httpsServer.address().address + "\t" +
   httpsServer.address().family + "\tport " +
   httpsServer.address().port);
+*/
 
 /**
  * Normalize a port into a number, string, or false.
@@ -59,6 +61,8 @@ function onError(error) {
   if (error.syscall !== "listen") {
     throw error;
   }
+
+  let port = httpPort;
 
   let bind = typeof port === "string"
     ? "Pipe " + port

@@ -13,6 +13,7 @@ import errorHandler = require("errorhandler");
 import methodOverride = require("method-override");
 import mongoose = require("mongoose");
 
+import {UserRoutes} from "./api/user/user.routes";
 import {ThingRoutes} from "./api/thing/thing.routes";
 
 /**
@@ -23,8 +24,8 @@ import {ThingRoutes} from "./api/thing/thing.routes";
  * @class Server
  */
 export class Server {
-  private MONGODB_URL: string = "mongodb://localhost:27017/udia";
-  private APP_SECRET: string = "SECRET_GOES_HERE";
+  private MONGODB_URL: string = process.env.MONGODB_URL || "mongodb://localhost:27017/udia";
+  private APP_SECRET: string = process.env.APP_SECRET || "SECRET_GOES_HERE";
 
   public app: express.Application;
 
@@ -52,7 +53,7 @@ export class Server {
     // Use JSON form and query string parser, cookie parser, and method override middleware
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({extended: true}));
-    this.app.use(cookieParser(process.env.APP_SECRET || this.APP_SECRET));
+    this.app.use(cookieParser(this.APP_SECRET));
     this.app.use(methodOverride());
 
     // Catch 404 and forward to the error handler
@@ -79,7 +80,7 @@ export class Server {
    */
   private dbConfig(): void {
     mongoose.Promise = require("bluebird");
-    mongoose.connect(process.env.MONGODB_URL || this.MONGODB_URL);
+    mongoose.connect(this.MONGODB_URL);
     mongoose.connection.on("error", console.error.bind(console, "An error occurred with the DB connection!"));
   }
 
@@ -88,6 +89,7 @@ export class Server {
    */
   private api(): void {
     let router: express.Router = express.Router();
+    UserRoutes.init(router);
     ThingRoutes.init(router);
     this.app.use(router);
   }

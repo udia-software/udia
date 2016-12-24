@@ -27,8 +27,8 @@ thingSchema.static("createThing", (thing: Object): Promise<any> => {
     _thing.save((err, saved) => {
       err ? reject(err)
         : resolve(saved);
-    })
-  })
+    });
+  });
 });
 
 thingSchema.static("deleteThing", (id: string): Promise<any> => {
@@ -42,7 +42,7 @@ thingSchema.static("deleteThing", (id: string): Promise<any> => {
         err ? reject(err)
           : resolve();
       });
-  })
+  });
 });
 
 let Thing = mongoose.model("Thing", thingSchema);
