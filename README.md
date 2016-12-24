@@ -71,6 +71,16 @@ Start your application. (Ensuring an instance of `mongod` is running)
 npm start
 ```
 
+## Development
+
+Here are the following gulp tasks:
+
+| Command | Description |
+|--------:|:----------- |
+| `gulp`  | Copy over all client html/css, npm dependencies, build all of the TypeScript files, build Semantic UI |
+| `gulp clean` | Remove the `dist` directory and all *.js and *.map files in `src` |
+| `gulp tslint` | Outputs a TSLint report for all the source code. |
+
 ## Environment Variables
 
 All of the default values are set programmatically if the environment variable does not exist.

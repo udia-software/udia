@@ -22,7 +22,7 @@ let schema = new mongoose.Schema({
     type: String, required: true, trim: true
   },
   role: {
-    type: String, required: true, trim: true, default: 'user'
+    type: String, required: true, trim: true, default: "user"
   },
   password: {
     type: String, required: true
@@ -35,8 +35,8 @@ let schema = new mongoose.Schema({
   }
 });
 
-// Non-sensitive info we'll be putting in the token
-schema.virtual('token')
+// Non-sensitive info we"ll be putting in the token
+schema.virtual("token")
   .get(function() {
     return {
       _id: this._id,
@@ -82,7 +82,7 @@ schema.methods = {
       } else {
         return callback(null, false);
       }
-    })
+    });
   },
 
   makeSalt(byteSize: number, callback: Function) {

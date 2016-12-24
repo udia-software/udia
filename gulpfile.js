@@ -3,6 +3,7 @@
  */
 let gulp = require("gulp");
 let ts = require("gulp-typescript");
+let tslint = require("gulp-tslint");
 let del = require("del");
 let semBuild = require("./semantic/tasks/build");
 
@@ -102,6 +103,17 @@ gulp.task("clean:dev", function () {
  --- Semantic UI Build integration ---
  */
 gulp.task("build ui", semBuild);
+
+/*
+ --- TypeScript Linter
+ */
+gulp.task("tslint", () => {
+  return gulp.src("src/**/*.ts")
+    .pipe(tslint({
+      formatter: "verbose"
+    }))
+    .pipe(tslint.report())
+});
 
 gulp.task("default",
   [
