@@ -1,19 +1,19 @@
 /**
  * Created by alexander on 2016-12-08.
  */
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit} from "@angular/core";
 
 import {ThingService} from "./thing.service";
 
 type Thing = {
   message: string;
   _id?: string;
-}
+};
 
 @Component({
-  selector: 'thing-cmp',
-  templateUrl: 'app/thing/thing.html',
-  styleUrls: ['app/thing/thing.css']
+  selector: "thing-cmp",
+  templateUrl: "app/thing/thing.html",
+  styleUrls: ["app/thing/thing.css"]
 })
 export class ThingComponent implements OnInit {
   title: string = "Things";
@@ -55,6 +55,6 @@ export class ThingComponent implements OnInit {
           if (t._id === id)
             return this.things.splice(i, 1);
         });
-      })
+      });
   }
 }

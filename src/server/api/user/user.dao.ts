@@ -53,11 +53,11 @@ userSchema.static("changePassword", (id: string, oldPass: string, newPass: strin
           user.password = newPass;
           return user.save()
             .then(() => {
-              resolve()
+              resolve();
             })
             .catch((err: Error) => {
-              reject(err)
-            })
+              reject(err);
+            });
         }
       });
   });
@@ -74,9 +74,8 @@ userSchema.static("getUser", (id: string): Promise<any> => {
       })
       .catch((err: Error) => {
         reject(err);
-      })
-
-  })
+      });
+  });
 });
 
 let User = mongoose.model("User", userSchema);

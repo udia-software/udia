@@ -4,22 +4,22 @@
 import {
   Inject,
   Injectable
-} from '@angular/core';
+} from "@angular/core";
 
 import {
   Observable
-} from 'rxjs/Observable';
+} from "rxjs/Observable";
 
 import {
   Http,
   Headers
-} from '@angular/http';
+} from "@angular/http";
 
-import 'rxjs/add/operator/map';
+import "rxjs/add/operator/map";
 
 @Injectable()
 export class ThingService {
-  static ENDPOINT: string = '/api/things/:id';
+  static ENDPOINT: string = "/api/things/:id";
 
   constructor(@Inject(Http) private _http: Http) {
 
@@ -27,7 +27,7 @@ export class ThingService {
 
   getAll(): Observable<any> {
     return this._http
-      .get(ThingService.ENDPOINT.replace(':id', ''))
+      .get(ThingService.ENDPOINT.replace(":id", ""))
       .map((r) => r.json());
   }
 
@@ -36,15 +36,15 @@ export class ThingService {
 
     let headers = new Headers();
 
-    headers.append('Content-Type', 'application/json');
+    headers.append("Content-Type", "application/json");
 
     return this._http
-      .post(ThingService.ENDPOINT.replace(':id', ''), _messageStringified, {headers})
+      .post(ThingService.ENDPOINT.replace(":id", ""), _messageStringified, {headers})
       .map((r) => r.json());
   }
 
   remove(id: string): Observable<any> {
     return this._http
-      .delete(ThingService.ENDPOINT.replace(':id', id));
+      .delete(ThingService.ENDPOINT.replace(":id", id));
   }
 }
