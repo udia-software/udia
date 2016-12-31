@@ -16,7 +16,7 @@ export interface User {
 
 let schema = new mongoose.Schema({
   username: {
-    type: String, required: true, trim: true
+    type: String, required: true, trim: true, lowercase: true
   },
   name: {
     type: String, required: true, trim: true
@@ -112,6 +112,8 @@ schema.methods = {
 
   encryptPassword(password: string, callback: Function) {
     if (!password || !this.salt) {
+      console.log(password);
+      console.log(this);
       if (!callback) {
         return null;
       } else {
