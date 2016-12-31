@@ -1,12 +1,13 @@
 {
   "name": "udia",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Udia - Commits for the sake of commits",
   "scripts": {
     "gulp": "gulp",
     "start": "node ./bin/www",
-    "test": "mocha --reporter spec --compilers ts:ts-node/register test/**/*.test.ts",
-    "coverage": "istanbul cover -e .ts mocha -- --reporter spec --compilers ts:ts-node/register"
+    "lint": "gulp tslint",
+    "test": "export NODE_ENV=\"test\" && mocha --reporter spec --compilers ts:ts-node/register test/**/*.test.ts",
+    "coverage": "export NODE_ENV=\"test\" && istanbul cover -e .ts mocha -- --reporter spec --compilers ts:ts-node/register test/**/*.test.ts"
   },
   "repository": {
     "type": "git",

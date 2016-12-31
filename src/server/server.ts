@@ -71,8 +71,11 @@ export class Server {
 
     // Use helmet for better security for web applications
     this.app.use(helmet());
-    // Log all API calls
-    this.app.use(logger("dev"));
+
+    // Log all API calls for development
+    if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "") {
+      this.app.use(logger("dev"));
+    }
   }
 
   /**
@@ -80,7 +83,11 @@ export class Server {
    */
   private dbConfig(): void {
     mongoose.Promise = require("bluebird");
-    mongoose.connect(this.MONGODB_URL);
+    if (process.env.NODE_ENV === "test") {
+      mongoose.connect(this.MONGODB_URL + "_test");
+    } else {
+      mongoose.connect(this.MONGODB_URL);
+    }
     mongoose.connection.on("error", console.error.bind(console, "An error occurred with the DB connection!"));
   }
 
