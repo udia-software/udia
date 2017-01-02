@@ -19,7 +19,7 @@ let schema = new mongoose.Schema({
     type: String, required: true, trim: true, lowercase: true
   },
   name: {
-    type: String, required: true, trim: true
+    type: String, trim: true
   },
   role: {
     type: String, required: true, trim: true, default: "user"
@@ -126,15 +126,6 @@ schema.methods = {
    */
     makeSalt(byteSize: number, callback: Function) {
     let defaultByteSize = 16;
-
-    if (typeof arguments[0] === "function") {
-      callback = arguments[0];
-      byteSize = defaultByteSize;
-    } else if (typeof arguments[1] === "function") {
-      callback = arguments[1];
-    } else {
-      throw new Error("Missing Callback");
-    }
 
     if (!byteSize) {
       byteSize = defaultByteSize;

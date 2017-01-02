@@ -5,6 +5,7 @@ import * as mongoose from "mongoose";
 import * as Promise from "bluebird";
 import * as _ from "lodash";
 import userSchema from "./user.schema";
+import {AuthService} from "../../auth/auth.service";
 
 userSchema.static("getAll", (): Promise<any> => {
   return new Promise((resolve: Function, reject: Function) => {
@@ -18,6 +19,9 @@ userSchema.static("getAll", (): Promise<any> => {
   });
 });
 
+/**
+ * Create the user, then return the token.
+ */
 userSchema.static("createUser", (user: Object): Promise<any> => {
   return new Promise((resolve: Function, reject: Function) => {
     if (!_.isObject(user)) {
@@ -25,8 +29,11 @@ userSchema.static("createUser", (user: Object): Promise<any> => {
     }
     let _user = new User(user);
     _user.save((err, saved) => {
-      err ? reject(err)
-        : resolve(saved);
+      if (err) {
+        reject(err);
+      } else {
+        resolve({token: new AuthService().signToken(saved._id, saved.get("role"))});
+      }
     });
   });
 });
