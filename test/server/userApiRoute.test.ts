@@ -34,6 +34,21 @@ describe("Authentication & User API:", () => {
   });
 
   describe("POST /auth/local", () => {
+    it("should respond with an error given improper credentials", done => {
+      chai.request(app).post("/auth/local")
+        .send({
+          username: "testuser",
+          password: "badpass"
+        })
+        .end((err, res) => {
+          expect(res.type).to.equal("application/json");
+          expect(res.status).to.equal(401);
+          expect(res.body).to.have.key("message");
+          expect(res.body.message).to.equal("This password is not correct.");
+          done();
+        })
+    });
+
     it("should respond with the JWT given proper credentials", done => {
       chai.request(app).post("/auth/local")
         .send({
@@ -43,8 +58,8 @@ describe("Authentication & User API:", () => {
         .end((err, res) => {
           expect(res.type).to.equal("application/json");
           expect(res.status).to.equal(200);
-          expect(res.body).to.be.a("string");
-          console.log(res.body);
+          expect(res.body).to.have.key("token");
+          expect(res.body.token).to.be.a("string");
           done();
         })
     });
