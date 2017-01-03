@@ -27,7 +27,7 @@ describe("Authentication & User API:", () => {
   });
 
 
-  describe("POST /api/users/", () => {
+  describe("POST /api/users", () => {
     it("should create a new user with the given credentials", done => {
       chai.request(app).post("/api/users")
         .send({
@@ -42,6 +42,20 @@ describe("Authentication & User API:", () => {
           done();
         });
     });
+    it("should not allow creation of another user with the same username", done => {
+      chai.request(app).post("/api/users")
+        .send({
+          username: "alexander",
+          password: "I'm a duplicate user trying to take this username"
+        })
+        .end((err, res) => {
+          expect(res.type).to.equal("application/json");
+          expect(res.status).to.equal(400);
+          expect(res.body).to.include.keys(["message"]);
+          expect(res.body.message).to.equal("User validation failed");
+          done();
+        })
+    })
   });
 
   describe("POST /auth/local", () => {
@@ -77,14 +91,24 @@ describe("Authentication & User API:", () => {
     });
   });
 
-  describe("GET /api/users/", () => {
-    it("should respond with an array of Users", done => {
+  describe("GET /api/users", () => {
+    it("should respond with a 401 error when unauthorized", done => {
       chai.request(app).get("/api/users")
         .end((err, res) => {
+          expect(res.status).to.equal(401);
+          done();
+        });
+    });
+
+    it("should respond with an array when authorized", done => {
+      chai.request(app).get("/api/users")
+        .set("authorization", `Bearer ${token}`)
+        .end((err, res) => {
+          expect(res.status).to.equal(200);
           expect(res.type).to.equal("application/json");
           expect(res.body).to.be.an("array");
           done();
-        });
+        })
     });
   });
 });

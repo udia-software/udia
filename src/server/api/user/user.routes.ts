@@ -3,12 +3,13 @@
  */
 import * as express from "express";
 import {UserController} from "./user.controller";
+import {AuthService} from "../../auth/auth.service";
 
 export class UserRoutes {
   static init(router: express.Router) {
     router
       .route("/api/users")
-      .get(UserController.getAll)
+      .get(AuthService.isAuthenticated(), UserController.getAll)
       .post(UserController.createUser);
 
     router

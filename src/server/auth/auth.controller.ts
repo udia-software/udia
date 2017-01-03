@@ -16,7 +16,7 @@ export class AuthController {
       if (!user) {
         return res.status(401).json({message: "Something went wrong, please try again."});
       }
-      let token = new AuthService().signToken(user.id, user.role);
+      let token = AuthService.signToken(user.id, user.role);
       res.json({token});
     })(req, res, next);
   }

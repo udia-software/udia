@@ -32,7 +32,7 @@ userSchema.static("createUser", (user: Object): Promise<any> => {
       if (err) {
         reject(err);
       } else {
-        resolve({token: new AuthService().signToken(saved._id, saved.get("role"))});
+        resolve({token: AuthService.signToken(saved._id, saved.get("role"))});
       }
     });
   });

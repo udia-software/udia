@@ -76,7 +76,7 @@ schema.pre("save", function (next) {
     return next(new Error("Invalid Password"));
   }
 
-  this.makeSalt(16, (saltErr: Error, salt: Buffer) => {
+  this.makeSalt((saltErr: Error, salt: Buffer) => {
     if (saltErr) {
       return next(saltErr);
     }
@@ -87,8 +87,8 @@ schema.pre("save", function (next) {
       }
       this.password = hashedPassword;
       next();
-    })
-  })
+    });
+  });
 });
 
 
@@ -121,17 +121,10 @@ schema.methods = {
   /**
    * Make Salt
    *
-   * @param {Number} byteSize - Optional salt byte size, default to 16
    * @param {Function} callback
    */
-    makeSalt(byteSize: number, callback: Function) {
-    let defaultByteSize = 16;
-
-    if (!byteSize) {
-      byteSize = defaultByteSize;
-    }
-
-    return crypto.randomBytes(byteSize, (err: Error, salt: Buffer) => {
+    makeSalt(callback: Function) {
+    return crypto.randomBytes(32, (err: Error, salt: Buffer) => {
       if (err) {
         return callback(err);
       } else {

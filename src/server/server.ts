@@ -6,6 +6,7 @@ import * as bodyParser from "body-parser";
 import * as cookieParser from "cookie-parser";
 import * as compression from "compression";
 import * as helmet from "helmet";
+import * as jwt from "express-jwt";
 import * as logger from "morgan";
 import * as path from "path";
 import * as zlib from "zlib";
@@ -28,6 +29,7 @@ import {ThingRoutes} from "./api/thing/thing.routes";
 export class Server {
   private MONGODB_URL: string = process.env.MONGODB_URL || "mongodb://localhost:27017/udia";
   private APP_SECRET: string = process.env.APP_SECRET || "SECRET_GOES_HERE";
+  private SESSION_SECRET: string = process.env.SESSION_SECRET || "SECRET_GOES_HERE";
 
   public app: express.Application;
 
@@ -73,6 +75,21 @@ export class Server {
 
     // Use helmet for better security for web applications
     this.app.use(helmet());
+
+    // Express JWT takes the token and sets it to req.auth
+    this.app.use(jwt({
+      secret: this.SESSION_SECRET,
+      credentialsRequired: false,
+      requestProperty: "auth",
+      getToken: function fromHeaderOrQueryString(req: express.Request) {
+        if (req.headers["authorization"] && req.headers["authorization"].split(" ")[0] === "Bearer") {
+          return req.headers["authorization"].split(" ")[1];
+        } else if (req.query && req.query.token) {
+          return req.query.token;
+        }
+        return null;
+      }
+    }));
 
     // Log all API calls for development
     if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "") {
