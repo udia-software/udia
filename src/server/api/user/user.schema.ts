@@ -16,10 +16,10 @@ export interface User {
 
 let schema = new mongoose.Schema({
   username: {
-    type: String, required: true, trim: true
+    type: String, required: true, trim: true, lowercase: true
   },
   name: {
-    type: String, required: true, trim: true
+    type: String, trim: true
   },
   role: {
     type: String, required: true, trim: true, default: "user"
@@ -37,7 +37,7 @@ let schema = new mongoose.Schema({
 
 // Non-sensitive info we"ll be putting in the token
 schema.virtual("token")
-  .get(function() {
+  .get(function () {
     return {
       _id: this._id,
       role: this.role
@@ -45,12 +45,12 @@ schema.virtual("token")
   });
 
 schema.path("username")
-  .validate(function(username: string): boolean {
+  .validate(function (username: string): boolean {
     return username.length >= 4;
-}, "Username must be 4 characters or longer.");
+  }, "Username must be 4 characters or longer.");
 
 schema.path("username")
-  .validate(function(value: string, respond: Function) {
+  .validate(function (value: string, respond: Function) {
     return this.constructor.findOne({username: value}).exec()
       .then((user: User) => {
         if (user) {
@@ -61,13 +61,46 @@ schema.path("username")
         }
         return respond(true);
       })
-      .catch(function(err: Error) {
+      .catch(function (err: Error) {
         throw err;
       });
   }, "The specified username is already in use.");
 
+schema.pre("save", function (next) {
+  // Handle new/update passwords
+  if (!this.isModified("password")) {
+    return next();
+  }
+
+  if (!this.password || !this.password.length) {
+    return next(new Error("Invalid Password"));
+  }
+
+  this.makeSalt((saltErr: Error, salt: Buffer) => {
+    if (saltErr) {
+      return next(saltErr);
+    }
+    this.salt = salt;
+    this.encryptPassword(this.password, (encryptErr: Error, hashedPassword: string) => {
+      if (encryptErr) {
+        return next(encryptErr);
+      }
+      this.password = hashedPassword;
+      next();
+    });
+  });
+});
+
+
 schema.methods = {
-  authenticate(password: string, callback: Function) {
+  /**
+   * Authenticate, check if the passwords are the same
+   *
+   * @param {string} password
+   * @param {Function} callback
+   * @returns {boolean}
+   */
+    authenticate(password: string, callback: Function) {
     if (!callback) {
       return this.password === this.encryptPassword(password);
     }
@@ -85,23 +118,13 @@ schema.methods = {
     });
   },
 
-  makeSalt(byteSize: number, callback: Function) {
-    let defaultByteSize = 16;
-
-    if (typeof arguments[0] === "function") {
-      callback = arguments[0];
-      byteSize = defaultByteSize;
-    } else if (typeof arguments[1] === "function") {
-      callback = arguments[1];
-    } else {
-      throw new Error("Missing Callback");
-    }
-
-    if (!byteSize) {
-      byteSize = defaultByteSize;
-    }
-
-    return crypto.randomBytes(byteSize, (err: Error, salt: Buffer) => {
+  /**
+   * Make Salt
+   *
+   * @param {Function} callback
+   */
+    makeSalt(callback: Function) {
+    return crypto.randomBytes(32, (err: Error, salt: Buffer) => {
       if (err) {
         return callback(err);
       } else {
@@ -110,7 +133,14 @@ schema.methods = {
     });
   },
 
-  encryptPassword(password: string, callback: Function) {
+  /**
+   * Encrypt the password
+   *
+   * @param {String} password
+   * @param {Function} callback
+   * @returns {String}
+   */
+    encryptPassword(password: string, callback: Function) {
     if (!password || !this.salt) {
       if (!callback) {
         return null;
@@ -124,11 +154,11 @@ schema.methods = {
     let salt = new Buffer(this.salt, "base64");
 
     if (!callback) {
-      return crypto.pbkdf2Sync(password, salt, defaultIterations, defaultKeyLength, "")
-        .toString();
+      return crypto.pbkdf2Sync(password, salt, defaultIterations, defaultKeyLength, "sha512")
+        .toString("base64");
     }
 
-    return crypto.pbkdf2(password, salt, defaultIterations, defaultKeyLength, "", (err: Error, key: Buffer) => {
+    return crypto.pbkdf2(password, salt, defaultIterations, defaultKeyLength, "sha512", (err: Error, key: Buffer) => {
       if (err) {
         return callback(err);
       } else {
