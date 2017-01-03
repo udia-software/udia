@@ -1,8 +1,6 @@
 # Udia
 
-A web application.
-
-Software is tragically beautiful because the struggle can be easily documented.
+Built under the conviction that software and philosophy can be unified.
 
 [![Build Status](https://travis-ci.org/udia-software/udia.svg?branch=master)](https://travis-ci.org/udia-software/udia)
 [![Coverage Status](https://coveralls.io/repos/github/udia-software/udia/badge.svg?branch=master)](https://coveralls.io/github/udia-software/udia?branch=master)
@@ -15,13 +13,12 @@ Software is tragically beautiful because the struggle can be easily documented.
 
 ## About
 
-Uses a MEAN* stack. (MAGNET)
+Uses a MAGNET stack. (MEAN*)
 * MongoDB - A free, open-source, cross-platform, document-oriented database program for all your NoSQL needs.
   * [Download](https://www.mongodb.com/download-center#community) and [Documentation](https://docs.mongodb.com/)
-  * To run this application in your development environment, `mongod` needs to be running.
+  * To run this application in your development environment, a `mongod` instance needs to be running.
 * Angular - A Superheroic JavaScript MVW Framework created by Google.
   * [Documentation](https://angular.io/docs/ts/latest/)
-  * Note: If you want to use Angular 1.x, please visit [generator-angular-fullstack](https://github.com/angular-fullstack/generator-angular-fullstack)
 * Gulp - A JavaScript streaming automation toolkit.
   * [Documentation](https://github.com/gulpjs/gulp/blob/master/docs/getting-started.md)
 * NodeJS - Server side JavaScript runtime environment based on V8.
@@ -80,6 +77,40 @@ Here are the following gulp tasks:
 | `gulp`  | Copy over all client html/css, npm dependencies, build all of the TypeScript files, build Semantic UI |
 | `gulp clean` | Remove the `dist` directory and all *.js and *.map files in `src` |
 | `gulp tslint` | Outputs a TSLint report for all the source code. |
+
+## Testing
+
+In order to test, simply run `npm test`.
+
+```bash
+> export NODE_ENV="test" && mocha --reporter spec --compilers ts:ts-node/register test/**/*.test.ts
+
+  Base Route
+    ✓ should be text/html
+
+  Thing API:
+    GET /api/things
+      ✓ should respond with an array of Things
+      ✓ should respond with a populated array of Things
+    POST /api/things
+      ✓ should respond with a newly created Thing object
+    DELETE /api/things/{id}
+      ✓ should delete the created Thing object
+
+  Authentication & User API:
+    POST /api/users
+      ✓ should create a new user with the given credentials
+      ✓ should not allow creation of another user with the same username
+    POST /auth/local
+      ✓ should respond with an error given improper credentials
+      ✓ should respond with the JWT given proper credentials
+    GET /api/users
+      ✓ should respond with a 401 error when unauthorized
+      ✓ should respond with an array when authorized
+
+
+  11 passing (245ms)
+```
 
 ## Environment Variables
 
