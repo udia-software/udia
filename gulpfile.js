@@ -5,7 +5,6 @@ let gulp = require("gulp");
 let ts = require("gulp-typescript");
 let tslint = require("gulp-tslint");
 let del = require("del");
-let semBuild = require("./semantic/tasks/build");
 
 /*
  --- Client files that the application developer controls directly ---
@@ -100,11 +99,6 @@ gulp.task("clean:dev", function () {
 });
 
 /*
- --- Semantic UI Build integration ---
- */
-gulp.task("build ui", semBuild);
-
-/*
  --- TypeScript Linter
  */
 gulp.task("tslint", () => {
@@ -123,7 +117,5 @@ gulp.task("default",
     "client:corejs", "client:zonejs", "client:systemjs", "client:rxjs", "client:reflectMetadata", "client:angular",
     // All typescript compilation
     "typescript",
-    // Build all the necessary UI files,
-    "build ui"
   ]
 );
