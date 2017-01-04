@@ -2,8 +2,10 @@
  * Created by alexander on 2016-12-09.
  */
 let gulp = require("gulp");
-let ts = require("gulp-typescript");
+let nodemon = require("gulp-nodemon");
 let tslint = require("gulp-tslint");
+let ts = require("gulp-typescript");
+let watch = require("gulp-watch");
 let del = require("del");
 
 /*
@@ -39,7 +41,8 @@ let ngPaths = {
   angular: ["node_modules/@angular/**/*"],
   jquery: ["node_modules/jquery/dist/jquery.min.js", "node_modules/jquery/dist/jquery.min.map"],
   tether: ["node_modules/tether/dist/js/tether.min.js"],
-  bootstrap: ["node_modules/bootstrap/dist/js/bootstrap.min.js", "node_modules/bootstrap/dist/css/bootstrap.min.css"]
+  bootstrap: ["node_modules/bootstrap/dist/js/bootstrap.min.js",
+    "node_modules/bootstrap/dist/css/bootstrap.min.css", "node_modules/bootstrap/dist/css/bootstrap.min.css.map"]
 };
 
 gulp.task("client:corejs", function () {
@@ -96,7 +99,7 @@ let tsProject = ts.createProject("tsconfig.json");
 gulp.task("typescript", function () {
   return gulp.src("src/**/*.ts")
     .pipe(tsProject())
-    .pipe(gulp.dest("dist"));
+    .pipe(gulp.dest("dist"))
 });
 
 /*
@@ -126,6 +129,34 @@ gulp.task("tslint", () => {
     }))
     .pipe(tslint.report())
 });
+
+gulp.task("watch", () => {
+  watch(["src/client/**/*.html"], function () {
+    gulp.run(["client:html"]);
+  });
+  watch(["src/client/**/*.css"], function () {
+    gulp.run(["client:css"]);
+  });
+  watch(["src/**/*.ts"], function () {
+    gulp.run(["typescript"]);
+  })
+});
+
+gulp.task("serve", () => {
+  return nodemon({
+    "script": "./bin/www",
+    "ignore": [
+      ".git",
+      "node_modules"
+    ],
+    "ext": "html js css",
+    "env": {
+      "NODE_ENV": "development"
+    }
+  });
+});
+
+gulp.task("start", ["serve", "watch"]);
 
 gulp.task("default",
   [
