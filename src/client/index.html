@@ -7,18 +7,6 @@
   <link rel="icon" href="/favicon.ico"/>
   <base href="/">
 
-  <!--
-  Here's an aside. I learned back in school that stylesheets and javascript files should be placed at
-  the end of an HTML file because of a performance gain when loading a page for the first time.
-  But, I'm going to put the semantic-ui stuff up top because I want this app to look sexy first.
-  Also, I'm pretty sure the page won't even FUNCTION until all the Angular2 JavaScript is loaded
-  and SystemJS loads all of the ng2 dependencies.
-
-  web development folks, where the standards don't matter and the woosh and the no bugs plz
-  https://github.com/udia-software/udia
-  - Alex
-  -->
-
   <!-- ngdeps and config are populated by the gulp build process and will exist in /dist/client -->
   <script src="/ngdeps/corejs/shim.min.js"></script>
   <script src="/ngdeps/zonejs/zone.js"></script>
@@ -30,6 +18,8 @@
   <script src="/tether/tether.min.js"></script>
   <link rel="stylesheet" type="text/css" href="/bootstrap/bootstrap.min.css">
   <script src="/bootstrap/bootstrap.min.js"></script>
+
+  <!-- SystemJS Config -->
   <script>
     (function (global) {
       System.config({
@@ -52,7 +42,8 @@
           '@angular/forms': 'ngdeps:@angular/forms/bundles/forms.umd.js',
 
           // other libraries
-          'rxjs': 'ngdeps:rxjs'
+          'rxjs': 'ngdeps:rxjs',
+          '@ng-bootstrap/ng-bootstrap': 'ngdeps:@ng-bootstrap/ng-bootstrap/bundles/ng-bootstrap.js',
         },
         // packages tells the System loader how to load when no filename and/or no extension
         packages: {

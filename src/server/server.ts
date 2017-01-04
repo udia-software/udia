@@ -121,6 +121,10 @@ export class Server {
 
     UserRoutes.init(router);
     ThingRoutes.init(router);
+    router.route("/*")
+      .get(function (req: express.Request, res: express.Response, next: express.NextFunction) {
+        res.sendFile(path.join(__dirname, "..", "client", "index.html"));
+      });
     this.app.use(router);
   }
 }

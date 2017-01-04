@@ -8,7 +8,8 @@ enableProdMode();
 
 @Component({
   selector: "my-app",
-  template: `<h1>Welcome to {{name}}!</h1><thing-cmp></thing-cmp>`,
+  templateUrl: "app/app.html",
+  styleUrls: ["app/app.css"]
 })
 export class AppComponent {
   name = "Udia";
