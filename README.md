@@ -66,6 +66,8 @@ npm run gulp
 Start your application. (Ensuring an instance of `mongod` is running)
 ```bash
 npm start
+# Or, if you want auto-reload with nodemon
+gulp start
 ```
 
 ## Development
@@ -74,43 +76,14 @@ Here are the following gulp tasks:
 
 | Command | Description |
 |--------:|:----------- |
-| `gulp`  | Copy over all client html/css, npm dependencies, build all of the TypeScript files, build Semantic UI |
+| `gulp`  | Copy over all client html/css, npm dependencies, build all of the TypeScript files |
 | `gulp clean` | Remove the `dist` directory and all *.js and *.map files in `src` |
 | `gulp tslint` | Outputs a TSLint report for all the source code. |
+| `gulp start` | Runs nodemon while watching all the typescript, css, html files. |
 
 ## Testing
 
 In order to test, simply run `npm test`.
-
-```bash
-> export NODE_ENV="test" && mocha --reporter spec --compilers ts:ts-node/register test/**/*.test.ts
-
-  Base Route
-    ✓ should be text/html
-
-  Thing API:
-    GET /api/things
-      ✓ should respond with an array of Things
-      ✓ should respond with a populated array of Things
-    POST /api/things
-      ✓ should respond with a newly created Thing object
-    DELETE /api/things/{id}
-      ✓ should delete the created Thing object
-
-  Authentication & User API:
-    POST /api/users
-      ✓ should create a new user with the given credentials
-      ✓ should not allow creation of another user with the same username
-    POST /auth/local
-      ✓ should respond with an error given improper credentials
-      ✓ should respond with the JWT given proper credentials
-    GET /api/users
-      ✓ should respond with a 401 error when unauthorized
-      ✓ should respond with an array when authorized
-
-
-  11 passing (245ms)
-```
 
 ## Environment Variables
 

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>UDIA</title>
-  <link rel="icon" href="/favicon.ico" />
+  <link rel="icon" href="/favicon.ico"/>
   <base href="/">
 
   <!--
@@ -19,15 +19,17 @@
   - Alex
   -->
 
-  <!-- Semantic build (integrated with gulp's default task) will output this stuff -->
-  <link rel="stylesheet" type="text/css" href="/semantic/semantic.min.css">
-  <script src="/semantic/semantic.min.js"></script>
-
   <!-- ngdeps and config are populated by the gulp build process and will exist in /dist/client -->
   <script src="/ngdeps/corejs/shim.min.js"></script>
   <script src="/ngdeps/zonejs/zone.js"></script>
   <script src="/ngdeps/reflectmetadata/Reflect.js"></script>
   <script src="/ngdeps/systemjs/system.src.js"></script>
+
+  <!-- jQuery, Tether, and Bootstrap -->
+  <script src="/jquery/jquery.min.js"></script>
+  <script src="/tether/tether.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="/bootstrap/bootstrap.min.css">
+  <script src="/bootstrap/bootstrap.min.js"></script>
   <script>
     (function (global) {
       System.config({

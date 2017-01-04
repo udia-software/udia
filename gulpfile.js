@@ -2,10 +2,11 @@
  * Created by alexander on 2016-12-09.
  */
 let gulp = require("gulp");
-let ts = require("gulp-typescript");
+let nodemon = require("gulp-nodemon");
 let tslint = require("gulp-tslint");
+let ts = require("gulp-typescript");
+let watch = require("gulp-watch");
 let del = require("del");
-let semBuild = require("./semantic/tasks/build");
 
 /*
  --- Client files that the application developer controls directly ---
@@ -37,7 +38,11 @@ let ngPaths = {
   systemjs: ["node_modules/systemjs/dist/system.src.js"],
   rxjs: ["node_modules/rxjs/**/*"],
   reflectMetadata: ["node_modules/reflect-metadata/Reflect.js", "node_modules/reflect-metadata/Reflect.js.map"],
-  angular: ["node_modules/@angular/**/*"]
+  angular: ["node_modules/@angular/**/*"],
+  jquery: ["node_modules/jquery/dist/jquery.min.js", "node_modules/jquery/dist/jquery.min.map"],
+  tether: ["node_modules/tether/dist/js/tether.min.js"],
+  bootstrap: ["node_modules/bootstrap/dist/js/bootstrap.min.js",
+    "node_modules/bootstrap/dist/css/bootstrap.min.css", "node_modules/bootstrap/dist/css/bootstrap.min.css.map"]
 };
 
 gulp.task("client:corejs", function () {
@@ -70,6 +75,21 @@ gulp.task("client:angular", function () {
     .pipe(gulp.dest("dist/client/ngdeps/@angular"));
 });
 
+gulp.task("client:jquery", function () {
+  return gulp.src(ngPaths.jquery)
+    .pipe(gulp.dest("dist/client/jquery"))
+});
+
+gulp.task("client:tether", function () {
+  return gulp.src(ngPaths.tether)
+    .pipe(gulp.dest("dist/client/tether"))
+});
+
+gulp.task("client:bootstrap", function () {
+  return gulp.src(ngPaths.bootstrap)
+    .pipe(gulp.dest("dist/client/bootstrap"))
+});
+
 /*
  --- TypeScript Build Step. Compile all client and server typescript files to the `dist` directory ---
  */
@@ -79,7 +99,7 @@ let tsProject = ts.createProject("tsconfig.json");
 gulp.task("typescript", function () {
   return gulp.src("src/**/*.ts")
     .pipe(tsProject())
-    .pipe(gulp.dest("dist"));
+    .pipe(gulp.dest("dist"))
 });
 
 /*
@@ -100,11 +120,6 @@ gulp.task("clean:dev", function () {
 });
 
 /*
- --- Semantic UI Build integration ---
- */
-gulp.task("build ui", semBuild);
-
-/*
  --- TypeScript Linter
  */
 gulp.task("tslint", () => {
@@ -115,15 +130,43 @@ gulp.task("tslint", () => {
     .pipe(tslint.report())
 });
 
+gulp.task("watch", () => {
+  watch(["src/client/**/*.html"], function () {
+    gulp.run(["client:html"]);
+  });
+  watch(["src/client/**/*.css"], function () {
+    gulp.run(["client:css"]);
+  });
+  watch(["src/**/*.ts"], function () {
+    gulp.run(["typescript"]);
+  })
+});
+
+gulp.task("serve", () => {
+  return nodemon({
+    "script": "./bin/www",
+    "ignore": [
+      ".git",
+      "node_modules"
+    ],
+    "ext": "html js css",
+    "env": {
+      "NODE_ENV": "development"
+    }
+  });
+});
+
+gulp.task("start", ["serve", "watch"]);
+
 gulp.task("default",
   [
     // Client files
     "client:html", "client:css", "client:ico",
     // Angular Dependencies on Client
     "client:corejs", "client:zonejs", "client:systemjs", "client:rxjs", "client:reflectMetadata", "client:angular",
+    // jQuery and Bootstrap, Bootstrap Dependencies
+    "client:jquery", "client:bootstrap", "client:tether",
     // All typescript compilation
     "typescript",
-    // Build all the necessary UI files,
-    "build ui"
   ]
 );
