@@ -8,19 +8,26 @@ import {BrowserModule} from "@angular/platform-browser";
 import {NgbModule} from "@ng-bootstrap/ng-bootstrap";
 import {RouterModule, Routes} from "@angular/router";
 
+// Components
 import {AppComponent}  from "./app.component";
 import {LoginComponent} from "./account/login/login.component";
 import {SignupComponent} from "./account/signup/signup.component";
+import {ProfileComponent} from "./account/profile/profile.component";
 import {ThingComponent} from "./thing/thing.component";
-
 import {NotFoundComponent} from "./error/notFound/notFound.component";
 
+// Services
+import {AccountService} from "./account/account.service";
 import {ThingService} from "./thing/thing.service";
+
+// Guards (for authentication verification)
+import {LoggedInGuard} from "./account/account.guard";
 
 const appRoutes: Routes = [
   {path: "", component: ThingComponent},
-  {path: "login", component: LoginComponent},
-  {path: "signup", component: SignupComponent},
+  {path: "accounts/login", component: LoginComponent},
+  {path: "accounts/signup", component: SignupComponent},
+  {path: "accounts", component: ProfileComponent, canActivate: [LoggedInGuard]},
   {path: "**", component: NotFoundComponent}
 ];
 
@@ -36,11 +43,14 @@ const appRoutes: Routes = [
     AppComponent,
     LoginComponent,
     SignupComponent,
+    ProfileComponent,
     ThingComponent,
     NotFoundComponent
   ],
   providers: [
-    ThingService
+    ThingService,
+    AccountService,
+    LoggedInGuard
   ],
   bootstrap: [AppComponent]
 })

@@ -12,13 +12,13 @@
                 data-target="#exCollapsingNavbar2" aria-expanded="false" aria-controls="exCollapsingNavbar2"
                 aria-label="Toggle navigation"></button>
         <div class="collapse navbar-toggleable-xs" id="exCollapsingNavbar2">
-          <a class="navbar-brand" routerLink="">Udia</a>
+          <a class="navbar-brand" [routerLink]="['/']">Udia</a>
           <ul class="nav navbar-nav">
             <li class="nav-item active">
-              <a class="nav-link" routerLink="/login" routerLinkActive="active">Login</a>
+              <a class="nav-link" [routerLink]="['/accounts/login']" routerLinkActive="active">Login</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" routerLink="/signup" routerLinkActive="active">Sign Up</a>
+              <a class="nav-link" [routerLink]="['/accounts/signup']" routerLinkActive="active">Sign Up</a>
             </li>
           </ul>
         </div>
