@@ -2,7 +2,7 @@
  * Created by udia on 2017-01-07.
  */
 import {Injectable} from '@angular/core';
-import {Router, CanActivate} from '@angular/router';
+import {CanActivate} from '@angular/router';
 import {AccountService} from './account.service';
 
 @Injectable()
