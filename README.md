@@ -9,7 +9,6 @@ Built under the conviction that software and philosophy can be unified.
 [![Join the chat at https://gitter.im/udia-software/Lobby](https://badges.gitter.im/udia-software/Lobby.svg)](https://gitter.im/udia-software/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [![Dependency Status](https://img.shields.io/david/udia-software/udia.svg)](https://david-dm.org/udia-software/udia)
-[![Dev-Dependency Status](https://img.shields.io/david/dev/udia-software/udia.svg)](https://david-dm.org/udia-software/udia#info=devDependencies)
 
 ## About
 
@@ -106,5 +105,6 @@ To change the value without setting it in code, please set the environment varia
 [MIT License](LICENSE)
 
 ---
+[![Udia](/logo.svg "Optional Title")](https://a.udia.ca/)
 
 ###By [Udia](https://udia.ca)
