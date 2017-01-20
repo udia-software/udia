@@ -8,8 +8,8 @@ let https = require("https");
 let fs = require("fs");
 let path = require("path");
 
-let httpPort = normalizePort(process.env.HTTP_PORT || 8080);
-let httpsPort = normalizePort(process.env.HTTPS_PORT || 8443);
+let httpPort = normalizePort(process.env.HTTP_PORT || process.env.PORT || 8080);
+let httpsPort = normalizePort(process.env.HTTPS_PORT || process.env.PORT || 8443);
 
 let options = {
   key: fs.readFileSync(path.join(__dirname, "..", "cert", "key.pem")),
@@ -17,16 +17,13 @@ let options = {
 };
 
 let app = server.Server.bootstrap().app;
+
+// Http server!
 let httpServer = http.createServer(app);
-let httpsServer = https.createServer(options, app);
 
 httpServer.listen(httpPort);
 httpServer.on("error", onError);
 httpServer.on("listening", onListening);
-
-httpsServer.listen(httpsPort);
-httpsServer.on("error", onError);
-httpsServer.on("listening", onListening);
 
 if (httpServer.address()) {
   console.log("Running HTTP  on\t" +
@@ -37,13 +34,22 @@ if (httpServer.address()) {
   console.log("Could not read httpServer address!");
 }
 
-if (httpsServer.address()) {
-  console.log("Running HTTPS on\t" +
-    httpsServer.address().address + "\t" +
-    httpsServer.address().family + "\tport " +
-    httpsServer.address().port);
-} else {
-  console.log("Could not read httpsServer address!");
+// Https server! (Notice, if the http port and the https port conflict, only http will be used.)
+if (httpsPort && httpsPort != httpPort) {
+  let httpsServer = https.createServer(options, app);
+
+  httpsServer.listen(httpsPort);
+  httpsServer.on("error", onError);
+  httpsServer.on("listening", onListening);
+
+  if (httpsServer.address()) {
+    console.log("Running HTTPS on\t" +
+      httpsServer.address().address + "\t" +
+      httpsServer.address().family + "\tport " +
+      httpsServer.address().port);
+  } else {
+    console.log("Could not read httpsServer address!");
+  }
 }
 
 /**
