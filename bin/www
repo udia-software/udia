@@ -28,15 +28,23 @@ httpsServer.listen(httpsPort);
 httpsServer.on("error", onError);
 httpsServer.on("listening", onListening);
 
-console.log("Running HTTP  on\t" +
-  httpServer.address().address + "\t" +
-  httpServer.address().family + "\tport " +
-  httpServer.address().port);
+if (httpServer.address()) {
+  console.log("Running HTTP  on\t" +
+    httpServer.address().address + "\t" +
+    httpServer.address().family + "\tport " +
+    httpServer.address().port);
+} else {
+  console.log("Could not read httpServer address!");
+}
 
-console.log("Running HTTPS on\t" +
-  httpsServer.address().address + "\t" +
-  httpsServer.address().family + "\tport " +
-  httpsServer.address().port);
+if (httpsServer.address()) {
+  console.log("Running HTTPS on\t" +
+    httpsServer.address().address + "\t" +
+    httpsServer.address().family + "\tport " +
+    httpsServer.address().port);
+} else {
+  console.log("Could not read httpsServer address!");
+}
 
 /**
  * Normalize a port into a number, string, or false.
