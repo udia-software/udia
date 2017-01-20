@@ -28,7 +28,6 @@ httpsServer.listen(httpsPort);
 httpsServer.on("error", onError);
 httpsServer.on("listening", onListening);
 
-/*
 console.log("Running HTTP  on\t" +
   httpServer.address().address + "\t" +
   httpServer.address().family + "\tport " +
@@ -38,7 +37,6 @@ console.log("Running HTTPS on\t" +
   httpsServer.address().address + "\t" +
   httpsServer.address().family + "\tport " +
   httpsServer.address().port);
-*/
 
 /**
  * Normalize a port into a number, string, or false.
