@@ -27,7 +27,7 @@ import {ThingRoutes} from "./api/thing/thing.routes";
  * @class Server
  */
 export class Server {
-  private MONGODB_URL: string = process.env.MONGODB_URL || "mongodb://localhost:27017/udia";
+  private MONGODB_URI: string = process.env.MONGODB_URI || "mongodb://localhost:27017/udia";
   private APP_SECRET: string = process.env.APP_SECRET || "SECRET_GOES_HERE";
   private SESSION_SECRET: string = process.env.SESSION_SECRET || "SECRET_GOES_HERE";
 
@@ -103,9 +103,9 @@ export class Server {
   private dbConfig(): void {
     mongoose.Promise = require("bluebird");
     if (process.env.NODE_ENV === "test") {
-      mongoose.connect(this.MONGODB_URL + "_test");
+      mongoose.connect(this.MONGODB_URI + "_test");
     } else {
-      mongoose.connect(this.MONGODB_URL);
+      mongoose.connect(this.MONGODB_URI);
     }
     mongoose.connection.on("error", console.error.bind(console, "An error occurred with the DB connection!"));
   }

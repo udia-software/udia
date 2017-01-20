@@ -95,7 +95,7 @@ To change the value without setting it in code, please set the environment varia
 | Key            | Default Value                      |Description|
 | -------------- |:----------------------------------:|----------:|
 | NODE_ENV       | `undefined`                        | The node environment. `undefined` will be equivalent to `"development"`. Can also be `"test"` or `"production"`. |
-| MONGODB_URL    | `"mongodb://localhost:27017/udia"` | The Mongo Connection String. ([See spec.](https://docs.mongodb.com/manual/reference/connection-string/)) |
+| MONGODB_URI    | `"mongodb://localhost:27017/udia"` | The Mongo Connection String. ([See spec.](https://docs.mongodb.com/manual/reference/connection-string/)) |
 | APP_SECRET     | `"SECRET_GOES_HERE"`               | [Cookie Parser secret](https://github.com/expressjs/cookie-parser#cookieparsersecret-options) used for signing cookies. |
 | SESSION_SECRET | `"SECRET_GOES_HERE"`               | JsonWebToken secret used to sign all the tokens. |
 | HTTP_PORT      | `8080`                             | Port to serve http. [http://localhost:8080](http://localhost:8080) |
