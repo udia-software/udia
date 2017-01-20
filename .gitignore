@@ -6,4 +6,5 @@ src/**/*.map
 test/**/*.js
 test/**/*.map
 coverage
+dist
 .idea

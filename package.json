@@ -7,7 +7,11 @@
     "start": "node ./bin/www",
     "lint": "gulp tslint",
     "test": "export NODE_ENV=\"test\" && mocha --reporter spec --compilers ts:ts-node/register test/**/*.test.ts",
-    "coverage": "export NODE_ENV=\"test\" && istanbul cover -e .ts mocha -- --reporter spec --compilers ts:ts-node/register test/**/*.test.ts"
+    "coverage": "export NODE_ENV=\"test\" && istanbul cover -e .ts mocha -- --reporter spec --compilers ts:ts-node/register test/**/*.test.ts",
+    "postinstall": "gulp",
+
+    "heroku-prebuild": "echo This runs before Heroku installs your dependencies.",
+    "heroku-postbuild": "echo This runs afterwards! :)"
   },
   "repository": {
     "type": "git",
@@ -87,6 +91,7 @@
   },
   "homepage": "https://github.com/udia-software/udia#readme",
   "engines": {
-    "node": "stable"
+    "node": "6.9.4",
+    "npm": "3.10.10"
   }
 }
