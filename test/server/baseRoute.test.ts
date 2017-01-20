@@ -9,7 +9,7 @@ chai.use(chaiHttp);
 const expect = chai.expect;
 
 describe("Base Route", () => {
-  it("should be text/html", (done) => {
+  it("should be text/html (How do I properly test the client?)", (done) => {
     chai.request(app).get("/")
       .end((err, res) => {
         expect(res.type).to.equal("text/html");

@@ -5,6 +5,5 @@ src/**/*.map
 !src/client/systemjs.config.js
 test/**/*.js
 test/**/*.map
-dist
 coverage
 .idea
