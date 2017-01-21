@@ -29,3 +29,9 @@ $ openssl rsa -in key.pem -out newkey.pem && mv newkey.pem key.pem
 Enter pass phrase for key.pem:
 writing RSA key
 ```
+
+Alternatively, use Lets Encrypt:
+```bash
+sudo certbot certonly --manual
+```
+Verification token can be set through an environment variable `LETS_ENCRYPT_CHALLENGE_RESPONSE`.
