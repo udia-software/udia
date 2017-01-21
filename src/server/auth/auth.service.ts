@@ -8,7 +8,13 @@ import User from "../api/user/user.dao";
 export class AuthService {
   private static SESSION_SECRET: string = process.env.SESSION_SECRET || "SECRET_GOES_HERE";
 
-  public static signToken(id: string, role: string) {
+  /**
+   * Return the signed token string given the user id and role
+   * @param id {string} User's mongoose id
+   * @param role {string} User's role in the application
+   * @returns {string} Signed token string
+   */
+  public static signToken(id: string, role: string): string {
     return jwt.sign({_id: id, role}, AuthService.SESSION_SECRET, {
       expiresIn: 60 * 60 * 5
     });
