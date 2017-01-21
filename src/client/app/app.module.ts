@@ -5,7 +5,6 @@ import {NgModule}      from "@angular/core";
 import {HttpModule} from "@angular/http";
 import {FormsModule} from "@angular/forms";
 import {BrowserModule} from "@angular/platform-browser";
-import {NgbModule} from "@ng-bootstrap/ng-bootstrap";
 import {RouterModule, Routes} from "@angular/router";
 
 // Components
@@ -36,7 +35,6 @@ const appRoutes: Routes = [
     BrowserModule,
     HttpModule,
     FormsModule,
-    NgbModule.forRoot(),
     RouterModule.forRoot(appRoutes)
   ],
   declarations: [

@@ -6,17 +6,18 @@
   <title>UDIA</title>
   <link rel="icon" href="/favicon.ico"/>
   <base href="/">
-  <!-- jQuery, Tether, and Bootstrap -->
-  <script src="/jquery/jquery.min.js"></script>
-  <script src="/tether/tether.min.js"></script>
-  <link rel="stylesheet" type="text/css" href="/bootstrap/bootstrap.min.css">
-  <script src="/bootstrap/bootstrap.min.js"></script>
 
   <!-- ngdeps and config are populated by the gulp build process and will exist in /dist/client -->
   <script src="/ngdeps/corejs/shim.min.js"></script>
   <script src="/ngdeps/zonejs/zone.js"></script>
   <script src="/ngdeps/reflectmetadata/Reflect.js"></script>
   <script src="/ngdeps/systemjs/system.src.js"></script>
+
+  <!-- jQuery, Tether, and Bootstrap -->
+  <script src="/jquery/jquery.min.js"></script>
+  <script src="/tether/tether.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="/bootstrap/bootstrap.min.css">
+  <script src="/bootstrap/bootstrap.min.js"></script>
 
   <!-- SystemJS Config -->
   <script>
@@ -42,7 +43,6 @@
 
           // other libraries
           'rxjs': 'ngdeps:rxjs',
-          '@ng-bootstrap/ng-bootstrap': 'ngdeps:@ng-bootstrap/ng-bootstrap/bundles/ng-bootstrap.js',
         },
         // packages tells the System loader how to load when no filename and/or no extension
         packages: {
