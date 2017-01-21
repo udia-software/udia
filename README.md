@@ -99,6 +99,7 @@ To change the value without setting it in code, please set the environment varia
 | SESSION_SECRET | `"SECRET_GOES_HERE"`               | JsonWebToken secret used to sign all the tokens. |
 | HTTP_PORT      | `8080`                             | Port to serve http. [http://localhost:8080](http://localhost:8080) |
 | HTTPS_PORT     | `8443`                             | Port to serve https. [https://localhost:8443](https://localhost:8443) |
+| LETS_ENCRYPT_CHALLENGE_RESPONSE | `undefined` | The response expected for [LetsEncrypt](https://letsencrypt.org/) ACME challenge. |
 
 ## License
 

@@ -14,6 +14,7 @@ import errorHandler = require("errorhandler");
 import methodOverride = require("method-override");
 import mongoose = require("mongoose");
 
+import {LetsEncrypt} from "./letsEncrypt";
 import {AuthPassport} from "./auth/auth.passport";
 import {AuthRoutes} from "./auth/auth.routes";
 import {UserRoutes} from "./api/user/user.routes";
@@ -115,6 +116,8 @@ export class Server {
    */
   private api(): void {
     let router: express.Router = express.Router();
+
+    LetsEncrypt.init(router);
 
     AuthPassport.setup();
     AuthRoutes.init(router);
