@@ -45,7 +45,6 @@
     "@types/node": "^7.0.0",
     "@types/passport": "^0.3.1",
     "@types/passport-local": "^1.0.29",
-    "@ng-bootstrap/ng-bootstrap": "^1.0.0-alpha.16",
     "bluebird": "^3.4.6",
     "body-parser": "^1.15.2",
     "bootstrap": "^4.0.0-alpha.5",
