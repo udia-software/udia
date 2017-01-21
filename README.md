@@ -105,6 +105,6 @@ To change the value without setting it in code, please set the environment varia
 [MIT License](LICENSE)
 
 ---
-[![Udia](/logo.svg "Optional Title")](https://a.udia.ca/)
+[![Udia](/logo.svg)](https://a.udia.ca/)
 
 ###By [Udia](https://udia.ca)
