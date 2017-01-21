@@ -40,9 +40,6 @@ let ngPaths = {
   reflectMetadata: ["node_modules/reflect-metadata/Reflect.js", "node_modules/reflect-metadata/Reflect.js.map"],
   angular: ["node_modules/@angular/**/*"],
   jquery: ["node_modules/jquery/dist/jquery.min.js", "node_modules/jquery/dist/jquery.min.map"],
-  tether: ["node_modules/tether/dist/js/tether.min.js"],
-  bootstrap: ["node_modules/bootstrap/dist/js/bootstrap.min.js",
-    "node_modules/bootstrap/dist/css/bootstrap.min.css", "node_modules/bootstrap/dist/css/bootstrap.min.css.map"]
 };
 
 gulp.task("client:corejs", function () {
@@ -78,16 +75,6 @@ gulp.task("client:angular", function () {
 gulp.task("client:jquery", function () {
   return gulp.src(ngPaths.jquery)
     .pipe(gulp.dest("dist/client/jquery"))
-});
-
-gulp.task("client:tether", function () {
-  return gulp.src(ngPaths.tether)
-    .pipe(gulp.dest("dist/client/tether"))
-});
-
-gulp.task("client:bootstrap", function () {
-  return gulp.src(ngPaths.bootstrap)
-    .pipe(gulp.dest("dist/client/bootstrap"))
 });
 
 /*
@@ -165,7 +152,7 @@ gulp.task("default",
     // Angular Dependencies on Client
     "client:corejs", "client:zonejs", "client:systemjs", "client:rxjs", "client:reflectMetadata", "client:angular",
     // jQuery and Bootstrap, Bootstrap Dependencies
-    "client:jquery", "client:bootstrap", "client:tether",
+    "client:jquery",
     // All typescript compilation
     "typescript",
   ]
