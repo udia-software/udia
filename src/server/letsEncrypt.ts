@@ -4,13 +4,12 @@
 import * as express from "express";
 
 export class LetsEncrypt {
-  private LETS_ENCRYPT_CHALLENGE_RESPONSE: string = process.env.LETS_ENCRYPT_CHALLENGE_RESPONSE || "";
-
   static init(router: express.Router) {
+    let letsEncryptChallengeResponse: string = process.env.LETS_ENCRYPT_CHALLENGE_RESPONSE || "";
     router
       .route("/.well-known/acme-challenge/:content")
       .get(function (req: express.Request, res: express.Response, next: express.NextFunction): void {
-        res.send(this.LETS_ENCRYPT_CHALLENGE_RESPONSE);
+        res.send(letsEncryptChallengeResponse);
       });
   }
 }
