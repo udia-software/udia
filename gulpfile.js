@@ -77,6 +77,11 @@ gulp.task("client:jquery", function () {
     .pipe(gulp.dest("dist/client/jquery"))
 });
 
+gulp.task("client:semantic", function () {
+  return gulp.src(["semantic/dist/semantic.min.css", "semantic/dist/semantic.min.js"])
+    .pipe(gulp.dest("dist/client/semanticui"))
+});
+
 /*
  --- TypeScript Build Step. Compile all client and server typescript files to the `dist` directory ---
  */
@@ -151,8 +156,8 @@ gulp.task("default",
     "client:html", "client:css", "client:ico",
     // Angular Dependencies on Client
     "client:corejs", "client:zonejs", "client:systemjs", "client:rxjs", "client:reflectMetadata", "client:angular",
-    // jQuery and Bootstrap, Bootstrap Dependencies
-    "client:jquery",
+    // jQuery and Semantic
+    "client:jquery", "client:semantic",
     // All typescript compilation
     "typescript",
   ]

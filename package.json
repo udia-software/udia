@@ -9,7 +9,6 @@
     "test": "export NODE_ENV=\"test\" && mocha --reporter spec --compilers ts:ts-node/register test/**/*.test.ts",
     "coverage": "export NODE_ENV=\"test\" && istanbul cover -e .ts mocha -- --reporter spec --compilers ts:ts-node/register test/**/*.test.ts",
     "postinstall": "gulp",
-
     "heroku-prebuild": "echo \"This runs before Heroku installs your dependencies.\"",
     "heroku-postbuild": "echo \"This runs afterwards! :)\""
   },
@@ -73,6 +72,7 @@
     "passport-local": "^1.0.0",
     "reflect-metadata": "0.1.9",
     "rxjs": "5.0.3",
+    "semantic-ui": "^2.2.7",
     "systemjs": "0.19.43",
     "ts-node": "^2.0.0",
     "tslint": "^4.2.0",
