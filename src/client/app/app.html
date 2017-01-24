@@ -1,13 +1,74 @@
 <div>
   <h1>UDIA</h1>
-  <a [routerLink]="['/accounts/login']" routerLinkActive="active">Login</a>
-  <a [routerLink]="['/accounts/signup']" routerLinkActive="active">Sign Up</a>
-  <div id="router-container">
-    <router-outlet></router-outlet>
-  </div>
-  <footer>
-    <div>
-      <span>Made by <a href="https://www.udia.ca/">Udia</a></span>
+
+  <!-- Following Menu -->
+  <div class="ui large top fixed hidden menu">
+    <div class="ui container">
+      <a class="active item">Home</a>
+      <a class="item">Work</a>
+      <a class="item">Company</a>
+      <a class="item">Careers</a>
+      <div class="right menu">
+        <div class="item">
+          <a class="ui button" [routerLink]="['/accounts/login']" routerLinkActive="active">Log in</a>
+        </div>
+        <div class="item">
+          <a class="ui primary button" [routerLink]="['/accounts/signup']" routerLinkActive="active">Sign Up</a>
+        </div>
+      </div>
     </div>
-  </footer>
+  </div>
+
+  <!-- Sidebar Menu -->
+  <div class="ui vertical inverted sidebar menu">
+    <a class="active item">Home</a>
+    <a class="item">Work</a>
+    <a class="item">Company</a>
+    <a class="item">Careers</a>
+    <a class="item" [routerLink]="['/accounts/login']" routerLinkActive="active">Login</a>
+    <a class="item" [routerLink]="['/accounts/signup']" routerLinkActive="active">Signup</a>
+  </div>
+
+  <!-- Page Contents -->
+  <div class="pusher">
+    <div class="ui inverted vertical masthead center aligned segment">
+
+      <div class="ui text container">
+        <h1 class="ui inverted header">
+          UDIA
+        </h1>
+        <h2>You are the author of yourself, in the same way you are unanimous with the universe.</h2>
+      </div>
+
+    </div>
+
+    <div id="router-container">
+      <router-outlet></router-outlet>
+    </div>
+    <footer>
+      <div>
+        <span>Made by <a href="https://www.udia.ca/">Udia</a></span>
+      </div>
+    </footer>
+
+    <div class="ui inverted vertical footer segment">
+      <div class="ui container">
+        <div class="ui stackable inverted divided equal height stackable grid">
+          <div class="three wide column">
+            <h4 class="ui inverted header">About</h4>
+            <div class="ui inverted link list">
+              <a href="https://youtu.be/BSsDYk0lLi0" class="item">The Book</a>
+              <a href="https://github.com/udia-software/udia" class="item">The Code</a>
+              <a href="https://alexander-wong.com/" class="item">The Developer</a>
+              <a href="https://www.udia.ca/" class="item">UDIA</a>
+            </div>
+          </div>
+          <div class="seven wide column">
+            <h4 class="ui inverted header">You are what you observe.</h4>
+            <p>We must make observation itself be an action worth doing.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
