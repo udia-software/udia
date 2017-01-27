@@ -1,6 +1,7 @@
 <div>
   <h1>Signup</h1>
   <form role="form" (submit)="signup($event, username.value, password.value)">
+    <span ng-if="error">{{error.text()}}</span>
     <div class="form-group">
       <label for="username">Username</label>
       <input type="text" #username id="username" placeholder="Username">

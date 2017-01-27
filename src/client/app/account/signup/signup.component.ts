@@ -11,21 +11,20 @@ import { Http } from "@angular/http";
   styleUrls: ["app/account/signup/signup.css"]
 })
 export class SignupComponent {
+  error = false;
   constructor(public router: Router, public http: Http) {
   }
 
   signup(event: Event, username: string, password: string) {
     event.preventDefault();
-    let body = JSON.stringify({ username, password });
-    console.log(body);
-    this.http.post("/api/users", body)
+    this.http.post("/api/users", {username, password})
       .subscribe(
         response => {
           localStorage.setItem("auth_token", response.json().id_token);
-          this.router.navigate(["home"]);
+          this.router.navigate([""]);
         },
         error => {
-          alert(error.text());
+          this.error = true;
           console.log(error.text());
         }
       );

@@ -4,10 +4,7 @@
   <!-- Following Menu -->
   <div class="ui large top fixed hidden menu">
     <div class="ui container">
-      <a class="active item">Home</a>
-      <a class="item">Work</a>
-      <a class="item">Company</a>
-      <a class="item">Careers</a>
+      <a class="active item" [routerLink]="['']">Home</a>
       <div class="right menu">
         <div class="item">
           <a class="ui button" [routerLink]="['/accounts/login']" routerLinkActive="active">Log in</a>
@@ -21,10 +18,7 @@
 
   <!-- Sidebar Menu -->
   <div class="ui vertical inverted sidebar menu">
-    <a class="active item">Home</a>
-    <a class="item">Work</a>
-    <a class="item">Company</a>
-    <a class="item">Careers</a>
+    <a class="active item" [routerLink]="['']">Home</a>
     <a class="item" [routerLink]="['/accounts/login']" routerLinkActive="active">Login</a>
     <a class="item" [routerLink]="['/accounts/signup']" routerLinkActive="active">Signup</a>
   </div>
