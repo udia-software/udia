@@ -17,6 +17,7 @@
   <script src="/ngdeps/zonejs/zone.js"></script>
   <script src="/ngdeps/reflectmetadata/Reflect.js"></script>
   <script src="/ngdeps/systemjs/system.src.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
 
   <!-- SystemJS Config -->
   <script>
@@ -60,6 +61,9 @@
     System.import('app').catch(function (err) {
       console.error(err);
     });
+  </script>
+  <script>
+    var socket = io();
   </script>
 </head>
 <body>
