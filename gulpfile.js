@@ -78,11 +78,6 @@ gulp.task("client:jquery", function () {
     .pipe(gulp.dest("dist/client/jquery"))
 });
 
-gulp.task("client:semantic", function () {
-  return gulp.src(["semantic/dist/semantic.min.css", "semantic/dist/semantic.min.js"])
-    .pipe(gulp.dest("dist/client/semanticui"))
-});
-
 gulp.task("client:socketio", function () {
   return gulp.src(ngPaths.socketio)
     .pipe(gulp.dest("dist/client/socket.io"))
@@ -162,8 +157,8 @@ gulp.task("default",
     "client:html", "client:css", "client:ico",
     // Angular Dependencies on Client
     "client:corejs", "client:zonejs", "client:systemjs", "client:rxjs", "client:reflectMetadata", "client:angular",
-    // jQuery and Semantic
-    "client:jquery", "client:semantic",
+    // jQuery
+    "client:jquery",
     // Socket.io
     "client:socketio",
     // All typescript compilation
