@@ -21,6 +21,11 @@ let app = server.Server.bootstrap().app;
 // Http server!
 let httpServer = http.createServer(app);
 
+let io = require('socket.io')(httpServer);
+io.on('connection', function(){
+  console.log("Started SocketIO Connection!");
+});
+
 httpServer.listen(httpPort);
 httpServer.on("error", onError);
 httpServer.on("listening", onListening);
@@ -37,6 +42,11 @@ if (httpServer.address()) {
 // Https server! (Notice, if the http port and the https port conflict, only http will be used.)
 if (httpsPort && httpsPort != httpPort) {
   let httpsServer = https.createServer(options, app);
+
+  let ioSecure = require('socket.io')(httpsServer);
+  ioSecure.on('connection', function(){
+    console.log("Started SocketIO Connection (Secure)!");
+  });
 
   httpsServer.listen(httpsPort);
   httpsServer.on("error", onError);
