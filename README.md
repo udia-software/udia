@@ -11,6 +11,19 @@ Built with the idea that great software should be easy to write and painless to 
 
 Phoenix Framework testing.
 
+## Getting Started
+
+1. Ensure PostgreSQL database is up and running, currently tested and verified with [Postgres.app](https://postgresapp.com/)
+2. Navigate to Udia project folder `cd udia`
+3. Configure the database `mix ecto.create`
+4. Get the application dependencies `mix deps.get`
+5. Start the application `mix phoenix.server`
+
+## Documentation
+WIP
+
+http://www.phoenixframework.org/docs/adding-pages
+
 ## License
 
 [Apache License](LICENSE)
