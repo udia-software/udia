@@ -3,6 +3,11 @@
   <p class="lead">A productive web framework that<br />does not compromise speed and maintainability.</p>
 </div>
 
+<div class=row>
+  <div id="messages"></div>
+  <input id="chat-input" type="text"></input>
+</div>
+
 <div class="row marketing">
   <div class="col-lg-6">
     <h4>Resources</h4>
