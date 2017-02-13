@@ -21,6 +21,7 @@ defmodule Udia.Router do
 
     get "/hello", HelloController, :index
     get "/hello/:messenger", HelloController, :show
+    resources "/users", UserController
   end
 
   scope "/api", Udia do
