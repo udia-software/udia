@@ -1,11 +1,18 @@
-node_modules
-npm-debug.log
-src/**/*.js
-src/**/*.map
-!src/client/systemjs.config.js
-test/**/*.js
-test/**/*.map
-coverage
-dist
+# Created by https://www.gitignore.io/api/phoenix
+
+### Phoenix ###
+# Phoenix: a web framework for Elixir
+_build/
+/db
+/deps
+/*.ez
+node_modules/
+erl_crash.dump
+/priv/static/
+/config/prod.secret.exs
+/rel
+
+### IntelliJ IDEA ###
 .idea
-!semantic/dist
+
+# End of https://www.gitignore.io/api/phoenix
