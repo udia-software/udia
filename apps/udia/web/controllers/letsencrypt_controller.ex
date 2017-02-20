@@ -20,31 +20,11 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.Router do
-  use Udia.Web, :router
+defmodule Udia.LetsencryptController do
+  use Udia.Web, :controller
 
-  pipeline :browser do
-    plug :accepts, ["html"]
-    plug :fetch_session
-    plug :fetch_flash
-    plug :protect_from_forgery
-    plug :put_secure_browser_headers
+  def index(conn, _params) do
+    challenge = Application.get_env(:udia, :lets_encrypt)[:challenge]
+    text conn, "#{challenge}"
   end
-
-  pipeline :api do
-    plug :accepts, ["json"]
-  end
-
-  scope "/", Udia do
-    pipe_through :browser # Use the default browser stack
-    # Route for handling Lets Encrypt challenge validation
-    get "/.well-known/acme-challenge/:id", LetsencryptController, :index
-
-    get "/", PageController, :index
-  end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", Udia do
-  #   pipe_through :api
-  # end
 end

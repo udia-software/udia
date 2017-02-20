@@ -31,7 +31,7 @@ config :udia, Udia.Endpoint,
 # Print only warnings and errors during test
 config :logger, level: :warn
 
-# Configure your database
+# Configure your database for Travis Continuous Integration
 config :udia, Udia.Repo,
   adapter: Ecto.Adapters.Postgres,
   username: "postgres",

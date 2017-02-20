@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/udia-software/udia.svg?branch=master)](https://travis-ci.org/udia-software/udia)
 
 [![UDIA](logo.png)](http://a.udia.ca)
+
 **Universal Dream | Infinite Awareness**
 
 Live site can be found at [http://a.udia.ca/](http://a.udia.ca)
@@ -42,7 +43,9 @@ Udia is currently configured to run on Heroku using:
 ## License
 
 Udia Software Incorporated (UDIA)
+
 Copyright (c) 2016-2017 Udia Software Incorporated. All Rights Reserved.
 
 Common Public Attribution License Version 1.0 (CPAL)
+
 Full license text can be found at [LICENSE](LICENSE)
