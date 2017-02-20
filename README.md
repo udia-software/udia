@@ -1,8 +1,9 @@
 # Udia
 
-**Universal Dream | Infinite Awareness**
+[![Build Status](https://travis-ci.org/udia-software/udia.svg?branch=master)](https://travis-ci.org/udia-software/udia)
 
 [![UDIA](logo.png)](http://a.udia.ca)
+**Universal Dream | Infinite Awareness**
 
 Live site can be found at [http://a.udia.ca/](http://a.udia.ca)
 
