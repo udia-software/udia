@@ -1,27 +1,25 @@
 <!DOCTYPE html>
 <!--
-###############################################################################
-# The contents of this file are subject to the Common Public Attribution
-# License Version 1.0. (the "License"); you may not use this file except in
-# compliance with the License. You may obtain a copy of the License at
-# https://raw.githubusercontent.com/udia-software/udia/master/LICENSE.
-# The License is based on the Mozilla Public License Version 1.1, but
-# Sections 14 and 15 have been added to cover use of software over a computer
-# network and provide for limited attribution for the Original Developer.
-# In addition, Exhibit A has been modified to be consistent with Exhibit B.
-#
-# Software distributed under the License is distributed on an "AS IS" basis,
-# WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
-# the specific language governing rights and limitations under the License.
-#
-# The Original Code is UDIA.
-#
-# The Original Developer is the Initial Developer.  The Initial Developer of
-# the Original Code is Udia Software Incorporated.
-#
-# All portions of the code written by UDIA are Copyright (c) 2016-2017
-# Udia Software Incorporated. All Rights Reserved.
-###############################################################################
+The contents of this file are subject to the Common Public Attribution
+License Version 1.0. (the "License"); you may not use this file except in
+compliance with the License. You may obtain a copy of the License at
+https://raw.githubusercontent.com/udia-software/udia/master/LICENSE.
+The License is based on the Mozilla Public License Version 1.1, but
+Sections 14 and 15 have been added to cover use of software over a computer
+network and provide for limited attribution for the Original Developer.
+In addition, Exhibit A has been modified to be consistent with Exhibit B.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+the specific language governing rights and limitations under the License.
+
+The Original Code is UDIA.
+
+The Original Developer is the Initial Developer.  The Initial Developer of
+the Original Code is Udia Software Incorporated.
+
+All portions of the code written by UDIA are Copyright (c) 2016-2017
+Udia Software Incorporated. All Rights Reserved.
 -->
 <html lang="en">
   <head>
@@ -31,7 +29,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Hello Udia!</title>
+    <title>UDIA</title>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
   </head>
 
@@ -39,8 +37,15 @@
     <div class="container">
       <header class="header">
         <nav role="navigation">
-          <ul class="nav nav-pills pull-right">
-            <li><a href="http://www.phoenixframework.org/docs">Get Started</a></li>
+          <ul class="breadcrumb text-right">
+          <%= if @current_user do %>
+          <li><%= @current_user.username %></li>
+          <li><%= link "All Users", to: user_path(@conn, :index) %></li>
+          <li><%= link "Log out", to: session_path(@conn, :delete, @current_user), method: "delete" %></li>
+          <% else %>
+          <li><%= link "Register", to: user_path(@conn, :new) %></li>
+          <li><%= link "Log in", to: session_path(@conn, :new) %></li>
+          <% end %>
           </ul>
         </nav>
         <span class="logo"></span>
@@ -54,6 +59,7 @@
       </main>
 
     </div> <!-- /container -->
+    <script>window.userToken = "<%= assigns[:user_token] %>"</script>
     <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
   </body>
 </html>

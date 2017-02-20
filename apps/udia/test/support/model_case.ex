@@ -44,6 +44,7 @@ defmodule Udia.ModelCase do
       import Ecto.Changeset
       import Ecto.Query
       import Udia.ModelCase
+      import Udia.TestHelpers
     end
   end
 

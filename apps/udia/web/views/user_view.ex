@@ -20,11 +20,10 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.PageControllerTest do
-  use Udia.ConnCase
+defmodule Udia.UserView do
+  use Udia.Web, :view
 
-  test "GET /", %{conn: conn} do
-    conn = get conn, "/"
-    assert html_response(conn, 200) =~ "UDIA"
+  def render("user.json", %{user: user}) do
+    %{id: user.id, username: user.username}
   end
 end

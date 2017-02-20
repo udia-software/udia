@@ -20,11 +20,46 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.PageControllerTest do
-  use Udia.ConnCase
+defmodule Udia.User do
+  use Udia.Web, :model
 
-  test "GET /", %{conn: conn} do
-    conn = get conn, "/"
-    assert html_response(conn, 200) =~ "UDIA"
+  schema "users" do
+    field :username, :string
+    field :password, :string, virtual: true
+    field :password_hash, :string
+
+    timestamps()
+  end
+
+  @doc """
+  Builds a changeset based on the `struct` and `params`.
+  """
+  def changeset(struct, params \\ %{}) do
+    struct
+    |> cast(params, [:username, :password])
+    |> validate_required([:username])
+    |> validate_length(:username, min: 1, max: 20)
+    |> unique_constraint(:username)
+  end
+
+  @doc """
+  Builds a changeset for registering a new user.
+  """
+  def registration_changeset(model, params) do
+    model
+    |> changeset(params)
+    |> cast(params, [:password])
+    |> validate_required([:password])
+    |> validate_length(:password, min: 6, max: 100)
+    |> put_pass_hash()
+  end
+
+  defp put_pass_hash(changeset) do
+    case changeset do
+      %Ecto.Changeset{valid?: true, changes: %{password: pass}} ->
+        put_change(changeset, :password_hash, Comeonin.Bcrypt.hashpwsalt(pass))
+      _ ->
+        changeset
+    end
   end
 end

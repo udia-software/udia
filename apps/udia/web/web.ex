@@ -58,6 +58,7 @@ defmodule Udia.Web do
 
       import Udia.Router.Helpers
       import Udia.Gettext
+      import Udia.Auth, only: [authenticate_user: 2]
     end
   end
 
@@ -80,6 +81,8 @@ defmodule Udia.Web do
   def router do
     quote do
       use Phoenix.Router
+
+      import Udia.Auth, only: [authenticate_user: 2]
     end
   end
 

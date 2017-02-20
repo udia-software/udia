@@ -20,11 +20,17 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.PageControllerTest do
-  use Udia.ConnCase
+defmodule Udia.TestHelpers do
+  alias Udia.Repo
 
-  test "GET /", %{conn: conn} do
-    conn = get conn, "/"
-    assert html_response(conn, 200) =~ "UDIA"
+  def insert_user(attrs \\ %{}) do
+    changes = attrs |> Enum.into(%{
+      username: "user#{Base.encode16(:crypto.strong_rand_bytes(8))}",
+      password: "supersecret",
+    })
+
+    %Udia.User{}
+    |> Udia.User.registration_changeset(changes)
+    |> Repo.insert!()
   end
 end

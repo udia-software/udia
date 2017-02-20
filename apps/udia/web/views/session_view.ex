@@ -20,11 +20,6 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.PageControllerTest do
-  use Udia.ConnCase
-
-  test "GET /", %{conn: conn} do
-    conn = get conn, "/"
-    assert html_response(conn, 200) =~ "UDIA"
-  end
+defmodule Udia.SessionView do
+  use Udia.Web, :view
 end

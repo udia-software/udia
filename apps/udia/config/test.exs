@@ -39,3 +39,7 @@ config :udia, Udia.Repo,
   database: "udia_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
+
+# Reduce security on test environment
+config :comeonin, :bcrypt_log_rounds, 4
+config :comeonin, :pbkdf2_rounds, 1

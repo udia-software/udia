@@ -48,6 +48,7 @@ defmodule Udia.ConnCase do
       import Ecto.Query
 
       import Udia.Router.Helpers
+      import Udia.TestHelpers
 
       # The default endpoint for testing
       @endpoint Udia.Endpoint
