@@ -1,3 +1,0 @@
-<div class="jumbotron">
-  <h2>Hello World, to <%= @messenger %>!</h2>
-</div>
