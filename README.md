@@ -18,3 +18,10 @@ Ready to run in production? Please [check our deployment guides](http://www.phoe
   * Docs: https://hexdocs.pm/phoenix
   * Mailing list: http://groups.google.com/group/phoenix-talk
   * Source: https://github.com/phoenixframework/phoenix
+
+## License
+
+Udia Software Incorporated (UDIA)
+
+Common Public Attribution License Version 1.0 (CPAL)
+Full license text can be found at [LICENSE](LICENSE)
