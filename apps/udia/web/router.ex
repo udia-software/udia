@@ -47,6 +47,11 @@ defmodule Udia.Router do
     get "/", PageController, :index
   end
 
+  scope "/", Udia do
+    pipe_through [:browser, :authenticate_user]
+    resources "/nodes", NodeController
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", Udia do
   #   pipe_through :api

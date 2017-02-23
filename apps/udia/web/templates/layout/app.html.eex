@@ -41,6 +41,7 @@ Udia Software Incorporated. All Rights Reserved.
           <%= if @current_user do %>
           <li><%= @current_user.username %></li>
           <li><%= link "All Users", to: user_path(@conn, :index) %></li>
+          <li><%= link "All Nodes", to: node_path(@conn, :index) %></li>
           <li><%= link "Log out", to: session_path(@conn, :delete, @current_user), method: "delete" %></li>
           <% else %>
           <li><%= link "Register", to: user_path(@conn, :new) %></li>
@@ -48,7 +49,6 @@ Udia Software Incorporated. All Rights Reserved.
           <% end %>
           </ul>
         </nav>
-        <span class="logo"></span>
       </header>
 
       <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>

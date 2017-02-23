@@ -20,23 +20,23 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.TestHelpers do
-  alias Udia.Repo
+defmodule Udia.Node do
+  use Udia.Web, :model
 
-  def insert_user(attrs \\ %{}) do
-    changes = attrs |> Enum.into(%{
-      username: "user#{Base.encode16(:crypto.strong_rand_bytes(8))}",
-      password: "supersecret",
-    })
+  schema "nodes" do
+    field :title, :string
+    field :content, :string
+    belongs_to :user, Udia.User
 
-    %Udia.User{}
-    |> Udia.User.registration_changeset(changes)
-    |> Repo.insert!()
+    timestamps()
   end
 
-  def insert_node(user, attrs \\ %{}) do
-    user
-    |> Ecto.build_assoc(:nodes, attrs)
-    |> Repo.insert!()
+  @doc """
+  Builds a changeset based on the `struct` and `params`.
+  """
+  def changeset(struct, params \\ %{}) do
+    struct
+    |> cast(params, [:title, :content])
+    |> validate_required([:title, :content])
   end
 end

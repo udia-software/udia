@@ -1,0 +1,23 @@
+<h2>Show node</h2>
+
+<ul>
+
+  <li>
+    <strong>Title:</strong>
+    <%= @node.title %>
+  </li>
+
+  <li>
+    <strong>Content:</strong>
+    <%= @node.content %>
+  </li>
+
+  <li>
+    <strong>User:</strong>
+    <%= @node.user_id %>
+  </li>
+
+</ul>
+
+<%= link "Edit", to: node_path(@conn, :edit, @node), class: "btn btn-default btn-xs" %>
+<%= link "Back", to: node_path(@conn, :index), class: "btn btn-default btn-xs" %>
