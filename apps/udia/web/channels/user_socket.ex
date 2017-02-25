@@ -43,6 +43,8 @@ defmodule Udia.UserSocket do
   end
 
   def connect(_params, socket) do
+    # Allow anonymous socket join
+    {:ok, assign(socket, :user_id, nil)}
   end
 
   def id(socket), do: "users_socket:#{socket.assigns.user_id}"

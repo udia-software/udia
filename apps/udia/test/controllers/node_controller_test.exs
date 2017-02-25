@@ -3,11 +3,9 @@ defmodule Udia.NodeControllerTest do
 
   alias Udia.Node
 
-  test "requires user authentication on all actions", %{conn: conn} do
+  test "requires user authentication on all actions except index and show", %{conn: conn} do
     Enum.each([
       get(conn, node_path(conn, :new)),
-      get(conn, node_path(conn, :index)),
-      get(conn, node_path(conn, :show, "123")),
       get(conn, node_path(conn, :edit, "123")),
       put(conn, node_path(conn, :update, "123", %{})),
       post(conn, node_path(conn, :create, %{})),
