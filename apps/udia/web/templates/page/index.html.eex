@@ -1,4 +1,0 @@
-<div class="jumbotron">
-  <h2><%= gettext "%{name}", name: "UDIA!" %></h2>
-  <p class="lead">Universal Dream | Infinite Awareness</p>
-</div>

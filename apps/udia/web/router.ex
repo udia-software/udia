@@ -37,6 +37,11 @@ defmodule Udia.Router do
   end
 
   scope "/", Udia do
+    pipe_through [:browser, :authenticate_user]
+    resources "/nodes", NodeController, only: [:new, :create, :edit, :update, :delete]
+  end
+
+  scope "/", Udia do
     pipe_through :browser # Use the default browser stack
     # Route for handling Lets Encrypt challenge validation
     get "/.well-known/acme-challenge/:id", LetsencryptController, :index
@@ -44,12 +49,8 @@ defmodule Udia.Router do
     resources "/users", UserController, only: [:index, :show, :new, :create]
     resources "/sessions", SessionController, only: [:new, :create, :delete]
 
-    get "/", PageController, :index
-  end
-
-  scope "/", Udia do
-    pipe_through [:browser, :authenticate_user]
-    resources "/nodes", NodeController
+    resources "/nodes", NodeController, only: [:show]
+    get "/", NodeController, :index
   end
 
   # Other scopes may use custom stacks.

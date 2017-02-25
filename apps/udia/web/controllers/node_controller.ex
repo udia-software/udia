@@ -30,7 +30,7 @@ defmodule Udia.NodeController do
       [conn, conn.params, conn.assigns.current_user])
   end
 
-  def index(conn, _params, user) do
+  def index(conn, _params, _user) do
     nodes = Repo.all(Node)
     render(conn, "index.html", nodes: nodes)
   end
@@ -59,7 +59,7 @@ defmodule Udia.NodeController do
     end
   end
 
-  def show(conn, %{"id" => id}, user) do
+  def show(conn, %{"id" => id}, _user) do
     node = Repo.get!(Node, id)
     render(conn, "show.html", node: node)
   end
@@ -69,7 +69,7 @@ defmodule Udia.NodeController do
     if !node do
       conn
       |> put_flash(:info, "You cannot edit this node.")
-      |> redirect(to: node_path(conn, :index))
+      |> redirect(to: node_path(conn, :show, id))
     end
     changeset = Node.changeset(node)
     render(conn, "edit.html", node: node, changeset: changeset)

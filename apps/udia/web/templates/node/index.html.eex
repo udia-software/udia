@@ -20,15 +20,17 @@
       <td class="text-right">
         <%= link "Show", to: node_path(@conn, :show, node),
           class: "btn btn-default btn-xs" %>
+        <%= if @current_user && @current_user.id == node.user_id do %>
         <%= link "Edit", to: node_path(@conn, :edit, node),
           class: "btn btn-default btn-xs" %>
         <%= link "Delete", to: node_path(@conn, :delete, node),
           method: :delete, data: [confirm: "Are you sure?"],
           class: "btn btn-danger btn-xs" %>
+        <% end %>
       </td>
     </tr>
 <% end %>
   </tbody>
 </table>
 
-<%= link "New node", to: node_path(@conn, :new) %>
+<%= link "New node", to: node_path(@conn, :new), class: "btn btn-success" %>
