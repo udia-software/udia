@@ -20,17 +20,21 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.Repo.Migrations.CreateUser do
+defmodule Udia.Repo.Migrations.CreateComment do
   use Ecto.Migration
 
   def change do
-    create table(:users) do
-      add :username, :string, null: false
-      add :password_hash, :string
+    create table(:comments) do
+      add :body, :string
+      add :node_id, references(:nodes, on_delete: :delete_all)
+      add :parent_comment_id, references(:comments, on_delete: :nothing)
+      add :user_id, references(:users, on_delete: :nilify_all)
 
       timestamps()
     end
+    create index(:comments, [:node_id])
+    create index(:comments, [:parent_comment_id])
+    create index(:comments, [:user_id])
 
-    create unique_index(:users, [:username])
   end
 end

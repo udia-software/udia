@@ -37,12 +37,15 @@ defmodule Udia.Router do
   end
 
   scope "/", Udia do
+    # These routes need authentication
     pipe_through [:browser, :authenticate_user]
+    # TODO: remove node pages for the form and only have the endpoints for creating the data (Create, Update, Delete)
     resources "/nodes", NodeController, only: [:new, :create, :edit, :update, :delete]
+    resources "/comments", CommentController, only: [:create, :update, :delete]
   end
 
   scope "/", Udia do
-    pipe_through :browser # Use the default browser stack
+    pipe_through :browser
     # Route for handling Lets Encrypt challenge validation
     get "/.well-known/acme-challenge/:id", LetsencryptController, :index
 

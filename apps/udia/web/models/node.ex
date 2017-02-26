@@ -27,6 +27,7 @@ defmodule Udia.Node do
     field :title, :string
     field :content, :string
     belongs_to :user, Udia.User
+    has_many :comments, Udia.Comment
 
     timestamps()
   end

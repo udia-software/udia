@@ -28,6 +28,7 @@ defmodule Udia.User do
     field :password, :string, virtual: true
     field :password_hash, :string
     has_many :nodes, Udia.Node
+    has_many :comments, Udia.Comment
 
     timestamps()
   end
