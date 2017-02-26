@@ -20,30 +20,21 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.UserSocket do
-  use Phoenix.Socket
+defmodule Udia.Repo.Migrations.CreateComment do
+  use Ecto.Migration
 
-  ## Channels
-  channel "nodes:*", Udia.NodeChannel
+  def change do
+    create table(:comments) do
+      add :body, :string
+      add :node_id, references(:nodes, on_delete: :delete_all)
+      add :parent_comment_id, references(:comments, on_delete: :nothing)
+      add :user_id, references(:users, on_delete: :nilify_all)
 
-  ## Transports
-  transport :websocket, Phoenix.Transports.WebSocket, timeout: 45_000
-  # transport :longpoll, Phoenix.Transports.LongPoll
-
-  @max_age 2 * 7 * 24 * 60 * 60
-  def connect(%{"token" => token}, socket) do
-    case Phoenix.Token.verify(socket, "user socket", token, max_sage: @max_age) do
-      {:ok, user_id} ->
-        # If user id exists, assign to user id. This will be flushed out on login
-        {:ok, assign(socket, :user_id, user_id)}
-      {:error, _reason} ->
-        :error
+      timestamps()
     end
-  end
+    create index(:comments, [:node_id])
+    create index(:comments, [:parent_comment_id])
+    create index(:comments, [:user_id])
 
-  def connect(_params, _socket) do
-    :error
   end
-
-  def id(socket), do: "users_socket:#{socket.assigns.user_id}"
 end

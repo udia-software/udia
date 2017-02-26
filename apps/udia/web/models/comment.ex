@@ -20,30 +20,25 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.UserSocket do
-  use Phoenix.Socket
+defmodule Udia.Comment do
+  use Udia.Web, :model
 
-  ## Channels
-  channel "nodes:*", Udia.NodeChannel
+  schema "comments" do
+    field :body, :string
+    belongs_to :user, Udia.User
+    belongs_to :node, Udia.Node
+    belongs_to :parent_comment, Udia.Comment
+    has_many :child_comments, Udia.Comment
 
-  ## Transports
-  transport :websocket, Phoenix.Transports.WebSocket, timeout: 45_000
-  # transport :longpoll, Phoenix.Transports.LongPoll
-
-  @max_age 2 * 7 * 24 * 60 * 60
-  def connect(%{"token" => token}, socket) do
-    case Phoenix.Token.verify(socket, "user socket", token, max_sage: @max_age) do
-      {:ok, user_id} ->
-        # If user id exists, assign to user id. This will be flushed out on login
-        {:ok, assign(socket, :user_id, user_id)}
-      {:error, _reason} ->
-        :error
-    end
+    timestamps()
   end
 
-  def connect(_params, _socket) do
-    :error
+  @doc """
+  Builds a changeset based on the `struct` and `params`.
+  """
+  def changeset(struct, params \\ %{}) do
+    struct
+    |> cast(params, [:body])
+    |> validate_required([:body])
   end
-
-  def id(socket), do: "users_socket:#{socket.assigns.user_id}"
 end

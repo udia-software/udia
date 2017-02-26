@@ -6,31 +6,19 @@
       <th>Title</th>
       <th>Content</th>
       <th>User</th>
-
-      <th></th>
     </tr>
   </thead>
   <tbody>
 <%= for node <- @nodes do %>
     <tr>
-      <td><%= node.title %></td>
+      <td><%= link node.title, to: node_path(@conn, :show, node) %></td>
       <td><%= node.content %></td>
-      <td><%= node.user_id %></td>
-
-      <td class="text-right">
-        <%= link "Show", to: node_path(@conn, :show, node),
-          class: "btn btn-default btn-xs" %>
-        <%= if @current_user && @current_user.id == node.user_id do %>
-        <%= link "Edit", to: node_path(@conn, :edit, node),
-          class: "btn btn-default btn-xs" %>
-        <%= link "Delete", to: node_path(@conn, :delete, node),
-          method: :delete, data: [confirm: "Are you sure?"],
-          class: "btn btn-danger btn-xs" %>
-        <% end %>
-      </td>
+      <td><%= link node.user.username, to: user_path(@conn, :show, node.user.id) %></td>
     </tr>
 <% end %>
   </tbody>
 </table>
 
+<%= if @current_user do %>
 <%= link "New node", to: node_path(@conn, :new), class: "btn btn-success" %>
+<% end %>

@@ -54,10 +54,10 @@ defmodule Udia.NodeControllerTest do
   end
 
   @tag login_as: "samwell"
-  test "shows chosen resource", %{conn: conn} do
-    node = Repo.insert! %Node{}
+  test "shows chosen resource", %{conn: conn, user: user} do
+    node = insert_node(user, @valid_attrs)
     conn = get conn, node_path(conn, :show, node)
-    assert html_response(conn, 200) =~ "Show node"
+    assert html_response(conn, 200) =~ "some content"
   end
 
   @tag login_as: "samwell"
