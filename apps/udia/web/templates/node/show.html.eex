@@ -1,32 +1,41 @@
-<h2><%= @node.title %></h2>
-<div class="panel panel-default">
-  <div class="panel-body">
-    <%= @node.content %>
+<%= content_tag :div, id: "node", data: [id: @node.id] do %>
+  <h2><%= @node.title %></h2>
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <%= @node.content %>
+    </div>
   </div>
-</div>
-<ul>
-  <li>
-  <strong>Created At</stong>
-    <%= @node.inserted_at %>
-  </li>
-  <li>
-  <strong>Updated At</strong>
-    <%= @node.updated_at %>
-  </li>
-  <li>
-    <strong>User:</strong>
-    <%= link @node.user.username, to: user_path(@conn, :show, @node.user) %>
-  </li>
-</ul>
+  <ul>
+    <li>
+    <strong>Created At</stong>
+      <%= @node.inserted_at %>
+    </li>
+    <li>
+    <strong>Updated At</strong>
+      <%= @node.updated_at %>
+    </li>
+    <li>
+      <strong>User:</strong>
+      <%= link @node.user.username, to: user_path(@conn, :show, @node.user) %>
+    </li>
+  </ul>
 
-<%= if @current_user && @current_user.id == @node.user_id do %>
-<%= link "Edit", to: node_path(@conn, :edit, @node), class: "btn btn-default btn-xs" %>
-<%= link "Delete", to: node_path(@conn, :delete, @node), method: :delete, data: [confirm: "Are you sure?"],
-  class: "btn btn-danger btn-xs" %>
+  <%= if @current_user && @current_user.id == @node.user_id do %>
+  <%= link "Edit", to: node_path(@conn, :edit, @node), class: "btn btn-default btn-xs" %>
+  <%= link "Delete", to: node_path(@conn, :delete, @node), method: :delete, data: [confirm: "Are you sure?"],
+    class: "btn btn-danger btn-xs" %>
+  <% end %>
+  <%= link "Back", to: node_path(@conn, :index), class: "btn btn-default btn-xs" %>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">Comments</h3>
+    </div>
+    <div id="msg-container" class="panel-body comments">
+    </div>
+    <div class="panel-footer">
+      <textarea id="msg-input" rows="3" class="form-control" placeholder="Comment..."></textarea>
+      <button id="msg-submit" class="btn btn-primary form-control" type="submit">Post</button>
+    </div>
+  </div>
 <% end %>
-<%= link "Back", to: node_path(@conn, :index), class: "btn btn-default btn-xs" %>
-
-<div>
-<p>New Comment</p>
-<input>
-</div>
