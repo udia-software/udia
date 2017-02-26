@@ -31,7 +31,9 @@ defmodule Udia.NodeController do
   end
 
   def index(conn, _params, _user) do
-    nodes = Repo.all(Node)
+    nodes = Node
+    |> Repo.all()
+    |> Repo.preload(:user)
     render(conn, "index.html", nodes: nodes)
   end
 
@@ -60,7 +62,9 @@ defmodule Udia.NodeController do
   end
 
   def show(conn, %{"id" => id}, _user) do
-    node = Repo.get!(Node, id)
+    node = Node
+    |> Repo.get!(id)
+    |> Repo.preload(:user)
     render(conn, "show.html", node: node)
   end
 

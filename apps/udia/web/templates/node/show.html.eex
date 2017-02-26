@@ -11,13 +11,32 @@
     <strong>Content:</strong>
     <%= @node.content %>
   </li>
+  
+  <li>
+  <strong>Created At</stong>
+    <%= @node.inserted_at %>
+  </li>
+
+  <li>
+  <strong>Updated At</strong>
+    <%= @node.updated_at %>
+  </li>
 
   <li>
     <strong>User:</strong>
-    <%= @node.user_id %>
+    <%= link @node.user.username, to: user_path(@conn, :show, @node.user) %>
   </li>
 
 </ul>
 
+<%= if @current_user && @current_user.id == @node.user_id do %>
 <%= link "Edit", to: node_path(@conn, :edit, @node), class: "btn btn-default btn-xs" %>
+<%= link "Delete", to: node_path(@conn, :delete, @node), method: :delete, data: [confirm: "Are you sure?"],
+  class: "btn btn-danger btn-xs" %>
+<% end %>
 <%= link "Back", to: node_path(@conn, :index), class: "btn btn-default btn-xs" %>
+
+<div>
+<p>New Comment</p>
+<input>
+</div>
