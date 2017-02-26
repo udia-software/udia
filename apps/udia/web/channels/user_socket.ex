@@ -24,7 +24,7 @@ defmodule Udia.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  channel "room:*", Udia.RoomChannel
+  channel "nodes:*", Udia.NodeChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket, timeout: 45_000
@@ -37,14 +37,12 @@ defmodule Udia.UserSocket do
         # If user id exists, assign to user id. This will be flushed out on login
         {:ok, assign(socket, :user_id, user_id)}
       {:error, _reason} ->
-        # Allow anonymous socket join
-        {:ok, assign(socket, :user_id, nil)}
+        :error
     end
   end
 
-  def connect(_params, socket) do
-    # Allow anonymous socket join
-    {:ok, assign(socket, :user_id, nil)}
+  def connect(_params, _socket) do
+    :error
   end
 
   def id(socket), do: "users_socket:#{socket.assigns.user_id}"
