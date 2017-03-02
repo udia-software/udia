@@ -23,4 +23,8 @@ erl_crash.dump
 # variables.
 /config/prod.secret.exs
 
+# OSX
 .DS_Store
+
+# Coveralls
+/cover

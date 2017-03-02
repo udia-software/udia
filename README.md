@@ -1,6 +1,7 @@
 # Udia
 
 [![Build Status](https://travis-ci.org/udia-software/udia.svg?branch=master)](https://travis-ci.org/udia-software/udia)
+[![Coverage Status](https://coveralls.io/repos/github/udia-software/udia/badge.svg?branch=master)](https://coveralls.io/github/udia-software/udia?branch=master)
 
 [![UDIA](logo.png)](http://a.udia.ca)
 
@@ -29,6 +30,7 @@ To test your phoenix app:
 
   * Set your mix environment variable to test `export MIX_ENV=test`
   * Run your tests with `mix test`
+  * Generate a test coverage report with `mix coveralls`
 
 ## Deployment
 
@@ -39,7 +41,7 @@ Udia is currently configured to run on Heroku using:
 * [heroku-buidpack-elixir](https://github.com/HashNuke/heroku-buildpack-elixir.git)
 * [heroku-buildpack-phoenix-static](https://github.com/gjaldon/heroku-buildpack-phoenix-static.git)
 
-NOTE: Currently, this repository is tied into a Heroku Deploy Pipeline. Once code is pushed into branch `master`, TravisCI will run tests. Afterwards, if the tests pass, Heroku will begin building `master`. One caveat is that heroku does not have a way to automatically run database migrations after the deploy finishes, so a developer must run `heroku run "POOL_SIZE=2 mix ecto.migrate"` when the deploy is finished.
+Within the Procfile, a heroku release will run `POOL_SIZE=2 mix ecto.migrate` every time a successfull deploy to `master` finishes. This will ensure seemless database migrations when deploying code to production.
 
 ## License
 
