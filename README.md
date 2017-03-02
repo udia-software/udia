@@ -1,5 +1,6 @@
 # Udia
 
+[![Slack](https://img.shields.io/badge/slack-udia-green.svg)](https://udia.slack.com/messages/general/)
 [![Build Status](https://travis-ci.org/udia-software/udia.svg?branch=master)](https://travis-ci.org/udia-software/udia)
 [![Coverage Status](https://coveralls.io/repos/github/udia-software/udia/badge.svg?branch=master)](https://coveralls.io/github/udia-software/udia?branch=master)
 
@@ -29,6 +30,8 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 To test your phoenix app:
 
   * Set your mix environment variable to test `export MIX_ENV=test`
+  * Install dependencies with `mix deps.get`
+  * Create and migrate your database with `mix ecto.create && mix ecto.migrate`
   * Run your tests with `mix test`
   * Generate a test coverage report with `mix coveralls`
 
