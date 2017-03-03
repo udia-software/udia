@@ -34,4 +34,9 @@ defmodule Udia.SessionControllerTest do
     conn = delete conn, session_path(conn, :delete, "")
     assert conn.status == 404
   end
+
+  test "render new session template", %{conn: conn} do
+    conn = get conn, session_path(conn, :new)
+    assert html_response(conn, 200) =~ "Login"
+  end
 end
