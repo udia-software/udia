@@ -42,10 +42,12 @@ defmodule Udia.ChannelCase do
       # Import conveniences for testing with channels
       use Phoenix.ChannelTest
 
+      alias Udia.UserSocket
       alias Udia.Repo
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
+      import Udia.TestHelpers
 
 
       # The default endpoint for testing
