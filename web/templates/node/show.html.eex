@@ -33,9 +33,11 @@
     </div>
     <div id="msg-container" class="panel-body comments">
     </div>
+    <%= if @current_user do %>
     <div class="panel-footer">
       <textarea id="msg-input" rows="3" class="form-control" placeholder="Comment..."></textarea>
       <button id="msg-submit" class="btn btn-primary form-control" type="submit">Post</button>
     </div>
+    <% end %>
   </div>
 <% end %>

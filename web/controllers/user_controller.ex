@@ -24,7 +24,7 @@ defmodule Udia.UserController do
   use Udia.Web, :controller
 
   alias Udia.User
-  plug :authenticate_user when action in [:index, :show]
+  plug :authenticate_user when action in [:index]
 
   def index(conn, _params) do
     users = Repo.all(User)

@@ -37,12 +37,13 @@ defmodule Udia.UserSocket do
         # If user id exists, assign to user id. This will be flushed out on login
         {:ok, assign(socket, :user_id, user_id)}
       {:error, _reason} ->
-        :error
+        # If the user doesn't exist, assign the anonymous user
+        {:ok, assign(socket, :user_id, nil)}
     end
   end
 
-  def connect(_params, _socket) do
-    :error
+  def connect(_params, socket) do
+    {:ok, assign(socket, :user_id, nil)}
   end
 
   def id(socket), do: "users_socket:#{socket.assigns.user_id}"
