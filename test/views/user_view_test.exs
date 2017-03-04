@@ -20,48 +20,24 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.ChannelCase do
-  @moduledoc """
-  This module defines the test case to be used by
-  channel tests.
+defmodule Udia.UserViewTest do
+  use Udia.ConnCase
+  import Phoenix.View
 
-  Such tests rely on `Phoenix.ChannelTest` and also
-  import other functionality to make it easier
-  to build and query models.
+  test "renders index.html", %{conn: conn} do
+    users = [%Udia.User{id: 1, username: "seto"},
+            %Udia.User{id: 2, username: "casper"}]
 
-  Finally, if the test case interacts with the database,
-  it cannot be async. For this reason, every test runs
-  inside a transaction which is reset at the beginning
-  of the test unless the test case is marked as async.
-  """
-
-  use ExUnit.CaseTemplate
-
-  using do
-    quote do
-      # Import conveniences for testing with channels
-      use Phoenix.ChannelTest
-
-      alias Udia.UserSocket
-      alias Udia.Repo
-      import Ecto
-      import Ecto.Changeset
-      import Ecto.Query
-      import Udia.TestHelpers
-
-
-      # The default endpoint for testing
-      @endpoint Udia.Endpoint
+    content = render_to_string(Udia.UserView, "index.html", conn: conn, users: users)
+    assert String.contains?(content, "Listing users")
+    for user <- users do
+      assert String.contains?(content, user.username)
     end
   end
 
-  setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Udia.Repo)
-
-    unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(Udia.Repo, {:shared, self()})
-    end
-
-    :ok
+  test "renders new.html", %{conn: conn} do
+    changeset = Udia.User.changeset(%Udia.User{})
+    content = render_to_string(Udia.UserView, "new.html", conn: conn, changeset: changeset)
+    assert String.contains?(content, "New User")
   end
 end
