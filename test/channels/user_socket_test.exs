@@ -9,7 +9,9 @@ defmodule Udia.UserSocketTest do
   end
 
   test "socket authentication with invalid token" do
-    assert :error = connect(UserSocket, %{"token" => "1357"})
-    assert :error = connect(UserSocket, %{})
+    assert {:ok, socket} = connect(UserSocket, %{"token" => "1357"})
+    assert socket.assigns.user_id == nil
+    assert {:ok, socket} = connect(UserSocket, %{})
+    assert socket.assigns.user_id == nil
   end
 end

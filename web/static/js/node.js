@@ -10,17 +10,21 @@ let Node = {
   },
 
   onReady(nodeId, socket) {
+    let nodeChannel = socket.channel("nodes:" + nodeId)
     let msgContainer = document.getElementById("msg-container")
+    
+    // These two elements only exist when the user is authenticated.
     let msgInput = document.getElementById("msg-input")
     let postButton = document.getElementById("msg-submit")
-    let nodeChannel = socket.channel("nodes:" + nodeId)
 
-    postButton.addEventListener("click", e => {
-        let payload = {body: msgInput.value}
-        nodeChannel.push("new_comment", payload)
-            .receive("error", e => console.log(e))
-        msgInput.value = ""
-    })
+    if (postButton) {
+        postButton.addEventListener("click", e => {
+            let payload = {body: msgInput.value}
+            nodeChannel.push("new_comment", payload)
+                .receive("error", e => console.log(e))
+            msgInput.value = ""
+        })
+    }
 
     nodeChannel.on("new_comment", (resp) => {
         nodeChannel.params.last_seen_id = resp.id
