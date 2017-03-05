@@ -20,27 +20,44 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.Gettext do
-  @moduledoc """
-  A module providing Internationalization with a gettext-based API.
+defmodule Udia.Web.Router do
+  use Udia.Web, :router
 
-  By using [Gettext](https://hexdocs.pm/gettext),
-  your module gains a set of macros for translations, for example:
+  pipeline :browser do
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug :fetch_flash
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+    plug Udia.Web.Auth, repo: Udia.Repo
+  end
 
-      import Udia.Gettext
+  pipeline :api do
+    plug :accepts, ["json"]
+  end
 
-      # Simple translation
-      gettext "Here is the string to translate"
+  scope "/", Udia.Web do
+    # These routes need authentication
+    pipe_through [:browser, :authenticate_user]
+    # TODO: remove node pages for the form and only have the endpoints for creating the data (Create, Update, Delete)
+    resources "/nodes", NodeController, only: [:new, :create, :edit, :update, :delete]
+    resources "/comments", CommentController, only: [:create, :update, :delete]
+  end
 
-      # Plural translation
-      ngettext "Here is the string to translate",
-               "Here are the strings to translate",
-               3
+  scope "/", Udia.Web do
+    pipe_through :browser
+    # Route for handling Lets Encrypt challenge validation
+    get "/.well-known/acme-challenge/:id", LetsencryptController, :index
 
-      # Domain-based translation
-      dgettext "errors", "Here is the error message to translate"
+    resources "/users", UserController, only: [:index, :show, :new, :create]
+    resources "/sessions", SessionController, only: [:new, :create, :delete]
 
-  See the [Gettext Docs](https://hexdocs.pm/gettext) for detailed usage.
-  """
-  use Gettext, otp_app: :udia
+    resources "/nodes", NodeController, only: [:show]
+    get "/", NodeController, :index
+  end
+
+  # Other scopes may use custom stacks.
+  # scope "/api", Udia do
+  #   pipe_through :api
+  # end
 end

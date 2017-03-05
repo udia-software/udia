@@ -20,7 +20,7 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.CommentController do
+defmodule Udia.Web.CommentController do
   use Udia.Web, :controller
 
   alias Udia.Comment

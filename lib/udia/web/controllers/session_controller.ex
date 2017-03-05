@@ -13,13 +13,37 @@
 # the specific language governing rights and limitations under the License.
 #
 # The Original Code is UDIA.
-#Í
+#
 # The Original Developer is the Initial Developer.  The Initial Developer of
 # the Original Code is Udia Software Incorporated.
 #
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.NodeView do
-  use Udia.Web, :view
+defmodule Udia.Web.SessionController do
+  use Udia.Web, :controller
+
+  def new(conn, _) do
+    render conn, "new.html"
+  end
+
+  def create(conn, %{"session" => %{"username" => user, "password" => pass}}) do
+    case Udia.Web.Auth.login_by_username_and_pass(conn, user, pass, repo: Repo) do
+      {:ok, conn} ->
+        conn
+        |> put_flash(:info, "Welcome back, #{user}.")
+        |> redirect(to: node_path(conn, :index))
+      {:error, _reason, conn} ->
+        conn
+        |> put_flash(:error, "Invalid username/password combination.")
+        |> render("new.html")
+    end
+  end
+
+  def delete(conn, _) do
+    conn
+    |> Udia.Web.Auth.logout()
+    |> put_flash(:info, "You have successfully logged out. Goodbye!")
+    |> redirect(to: node_path(conn, :index))
+  end
 end

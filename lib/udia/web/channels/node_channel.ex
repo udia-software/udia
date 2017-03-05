@@ -20,9 +20,9 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.NodeChannel do
+defmodule Udia.Web.NodeChannel do
   use Udia.Web, :channel
-  alias Udia.CommentView
+  alias Udia.Web.CommentView
   
   def join("nodes:" <> node_id, params, socket) do
     last_seen_id = params["last_seen_id"] || 0

@@ -50,21 +50,22 @@ defmodule Udia.Web do
 
   def controller do
     quote do
-      use Phoenix.Controller
+      use Phoenix.Controller, namespace: Udia.Web
 
       alias Udia.Repo
       import Ecto
       import Ecto.Query
 
-      import Udia.Router.Helpers
-      import Udia.Gettext
-      import Udia.Auth, only: [authenticate_user: 2]
+      import Udia.Web.Router.Helpers
+      import Udia.Web.Gettext
+      import Udia.Web.Auth, only: [authenticate_user: 2]
     end
   end
 
   def view do
     quote do
-      use Phoenix.View, root: "web/templates"
+      use Phoenix.View, root: "lib/udia/web/templates",
+                        namespace: Udia.Web
 
       # Import convenience functions from controllers
       import Phoenix.Controller, only: [get_csrf_token: 0, get_flash: 2, view_module: 1]
@@ -72,9 +73,9 @@ defmodule Udia.Web do
       # Use all HTML functionality (forms, tags, etc)
       use Phoenix.HTML
 
-      import Udia.Router.Helpers
-      import Udia.ErrorHelpers
-      import Udia.Gettext
+      import Udia.Web.Router.Helpers
+      import Udia.Web.ErrorHelpers
+      import Udia.Web.Gettext
     end
   end
 
@@ -82,7 +83,7 @@ defmodule Udia.Web do
     quote do
       use Phoenix.Router
 
-      import Udia.Auth, only: [authenticate_user: 2]
+      import Udia.Web.Auth, only: [authenticate_user: 2]
     end
   end
 
@@ -93,7 +94,7 @@ defmodule Udia.Web do
       alias Udia.Repo
       import Ecto
       import Ecto.Query
-      import Udia.Gettext
+      import Udia.Web.Gettext
     end
   end
 

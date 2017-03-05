@@ -20,11 +20,10 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.LetsencryptController do
-  use Udia.Web, :controller
+defmodule Udia.Web.UserView do
+  use Udia.Web, :view
 
-  def index(conn, _params) do
-    challenge = Application.get_env(:udia, :lets_encrypt)[:challenge]
-    text conn, "#{challenge}"
+  def render("user.json", %{user: user}) do
+    %{id: user.id, username: user.username}
   end
 end

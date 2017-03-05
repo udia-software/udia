@@ -20,30 +20,6 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.SessionController do
-  use Udia.Web, :controller
-
-  def new(conn, _) do
-    render conn, "new.html"
-  end
-
-  def create(conn, %{"session" => %{"username" => user, "password" => pass}}) do
-    case Udia.Auth.login_by_username_and_pass(conn, user, pass, repo: Repo) do
-      {:ok, conn} ->
-        conn
-        |> put_flash(:info, "Welcome back, #{user}.")
-        |> redirect(to: node_path(conn, :index))
-      {:error, _reason, conn} ->
-        conn
-        |> put_flash(:error, "Invalid username/password combination.")
-        |> render("new.html")
-    end
-  end
-
-  def delete(conn, _) do
-    conn
-    |> Udia.Auth.logout()
-    |> put_flash(:info, "You have successfully logged out. Goodbye!")
-    |> redirect(to: node_path(conn, :index))
-  end
+defmodule Udia.Web.LayoutView do
+  use Udia.Web, :view
 end

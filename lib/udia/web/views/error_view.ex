@@ -20,31 +20,20 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.UserSocket do
-  use Phoenix.Socket
+defmodule Udia.Web.ErrorView do
+  use Udia.Web, :view
 
-  ## Channels
-  channel "nodes:*", Udia.NodeChannel
-
-  ## Transports
-  transport :websocket, Phoenix.Transports.WebSocket, timeout: 45_000
-  # transport :longpoll, Phoenix.Transports.LongPoll
-
-  @max_age 2 * 7 * 24 * 60 * 60
-  def connect(%{"token" => token}, socket) do
-    case Phoenix.Token.verify(socket, "user socket", token, max_sage: @max_age) do
-      {:ok, user_id} ->
-        # If user id exists, assign to user id. This will be flushed out on login
-        {:ok, assign(socket, :user_id, user_id)}
-      {:error, _reason} ->
-        # If the user doesn't exist, assign the anonymous user
-        {:ok, assign(socket, :user_id, nil)}
-    end
+  def render("404.html", _assigns) do
+    "Page not found"
   end
 
-  def connect(_params, socket) do
-    {:ok, assign(socket, :user_id, nil)}
+  def render("500.html", _assigns) do
+    "Internal server error"
   end
 
-  def id(socket), do: "users_socket:#{socket.assigns.user_id}"
+  # In case no render clause matches or no
+  # template is found, let's render it as 500
+  def template_not_found(_template, assigns) do
+    render "500.html", assigns
+  end
 end

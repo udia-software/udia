@@ -20,7 +20,7 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.ChannelCase do
+defmodule Udia.Web.ChannelCase do
   @moduledoc """
   This module defines the test case to be used by
   channel tests.
@@ -42,7 +42,7 @@ defmodule Udia.ChannelCase do
       # Import conveniences for testing with channels
       use Phoenix.ChannelTest
 
-      alias Udia.UserSocket
+      alias Udia.Web.UserSocket
       alias Udia.Repo
       import Ecto
       import Ecto.Changeset
@@ -51,7 +51,7 @@ defmodule Udia.ChannelCase do
 
 
       # The default endpoint for testing
-      @endpoint Udia.Endpoint
+      @endpoint Udia.Web.Endpoint
     end
   end
 

@@ -20,6 +20,31 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.LayoutView do
-  use Udia.Web, :view
+defmodule Udia.Web.UserSocket do
+  use Phoenix.Socket
+
+  ## Channels
+  channel "nodes:*", Udia.Web.NodeChannel
+
+  ## Transports
+  transport :websocket, Phoenix.Transports.WebSocket, timeout: 45_000
+  # transport :longpoll, Phoenix.Transports.LongPoll
+
+  @max_age 2 * 7 * 24 * 60 * 60
+  def connect(%{"token" => token}, socket) do
+    case Phoenix.Token.verify(socket, "user socket", token, max_sage: @max_age) do
+      {:ok, user_id} ->
+        # If user id exists, assign to user id. This will be flushed out on login
+        {:ok, assign(socket, :user_id, user_id)}
+      {:error, _reason} ->
+        # If the user doesn't exist, assign the anonymous user
+        {:ok, assign(socket, :user_id, nil)}
+    end
+  end
+
+  def connect(_params, socket) do
+    {:ok, assign(socket, :user_id, nil)}
+  end
+
+  def id(socket), do: "users_socket:#{socket.assigns.user_id}"
 end

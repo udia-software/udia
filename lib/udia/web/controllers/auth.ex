@@ -20,11 +20,11 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.Auth do
+defmodule Udia.Web.Auth do
   import Plug.Conn
   import Comeonin.Bcrypt, only: [checkpw: 2, dummy_checkpw: 0]
   import Phoenix.Controller
-  alias Udia.Router.Helpers
+  alias Udia.Web.Router.Helpers
 
   def init(opts) do
     Keyword.fetch!(opts, :repo)

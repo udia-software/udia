@@ -20,7 +20,7 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.ConnCase do
+defmodule Udia.Web.ConnCase do
   @moduledoc """
   This module defines the test case to be used by
   tests that require setting up a connection.
@@ -47,11 +47,11 @@ defmodule Udia.ConnCase do
       import Ecto.Changeset
       import Ecto.Query
 
-      import Udia.Router.Helpers
+      import Udia.Web.Router.Helpers
       import Udia.TestHelpers
 
       # The default endpoint for testing
-      @endpoint Udia.Endpoint
+      @endpoint Udia.Web.Endpoint
     end
   end
 

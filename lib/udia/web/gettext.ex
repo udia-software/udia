@@ -20,45 +20,27 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.Endpoint do
-  use Phoenix.Endpoint, otp_app: :udia
+defmodule Udia.Web.Gettext do
+  @moduledoc """
+  A module providing Internationalization with a gettext-based API.
 
-  socket "/socket", Udia.UserSocket
+  By using [Gettext](https://hexdocs.pm/gettext),
+  your module gains a set of macros for translations, for example:
 
-  # Serve at "/" the static files from "priv/static" directory.
-  #
-  # You should set gzip to true if you are running phoenix.digest
-  # when deploying your static files in production.
-  plug Plug.Static,
-    at: "/", from: :udia, gzip: false,
-    only: ~w(css fonts images js favicon.ico robots.txt)
+      import Udia.Gettext
 
-  # Code reloading can be explicitly enabled under the
-  # :code_reloader configuration of your endpoint.
-  if code_reloading? do
-    socket "/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket
-    plug Phoenix.LiveReloader
-    plug Phoenix.CodeReloader
-  end
+      # Simple translation
+      gettext "Here is the string to translate"
 
-  plug Plug.RequestId
-  plug Plug.Logger
+      # Plural translation
+      ngettext "Here is the string to translate",
+               "Here are the strings to translate",
+               3
 
-  plug Plug.Parsers,
-    parsers: [:urlencoded, :multipart, :json],
-    pass: ["*/*"],
-    json_decoder: Poison
+      # Domain-based translation
+      dgettext "errors", "Here is the error message to translate"
 
-  plug Plug.MethodOverride
-  plug Plug.Head
-
-  # The session will be stored in the cookie and signed,
-  # this means its contents can be read but not tampered with.
-  # Set :encryption_salt if you would also like to encrypt it.
-  plug Plug.Session,
-    store: :cookie,
-    key: "_udia_key",
-    signing_salt: "epMOwRWE"
-
-  plug Udia.Router
+  See the [Gettext Docs](https://hexdocs.pm/gettext) for detailed usage.
+  """
+  use Gettext, otp_app: :udia
 end
