@@ -1,8 +1,8 @@
 # Udia
 
-[![Slack](https://img.shields.io/badge/slack-udia-green.svg)](https://udia.slack.com/messages/general/)
 [![Build Status](https://travis-ci.org/udia-software/udia.svg?branch=master)](https://travis-ci.org/udia-software/udia)
 [![Coverage Status](https://coveralls.io/repos/github/udia-software/udia/badge.svg?branch=master)](https://coveralls.io/github/udia-software/udia?branch=master)
+[![Slack](https://img.shields.io/badge/slack-udia-green.svg)](https://udia.slack.com/messages/general/)
 
 [![UDIA](logo.png)](http://a.udia.ca)
 
@@ -45,6 +45,18 @@ Udia is currently configured to run on Heroku using:
 * [heroku-buildpack-phoenix-static](https://github.com/gjaldon/heroku-buildpack-phoenix-static.git)
 
 Within the Procfile, a heroku release will run `POOL_SIZE=2 mix ecto.migrate` every time a successfull deploy to `master` finishes. This will ensure seemless database migrations when deploying code to production.
+
+## Configuration & Environment Variables
+
+Application will work with default settings if using something like [PostgresApp](https://postgresapp.com/), however if you need to change the credentials the following enviornment variables are available.
+
+| Environment Variable | Default Value | Description            |
+| -------------------- |:-------------:| ----------------------:|
+| `POSTGRES_USERNAME`  | `"postgres"`  | PostgreSQL DB Username |
+| `POSTGRES_PASSWORD`  | `"postgres"`  | PostgreSQL DB Password |
+| `POSTGRES_DEV_DB`    | `"udia_dev"`  | Development DB Name    |
+| `POSTGRES_TEST_DB`   | `"udia_test"` | Test DB Name           |
+| `POSTGRES_HOSTNAME`  | `"localhost"` | Hostname for DB        |
 
 ## License
 

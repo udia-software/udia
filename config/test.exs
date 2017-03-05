@@ -34,10 +34,10 @@ config :logger, level: :warn
 # Configure your database
 config :udia, Udia.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: "postgres",
-  password: "postgres",
-  database: "udia_test",
-  hostname: "localhost",
+  username: System.get_env("POSTGRES_USERNAME") || "postgres",
+  password: System.get_env("POSTGRES_PASSWORD") || "postgres",
+  database: System.get_env("POSTGRES_TEST_DB") || "udia_test",
+  hostname: System.get_env("POSTGRES_HOSTNAME") || "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
 
 # Reduce security on test environment

@@ -58,8 +58,8 @@ config :phoenix, :stacktrace_depth, 20
 # Configure your database
 config :udia, Udia.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: "postgres",
-  password: "postgres",
-  database: "udia_dev",
-  hostname: "localhost",
+  username: System.get_env("POSTGRES_USERNAME") || "postgres",
+  password: System.get_env("POSTGRES_PASSWORD") || "postgres",
+  database: System.get_env("POSTGRES_DEV_DB") || "udia_dev",
+  hostname: System.get_env("POSTGRES_HOSTNAME") || "localhost",
   pool_size: 10
