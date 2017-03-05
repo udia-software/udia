@@ -42,6 +42,8 @@ defmodule Udia.Mixfile do
        "coveralls.post": :test,
        "coveralls.html": :test
      ],
+     description: description(),
+     package: package(),
      deps: deps()]
   end
 
@@ -72,6 +74,23 @@ defmodule Udia.Mixfile do
      {:cowboy, "~> 1.0"},
      {:comeonin, "~> 3.0"},
      {:excoveralls, "~> 0.6", only: :test},
-     {:credo, "~> 0.5", only: [:dev, :test]},]
+     {:credo, "~> 0.5", only: [:dev, :test]},
+     {:ex_doc, ">= 0.0.0", only: :dev},]
+  end
+
+  defp description do
+    """
+    A web application in pursuit of solving meaning, validating universal basic income, and happiness.
+    """
+  end
+
+  defp package do
+    [name: :udia,
+     files: ["lib", "priv", "mix.exs", "README*", "LICENSE*", "assets", "config", "test", "logo*", "elixir_buildpack.config",
+            "phoenix_static_buildpack.config", "Procfile", ".gitignore", ".travis.yml"],
+     maintainers: ["Udia Software Incorporated", "Alexander Wong"],
+     licenses: ["Common Public Attribution License Version 1.0 (CPAL)"],
+     links: %{"GitHub" => "https://github.com/udia-software/udia",
+              "Site" => "https://a.udia.ca"}]
   end
 end
