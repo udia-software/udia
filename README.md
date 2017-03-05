@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/udia-software/udia.svg?branch=master)](https://travis-ci.org/udia-software/udia)
 [![Coverage Status](https://coveralls.io/repos/github/udia-software/udia/badge.svg?branch=master)](https://coveralls.io/github/udia-software/udia?branch=master)
+[![Deps Status](https://beta.hexfaktor.org/badge/all/github/udia-software/udia.svg)](https://beta.hexfaktor.org/github/udia-software/udia)
+[![Deps Status](https://beta.hexfaktor.org/badge/prod/github/udia-software/udia.svg)](https://beta.hexfaktor.org/github/udia-software/udia)
 [![Slack](https://img.shields.io/badge/slack-udia-green.svg)](https://udia.slack.com/messages/general/)
 
 [![UDIA](logo.png)](http://a.udia.ca)
