@@ -21,7 +21,7 @@
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
 defmodule Udia.UserSocketTest do
-  use Udia.ChannelCase
+  use Udia.Web.ChannelCase
 
   test "socket authentication with valid token" do
     token = Phoenix.Token.sign(@endpoint, "user socket", "1234")

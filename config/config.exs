@@ -33,10 +33,10 @@ config :udia,
   ecto_repos: [Udia.Repo]
 
 # Configures the endpoint
-config :udia, Udia.Endpoint,
+config :udia, Udia.Web.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "1qLidXrdNu8q/Zhvr0+HzpGFw0UK3lzbzIb70z0HENlHg5/i+k8CQMuDUodGnUb+",
-  render_errors: [view: Udia.ErrorView, accepts: ~w(html json)],
+  render_errors: [view: Udia.Web.ErrorView, accepts: ~w(html json)],
   pubsub: [name: Udia.PubSub,
            adapter: Phoenix.PubSub.PG2]
 

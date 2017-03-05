@@ -21,7 +21,7 @@
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
 defmodule Udia.UserControllerTest do
-  use Udia.ConnCase
+  use Udia.Web.ConnCase
 
   @request_params %{
     "user" => %{username: "Seto", password: "090909"}

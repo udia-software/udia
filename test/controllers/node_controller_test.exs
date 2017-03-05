@@ -21,7 +21,7 @@
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
 defmodule Udia.NodeControllerTest do
-  use Udia.ConnCase
+  use Udia.Web.ConnCase
 
   alias Udia.Node
 

@@ -21,13 +21,13 @@
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
 defmodule Udia.AuthTest do
-  use Udia.ConnCase
-  alias Udia.Auth
+  use Udia.Web.ConnCase
+  alias Udia.Web.Auth
 
   setup %{conn: conn} do
     conn =
       conn
-      |> bypass_through(Udia.Router, :browser)
+      |> bypass_through(Udia.Web.Router, :browser)
       |> get("/")
     {:ok, %{conn: conn}}
   end

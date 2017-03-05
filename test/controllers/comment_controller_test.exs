@@ -21,7 +21,7 @@
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
 defmodule Udia.CommentControllerTest do
-  use Udia.ConnCase
+  use Udia.Web.ConnCase
 
   @session_opts Plug.Session.init [
     store: :cookie,

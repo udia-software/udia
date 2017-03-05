@@ -21,14 +21,14 @@
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
 defmodule Udia.UserViewTest do
-  use Udia.ConnCase
+  use Udia.Web.ConnCase
   import Phoenix.View
 
   test "renders index.html", %{conn: conn} do
     users = [%Udia.User{id: 1, username: "seto"},
             %Udia.User{id: 2, username: "casper"}]
 
-    content = render_to_string(Udia.UserView, "index.html", conn: conn, users: users)
+    content = render_to_string(Udia.Web.UserView, "index.html", conn: conn, users: users)
     assert String.contains?(content, "Listing users")
     for user <- users do
       assert String.contains?(content, user.username)
@@ -37,7 +37,7 @@ defmodule Udia.UserViewTest do
 
   test "renders new.html", %{conn: conn} do
     changeset = Udia.User.changeset(%Udia.User{})
-    content = render_to_string(Udia.UserView, "new.html", conn: conn, changeset: changeset)
+    content = render_to_string(Udia.Web.UserView, "new.html", conn: conn, changeset: changeset)
     assert String.contains?(content, "New User")
   end
 end

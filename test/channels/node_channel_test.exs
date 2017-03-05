@@ -21,7 +21,7 @@
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
 defmodule Udia.NodeChannelTest do
-  use Udia.ChannelCase
+  use Udia.Web.ChannelCase
 
   setup do
     user = insert_user(username: "seto")
