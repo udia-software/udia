@@ -20,28 +20,21 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.NodeChannelTest do
-  use Udia.Web.ChannelCase
+defmodule Udia.PostTest do
+  use Udia.DataCase
 
-  setup do
-    user = insert_user(username: "seto")
-    node = insert_node(user, %{content: "some content", title: "some title"})
-    token = Phoenix.Token.sign(@endpoint, "user socket", user.id)
-    {:ok, socket} = connect(UserSocket, %{"token" => token})
+  alias Udia.Logs.Post
 
-    {:ok, socket: socket, user: user, node: node}
+  @valid_attrs %{content: "some content", title: "some title"}
+  @invalid_attrs %{}
+
+  test "changeset with valid attributes" do
+    changeset = Logs.post_changeset(%Post{}, @valid_attrs)
+    assert changeset.valid?
   end
 
-  test "join channel", %{socket: socket, node: node} do
-    {:ok, _, socket} = subscribe_and_join(socket, "nodes:#{node.id}", %{})
-
-    assert socket.assigns.node_id == node.id
-  end
-
-  test "insert new comment", %{socket: socket, node: node} do
-    {:ok, _, socket} = subscribe_and_join(socket, "nodes:#{node.id}", %{})
-    ref = push socket, "new_comment", %{"body" => "some content"}
-    assert_reply ref, :ok, %{}
-    assert_broadcast "new_comment", %{}
+  test "changeset with invalid attributes" do
+    changeset = Logs.post_changeset(%Post{}, @invalid_attrs)
+    refute changeset.valid?
   end
 end

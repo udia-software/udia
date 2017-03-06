@@ -127,7 +127,7 @@ defmodule Udia.Logs do
     post_changeset(post, %{})
   end
 
-  defp post_changeset(%Post{} = post, attrs) do
+  def post_changeset(%Post{} = post, attrs) do
     post
     |> cast(attrs, [:title, :content])
     |> validate_required([:title, :content])

@@ -123,7 +123,7 @@ defmodule Udia.Auths do
     user_changeset(user, %{})
   end
 
-  defp user_changeset(%User{} = user, attrs) do
+  def user_changeset(%User{} = user, attrs) do
     user
     |> cast(attrs, [:username, :password])
     |> validate_required([:username])

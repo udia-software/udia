@@ -20,21 +20,28 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.NodeTest do
-  use Udia.ModelCase
+defmodule Udia.PostChannelTest do
+  use Udia.Web.ChannelCase
 
-  alias Udia.Node
+  setup do
+    user = insert_user(username: "seto")
+    post = insert_post(user, %{content: "some content", title: "some title"})
+    token = Phoenix.Token.sign(@endpoint, "user socket", user.id)
+    {:ok, socket} = connect(UserSocket, %{"token" => token})
 
-  @valid_attrs %{content: "some content", title: "some title"}
-  @invalid_attrs %{}
-
-  test "changeset with valid attributes" do
-    changeset = Node.changeset(%Node{}, @valid_attrs)
-    assert changeset.valid?
+    {:ok, socket: socket, user: user, post: post}
   end
 
-  test "changeset with invalid attributes" do
-    changeset = Node.changeset(%Node{}, @invalid_attrs)
-    refute changeset.valid?
+  test "join channel", %{socket: socket, post: post} do
+    {:ok, _, socket} = subscribe_and_join(socket, "posts:#{post.id}", %{})
+
+    assert socket.assigns.post_id == post.id
+  end
+
+  test "insert new comment", %{socket: socket, post: post} do
+    {:ok, _, socket} = subscribe_and_join(socket, "posts:#{post.id}", %{})
+    ref = push socket, "new_comment", %{"body" => "some content"}
+    assert_reply ref, :ok, %{}
+    assert_broadcast "new_comment", %{}
   end
 end

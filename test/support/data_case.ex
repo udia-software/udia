@@ -20,13 +20,13 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.ModelCase do
+defmodule Udia.DataCase do
   @moduledoc """
-  This module defines the test case to be used by
-  model tests.
+  This module defines the setup for tests requiring
+  access to the application's data layer.
 
   You may define functions here to be used as helpers in
-  your model tests. See `errors_on/2`'s definition as reference.
+  your tests.
 
   Finally, if the test case interacts with the database,
   it cannot be async. For this reason, every test runs
@@ -39,11 +39,13 @@ defmodule Udia.ModelCase do
   using do
     quote do
       alias Udia.Repo
+      alias Udia.Auths
+      alias Udia.Logs
 
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
-      import Udia.ModelCase
+      import Udia.DataCase
       import Udia.TestHelpers
     end
   end
@@ -59,30 +61,18 @@ defmodule Udia.ModelCase do
   end
 
   @doc """
-  Helper for returning list of errors in a struct when given certain data.
+  A helper that converts the changeset error messages
+  for a given field into a list of strings for assertion:
 
-  ## Examples
+      changeset = Blog.create_user(%{password: "short"})
+      assert "password is too short" in errors_on(changeset, :password)
 
-  Given a User schema that lists `:name` as a required field and validates
-  `:password` to be safe, it would return:
-
-      iex> errors_on(%User{}, %{password: "password"})
-      [password: "is unsafe", name: "is blank"]
-
-  You could then write your assertion like:
-
-      assert {:password, "is unsafe"} in errors_on(%User{}, %{password: "password"})
-
-  You can also create the changeset manually and retrieve the errors
-  field directly:
-
-      iex> changeset = User.changeset(%User{}, password: "password")
-      iex> {:password, "is unsafe"} in changeset.errors
-      true
   """
-  def errors_on(struct, data) do
-    struct.__struct__.changeset(struct, data)
-    |> Ecto.Changeset.traverse_errors(&Udia.Web.ErrorHelpers.translate_error/1)
-    |> Enum.flat_map(fn {key, errors} -> for msg <- errors, do: {key, msg} end)
+  def errors_on(changeset, field) do
+    for {message, opts} <- Keyword.get_values(changeset.errors, field) do
+      Enum.reduce(opts, message, fn {key, value}, acc ->
+        String.replace(acc, "%{#{key}}", to_string(value))
+      end)
+    end
   end
 end

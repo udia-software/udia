@@ -25,8 +25,8 @@ defmodule Udia.UserViewTest do
   import Phoenix.View
 
   test "renders index.html", %{conn: conn} do
-    users = [%Udia.User{id: 1, username: "seto"},
-            %Udia.User{id: 2, username: "casper"}]
+    users = [%Udia.Auths.User{id: 1, username: "seto"},
+            %Udia.Auths.User{id: 2, username: "casper"}]
 
     content = render_to_string(Udia.Web.UserView, "index.html", conn: conn, users: users)
     assert String.contains?(content, "Listing users")
@@ -36,7 +36,7 @@ defmodule Udia.UserViewTest do
   end
 
   test "renders new.html", %{conn: conn} do
-    changeset = Udia.User.changeset(%Udia.User{})
+    changeset = Auths.user_changeset(%Udia.Auths.User{}, %{})
     content = render_to_string(Udia.Web.UserView, "new.html", conn: conn, changeset: changeset)
     assert String.contains?(content, "New User")
   end
