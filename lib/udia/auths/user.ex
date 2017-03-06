@@ -20,38 +20,16 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.Web.UserController do
-  use Udia.Web, :controller
+defmodule Udia.Auths.User do
+  use Ecto.Schema
 
-  alias Udia.Auths.User
-  alias Udia.Auths
+  schema "auths_users" do
+    field :username, :string
+    field :password, :string, virtual: true
+    field :password_hash, :string
+    has_many :posts, Udia.Logs.Post
+    has_many :comments, Udia.Logs.Comment
 
-  plug :authenticate_user when action in [:index]
-
-  def index(conn, _params) do
-    users = Auths.list_users()
-    render(conn, "index.html", users: users)
-  end
-
-  def new(conn, _params) do
-    changeset = Auths.change_user(%User{})
-    render(conn, "new.html", changeset: changeset)
-  end
-
-  def create(conn, %{"user" => user_params}) do
-    case Auths.create_user(user_params) do
-      {:ok, user} ->
-        conn
-        |> Udia.Web.Auth.login(user)
-        |> put_flash(:info, "#{user.username} created!")
-        |> redirect(to: user_path(conn, :index))
-      {:error, changeset} ->
-        render(conn, "new.html", changeset: changeset)
-    end
-  end
-
-  def show(conn, %{"id" => id}) do
-    user = Auths.get_user!(id)
-    render(conn, "show.html", user: user)
+    timestamps()
   end
 end
