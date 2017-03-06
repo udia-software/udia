@@ -42,6 +42,6 @@ import "phoenix_html"
 // paths "./socket" or full ones "web/static/js/socket".
 
 import socket from "./socket"
-import Node from "./node"
+import Post from "./post"
 
-Node.init(socket, document.getElementById("node"))
+Post.init(socket, document.getElementById("post"))

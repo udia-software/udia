@@ -20,35 +20,35 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.Web.NodeChannel do
+defmodule Udia.Web.PostChannel do
   use Udia.Web, :channel
   alias Udia.Web.CommentView
   
-  def join("nodes:" <> node_id, params, socket) do
+  def join("posts:" <> post_id, params, socket) do
     last_seen_id = params["last_seen_id"] || 0
-    node_id = String.to_integer(node_id)
-    node = Repo.get!(Udia.Node, node_id)
+    post_id = String.to_integer(post_id)
+    post = Repo.get!(Udia.Logs.Post, post_id)
 
     comments = Repo.all(
-        from a in assoc(node, :comments),
+        from a in assoc(post, :comments),
             where: a.id > ^last_seen_id,
             order_by: [asc: a.id],
             limit: 200,
             preload: [:user]
     )
     resp = %{comments: Phoenix.View.render_many(comments, CommentView, "comment.json")}
-    {:ok, resp, assign(socket, :node_id, node_id)}
+    {:ok, resp, assign(socket, :post_id, post_id)}
   end
 
   def handle_in(event, params, socket) do
-    user = Repo.get(Udia.User, socket.assigns.user_id)
+    user = Repo.get(Udia.Auths.User, socket.assigns.user_id)
     handle_in(event, params, user, socket)
   end
 
   def handle_in("new_comment", params, user, socket) do
     changeset = user
-    |> build_assoc(:comments, node_id: socket.assigns.node_id)
-    |> Udia.Comment.changeset(params)
+    |> build_assoc(:comments, post_id: socket.assigns.post_id)
+    |> Udia.Logs.comment_changeset(params)
 
     case Repo.insert(changeset) do
       {:ok, comment} ->

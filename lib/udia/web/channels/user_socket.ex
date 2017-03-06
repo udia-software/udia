@@ -24,7 +24,7 @@ defmodule Udia.Web.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  channel "nodes:*", Udia.Web.NodeChannel
+  channel "posts:*", Udia.Web.PostChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket, timeout: 45_000

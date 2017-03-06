@@ -13,32 +13,13 @@
 # the specific language governing rights and limitations under the License.
 #
 # The Original Code is UDIA.
-#
+#Í
 # The Original Developer is the Initial Developer.  The Initial Developer of
 # the Original Code is Udia Software Incorporated.
 #
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.Comment do
-  use Udia.Web, :model
-
-  schema "comments" do
-    field :body, :string
-    belongs_to :user, Udia.User
-    belongs_to :node, Udia.Node
-    belongs_to :parent_comment, Udia.Comment
-    has_many :child_comments, Udia.Comment
-
-    timestamps()
-  end
-
-  @doc """
-  Builds a changeset based on the `struct` and `params`.
-  """
-  def changeset(struct, params \\ %{}) do
-    struct
-    |> cast(params, [:body])
-    |> validate_required([:body])
-  end
+defmodule Udia.Web.PostView do
+  use Udia.Web, :view
 end

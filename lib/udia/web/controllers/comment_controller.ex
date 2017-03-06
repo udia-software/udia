@@ -23,49 +23,46 @@
 defmodule Udia.Web.CommentController do
   use Udia.Web, :controller
 
-  alias Udia.Comment
+  alias Udia.Logs
 
   def create(conn, %{"comment" => comment_params}) do
-    changeset = Comment.changeset(%Comment{}, comment_params)
-
-    case Repo.insert(changeset) do
+    case Logs.create_comment(comment_params) do
       {:ok, comment} ->
         conn
         |> put_flash(:info, "Comment created successfully.")
-        |> redirect(to: node_path(conn, :show, comment.node_id))
+        |> redirect(to: post_path(conn, :show, comment.node_id))
       {:error, changeset} ->
         conn
         |> put_flash(:info, "Could not create comment.")
-        |> redirect(to: node_path(conn, :show, changeset.node))
+        |> redirect(to: post_path(conn, :show, changeset.node))
     end
   end
 
   def update(conn, %{"id" => id, "comment" => comment_params}) do
-    comment = Repo.get!(Comment, id)
-    changeset = Comment.changeset(comment, comment_params)
+    comment = Logs.get_comment!(id)
 
-    case Repo.update(changeset) do
+    case Logs.update_comment(comment, comment_params) do
       {:ok, comment} ->
         conn
         |> put_flash(:info, "Comment updated successfully.")
-        |> redirect(to: node_path(conn, :show, comment.node_id))
+        |> redirect(to: post_path(conn, :show, comment.node_id))
       {:error, changeset} ->
         conn
         |> put_flash(:info, "Could not update comment")
-        |> redirect(to: node_path(conn, :show, changeset.node))
+        |> redirect(to: post_path(conn, :show, changeset.node))
     end
   end
 
   def delete(conn, %{"id" => id}) do
-    comment = Repo.get!(Comment, id)
+    comment = Logs.get_comment!(id)
 
     node_id = comment.node_id
     # Here we use delete! (with a bang) because we expect
     # it to always work (and if it does not, it will raise).
-    Repo.delete!(comment)
+    Logs.delete_comment!(comment)
 
     conn
     |> put_flash(:info, "Comment deleted successfully.")
-    |> redirect(to: node_path(conn, :show, node_id))
+    |> redirect(to: post_path(conn, :show, node_id))
   end
 end

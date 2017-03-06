@@ -36,7 +36,7 @@ defmodule Udia.Web.Auth do
     cond do
       user = conn.assigns[:current_user] ->
         put_current_user(conn, user)
-      user = user_id && repo.get(Udia.User, user_id) ->
+      user = user_id && repo.get(Udia.Auths.User, user_id) ->
         put_current_user(conn, user)
       true ->
         assign(conn, :current_user, nil)
@@ -60,7 +60,7 @@ defmodule Udia.Web.Auth do
 
   def login_by_username_and_pass(conn, username, given_pass, opts) do
     repo = Keyword.fetch!(opts, :repo)
-    user = repo.get_by(Udia.User, username: username)
+    user = repo.get_by(Udia.Auths.User, username: username)
 
     cond do
       user && checkpw(given_pass, user.password_hash) ->
@@ -83,7 +83,7 @@ defmodule Udia.Web.Auth do
     else
       conn
       |> put_flash(:error, "You must be logged in to access that page")
-      |> redirect(to: Helpers.node_path(conn, :index))
+      |> redirect(to: Helpers.post_path(conn, :index))
       |> halt()
     end
   end

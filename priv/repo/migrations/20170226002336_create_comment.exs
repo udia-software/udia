@@ -24,17 +24,17 @@ defmodule Udia.Repo.Migrations.CreateComment do
   use Ecto.Migration
 
   def change do
-    create table(:comments) do
+    create table(:logs_comments) do
       add :body, :string
-      add :node_id, references(:nodes, on_delete: :delete_all)
-      add :parent_comment_id, references(:comments, on_delete: :nothing)
-      add :user_id, references(:users, on_delete: :nilify_all)
+      add :post_id, references(:logs_posts, on_delete: :delete_all)
+      add :parent_comment_id, references(:logs_comments, on_delete: :nothing)
+      add :user_id, references(:auths_users, on_delete: :nilify_all)
 
       timestamps()
     end
-    create index(:comments, [:node_id])
-    create index(:comments, [:parent_comment_id])
-    create index(:comments, [:user_id])
+    create index(:logs_comments, [:post_id])
+    create index(:logs_comments, [:parent_comment_id])
+    create index(:logs_comments, [:user_id])
 
   end
 end

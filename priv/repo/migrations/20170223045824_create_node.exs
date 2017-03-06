@@ -20,18 +20,18 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.Repo.Migrations.CreateNode do
+defmodule Udia.Repo.Migrations.CreatePost do
   use Ecto.Migration
 
   def change do
-    create table(:nodes) do
+    create table(:logs_posts) do
       add :title, :string
       add :content, :string
-      add :user_id, references(:users, on_delete: :nilify_all)
+      add :user_id, references(:auths_users, on_delete: :nilify_all)
 
       timestamps()
     end
-    create index(:nodes, [:user_id])
+    create index(:logs_posts, [:user_id])
 
   end
 end

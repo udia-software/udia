@@ -32,7 +32,7 @@ defmodule Udia.Web.SessionController do
       {:ok, conn} ->
         conn
         |> put_flash(:info, "Welcome back, #{user}.")
-        |> redirect(to: node_path(conn, :index))
+        |> redirect(to: post_path(conn, :index))
       {:error, _reason, conn} ->
         conn
         |> put_flash(:error, "Invalid username/password combination.")
@@ -44,6 +44,6 @@ defmodule Udia.Web.SessionController do
     conn
     |> Udia.Web.Auth.logout()
     |> put_flash(:info, "You have successfully logged out. Goodbye!")
-    |> redirect(to: node_path(conn, :index))
+    |> redirect(to: post_path(conn, :index))
   end
 end

@@ -136,8 +136,8 @@ defmodule Udia.Auths do
   """
   def registration_changeset(%User{} = user, attrs) do
     user
-    |> user_changeset(params)
-    |> cast(params, [:password])
+    |> user_changeset(attrs)
+    |> cast(attrs, [:password])
     |> validate_required([:password])
     |> validate_length(:password, min: 6, max: 100)
     |> put_pass_hash()
@@ -149,7 +149,6 @@ defmodule Udia.Auths do
         put_change(changeset, :password_hash, Comeonin.Bcrypt.hashpwsalt(pass))
       _ ->
         changeset
-    end
     end
   end
 
