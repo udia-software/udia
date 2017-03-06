@@ -69,7 +69,7 @@ let Post = {
   },
   esc(str) {
       let div = document.createElement("div")
-      div.appendChild(document.createTextPost(str))
+      div.appendChild(document.createTextNode(str))
       return div.innerHTML
   },
 
