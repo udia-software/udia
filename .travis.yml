@@ -10,5 +10,6 @@ before_script:
   - cp config/test.travis.exs config/test.exs
   - mix do ecto.create, ecto.migrate
 script:
-  - mix credo
   - mix coveralls.travis
+after_script:
+  - mix credo
