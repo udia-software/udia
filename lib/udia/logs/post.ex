@@ -20,25 +20,15 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.Comment do
-  use Udia.Web, :model
+defmodule Udia.Logs.Post do
+  use Ecto.Schema
 
-  schema "comments" do
-    field :body, :string
-    belongs_to :user, Udia.User
-    belongs_to :node, Udia.Node
-    belongs_to :parent_comment, Udia.Comment
-    has_many :child_comments, Udia.Comment
+  schema "logs_posts" do
+    field :title, :string
+    field :content, :string
+    belongs_to :user, Udia.Auths.User
+    has_many :comments, Udia.Logs.Comment
 
     timestamps()
-  end
-
-  @doc """
-  Builds a changeset based on the `struct` and `params`.
-  """
-  def changeset(struct, params \\ %{}) do
-    struct
-    |> cast(params, [:body])
-    |> validate_required([:body])
   end
 end

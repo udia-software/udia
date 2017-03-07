@@ -43,6 +43,7 @@ defmodule Udia.Web.ConnCase do
       use Phoenix.ConnTest
 
       alias Udia.Repo
+      alias Udia.Auths
       import Ecto
       import Ecto.Changeset
       import Ecto.Query

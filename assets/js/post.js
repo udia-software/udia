@@ -21,19 +21,19 @@
 // Udia Software Incorporated. All Rights Reserved.
 ///////////////////////////////////////////////////////////////////////////
 
-let Node = {
+let Post = {
   init(socket, element) {
     if (!element) {
       return
     }
-    let nodeId = element.getAttribute("data-id")
+    let postId = element.getAttribute("data-id")
     socket.connect()
-    this.onReady(nodeId, socket)
-    console.log("Node channel init")
+    this.onReady(postId, socket)
+    console.log("Post channel init")
   },
 
-  onReady(nodeId, socket) {
-    let nodeChannel = socket.channel("nodes:" + nodeId)
+  onReady(postId, socket) {
+    let postChannel = socket.channel("posts:" + postId)
     let msgContainer = document.getElementById("msg-container")
     
     // These two elements only exist when the user is authenticated.
@@ -43,27 +43,27 @@ let Node = {
     if (postButton) {
         postButton.addEventListener("click", e => {
             let payload = {body: msgInput.value}
-            nodeChannel.push("new_comment", payload)
+            postChannel.push("new_comment", payload)
                 .receive("error", e => console.log(e))
             msgInput.value = ""
         })
     }
 
-    nodeChannel.on("new_comment", (resp) => {
-        nodeChannel.params.last_seen_id = resp.id
+    postChannel.on("new_comment", (resp) => {
+        postChannel.params.last_seen_id = resp.id
         this.renderComment(msgContainer, resp)
     })
 
-    nodeChannel.join()
+    postChannel.join()
         .receive("ok", resp => {
             let ids = resp.comments.map(comment => comment.id)
             if (ids.length > 0) {
-                nodeChannel.params.last_seen_id = Math.max(...ids)
+                postChannel.params.last_seen_id = Math.max(...ids)
             }
             resp.comments.filter(comment => {
               this.renderComment(msgContainer, comment)
             })
-            console.log("joined the node channel", resp)
+            console.log("joined the post channel", resp)
         })
         .receive("error", reason => console.log("join failed", reason))
   },
@@ -89,4 +89,4 @@ let Node = {
   }
 }
 
-export default Node
+export default Post

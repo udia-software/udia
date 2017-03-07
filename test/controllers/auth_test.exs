@@ -40,7 +40,7 @@ defmodule Udia.AuthTest do
   test "authenticate_user continues when the current_user exists", %{conn: conn} do
     conn =
       conn
-      |> assign(:current_user, %Udia.User{})
+      |> assign(:current_user, %Udia.Auths.User{})
       |> Auth.authenticate_user([])
 
     refute conn.halted
@@ -49,7 +49,7 @@ defmodule Udia.AuthTest do
   test "login puts the user in the session", %{conn: conn} do
     login_conn =
       conn
-      |> Auth.login(%Udia.User{id: 123})
+      |> Auth.login(%Udia.Auths.User{id: 123})
       |> send_resp(:ok, "")
 
     next_conn = get(login_conn, "/")

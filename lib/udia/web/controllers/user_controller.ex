@@ -23,23 +23,23 @@
 defmodule Udia.Web.UserController do
   use Udia.Web, :controller
 
-  alias Udia.User
+  alias Udia.Auths.User
+  alias Udia.Auths
+
   plug :authenticate_user when action in [:index]
 
   def index(conn, _params) do
-    users = Repo.all(User)
+    users = Auths.list_users()
     render(conn, "index.html", users: users)
   end
 
   def new(conn, _params) do
-    changeset = User.changeset(%User{})
+    changeset = Auths.change_user(%User{})
     render(conn, "new.html", changeset: changeset)
   end
 
   def create(conn, %{"user" => user_params}) do
-    changeset = User.registration_changeset(%User{}, user_params)
-
-    case Repo.insert(changeset) do
+    case Auths.create_user(user_params) do
       {:ok, user} ->
         conn
         |> Udia.Web.Auth.login(user)
@@ -51,7 +51,7 @@ defmodule Udia.Web.UserController do
   end
 
   def show(conn, %{"id" => id}) do
-    user = Repo.get!(User, id)
+    user = Auths.get_user!(id)
     render(conn, "show.html", user: user)
   end
 end

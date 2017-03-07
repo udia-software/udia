@@ -1,6 +1,0 @@
-<h2>New node</h2>
-
-<%= render "form.html", changeset: @changeset,
-                        action: node_path(@conn, :create) %>
-
-<%= link "Back", to: node_path(@conn, :index) %>

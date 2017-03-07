@@ -20,18 +20,16 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.Repo.Migrations.CreateNode do
-  use Ecto.Migration
+defmodule Udia.Auths.User do
+  use Ecto.Schema
 
-  def change do
-    create table(:nodes) do
-      add :title, :string
-      add :content, :string
-      add :user_id, references(:users, on_delete: :nilify_all)
+  schema "auths_users" do
+    field :username, :string
+    field :password, :string, virtual: true
+    field :password_hash, :string
+    has_many :posts, Udia.Logs.Post
+    has_many :comments, Udia.Logs.Comment
 
-      timestamps()
-    end
-    create index(:nodes, [:user_id])
-
+    timestamps()
   end
 end

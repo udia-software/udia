@@ -48,7 +48,7 @@ defmodule Udia.SessionControllerTest do
     conn = post conn, session_path(conn, :create), session_params
 
     assert get_flash(conn, :info) == "Welcome back, seto."
-    assert redirected_to(conn) == node_path(conn, :index)
+    assert redirected_to(conn) == post_path(conn, :index)
     assert conn.status == 302
   end
 

@@ -21,19 +21,19 @@
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
 defmodule Udia.CommentTest do
-  use Udia.ModelCase
-  alias Udia.Comment
+  use Udia.DataCase
+  alias Udia.Logs.Comment
 
   @valid_attrs %{body: "some content"}
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do
-    changeset = Comment.changeset(%Comment{}, @valid_attrs)
+    changeset = Logs.comment_changeset(%Comment{}, @valid_attrs)
     assert changeset.valid?
   end
 
   test "changeset with invalid attributes" do
-    changeset = Comment.changeset(%Comment{}, @invalid_attrs)
+    changeset = Logs.comment_changeset(%Comment{}, @invalid_attrs)
     refute changeset.valid?
   end
 end

@@ -20,18 +20,18 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.NodeControllerTest do
+defmodule Udia.PostControllerTest do
   use Udia.Web.ConnCase
 
-  alias Udia.Node
+  alias Udia.Logs.Post
 
   test "requires user authentication on all actions except index and show", %{conn: conn} do
     Enum.each([
-      get(conn, node_path(conn, :new)),
-      get(conn, node_path(conn, :edit, "123")),
-      put(conn, node_path(conn, :update, "123", %{})),
-      post(conn, node_path(conn, :create, %{})),
-      delete(conn, node_path(conn, :delete, "123")),
+      get(conn, post_path(conn, :new)),
+      get(conn, post_path(conn, :edit, "123")),
+      put(conn, post_path(conn, :update, "123", %{})),
+      post(conn, post_path(conn, :create, %{})),
+      delete(conn, post_path(conn, :delete, "123")),
     ], fn conn ->
       assert html_response(conn, 302)
       assert conn.halted
@@ -52,71 +52,71 @@ defmodule Udia.NodeControllerTest do
   @invalid_attrs %{}
   @tag login_as: "samwell"
   test "lists all entries on index", %{conn: conn} do
-    conn = get conn, node_path(conn, :index)
-    assert html_response(conn, 200) =~ "Listing nodes"
+    conn = get conn, post_path(conn, :index)
+    assert html_response(conn, 200) =~ "Listing posts"
   end
 
   @tag login_as: "samwell"
   test "renders form for new resources", %{conn: conn} do
-    conn = get conn, node_path(conn, :new)
-    assert html_response(conn, 200) =~ "New node"
+    conn = get conn, post_path(conn, :new)
+    assert html_response(conn, 200) =~ "New post"
   end
 
   @tag login_as: "samwell"
   test "creates resource and redirects when data is valid", %{conn: conn} do
-    conn = post conn, node_path(conn, :create), node: @valid_attrs
-    assert redirected_to(conn) == node_path(conn, :index)
-    assert Repo.get_by(Node, @valid_attrs)
+    conn = post conn, post_path(conn, :create), post: @valid_attrs
+    assert redirected_to(conn) == post_path(conn, :index)
+    assert Repo.get_by(Post, @valid_attrs)
   end
 
   @tag login_as: "samwell"
   test "does not create resource and renders errors when data is invalid", %{conn: conn} do
-    conn = post conn, node_path(conn, :create), node: @invalid_attrs
-    assert html_response(conn, 200) =~ "New node"
+    conn = post conn, post_path(conn, :create), post: @invalid_attrs
+    assert html_response(conn, 200) =~ "New post"
   end
 
   @tag login_as: "samwell"
   test "shows chosen resource", %{conn: conn, user: user} do
-    node = insert_node(user, @valid_attrs)
-    conn = get conn, node_path(conn, :show, node)
+    post = insert_post(user, @valid_attrs)
+    conn = get conn, post_path(conn, :show, post)
     assert html_response(conn, 200) =~ "some content"
   end
 
   @tag login_as: "samwell"
   test "renders page not found when id is nonexistent", %{conn: conn} do
     assert_error_sent 404, fn ->
-      get conn, node_path(conn, :show, -1)
+      get conn, post_path(conn, :show, -1)
     end
   end
 
   @tag login_as: "samwell"
   test "renders form for editing chosen resource", %{conn: conn, user: user} do
-    node = insert_node(user, @valid_attrs)
-    conn = get conn, node_path(conn, :edit, node)
-    assert html_response(conn, 200) =~ "Edit node"
+    post = insert_post(user, @valid_attrs)
+    conn = get conn, post_path(conn, :edit, post)
+    assert html_response(conn, 200) =~ "Edit post"
   end
 
   @tag login_as: "samwell"
   test "updates chosen resource and redirects when data is valid", %{conn: conn, user: user} do
-    node = insert_node(user, @valid_attrs)
-    conn = put conn, node_path(conn, :update, node), node: @valid_attrs
-    assert redirected_to(conn) == node_path(conn, :show, node)
-    assert Repo.get_by(Node, @valid_attrs)
+    post = insert_post(user, @valid_attrs)
+    conn = put conn, post_path(conn, :update, post), post: @valid_attrs
+    assert redirected_to(conn) == post_path(conn, :show, post)
+    assert Repo.get_by(Post, @valid_attrs)
   end
 
   @tag login_as: "samwell"
   test "does not update chosen resource and renders errors when data is invalid", %{conn: conn, user: user} do
-    node = insert_node(user, @valid_attrs)
-    conn = put conn, node_path(conn, :update, node), node: @invalid_attrs
-    assert redirected_to(conn) == node_path(conn, :show, node)
-    assert Repo.get_by(Node, @valid_attrs)
+    post = insert_post(user, @valid_attrs)
+    conn = put conn, post_path(conn, :update, post), post: @invalid_attrs
+    assert redirected_to(conn) == post_path(conn, :show, post)
+    assert Repo.get_by(Post, @valid_attrs)
   end
 
   @tag login_as: "samwell"
   test "deletes chosen resource", %{conn: conn, user: user} do
-    node = insert_node(user, @valid_attrs)
-    conn = delete conn, node_path(conn, :delete, node)
-    assert redirected_to(conn) == node_path(conn, :index)
-    refute Repo.get(Node, node.id)
+    post = insert_post(user, @valid_attrs)
+    conn = delete conn, post_path(conn, :delete, post)
+    assert redirected_to(conn) == post_path(conn, :index)
+    refute Repo.get(Post, post.id)
   end
 end

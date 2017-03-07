@@ -13,28 +13,13 @@
 # the specific language governing rights and limitations under the License.
 #
 # The Original Code is UDIA.
-#
+#Í
 # The Original Developer is the Initial Developer.  The Initial Developer of
 # the Original Code is Udia Software Incorporated.
 #
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.NodeTest do
-  use Udia.ModelCase
-
-  alias Udia.Node
-
-  @valid_attrs %{content: "some content", title: "some title"}
-  @invalid_attrs %{}
-
-  test "changeset with valid attributes" do
-    changeset = Node.changeset(%Node{}, @valid_attrs)
-    assert changeset.valid?
-  end
-
-  test "changeset with invalid attributes" do
-    changeset = Node.changeset(%Node{}, @invalid_attrs)
-    refute changeset.valid?
-  end
+defmodule Udia.Web.PostView do
+  use Udia.Web, :view
 end

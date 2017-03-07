@@ -21,14 +21,14 @@
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
 defmodule Udia.UserRepoTest do
-  use Udia.ModelCase
-  alias Udia.User
+  use Udia.DataCase
+  alias Udia.Auths.User
 
   @valid_attrs %{username: "eva"}
   test "converts unique_contraint on username to error" do
     insert_user(username: "eric")
     attrs = Map.put(@valid_attrs, :username, "eric")
-    changeset = User.changeset(%User{}, attrs)
+    changeset = Auths.user_changeset(%User{}, attrs)
 
     assert {:error, changeset} = Repo.insert(changeset)
     assert {:username, {"has already been taken", []}} in changeset.errors

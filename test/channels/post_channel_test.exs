@@ -20,26 +20,26 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.NodeChannelTest do
+defmodule Udia.PostChannelTest do
   use Udia.Web.ChannelCase
 
   setup do
     user = insert_user(username: "seto")
-    node = insert_node(user, %{content: "some content", title: "some title"})
+    post = insert_post(user, %{content: "some content", title: "some title"})
     token = Phoenix.Token.sign(@endpoint, "user socket", user.id)
     {:ok, socket} = connect(UserSocket, %{"token" => token})
 
-    {:ok, socket: socket, user: user, node: node}
+    {:ok, socket: socket, user: user, post: post}
   end
 
-  test "join channel", %{socket: socket, node: node} do
-    {:ok, _, socket} = subscribe_and_join(socket, "nodes:#{node.id}", %{})
+  test "join channel", %{socket: socket, post: post} do
+    {:ok, _, socket} = subscribe_and_join(socket, "posts:#{post.id}", %{})
 
-    assert socket.assigns.node_id == node.id
+    assert socket.assigns.post_id == post.id
   end
 
-  test "insert new comment", %{socket: socket, node: node} do
-    {:ok, _, socket} = subscribe_and_join(socket, "nodes:#{node.id}", %{})
+  test "insert new comment", %{socket: socket, post: post} do
+    {:ok, _, socket} = subscribe_and_join(socket, "posts:#{post.id}", %{})
     ref = push socket, "new_comment", %{"body" => "some content"}
     assert_reply ref, :ok, %{}
     assert_broadcast "new_comment", %{}

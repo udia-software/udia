@@ -13,13 +13,25 @@
 # the specific language governing rights and limitations under the License.
 #
 # The Original Code is UDIA.
-#Í
+#
 # The Original Developer is the Initial Developer.  The Initial Developer of
 # the Original Code is Udia Software Incorporated.
 #
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.Web.NodeView do
-  use Udia.Web, :view
+defmodule Udia.Repo.Migrations.CreatePost do
+  use Ecto.Migration
+
+  def change do
+    create table(:logs_posts) do
+      add :title, :string
+      add :content, :string
+      add :user_id, references(:auths_users, on_delete: :nilify_all)
+
+      timestamps()
+    end
+    create index(:logs_posts, [:user_id])
+
+  end
 end

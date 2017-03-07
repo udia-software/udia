@@ -29,14 +29,14 @@ defmodule Udia.TestHelpers do
       password: "supersecret",
     })
 
-    %Udia.User{}
-    |> Udia.User.registration_changeset(changes)
+    %Udia.Auths.User{}
+    |> Udia.Auths.registration_changeset(changes)
     |> Repo.insert!()
   end
 
-  def insert_node(user, attrs \\ %{}) do
+  def insert_post(user, attrs \\ %{}) do
     user
-    |> Ecto.build_assoc(:nodes, attrs)
+    |> Ecto.build_assoc(:posts, attrs)
     |> Repo.insert!()
   end
 end
