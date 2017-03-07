@@ -3,6 +3,7 @@
 <table class="table">
   <thead>
     <tr>
+      <th></th>
       <th>Title</th>
       <th>Content</th>
       <th>User</th>
@@ -11,6 +12,17 @@
   <tbody>
 <%= for post <- @posts do %>
     <tr>
+      <td>
+        <div class="btn-group-vertical" role="group">
+          <button type="button" class="btn btn-success btn-xs">
+            <span class="glyphicon glyphicon-arrow-up"></span>
+          </button>
+          <span>0</span>
+          <button type="button" class="btn btn-danger btn-xs">
+            <span class="glyphicon glyphicon-arrow-down"></span>
+          </button>
+        </div>
+      </td>
       <td><%= link post.title, to: post_path(@conn, :show, post) %></td>
       <td><%= post.content %></td>
       <td><%= link post.user.username, to: user_path(@conn, :show, post.user.id) %></td>
