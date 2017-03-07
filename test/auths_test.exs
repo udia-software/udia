@@ -20,21 +20,42 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.UserTest do
+defmodule Udia.AuthsTest do
   use Udia.DataCase, async: true
+
   alias Udia.Auths.User
 
-  @valid_attrs %{username: "eva", password: "secret"}
-  @invalid_attrs %{}
+  @valid_attrs %{username: "seto", password: "123456"}
+  @invalid_attrs %{username: nil, password: nil}
 
-  test "changeset with valid attributes" do
-    changeset = Auths.user_changeset(%User{}, @valid_attrs)
-    assert changeset.valid?
+  def fixture(:user, attrs \\ @valid_attrs) do
+    {:ok, user} = Auths.create_user(attrs)
+    user
   end
 
-  test "changeset with invalid attributes" do
-    changeset = Auths.user_changeset(%User{}, @invalid_attrs)
-    refute changeset.valid?
+  test "list_users/1 returns all users" do
+    user = fixture(:user)
+    assert Auths.list_users() == [user]
+  end
+
+  test "get_user! returns the user with given id" do
+    user = fixture(:user)
+    assert Auths.get_user!(user.id) == user
+  end
+
+  test "create_user/1 with valid data creates a user" do
+    assert {:ok, %User{} = user} = Auths.create_user(@valid_attrs)
+
+    assert user.username == "seto"
+  end
+
+  test "create_user/1 with invalid data returns error changeset" do
+    assert {:error, %Ecto.Changeset{}} = Auths.create_user(@invalid_attrs)
+  end
+
+  test "change_user/1 returns a user changeset" do
+    user = fixture(:user)
+    assert %Ecto.Changeset{} = Auths.change_user(user)
   end
 
   test "changeset does not accept long usernames" do
@@ -51,9 +72,9 @@ defmodule Udia.UserTest do
   end
 
   test "registration_changeset with valid attributes hashes password" do
-    attrs = Map.put(@valid_attrs, :password, "123456")
-    changeset = Auths.registration_changeset(%User{}, attrs)
-    %{password: pass, password_hash: pass_hash} = changeset.changes
+    pass = "123456"
+    changeset = Auths.registration_changeset(%User{}, @valid_attrs)
+    %{password_hash: pass_hash} = changeset.changes
     assert changeset.valid?
     assert pass_hash
     assert Comeonin.Bcrypt.checkpw(pass, pass_hash)

@@ -39,4 +39,10 @@ defmodule Udia.TestHelpers do
     |> Ecto.build_assoc(:posts, attrs)
     |> Repo.insert!()
   end
+
+  def insert_comment(attrs) do
+    %Udia.Logs.Comment{}
+    |> Udia.Logs.comment_changeset(attrs)
+    |> Repo.insert!
+  end
 end
