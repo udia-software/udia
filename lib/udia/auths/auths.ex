@@ -76,39 +76,6 @@ defmodule Udia.Auths do
     |> Repo.insert()
   end
 
-  @doc """
-  Updates a user.
-
-  ## Examples
-
-      iex> update_user(user, %{field: new_value})
-      {:ok, %User{}}
-
-      iex> update_user(user, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_user(%User{} = user, attrs) do
-    user
-    |> user_changeset(attrs)
-    |> Repo.update()
-  end
-
-  @doc """
-  Deletes a User.
-
-  ## Examples
-
-      iex> delete_user(user)
-      {:ok, %User{}}
-
-      iex> delete_user(user)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_user(%User{} = user) do
-    Repo.delete(user)
-  end
 
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking user changes.
@@ -125,7 +92,7 @@ defmodule Udia.Auths do
 
   def user_changeset(%User{} = user, attrs) do
     user
-    |> cast(attrs, [:username, :password])
+    |> cast(attrs, [:username])
     |> validate_required([:username])
     |> validate_length(:username, min: 1, max: 20)
     |> unique_constraint(:username)
@@ -146,7 +113,9 @@ defmodule Udia.Auths do
   defp put_pass_hash(changeset) do
     case changeset do
       %Ecto.Changeset{valid?: true, changes: %{password: pass}} ->
-        put_change(changeset, :password_hash, Comeonin.Bcrypt.hashpwsalt(pass))
+        changeset
+        |> put_change(:password_hash, Comeonin.Bcrypt.hashpwsalt(pass))
+        |> put_change(:password, nil)
       _ ->
         changeset
     end
