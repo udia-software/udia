@@ -72,13 +72,11 @@ let Post = {
     let presences = {}
 
     postChannel.on("presence_state", state => {
-      console.log("presence_state", state)
-      Presence.syncState(presences, state)
+      presences = Presence.syncState(presences, state)
       this.renderPresence(presences)
     })
     postChannel.on("presence_diff", diff => {
-      console.log("presence_diff", diff)
-      Presence.syncDiff(presences, diff)
+      presences = Presence.syncDiff(presences, diff)
       this.renderPresence(presences)
     })
   },
@@ -98,16 +96,19 @@ let Post = {
   },
 
   renderPresence(presences) {
-    console.log("render_presence", presences)
     let userList = document.getElementById("user-list")
-    let listBy = (id, { metas: [first, ...rest] }) => {
-      first.name = id
-      first.count = rest.length + 1
-      return first
+    let listBy = (id, { metas: metas }) => {
+      let onlineAtDate = new Date(metas[0].online_at);
+      return {
+        id: id,
+        username: metas[0].username,
+        count: metas.length,
+        onlineAt: onlineAtDate.toLocaleDateString() + " " + onlineAtDate.toLocaleTimeString()
+      }
     }
 
     userList.innerHTML = Presence.list(presences, listBy)
-      .map(user => `<li>${user.name} (${user.count})</li>`)
+      .map(user => `<li>${user.username} (instance count: ${user.count}) <span>Online At ${user.onlineAt}</span></li>`)
       .join("")
   }
 }

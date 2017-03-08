@@ -62,10 +62,19 @@ defmodule Udia.Web.PostChannel do
   end
 
   def handle_info(:after_join, socket) do
+    user = Repo.get(Udia.Auths.User, socket.assigns.user_id)
     push socket, "presence_state", Presence.list(socket)
-    {:ok, _} = Presence.track(socket, socket.assigns.user_id, %{
-      online_at: inspect(System.system_time(:seconds))
-    })
+    if socket.assigns.user_id > 0 do
+      {:ok, _} = Presence.track(socket, socket.assigns.user_id, %{
+        username: user.username,
+        online_at: :os.system_time(:milli_seconds)
+      })
+    else
+      {:ok, _} = Presence.track(socket, -1, %{
+        username: "anon",
+        online_at: 0
+      })
+    end
     {:noreply, socket}
   end
 
