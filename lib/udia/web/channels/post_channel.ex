@@ -40,6 +40,16 @@ defmodule Udia.Web.PostChannel do
     {:ok, resp, assign(socket, :post_id, post_id)}
   end
 
+  def handle_in("up_vote", _params, socket) do
+    IO.puts "up vote event receive"
+    {:noreply, socket}
+  end
+
+  def handle_in("down_vote", _params, socket) do
+    IO.puts "down vote event receive"
+    {:noreply, socket}
+  end
+
   def handle_in(event, params, socket) do
     user = Repo.get(Udia.Auths.User, socket.assigns.user_id)
     handle_in(event, params, user, socket)

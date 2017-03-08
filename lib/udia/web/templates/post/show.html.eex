@@ -1,14 +1,16 @@
 <%= content_tag :div, id: "post", data: [id: @post.id] do %>
   <div>
+      <%= if @current_user do %>
     <div class="btn-group-vertical" role="group">
-      <button type="button" class="btn btn-success btn-xs">
+      <button type="button" class="btn btn-success btn-xs" id="vote-up-btn">
         <span class="glyphicon glyphicon-arrow-up"></span>
       </button>
-      <span>0</span>
-      <button type="button" class="btn btn-danger btn-xs">
+      <span id="vote-span">0</span>
+      <button type="button" class="btn btn-danger btn-xs" id="vote-down-btn">
         <span class="glyphicon glyphicon-arrow-down"></span>
       </button>
     </div>
+    <%= end %>
     <h2 style="display: inline;"><%= @post.title %></h2>
   </div>
   <div class="panel panel-default">
