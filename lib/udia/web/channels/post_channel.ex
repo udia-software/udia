@@ -23,8 +23,10 @@
 defmodule Udia.Web.PostChannel do
   use Udia.Web, :channel
   alias Udia.Web.CommentView
+  alias Udia.Web.Presence
   
   def join("posts:" <> post_id, params, socket) do
+    send self(), :after_join
     last_seen_id = params["last_seen_id"] || 0
     post_id = String.to_integer(post_id)
     post = Repo.get!(Udia.Logs.Post, post_id)
@@ -57,6 +59,23 @@ defmodule Udia.Web.PostChannel do
       {:error, changeset} ->
         {:reply, {:error, %{errors: changeset}}, socket}
     end
+  end
+
+  def handle_info(:after_join, socket) do
+    user = Repo.get(Udia.Auths.User, socket.assigns.user_id)
+    push socket, "presence_state", Presence.list(socket)
+    if socket.assigns.user_id > 0 do
+      {:ok, _} = Presence.track(socket, socket.assigns.user_id, %{
+        username: user.username,
+        online_at: :os.system_time(:milli_seconds)
+      })
+    else
+      {:ok, _} = Presence.track(socket, -1, %{
+        username: "anon",
+        online_at: 0
+      })
+    end
+    {:noreply, socket}
   end
 
   defp broadcast_comment(socket, comment) do

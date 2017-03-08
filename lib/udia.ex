@@ -36,6 +36,7 @@ defmodule Udia do
       supervisor(Udia.Web.Endpoint, []),
       # Start your own worker by calling: Udia.Worker.start_link(arg1, arg2, arg3)
       # worker(Udia.Worker, [arg1, arg2, arg3]),
+      supervisor(Udia.Web.Presence, []),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
