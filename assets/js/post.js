@@ -20,73 +20,96 @@
 // All portions of the code written by UDIA are Copyright (c) 2016-2017
 // Udia Software Incorporated. All Rights Reserved.
 ///////////////////////////////////////////////////////////////////////////
+import { Presence } from "phoenix"
 
 let Post = {
-  init(socket, element) {
-    if (!element) {
-      return
-    }
-    let postId = element.getAttribute("data-id")
-    socket.connect()
-    this.onReady(postId, socket)
-    console.log("Post channel init")
-  },
+    init(socket, element) {
+        if (!element) {
+            return
+        }
+        let postId = element.getAttribute("data-id")
+        socket.connect()
+        this.onReady(postId, socket)
+    },
 
-  onReady(postId, socket) {
-    let postChannel = socket.channel("posts:" + postId)
-    let msgContainer = document.getElementById("msg-container")
-    
-    // These two elements only exist when the user is authenticated.
-    let msgInput = document.getElementById("msg-input")
-    let postButton = document.getElementById("msg-submit")
+    onReady(postId, socket) {
+        let postChannel = socket.channel("posts:" + postId)
+        let msgContainer = document.getElementById("msg-container")
 
-    if (postButton) {
-        postButton.addEventListener("click", e => {
-            let payload = {body: msgInput.value}
-            postChannel.push("new_comment", payload)
-                .receive("error", e => console.log(e))
-            msgInput.value = ""
-        })
-    }
+        // These two elements only exist when the user is authenticated.
+        let msgInput = document.getElementById("msg-input")
+        let submitCommentButton = document.getElementById("msg-submit")
 
-    postChannel.on("new_comment", (resp) => {
-        postChannel.params.last_seen_id = resp.id
-        this.renderComment(msgContainer, resp)
-    })
-
-    postChannel.join()
-        .receive("ok", resp => {
-            let ids = resp.comments.map(comment => comment.id)
-            if (ids.length > 0) {
-                postChannel.params.last_seen_id = Math.max(...ids)
-            }
-            resp.comments.filter(comment => {
-              this.renderComment(msgContainer, comment)
+        // Submit a comment
+        if (submitCommentButton) {
+            submitCommentButton.addEventListener("click", e => {
+                let payload = { body: msgInput.value }
+                postChannel.push("new_comment", payload)
+                    .receive("error", e => console.log(e))
+                msgInput.value = ""
             })
-            console.log("joined the post channel", resp)
+        }
+
+        // On new comment, render in message container
+        postChannel.on("new_comment", (resp) => {
+            postChannel.params.last_seen_id = resp.id
+            this.renderComment(msgContainer, resp)
         })
-        .receive("error", reason => console.log("join failed", reason))
-  },
-  esc(str) {
-      let div = document.createElement("div")
-      div.appendChild(document.createTextNode(str))
-      return div.innerHTML
-  },
 
-  renderComment(msgContainer, {
-      user,
-      body
-  }) {
-      let template = document.createElement("div")
-      template.innerHTML = `
-      <a href="#">
-        <b>${this.esc(user.username)}</b>: ${this.esc(body)}
-      </a>
-      `
+        // On join channel, get all comments
+        postChannel.join()
+            .receive("ok", resp => {
+                let ids = resp.comments.map(comment => comment.id)
+                if (ids.length > 0) {
+                    postChannel.params.last_seen_id = Math.max(...ids)
+                }
+                resp.comments.filter(comment => {
+                    this.renderComment(msgContainer, comment)
+                })
+            })
+            .receive("error", reason => console.log("join failed", reason))
 
-      msgContainer.appendChild(template)
-      msgContainer.scrollTop = msgContainer.scrollHeight
-  }
+        let presences = {}
+
+        postChannel.on("presence_state", state => {
+            console.log("presence_state", state)
+            Presence.syncState(presences, state)
+            this.renderPresence(presences)
+        })
+        postChannel.on("presence_diff", diff => {
+            console.log("presence_diff", diff)
+            Presence.syncDiff(presences, diff)
+            this.renderPresence(presences)
+        })
+    },
+
+    esc(str) {
+        let div = document.createElement("div")
+        div.appendChild(document.createTextNode(str))
+        return div.innerHTML
+    },
+
+    renderComment(msgContainer, { user, body }) {
+        let template = document.createElement("div")
+        template.innerHTML = `<a href="#"><b>${this.esc(user.username)}</b>: ${this.esc(body)}</a>`
+
+        msgContainer.appendChild(template)
+        msgContainer.scrollTop = msgContainer.scrollHeight
+    },
+
+    renderPresence(presences) {
+        console.log("render_presence", presences)
+        let userList = document.getElementById("user-list")
+        let listBy = (id, { metas: [first, ...rest] }) => {
+            first.name = id
+            first.count = rest.length + 1
+            return first
+        }
+
+        userList.innerHTML = Presence.list(presences, listBy)
+            .map(user => `<li>${user.name} (${user.count})</li>`)
+            .join("")
+    }
 }
 
 export default Post

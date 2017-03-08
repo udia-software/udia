@@ -32,9 +32,9 @@
   </ul>
 
   <%= if @current_user && @current_user.id == @post.user_id do %>
-  <%= link "Edit", to: post_path(@conn, :edit, @post), class: "btn btn-default btn-xs" %>
-  <%= link "Delete", to: post_path(@conn, :delete, @post), method: :delete, data: [confirm: "Are you sure?"],
-    class: "btn btn-danger btn-xs" %>
+    <%= link "Edit", to: post_path(@conn, :edit, @post), class: "btn btn-default btn-xs" %>
+    <%= link "Delete", to: post_path(@conn, :delete, @post), method: :delete, data: [confirm: "Are you sure?"],
+      class: "btn btn-danger btn-xs" %>
   <% end %>
   <%= link "Back", to: post_path(@conn, :index), class: "btn btn-default btn-xs" %>
 
@@ -51,4 +51,10 @@
     </div>
     <% end %>
   </div>
+  <div>
+    <%= node() %>
+    <ul id="user-list">
+    </ul>
+  </div>
+
 <% end %>
