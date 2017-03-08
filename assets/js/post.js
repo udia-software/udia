@@ -40,26 +40,6 @@ let Post = {
       let msgInput = document.getElementById("msg-input")
       let postButton = document.getElementById("msg-submit")
 
-      let voteUpBtn = document.getElementById("vote-up-btn")
-      let voteDownBtn = document.getElementById("vote-down-btn")
-      let voteSpan = document.getElementById("vote-span")
-
-      if (voteUpBtn) {
-          voteUpBtn.addEventListener("click", e => {
-              postChannel.push("up_vote", {})
-                  .receive("error", e => console.log(e))
-              console.log("vote up clicked")
-          })
-      }
-
-      if (voteDownBtn) {
-          voteDownBtn.addEventListener("click", e => {
-              postChannel.push("down_vote", {})
-                  .receive("error", e => console.log(e))
-              console.log("vote down clicked")
-          })
-      }
-
     if (postButton) {
         postButton.addEventListener("click", e => {
             let payload = {body: msgInput.value}
