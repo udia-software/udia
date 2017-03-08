@@ -1,16 +1,14 @@
 <%= content_tag :div, id: "post", data: [id: @post.id] do %>
   <div>
-      <%= if @current_user do %>
     <div class="btn-group-vertical" role="group">
-      <button type="button" class="btn btn-success btn-xs" id="vote-up-btn">
+      <button type="button" class="btn btn-success btn-xs">
         <span class="glyphicon glyphicon-arrow-up"></span>
       </button>
-      <span id="vote-span">0</span>
-      <button type="button" class="btn btn-danger btn-xs" id="vote-down-btn">
+      <span>0</span>
+      <button type="button" class="btn btn-danger btn-xs">
         <span class="glyphicon glyphicon-arrow-down"></span>
       </button>
     </div>
-    <%= end %>
     <h2 style="display: inline;"><%= @post.title %></h2>
   </div>
   <div class="panel panel-default">
@@ -34,9 +32,9 @@
   </ul>
 
   <%= if @current_user && @current_user.id == @post.user_id do %>
-  <%= link "Edit", to: post_path(@conn, :edit, @post), class: "btn btn-default btn-xs" %>
-  <%= link "Delete", to: post_path(@conn, :delete, @post), method: :delete, data: [confirm: "Are you sure?"],
-    class: "btn btn-danger btn-xs" %>
+    <%= link "Edit", to: post_path(@conn, :edit, @post), class: "btn btn-default btn-xs" %>
+    <%= link "Delete", to: post_path(@conn, :delete, @post), method: :delete, data: [confirm: "Are you sure?"],
+      class: "btn btn-danger btn-xs" %>
   <% end %>
   <%= link "Back", to: post_path(@conn, :index), class: "btn btn-default btn-xs" %>
 
@@ -53,4 +51,10 @@
     </div>
     <% end %>
   </div>
+  <div>
+    <%= node() %>
+    <ul id="user-list">
+    </ul>
+  </div>
+
 <% end %>
