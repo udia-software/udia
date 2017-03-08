@@ -20,8 +20,49 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.Reations do
+defmodule Udia.Reactions do
   @moduledoc """
   The boundary for the reations system.
   """
+
+  import Ecto.{Query, Changeset}, warn: false
+  alias Udia.Repo
+  alias Udia.Reactions.{Vote, Point}
+  alias Udia.Logs.Post
+  alias Udia.Auths.User
+  alias Ecto.Multi
+
+  def get_vote!(id), do: Repo.get!(Vote, id)
+
+  def create_vote(%User{} = user, attrs) do
+    user
+    |> Ecto.build_assoc(:vote)
+    |> vote_changeset(attrs)
+  end
+
+  def vote_changeset(%Vote{} = vote, attrs) do
+    vote
+    |> cast(attrs, [:up_vote, :down_vote])
+    |> validate_required([:up_vote, :down_vote])
+  end
+
+  def get_point!(id), do: Repo.get!(Point, id)
+
+  def create_point(%Post{} = post, attrs) do
+    post
+    |> Ecto.build_assoc(:point)
+    |> point_changeset(attrs)
+  end
+
+  def point_changeset(%Point{} = point, attrs) do
+    point
+    |> cast(attrs, [:value])
+    |> validate_required([:value])
+  end
+
+  def up_vote(%User{} = user, %Post{} = post, vote_params, point_params) do
+    Multi.new
+    |> Multi.insert(:vote, create_vote(user, vote_params))
+    |> Multi.insert(:point, create_point(post, point_params))
+  end
 end

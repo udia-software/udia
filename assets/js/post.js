@@ -33,12 +33,30 @@ let Post = {
   },
 
   onReady(postId, socket) {
-    let postChannel = socket.channel("posts:" + postId)
-    let msgContainer = document.getElementById("msg-container")
+      let postChannel = socket.channel("posts:" + postId)
+      let msgContainer = document.getElementById("msg-container")
 
-    // These two elements only exist when the user is authenticated.
-    let msgInput = document.getElementById("msg-input")
-    let submitCommentButton = document.getElementById("msg-submit")
+    // These elements only exist when the user is authenticated.
+      let msgInput = document.getElementById("msg-input")
+      let submitCommentButton = document.getElementById("msg-submit")
+
+      let voteUpBtn = document.getElementById("vote-up-btn")
+      let voteDownBtn = document.getElementById("vote-down-btn")
+      let voteSpan = document.getElementById("vote-span")
+
+      if (voteUpBtn) {
+          voteUpBtn.addEventListener("click", e => {
+              postChannel.push("up_vote", {})
+                  .receive("error", e => console.log(e))
+          })
+      }
+
+      if (voteDownBtn) {
+          voteDownBtn.addEventListener("click", e => {
+              postChannel.push("down_vote", {})
+                  .receive("error", e => console.log(e))
+          })
+      }
 
     // Submit a comment
     if (submitCommentButton) {
@@ -55,6 +73,16 @@ let Post = {
       postChannel.params.last_seen_id = resp.id
       this.renderComment(msgContainer, resp)
     })
+
+      // Up vote event
+      postChannel.on("up_vote", resp => {
+          voteSpan.textContent = resp.value
+          if (resp.up_vote) {
+              voteUpBtn.className = "btn btn-success btn-xs"
+          } else {
+              voteUpBtn.className = "btn btn-default btn-xs"
+          }
+      })
 
     // On join channel, get all comments
     postChannel.join()

@@ -28,7 +28,8 @@ defmodule Udia.Logs.Post do
     field :content, :string
     belongs_to :user, Udia.Auths.User
     has_many :comments, Udia.Logs.Comment
-    has_one :vote, Udia.Reations.Vote
+    has_one :vote, Udia.Reactions.Vote
+    has_one :point, Udia.Reactions.Point
 
     timestamps()
   end

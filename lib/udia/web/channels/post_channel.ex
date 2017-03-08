@@ -22,14 +22,18 @@
 ###############################################################################
 defmodule Udia.Web.PostChannel do
   use Udia.Web, :channel
-  alias Udia.Web.CommentView
-  alias Udia.Web.Presence
-  
+  alias Udia.Web.{CommentView, Presence}
+  alias Udia.Auths.User
+  alias Udia.Logs.Post
+  alias Udia.Reactions
+  require Logger
+
+
   def join("posts:" <> post_id, params, socket) do
     send self(), :after_join
     last_seen_id = params["last_seen_id"] || 0
     post_id = String.to_integer(post_id)
-    post = Repo.get!(Udia.Logs.Post, post_id)
+    post = Repo.get!(Post, post_id)
 
     comments = Repo.all(
         from a in assoc(post, :comments),
@@ -40,6 +44,78 @@ defmodule Udia.Web.PostChannel do
     )
     resp = %{comments: Phoenix.View.render_many(comments, CommentView, "comment.json")}
     {:ok, resp, assign(socket, :post_id, post_id)}
+  end
+
+  def handle_in("up_vote", _params, socket) do
+    Logger.info "A user just up vote a post"
+    post =
+      Post
+      |> Repo.get(socket.assigns.post_id)
+      |> Repo.preload(:point)
+
+    user =
+      User
+      |> Repo.get(socket.assigns.user_id)
+      |> Repo.preload(:vote)
+
+    unless post.point do
+      vote_params = %{up_vote: true, down_vote: false}
+      point_params = %{value: 1}
+
+      case Repo.transaction(Reactions.up_vote(user, post, vote_params, point_params)) do
+        {:ok, %{vote: new_vote, point: new_point}} ->
+          broadcast! socket, "up_vote", %{value: new_point.value, up_vote: new_vote.up_vote}
+          {:reply, :ok, socket}
+        {:error, failed_operation, _failed_value, _changes_so_far} ->
+          {:reply, {:error, %{errors: failed_operation}}}
+      end
+    else
+
+      value = post.point.value
+
+      unless user.vote do
+        vote_params = %{up_vote: true, down_vote: false}
+        point_params = %{value: (value + 1)}
+
+        case Repo.transaction(Reactions.up_vote(user, post, vote_params, point_params)) do
+          {:ok, %{vote: new_vote, point: new_point}} ->
+            broadcast! socket, "up_vote", %{value: new_point.value, up_vote: new_vote.up_vote}
+            {:noreply, socket}
+          {:error, failed_operation, _failed_value, _changes_so_far} ->
+            {:reply, {:error, %{errors: failed_operation}}}
+        end
+       else
+
+        if user.vote.up_vote do
+          point = Repo.get(Udia.Reactions.Point, post.point.id)
+          changeset = Reactions.point_changeset(point, %{value: (value - 1)})
+
+          case Repo.update(changeset) do
+            {:ok, new_point} ->
+              broadcast! socket, "up_vote", %{value: new_point.value, up_vote: user.vote.up_vote}
+              {:reply, :ok, socket}
+            {:error, changeset} ->
+              {:reply, {:error, %{errors: changeset.errors}}, socket}
+          end
+        else
+          vote_params = %{up_vote: true, down_vote: false}
+          point_params = %{value: (value + 1)}
+
+          case Repo.transaction(Reactions.up_vote(user, post, vote_params, point_params)) do
+            {:ok, %{vote: new_vote, point: new_point}} ->
+              broadcast! socket, "up_vote", %{value: new_point.value, up_vote: new_vote.up_vote}
+              {:noreply, socket}
+            {:error, failed_operation, _failed_value, _changes_so_far} ->
+              {:reply, {:error, %{errors: failed_operation}}}
+          end
+        end
+      end
+    end
+  end
+
+  def handle_in("down_vote", _params, socket) do
+    Logger.info "A user just down vote a post"
+    {:noreply, socket}
   end
 
   def handle_in(event, params, socket) do

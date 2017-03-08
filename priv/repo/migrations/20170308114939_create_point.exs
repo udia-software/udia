@@ -20,14 +20,17 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.Reations.Vote do
-  use Ecto.Schema
+defmodule Udia.Repo.Migrations.CreatePoint do
+  use Ecto.Migration
 
-  schema "reations_votes" do
-    field :point, :integer
-    belongs_to :user, Udia.Auths.User
-    belongs_to :post, Udia.Logs.Post
+  def change do
+    create table(:reactions_points) do
+      add :value, :integer, default: 0
+      add :post_id, references(:logs_posts, on_delete: :delete_all)
 
-    timestamps()
+      timestamps()
+    end
+
+    create index(:reactions_points, [:post_id])
   end
 end
