@@ -23,93 +23,93 @@
 import { Presence } from "phoenix"
 
 let Post = {
-    init(socket, element) {
-        if (!element) {
-            return
-        }
-        let postId = element.getAttribute("data-id")
-        socket.connect()
-        this.onReady(postId, socket)
-    },
-
-    onReady(postId, socket) {
-        let postChannel = socket.channel("posts:" + postId)
-        let msgContainer = document.getElementById("msg-container")
-
-        // These two elements only exist when the user is authenticated.
-        let msgInput = document.getElementById("msg-input")
-        let submitCommentButton = document.getElementById("msg-submit")
-
-        // Submit a comment
-        if (submitCommentButton) {
-            submitCommentButton.addEventListener("click", e => {
-                let payload = { body: msgInput.value }
-                postChannel.push("new_comment", payload)
-                    .receive("error", e => console.log(e))
-                msgInput.value = ""
-            })
-        }
-
-        // On new comment, render in message container
-        postChannel.on("new_comment", (resp) => {
-            postChannel.params.last_seen_id = resp.id
-            this.renderComment(msgContainer, resp)
-        })
-
-        // On join channel, get all comments
-        postChannel.join()
-            .receive("ok", resp => {
-                let ids = resp.comments.map(comment => comment.id)
-                if (ids.length > 0) {
-                    postChannel.params.last_seen_id = Math.max(...ids)
-                }
-                resp.comments.filter(comment => {
-                    this.renderComment(msgContainer, comment)
-                })
-            })
-            .receive("error", reason => console.log("join failed", reason))
-
-        let presences = {}
-
-        postChannel.on("presence_state", state => {
-            console.log("presence_state", state)
-            Presence.syncState(presences, state)
-            this.renderPresence(presences)
-        })
-        postChannel.on("presence_diff", diff => {
-            console.log("presence_diff", diff)
-            Presence.syncDiff(presences, diff)
-            this.renderPresence(presences)
-        })
-    },
-
-    esc(str) {
-        let div = document.createElement("div")
-        div.appendChild(document.createTextNode(str))
-        return div.innerHTML
-    },
-
-    renderComment(msgContainer, { user, body }) {
-        let template = document.createElement("div")
-        template.innerHTML = `<a href="#"><b>${this.esc(user.username)}</b>: ${this.esc(body)}</a>`
-
-        msgContainer.appendChild(template)
-        msgContainer.scrollTop = msgContainer.scrollHeight
-    },
-
-    renderPresence(presences) {
-        console.log("render_presence", presences)
-        let userList = document.getElementById("user-list")
-        let listBy = (id, { metas: [first, ...rest] }) => {
-            first.name = id
-            first.count = rest.length + 1
-            return first
-        }
-
-        userList.innerHTML = Presence.list(presences, listBy)
-            .map(user => `<li>${user.name} (${user.count})</li>`)
-            .join("")
+  init(socket, element) {
+    if (!element) {
+      return
     }
+    let postId = element.getAttribute("data-id")
+    socket.connect()
+    this.onReady(postId, socket)
+  },
+
+  onReady(postId, socket) {
+    let postChannel = socket.channel("posts:" + postId)
+    let msgContainer = document.getElementById("msg-container")
+
+    // These two elements only exist when the user is authenticated.
+    let msgInput = document.getElementById("msg-input")
+    let submitCommentButton = document.getElementById("msg-submit")
+
+    // Submit a comment
+    if (submitCommentButton) {
+      submitCommentButton.addEventListener("click", e => {
+        let payload = { body: msgInput.value }
+        postChannel.push("new_comment", payload)
+          .receive("error", e => console.log(e))
+        msgInput.value = ""
+      })
+    }
+
+    // On new comment, render in message container
+    postChannel.on("new_comment", (resp) => {
+      postChannel.params.last_seen_id = resp.id
+      this.renderComment(msgContainer, resp)
+    })
+
+    // On join channel, get all comments
+    postChannel.join()
+      .receive("ok", resp => {
+        let ids = resp.comments.map(comment => comment.id)
+        if (ids.length > 0) {
+          postChannel.params.last_seen_id = Math.max(...ids)
+        }
+        resp.comments.filter(comment => {
+          this.renderComment(msgContainer, comment)
+        })
+      })
+      .receive("error", reason => console.log("join failed", reason))
+
+    let presences = {}
+
+    postChannel.on("presence_state", state => {
+      console.log("presence_state", state)
+      Presence.syncState(presences, state)
+      this.renderPresence(presences)
+    })
+    postChannel.on("presence_diff", diff => {
+      console.log("presence_diff", diff)
+      Presence.syncDiff(presences, diff)
+      this.renderPresence(presences)
+    })
+  },
+
+  esc(str) {
+    let div = document.createElement("div")
+    div.appendChild(document.createTextNode(str))
+    return div.innerHTML
+  },
+
+  renderComment(msgContainer, { user, body }) {
+    let template = document.createElement("div")
+    template.innerHTML = `<a href="#"><b>${this.esc(user.username)}</b>: ${this.esc(body)}</a>`
+
+    msgContainer.appendChild(template)
+    msgContainer.scrollTop = msgContainer.scrollHeight
+  },
+
+  renderPresence(presences) {
+    console.log("render_presence", presences)
+    let userList = document.getElementById("user-list")
+    let listBy = (id, { metas: [first, ...rest] }) => {
+      first.name = id
+      first.count = rest.length + 1
+      return first
+    }
+
+    userList.innerHTML = Presence.list(presences, listBy)
+      .map(user => `<li>${user.name} (${user.count})</li>`)
+      .join("")
+  }
 }
 
 export default Post
