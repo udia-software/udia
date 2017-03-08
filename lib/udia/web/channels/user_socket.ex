@@ -38,12 +38,12 @@ defmodule Udia.Web.UserSocket do
         {:ok, assign(socket, :user_id, user_id)}
       {:error, _reason} ->
         # If the user doesn't exist, assign the anonymous user
-        {:ok, assign(socket, :user_id, nil)}
+        {:ok, assign(socket, :user_id, -1)}
     end
   end
 
   def connect(_params, socket) do
-    {:ok, assign(socket, :user_id, nil)}
+    {:ok, assign(socket, :user_id, -1)}
   end
 
   def id(socket), do: "users_socket:#{socket.assigns.user_id}"
