@@ -76,6 +76,6 @@ defmodule Udia.PostChannelTest do
   test "Post should display the sum of all votes from users", %{socket: socket, post: post, user: user} do
     vote = insert_vote(user, post, %{vote: 1})
     {:ok, resp, _socket} = subscribe_and_join(socket, "posts:#{post.id}", %{})
-    assert resp.point == [vote.vote]
+    assert resp.point == vote.vote
   end
 end
