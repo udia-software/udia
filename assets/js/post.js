@@ -77,17 +77,37 @@ let Post = {
       // Up vote event
       postChannel.on("up_vote", resp => {
           voteSpan.textContent = resp.point
+          if (resp.value == 1) {
+              voteUpBtn.className = "btn btn-warning btn-xs"
+              voteDownBtn.className = "btn btn-default btn-xs"
+          } else {
+              voteUpBtn.className = "btn btn-default btn-xs"
+          }
       })
 
       // Down vote event
       postChannel.on("down_vote", resp => {
           voteSpan.textContent = resp.point
+          if (resp.value == -1) {
+              voteDownBtn.className = "btn btn-warning btn-xs"
+              voteUpBtn.className = "btn btn-default btn-xs"
+          } else {
+              voteDownBtn.className = "btn btn-default btn-xs"
+          }
       })
 
     // On join channel, get all comments
     postChannel.join()
       .receive("ok", resp => {
         voteSpan.textContent = resp.point
+          if (resp.value == 1) {
+              voteUpBtn.className = "btn btn-warning btn-xs"
+          } else if (resp.value == -1) {
+              voteDownBtn.className = "btn btn-warning btn-xs"
+          } else {
+              voteUpBtn.className = "btn btn-default btn-xs"
+              voteDownBtn.classNaem = "btn btn-default btn-xs"
+          }
         let ids = resp.comments.map(comment => comment.id)
         if (ids.length > 0) {
           postChannel.params.last_seen_id = Math.max(...ids)

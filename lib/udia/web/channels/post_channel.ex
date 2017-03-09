@@ -44,9 +44,17 @@ defmodule Udia.Web.PostChannel do
             limit: 200,
             preload: [:user]
     )
-    point = Reactions.get_point(post_id)
+    [point] = Reactions.get_point(post_id)
+    vote = Reactions.get_vote(socket.assigns.user_id, post_id)
+    value = 0
+    if is_nil(vote) do
+      value = 0
+    else
+      vote = Reactions.get_vote(socket.assigns.user_id, post_id)
+      value = vote.vote
+    end
     resp = %{comments: Phoenix.View.render_many(comments, CommentView, "comment.json"),
-             point: point}
+             point: point, value: value}
     {:ok, resp, assign(socket, :post_id, post_id)}
   end
 
