@@ -20,17 +20,37 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.Auths.User do
-  use Ecto.Schema
+defmodule Udia.ReactionsTest do
+  use Udia.DataCase
+  alias Udia.Reactions.Vote
 
-  schema "auths_users" do
-    field :username, :string
-    field :password, :string, virtual: true
-    field :password_hash, :string
-    has_many :posts, Udia.Logs.Post
-    has_many :comments, Udia.Logs.Comment
-    has_many :vote, Udia.Reactions.Vote
+  setup do
+    user = insert_user(username: "seto")
+    post = insert_post(user, %{content: "some content", title: "some title"})
+    {:ok, user: user, post: post}
+  end
 
-    timestamps()
+  test "vote_changeset/2 return a vote changeset" do
+    assert %Ecto.Changeset{} = Reactions.vote_changeset(%Vote{}, %{vote: 1})
+  end
+
+  test "get_vote/2 return only vote assoc with user and post", %{user: user, post: post} do
+    vote =
+      user
+      |> build_assoc(:vote, post_id: post.id)
+      |> Reactions.vote_changeset(%{vote: -1})
+      |> Repo.insert!
+
+    assert vote == Reactions.get_vote(user.id, post.id)
+  end
+
+  test "get_point/1 return the point for post", %{user: user, post: post} do
+    vote =
+      user
+      |> build_assoc(:vote, post_id: post.id)
+      |> Reactions.vote_changeset(%{vote: 1})
+      |> Repo.insert!
+
+    assert Reactions.get_point(post.id) == [vote.vote]
   end
 end

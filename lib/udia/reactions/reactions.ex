@@ -20,17 +20,38 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.Auths.User do
-  use Ecto.Schema
+defmodule Udia.Reactions do
+  @moduledoc """
+  The boundary for the reations system.
+  """
 
-  schema "auths_users" do
-    field :username, :string
-    field :password, :string, virtual: true
-    field :password_hash, :string
-    has_many :posts, Udia.Logs.Post
-    has_many :comments, Udia.Logs.Comment
-    has_many :vote, Udia.Reactions.Vote
+  import Ecto.{Query, Changeset}, warn: false
+  alias Udia.Repo
+  alias Udia.Reactions.Vote
+  alias Udia.Auths.User
 
-    timestamps()
+  def get_vote(user_id, post_id) do
+    User
+    |> join(:inner, [u], p in assoc(u, :posts))
+    |> join(:inner, [u, p], v in assoc(p, :vote))
+    |> where([u, p, v], v.user_id == ^user_id and v.post_id == ^post_id)
+    |> select([u, p, v], v)
+    |> Repo.one
   end
+
+  def vote_changeset(%Vote{} = vote, attrs) do
+    vote
+    |> cast(attrs, [:vote])
+    |> validate_required([:vote])
+  end
+
+  def get_point(post_id) do
+    User
+    |> join(:inner, [u], p in assoc(u, :posts))
+    |> join(:inner, [u, p], v in assoc(p, :vote))
+    |> where([u, p], p.id == ^post_id)
+    |> select([u, p, v], sum(v.vote))
+    |> Repo.all
+  end
+
 end

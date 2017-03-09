@@ -26,7 +26,8 @@ defmodule Udia.Logs do
   """
 
   import Ecto.{Query, Changeset}, warn: false
-  alias Udia.Logs.{Post, Comment}
+  alias Udia.Logs.Post
+  alias Udia.Logs.Comment
   alias Udia.Repo
 
   @doc """
@@ -58,7 +59,11 @@ defmodule Udia.Logs do
       ** (Ecto.NoResultsError)
 
   """
-  def get_post!(id), do: Repo.get!(Post, id) |> Repo.preload(:user)
+  def get_post!(id) do
+    Post
+    |> Repo.get!(id)
+    |> Repo.preload(:user)
+  end
 
   @doc """
   Creates a post.
@@ -110,7 +115,8 @@ defmodule Udia.Logs do
 
   """
   def delete_post!(id) do
-    get_post!(id)
+    id
+    |> get_post!
     |> Repo.delete!
   end
 

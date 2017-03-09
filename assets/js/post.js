@@ -33,12 +33,30 @@ let Post = {
   },
 
   onReady(postId, socket) {
-    let postChannel = socket.channel("posts:" + postId)
-    let msgContainer = document.getElementById("msg-container")
+      let postChannel = socket.channel("posts:" + postId)
+      let msgContainer = document.getElementById("msg-container")
 
-    // These two elements only exist when the user is authenticated.
-    let msgInput = document.getElementById("msg-input")
-    let submitCommentButton = document.getElementById("msg-submit")
+    // These elements only exist when the user is authenticated.
+      let msgInput = document.getElementById("msg-input")
+      let submitCommentButton = document.getElementById("msg-submit")
+
+      let voteUpBtn = document.getElementById("vote-up-btn")
+      let voteDownBtn = document.getElementById("vote-down-btn")
+      let voteSpan = document.getElementById("vote-span")
+
+      if (voteUpBtn) {
+          voteUpBtn.addEventListener("click", e => {
+              postChannel.push("up_vote", {})
+                  .receive("error", e => console.log(e))
+          })
+      }
+
+      if (voteDownBtn) {
+          voteDownBtn.addEventListener("click", e => {
+              postChannel.push("down_vote", {})
+                  .receive("error", e => console.log(e))
+          })
+      }
 
     // Submit a comment
     if (submitCommentButton) {
@@ -56,9 +74,40 @@ let Post = {
       this.renderComment(msgContainer, resp)
     })
 
+      // Up vote event
+      postChannel.on("up_vote", resp => {
+          voteSpan.textContent = resp.point
+          if (resp.value == 1) {
+              voteUpBtn.className = "btn btn-warning btn-xs"
+              voteDownBtn.className = "btn btn-default btn-xs"
+          } else {
+              voteUpBtn.className = "btn btn-default btn-xs"
+          }
+      })
+
+      // Down vote event
+      postChannel.on("down_vote", resp => {
+          voteSpan.textContent = resp.point
+          if (resp.value == -1) {
+              voteDownBtn.className = "btn btn-warning btn-xs"
+              voteUpBtn.className = "btn btn-default btn-xs"
+          } else {
+              voteDownBtn.className = "btn btn-default btn-xs"
+          }
+      })
+
     // On join channel, get all comments
     postChannel.join()
       .receive("ok", resp => {
+        voteSpan.textContent = resp.point
+          if (resp.value == 1) {
+              voteUpBtn.className = "btn btn-warning btn-xs"
+          } else if (resp.value == -1) {
+              voteDownBtn.className = "btn btn-warning btn-xs"
+          } else {
+              voteUpBtn.className = "btn btn-default btn-xs"
+              voteDownBtn.classNaem = "btn btn-default btn-xs"
+          }
         let ids = resp.comments.map(comment => comment.id)
         if (ids.length > 0) {
           postChannel.params.last_seen_id = Math.max(...ids)

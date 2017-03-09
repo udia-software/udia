@@ -20,16 +20,13 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.Auths.User do
+defmodule Udia.Reactions.Vote do
   use Ecto.Schema
 
-  schema "auths_users" do
-    field :username, :string
-    field :password, :string, virtual: true
-    field :password_hash, :string
-    has_many :posts, Udia.Logs.Post
-    has_many :comments, Udia.Logs.Comment
-    has_many :vote, Udia.Reactions.Vote
+  schema "reactions_votes" do
+    field :vote, :integer, default: 0
+    belongs_to :user, Udia.Auths.User
+    belongs_to :post, Udia.Logs.Post
 
     timestamps()
   end

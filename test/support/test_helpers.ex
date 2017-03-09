@@ -45,4 +45,11 @@ defmodule Udia.TestHelpers do
     |> Udia.Logs.comment_changeset(attrs)
     |> Repo.insert!
   end
+
+  def insert_vote(user, post, attrs) do
+    user
+    |> Ecto.build_assoc(:vote, post_id: post.id)
+    |> Udia.Reactions.vote_changeset(attrs)
+    |> Repo.insert!
+  end
 end

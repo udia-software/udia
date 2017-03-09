@@ -20,17 +20,20 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
-defmodule Udia.Auths.User do
-  use Ecto.Schema
+defmodule Udia.Repo.Migrations.CreateVote do
+  use Ecto.Migration
 
-  schema "auths_users" do
-    field :username, :string
-    field :password, :string, virtual: true
-    field :password_hash, :string
-    has_many :posts, Udia.Logs.Post
-    has_many :comments, Udia.Logs.Comment
-    has_many :vote, Udia.Reactions.Vote
+  def change do
+    create table(:reactions_votes) do
+      add :vote, :integer, default: 0
+      add :user_id, references(:auths_users, on_delete: :nilify_all)
+      add :post_id, references(:logs_posts, on_delete: :delete_all)
 
-    timestamps()
+      timestamps()
+    end
+
+    create index(:reactions_votes, [:user_id])
+    create index(:reactions_votes, [:post_id])
+
   end
 end
