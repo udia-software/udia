@@ -28,7 +28,6 @@ defmodule Udia.Web.PostChannel do
   alias Udia.Logs.Post
   alias Udia.Reactions
   alias Udia.Reactions.Vote
-  require Logger
 
 
   def join("posts:" <> post_id, params, socket) do
@@ -46,13 +45,14 @@ defmodule Udia.Web.PostChannel do
     )
     [point] = Reactions.get_point(post_id)
     vote = Reactions.get_vote(socket.assigns.user_id, post_id)
-    value = 0
-    if is_nil(vote) do
-      value = 0
-    else
-      vote = Reactions.get_vote(socket.assigns.user_id, post_id)
-      value = vote.vote
-    end
+    value =
+      if is_nil(vote) do
+        0
+      else
+        vote = Reactions.get_vote(socket.assigns.user_id, post_id)
+        vote.vote
+      end
+
     resp = %{comments: Phoenix.View.render_many(comments, CommentView, "comment.json"),
              point: point, value: value}
     {:ok, resp, assign(socket, :post_id, post_id)}
@@ -71,12 +71,10 @@ defmodule Udia.Web.PostChannel do
       |> build_assoc(:vote, post_id: socket.assigns.post_id)
 
     if is_nil(vote) do
-      Logger.info "Up vote a post"
       insert_and_broadcast(vote_assoc, %{vote: 1}, "up_vote", socket)
     else
       vote = Reactions.get_vote(socket.assigns.user_id, socket.assigns.post_id)
       if vote.vote == 1 do
-        Logger.info "You are trying to up vote again!"
         update_and_broadcast(vote, %{vote: 0}, "up_vote", socket)
       else
         update_and_broadcast(vote, %{vote: 1}, "up_vote", socket)
@@ -92,12 +90,10 @@ defmodule Udia.Web.PostChannel do
       |> build_assoc(:vote, post_id: socket.assigns.post_id)
 
     if is_nil(vote) do
-      Logger.info "Down vote a post"
       insert_and_broadcast(vote_assoc, %{vote: -1}, "down_vote", socket)
     else
       vote = Reactions.get_vote(socket.assigns.user_id, socket.assigns.post_id)
       if vote.vote == -1 do
-        Logger.info "You are trying to down vote again!"
         update_and_broadcast(vote, %{vote: 0}, "down_vote", socket)
       else
         update_and_broadcast(vote, %{vote: -1}, "down_vote", socket)
