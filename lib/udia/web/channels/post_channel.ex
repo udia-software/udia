@@ -44,7 +44,9 @@ defmodule Udia.Web.PostChannel do
             limit: 200,
             preload: [:user]
     )
-    resp = %{comments: Phoenix.View.render_many(comments, CommentView, "comment.json")}
+    point = Reactions.get_point(post_id)
+    resp = %{comments: Phoenix.View.render_many(comments, CommentView, "comment.json"),
+             point: point}
     {:ok, resp, assign(socket, :post_id, post_id)}
   end
 
@@ -66,10 +68,31 @@ defmodule Udia.Web.PostChannel do
     else
       vote = Reactions.get_vote(socket.assigns.user_id, socket.assigns.post_id)
       if vote.vote == 1 do
-        Logger.info "You are trying to vote again!"
+        Logger.info "You are trying to up vote again!"
         update_and_broadcast(vote, %{vote: 0}, "up_vote", socket)
       else
         update_and_broadcast(vote, %{vote: 1}, "up_vote", socket)
+      end
+    end
+  end
+
+  def handle_in("down_vote", _params, socket) do
+    vote = Reactions.get_vote(socket.assigns.user_id, socket.assigns.post_id)
+    vote_assoc =
+      User
+      |> Repo.get(socket.assigns.user_id)
+      |> build_assoc(:vote, post_id: socket.assigns.post_id)
+
+    if is_nil(vote) do
+      Logger.info "Down vote a post"
+      insert_and_broadcast(vote_assoc, %{vote: -1}, "down_vote", socket)
+    else
+      vote = Reactions.get_vote(socket.assigns.user_id, socket.assigns.post_id)
+      if vote.vote == -1 do
+        Logger.info "You are trying to down vote again!"
+        update_and_broadcast(vote, %{vote: 0}, "down_vote", socket)
+      else
+        update_and_broadcast(vote, %{vote: -1}, "down_vote", socket)
       end
     end
   end

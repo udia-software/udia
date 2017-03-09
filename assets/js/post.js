@@ -79,9 +79,15 @@ let Post = {
           voteSpan.textContent = resp.point
       })
 
+      // Down vote event
+      postChannel.on("down_vote", resp => {
+          voteSpan.textContent = resp.point
+      })
+
     // On join channel, get all comments
     postChannel.join()
       .receive("ok", resp => {
+        voteSpan.textContent = resp.point
         let ids = resp.comments.map(comment => comment.id)
         if (ids.length > 0) {
           postChannel.params.last_seen_id = Math.max(...ids)
