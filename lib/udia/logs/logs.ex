@@ -26,7 +26,8 @@ defmodule Udia.Logs do
   """
 
   import Ecto.{Query, Changeset}, warn: false
-  alias Udia.Logs.{Post, Comment}
+  alias Udia.Logs.Post
+  alias Udia.Logs.Comment
   alias Udia.Repo
 
   @doc """

@@ -29,7 +29,7 @@ defmodule Udia.Auths.User do
     field :password_hash, :string
     has_many :posts, Udia.Logs.Post
     has_many :comments, Udia.Logs.Comment
-    has_one :vote, Udia.Reactions.Vote
+    has_many :vote, Udia.Reactions.Vote
 
     timestamps()
   end

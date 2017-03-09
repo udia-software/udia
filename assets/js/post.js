@@ -76,12 +76,7 @@ let Post = {
 
       // Up vote event
       postChannel.on("up_vote", resp => {
-          voteSpan.textContent = resp.value
-          if (resp.up_vote) {
-              voteUpBtn.className = "btn btn-success btn-xs"
-          } else {
-              voteUpBtn.className = "btn btn-default btn-xs"
-          }
+          voteSpan.textContent = resp.point
       })
 
     // On join channel, get all comments

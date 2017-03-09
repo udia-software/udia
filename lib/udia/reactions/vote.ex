@@ -24,8 +24,7 @@ defmodule Udia.Reactions.Vote do
   use Ecto.Schema
 
   schema "reactions_votes" do
-    field :up_vote, :boolean, default: false
-    field :down_vote, :boolean, default: false
+    field :vote, :integer, default: 0
     belongs_to :user, Udia.Auths.User
     belongs_to :post, Udia.Logs.Post
 

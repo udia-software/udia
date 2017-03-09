@@ -25,8 +25,7 @@ defmodule Udia.Repo.Migrations.CreateVote do
 
   def change do
     create table(:reactions_votes) do
-      add :up_vote, :boolean, default: false
-      add :down_vote, :boolean, default: false
+      add :vote, :integer, default: 0
       add :user_id, references(:auths_users, on_delete: :nilify_all)
       add :post_id, references(:logs_posts, on_delete: :delete_all)
 
