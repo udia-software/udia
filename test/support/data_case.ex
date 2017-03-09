@@ -41,6 +41,7 @@ defmodule Udia.DataCase do
       alias Udia.Repo
       alias Udia.Auths
       alias Udia.Logs
+      alias Udia.Reactions
 
       import Ecto
       import Ecto.Changeset

@@ -2,11 +2,11 @@
   <div>
       <%= if @current_user do %>
     <div class="btn-group-vertical" role="group">
-      <button type="button" class="btn btn-default btn-xs" id="vote-up-btn">
+      <button type="button" class="btn btn-success btn-xs" id="vote-up-btn">
         <span class="glyphicon glyphicon-arrow-up"></span>
       </button>
       <span id="vote-span">0</span>
-      <button type="button" class="btn btn-default btn-xs" id="vote-down-btn">
+      <button type="button" class="btn btn-danger btn-xs" id="vote-down-btn">
         <span class="glyphicon glyphicon-arrow-down"></span>
       </button>
     </div>
