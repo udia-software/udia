@@ -99,7 +99,12 @@ let Post = {
     // On join channel, get all comments
     postChannel.join()
       .receive("ok", resp => {
-        voteSpan.textContent = resp.point
+          if (resp.point == null) {
+              voteSpan.textContent = "0"
+          } else {
+              voteSpan.textContent = resp.point
+          }
+
           if (resp.value == 1) {
               voteUpBtn.className = "btn btn-warning btn-xs"
           } else if (resp.value == -1) {
