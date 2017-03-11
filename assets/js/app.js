@@ -45,3 +45,9 @@ import socket from "./socket"
 import Post from "./post"
 
 Post.init(socket, document.getElementById("post"))
+
+// Perform Semantic UI Widget initializations here.
+$('.ui.dropdown').dropdown({
+  transition: 'drop',
+  on: 'hover'
+});

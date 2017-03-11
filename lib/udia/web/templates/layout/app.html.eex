@@ -22,59 +22,64 @@ All portions of the code written by UDIA are Copyright (c) 2016-2017
 Udia Software Incorporated. All Rights Reserved.
 -->
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
 
-    <title>UDIA</title>
-    <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
-  </head>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0">
+  <meta name="description" content="Universal Dream, Infinite Awareness">
+  <meta name="author" content="Udia Software Incorporated">
 
-  <body>
-    <header>
-      <nav role="navigation" class="navbar navbar-default">
-        <div class="container-fluid">
-          <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse"
-                aria-expanded="false">
-              <span class="sr-only">Toggle navigation</span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </button>
-            <%= link "UDIA", to: post_path(@conn, :index), class: "navbar-brand" %>
-          </div>
-          <div class="collapse navbar-collapse" id="navbar-collapse">
-            <ul class="nav navbar-nav navbar-right">
-              <%= if @current_user do %>
-              <li><%= link "All Users", to: user_path(@conn, :index) %></li>
-              <li><%= link @current_user.username, to: user_path(@conn, :show, @current_user.id) %></li>
-              <% else %>
-              <li><%= link "Register", to: user_path(@conn, :new) %></li>
-              <li><%= link "Log in", to: session_path(@conn, :new) %></li>
+  <title>UDIA</title>
+  <link rel="stylesheet" href='<%= static_path(@conn, "/css/app.css") %>'>
+</head>
+
+<body>
+  <header>
+    <nav role="navigation" class="ui menu">
+      <%= link to: post_path(@conn, :index) do %>
+        <div class="header item">UDIA</div>
+      <% end %>
+      <div class="right menu">
+        <%= if @current_user do %>
+          <div class="ui dropdown item" tabindex="0">
+            Account
+            <i class="dropdown icon"></i>
+            <div class="menu" tabindex="-1">
+              <%= link to: user_path(@conn, :index) do %>
+                <div class="item">All Users</div>
               <% end %>
-            </ul>
+              <%= link to: user_path(@conn, :show, @current_user.id) do %>
+                <div class="item"><%= @current_user.username %></div>
+              <% end %>
+            </div>
           </div>
-        </div>
-      </nav>
-    </header>
-    
-    <div class="container-fluid">
-      <%= if get_flash(@conn, :info) do %>
-      <div class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></div>
-      <% end %>
-      <%= if get_flash(@conn, :error) do %>
-      <div class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></div>
-      <% end %>
+        <% else %>
+          <%= link to: user_path(@conn, :new) do %>
+            <div class="item">Register</div>
+          <% end %>
+          <%= link to: session_path(@conn, :new) do %>
+            <div class="item">Login</div>
+          <% end %>
+        <% end %>
+      </div>
+    </nav>
+  </header>
 
-      <main role="main">
-        <%= render @view_module, @view_template, assigns %>
-      </main>
-    </div>
-    <script>window.userToken = "<%= assigns[:user_token] %>"</script>
-    <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
-  </body>
+  <div class="main ui container">
+    <%= if get_flash(@conn, :info) do %>
+      <div class="alert alert-info" role="alert">
+        <%= get_flash(@conn, :info) %>
+      </div>
+    <% end %>
+    <%= if get_flash(@conn, :error) do %>
+      <div class="alert alert-danger" role="alert">
+        <%= get_flash(@conn, :error) %>
+      </div>
+    <% end %>
+    <main role="main"><%= render @view_module, @view_template, assigns %></main>
+  </div>
+  <script>window.userToken = "<%= assigns[:user_token] %>"</script>
+  <script src='<%= static_path(@conn, "/js/app.js") %>'></script>
+</body>
 </html>
