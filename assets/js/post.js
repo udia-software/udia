@@ -20,7 +20,9 @@
 // All portions of the code written by UDIA are Copyright (c) 2016-2017
 // Udia Software Incorporated. All Rights Reserved.
 ///////////////////////////////////////////////////////////////////////////
-import { Presence } from "phoenix"
+import {
+  Presence
+} from "phoenix"
 
 let Post = {
   init(socket, element) {
@@ -142,17 +144,37 @@ let Post = {
     return div.innerHTML
   },
 
-  renderComment(msgContainer, { user, body }) {
-    let template = document.createElement("div")
-    template.innerHTML = `<a href="#"><b>${this.esc(user.username)}</b>: ${this.esc(body)}</a>`
-
+  renderComment(msgContainer, {
+    user,
+    body
+  }) {
+    let template = document.createElement("div");
+    template.innerHTML = `
+      <div class="content">
+        <a href="/users/${user.id}" class="author">${this.esc(user.username)}</a>
+        <div class="metadata">
+          <span class="date">Today at 5:42PM (STUB)</span>
+        </div>
+        <div class="text">
+          ${this.esc(body)}
+        </div>
+        <div class="actions">
+          <a class="reply">Reply</a>
+          <a class="edit">Edit</a>
+          <a class="delete">Delete</a>
+        </div>
+      </div>
+    `
+    template.className = "comment";
     msgContainer.appendChild(template)
     msgContainer.scrollTop = msgContainer.scrollHeight
   },
 
   renderPresence(presences) {
     let userList = document.getElementById("user-list")
-    let listBy = (id, { metas: metas }) => {
+    let listBy = (id, {
+      metas: metas
+    }) => {
       let onlineAtDate = new Date(metas[0].online_at);
       return {
         id: id,

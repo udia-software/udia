@@ -53,7 +53,7 @@ defmodule Udia.PostControllerTest do
   @tag login_as: "samwell"
   test "lists all entries on index", %{conn: conn} do
     conn = get conn, post_path(conn, :index)
-    assert html_response(conn, 200) =~ "Listing posts"
+    assert html_response(conn, 200) =~ "UDIA"
   end
 
   @tag login_as: "samwell"
