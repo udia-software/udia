@@ -37,7 +37,7 @@ exports.config = {
       order: {
         before: [
           "vendor/js/jquery-3.1.1.min.js",
-          "vendor/js/bootstrap.min.js"
+          "vendor/js/semantic.min.js"
         ]
       }
     },

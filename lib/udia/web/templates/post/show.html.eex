@@ -1,60 +1,59 @@
 <%= content_tag :div, id: "post", data: [id: @post.id] do %>
-  <div>
-    <div class="btn-group-vertical" role="group">
-      <button type="button" class="btn btn-default btn-xs" id="vote-up-btn"<%= if !@current_user do %> disabled <% end %>>
-        <span class="glyphicon glyphicon-arrow-up"></span>
-      </button>
-      <span id="vote-span">0</span>
-      <button type="button" class="btn btn-default btn-xs" id="vote-down-btn"<%= if !@current_user do %> disabled <% end %>>
-        <span class="glyphicon glyphicon-arrow-down"></span>
-      </button>
+  <div class="ui unstackable items">
+    <div class="item">
+      <div class="vote ui list">
+        <button class="mini ui icon basic button" id="vote-up-link">
+          <i class="chevron circle up icon"></i>
+        </button>
+        <span id="vote-span" class="item">14</span>
+        <button class="mini ui icon basic button" id="vote-down-link">
+          <i class="chevron circle down icon"></i>
+        </button>
+      </div>
+      <div class="content">
+        <div class="header">
+          <%= @post.title %>
+        </div>
+        <p class="description">
+          <%= @post.content %>
+        </p>
+        <div class="meta">
+          <span class="created">Submitted at <%= @post.inserted_at %></span>
+          <span class="updated">Updated at <%= @post.updated_at %></span>
+          <span class="user">by <%= link @post.user.username, to: user_path(@conn, :show, @post.user.id) %></span>
+        </div>
+        <%= if @current_user && @current_user.id == @post.user_id do %>
+          <div class="extra">
+            <%= link to: post_path(@conn, :edit, @post) do %>
+              <button class="ui mini compact olive button">Edit</button>
+            <% end %>
+            <%= link to: post_path(@conn, :delete, @post), method: :delete, data: [confirm: "Are you sure?"] do %>
+              <button class="ui mini compact red button">Delete</button>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
     </div>
-    <h2 style="display: inline;"><%= @post.title %></h2>
   </div>
-  <div class="panel panel-default">
-    <div class="panel-body">
-      <%= @post.content %>
-    </div>
-  </div>
-  <ul>
-    <li>
-    <strong>Created At</stong>
-      <%= @post.inserted_at %>
-    </li>
-    <li>
-    <strong>Updated At</strong>
-      <%= @post.updated_at %>
-    </li>
-    <li>
-      <strong>User:</strong>
-      <%= link @post.user.username, to: user_path(@conn, :show, @post.user) %>
-    </li>
-  </ul>
 
-  <%= if @current_user && @current_user.id == @post.user_id do %>
-    <%= link "Edit", to: post_path(@conn, :edit, @post), class: "btn btn-default btn-xs" %>
-    <%= link "Delete", to: post_path(@conn, :delete, @post), method: :delete, data: [confirm: "Are you sure?"],
-      class: "btn btn-danger btn-xs" %>
-  <% end %>
-  <%= link "Back", to: post_path(@conn, :index), class: "btn btn-default btn-xs" %>
-
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <h3 class="panel-title">Comments</h3>
-    </div>
-    <div id="msg-container" class="panel-body comments">
-    </div>
+  <div class="ui comments">
+    <h3 class="ui dividing header">Comments</h3>
     <%= if @current_user do %>
-    <div class="panel-footer">
-      <textarea id="msg-input" rows="3" class="form-control" placeholder="Comment..."></textarea>
-      <button id="msg-submit" class="btn btn-primary form-control" type="submit">Post</button>
-    </div>
+      <div class="ui form">
+        <div class="field">
+          <textarea rows="2" id="msg-input"></textarea>
+        </div>
+        <button id="msg-submit" class="ui green small labeled icon button">
+          <i class="icon edit"></i> Add Comment
+        </button>
+      </div>
     <% end %>
+    <div id="msg-container">
+    </div>
   </div>
   <div>
     <%= node() %>
-    <ul id="user-list">
-    </ul>
+      <ul id="user-list">
+      </ul>
   </div>
-
 <% end %>
