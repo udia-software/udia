@@ -1,19 +1,20 @@
-<div class="ui items">
+<div class="ui unstackable items">
   <%= for post <- @posts do %>
     <div class="item">
-      <div class="image ui list">
-        <a class="small ui icon item">
+      <div class="vote ui list">
+        <button class="mini ui icon basic button">
           <i class="chevron circle up icon"></i>
-        </a>
+        </button>
         <span class="item">14</span>
-        <a class="small ui icon item">
+        <button class="mini ui icon basic button">
           <i class="chevron circle down icon"></i>
-        </a>
+        </button>
       </div>
       <div class="content">
         <div class="header"><%= link post.title, to: post_path(@conn, :show, post) %></div>
         <div class="meta">
-          <span class="stay">Submitted <%= post.inserted_at %></span>
+          <span class="created">Submitted at <%= post.inserted_at %></span>
+          <span class="updated">Updated at <%= post.updated_at %></span>
           <span class="user">by <%= link post.user.username, to: user_path(@conn, :show, post.user.id) %></span>
         </div>
       </div>

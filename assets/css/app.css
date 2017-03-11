@@ -24,3 +24,16 @@
 .main.ui.container {
   margin-top: 2em;
 }
+
+.ui.unstackable.items>.item>.vote {
+  width: 35px;
+}
+
+.ui.unstackable.items>.item>.content {
+  margin-top: 5px;
+}
+
+.ui.unstackable.items>.item>.vote>span.item {
+  text-align: center;
+  margin-left: -5px;
+}

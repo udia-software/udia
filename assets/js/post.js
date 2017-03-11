@@ -33,35 +33,35 @@ let Post = {
   },
 
   onReady(postId, socket) {
-      let postChannel = socket.channel("posts:" + postId)
-      let msgContainer = document.getElementById("msg-container")
+    let postChannel = socket.channel("posts:" + postId)
+    let msgContainer = document.getElementById("msg-container")
 
     // These elements only exist when the user is authenticated.
-      let msgInput = document.getElementById("msg-input")
-      let submitCommentButton = document.getElementById("msg-submit")
+    let msgInput = document.getElementById("msg-input")
+    let submitCommentButton = document.getElementById("msg-submit")
 
-      let voteUpBtn = document.getElementById("vote-up-btn")
-      let voteDownBtn = document.getElementById("vote-down-btn")
-      let voteSpan = document.getElementById("vote-span")
+    let voteUpLink = document.getElementById("vote-up-link")
+    let voteDownLink = document.getElementById("vote-down-link")
+    let voteSpan = document.getElementById("vote-span")
 
-      if (voteUpBtn) {
-          voteUpBtn.addEventListener("click", e => {
-              postChannel.push("up_vote", {})
-                  .receive("error", e => console.log(e))
-          })
-      }
+    if (voteUpLink) {
+      voteUpLink.addEventListener("click", e => {
+        postChannel.push("up_vote", {}).receive("error", e => console.log(e))
+      })
+    }
 
-      if (voteDownBtn) {
-          voteDownBtn.addEventListener("click", e => {
-              postChannel.push("down_vote", {})
-                  .receive("error", e => console.log(e))
-          })
-      }
+    if (voteDownLink) {
+      voteDownLink.addEventListener("click", e => {
+        postChannel.push("down_vote", {}).receive("error", e => console.log(e))
+      })
+    }
 
     // Submit a comment
     if (submitCommentButton) {
       submitCommentButton.addEventListener("click", e => {
-        let payload = { body: msgInput.value }
+        let payload = {
+          body: msgInput.value
+        }
         postChannel.push("new_comment", payload)
           .receive("error", e => console.log(e))
         msgInput.value = ""
@@ -74,45 +74,46 @@ let Post = {
       this.renderComment(msgContainer, resp)
     })
 
-      // Up vote event
-      postChannel.on("up_vote", resp => {
-          voteSpan.textContent = resp.point
-          if (resp.value == 1) {
-              voteUpBtn.className = "btn btn-warning btn-xs"
-              voteDownBtn.className = "btn btn-default btn-xs"
-          } else {
-              voteUpBtn.className = "btn btn-default btn-xs"
-          }
-      })
+    // Up vote event
+    postChannel.on("up_vote", resp => {
+      voteSpan.textContent = resp.point
+      if (resp.value == 1) {
+        $(voteUpLink).addClass("green").removeClass("inverted");
+        $(voteDownLink).addClass("red").addClass("inverted");
+      } else {
+        $(voteUpLink).removeClass("green").removeClass("inverted");
+        $(voteDownLink).removeClass("red").removeClass("inverted");
+      }
+    })
 
-      // Down vote event
-      postChannel.on("down_vote", resp => {
-          voteSpan.textContent = resp.point
-          if (resp.value == -1) {
-              voteDownBtn.className = "btn btn-warning btn-xs"
-              voteUpBtn.className = "btn btn-default btn-xs"
-          } else {
-              voteDownBtn.className = "btn btn-default btn-xs"
-          }
-      })
+    // Down vote event
+    postChannel.on("down_vote", resp => {
+      voteSpan.textContent = resp.point
+      if (resp.value == -1) {
+        $(voteUpLink).addClass("green").addClass("inverted");
+        $(voteDownLink).addClass("red").removeClass("inverted");
+      } else {
+        $(voteUpLink).removeClass("green").removeClass("inverted");
+        $(voteDownLink).removeClass("red").removeClass("inverted");
+      }
+    })
 
     // On join channel, get all comments
     postChannel.join()
       .receive("ok", resp => {
-          if (resp.point == null) {
-              voteSpan.textContent = "0"
-          } else {
-              voteSpan.textContent = resp.point
-          }
+        if (resp.point == null) {
+          voteSpan.textContent = "0"
+        } else {
+          voteSpan.textContent = resp.point
+        }
 
-          if (resp.value == 1) {
-              voteUpBtn.className = "btn btn-warning btn-xs"
-          } else if (resp.value == -1) {
-              voteDownBtn.className = "btn btn-warning btn-xs"
-          } else {
-              voteUpBtn.className = "btn btn-default btn-xs"
-              voteDownBtn.classNaem = "btn btn-default btn-xs"
-          }
+        if (resp.value == 1) {
+          $(voteUpLink).addClass("green").removeClass("inverted");
+          $(voteDownLink).addClass("red").addClass("inverted");
+        } else if (resp.value == -1) {
+          $(voteDownLink).addClass("red").removeClass("inverted");
+          $(voteUpLink).addClass("green").addClass("inverted");
+        }
         let ids = resp.comments.map(comment => comment.id)
         if (ids.length > 0) {
           postChannel.params.last_seen_id = Math.max(...ids)
