@@ -68,13 +68,15 @@ Udia Software Incorporated. All Rights Reserved.
 
   <div class="main ui container">
     <%= if get_flash(@conn, :info) do %>
-      <div class="alert alert-info" role="alert">
+      <div class="ui message">
         <%= get_flash(@conn, :info) %>
+        <i class="close icon"></i>
       </div>
     <% end %>
     <%= if get_flash(@conn, :error) do %>
-      <div class="alert alert-danger" role="alert">
+      <div class="ui danger message">
         <%= get_flash(@conn, :error) %>
+        <i class="close icon"></i>
       </div>
     <% end %>
     <main role="main"><%= render @view_module, @view_template, assigns %></main>

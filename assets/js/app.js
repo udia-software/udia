@@ -51,3 +51,7 @@ $('.ui.dropdown').dropdown({
   transition: 'drop',
   on: 'hover'
 });
+
+$('.ui.message>.close.icon').on('click', function() {
+  $('.ui.message>.close.icon').parent().remove();
+});

@@ -8,13 +8,13 @@
     </tr>
   </thead>
   <tbody>
-<%= for user <- @users do %>
-    <tr>
-      <td><%= user.username %></td>
-      <td class="text-right">
-        <%= link "Show", to: user_path(@conn, :show, user), class: "btn btn-default btn-xs" %>
-      </td>
-    </tr>
-<% end %>
+    <%= for user <- @users do %>
+      <tr>
+        <td><%= user.username %></td>
+        <td>
+          <%= link "Show", to: user_path(@conn, :show, user), class: "ui mini button basic" %>
+        </td>
+      </tr>
+    <% end %>
   </tbody>
 </table>

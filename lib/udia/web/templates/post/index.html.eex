@@ -5,7 +5,7 @@
         <button class="mini ui icon basic button">
           <i class="chevron circle up icon"></i>
         </button>
-        <span class="item">14</span>
+        <span class="item">...</span>
         <button class="mini ui icon basic button">
           <i class="chevron circle down icon"></i>
         </button>

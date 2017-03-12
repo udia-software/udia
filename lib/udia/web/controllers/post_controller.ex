@@ -46,10 +46,10 @@ defmodule Udia.Web.PostController do
 
   def create(conn, %{"post" => post_params}, user) do
     case Logs.create_post(user, post_params) do
-      {:ok, _post} ->
+      {:ok, post} ->
         conn
         |> put_flash(:info, "Post created successfully.")
-        |> redirect(to: post_path(conn, :index))
+        |> redirect(to: post_path(conn, :show, post))
       {:error, changeset} ->
         render conn, "new.html", changeset: changeset
     end
