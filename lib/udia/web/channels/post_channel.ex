@@ -54,13 +54,69 @@ defmodule Udia.Web.PostChannel do
       end
 
     resp = %{comments: Phoenix.View.render_many(comments, CommentView, "comment.json"),
-             point: point, value: value}
+             point: point,
+             value: value,
+             id: socket.assigns.user_id}
     {:ok, resp, assign(socket, :post_id, post_id)}
   end
 
+  def handle_info(:after_join, socket) do
+    user = Repo.get(Udia.Auths.User, socket.assigns.user_id)
+    push socket, "presence_state", Presence.list(socket)
+    if socket.assigns.user_id > 0 do
+      {:ok, _} = Presence.track(socket, socket.assigns.user_id, %{
+            username: user.username,
+            online_at: :os.system_time(:milli_seconds)
+                                })
+    else
+      {:ok, _} = Presence.track(socket, -1, %{
+                 username: "anon",
+                 online_at: 0
+      })
+    end
+    {:noreply, socket}
+  end
+
   def handle_in("new_comment", params, socket) do
-    user = Repo.get(User, socket.assigns.user_id)
-    handle_in("new_comment", params, user, socket)
+    changeset =
+      User
+      |> Repo.get(socket.assigns.user_id)
+      |> build_assoc(:comments, post_id: socket.assigns.post_id)
+      |> Udia.Logs.comment_changeset(params)
+
+    case Repo.insert(changeset) do
+      {:ok, comment} ->
+        broadcast_comment(socket, "new_comment", comment)
+        {:reply, :ok, socket}
+      {:error, changeset} ->
+        {:reply, {:error, %{errors: changeset}}, socket}
+    end
+  end
+
+  def handle_in("edit_comment", %{"id" => id, "body" => body}, socket) do
+    changeset =
+      Udia.Logs.Comment
+      |> Repo.get(id)
+      |> Udia.Logs.comment_changeset(%{body: body})
+
+    case Repo.update(changeset) do
+      {:ok, comment} ->
+        broadcast_comment(socket, "edit_comment", comment)
+        {:reply, :ok, socket}
+      {:error, changeset} ->
+        {:reply, {:error, %{errors: changeset.errors}}, socket}
+    end
+  end
+
+  def handle_in("delete_comment", %{"id" => id}, socket) do
+    comment = Repo.get(Udia.Logs.Comment, id)
+    case Repo.delete(comment) do
+      {:ok, comment} ->
+        broadcast_comment(socket, "delete_comment", comment)
+        {:reply, :ok, socket}
+      {:error, changeset} ->
+        {:reply, {:error, %{errors: changeset.errors}}, socket} 
+    end
   end
 
   def handle_in("up_vote", _params, socket) do
@@ -122,42 +178,11 @@ defmodule Udia.Web.PostChannel do
     {:noreply, socket}
   end
 
-  def handle_in("new_comment", params, user, socket) do
-    changeset = user
-    |> build_assoc(:comments, post_id: socket.assigns.post_id)
-    |> Udia.Logs.comment_changeset(params)
-
-    case Repo.insert(changeset) do
-      {:ok, comment} ->
-        broadcast_comment(socket, comment)
-        {:reply, :ok, socket}
-      {:error, changeset} ->
-        {:reply, {:error, %{errors: changeset}}, socket}
-    end
-  end
-
-  def handle_info(:after_join, socket) do
-    user = Repo.get(Udia.Auths.User, socket.assigns.user_id)
-    push socket, "presence_state", Presence.list(socket)
-    if socket.assigns.user_id > 0 do
-      {:ok, _} = Presence.track(socket, socket.assigns.user_id, %{
-        username: user.username,
-        online_at: :os.system_time(:milli_seconds)
-      })
-    else
-      {:ok, _} = Presence.track(socket, -1, %{
-        username: "anon",
-        online_at: 0
-      })
-    end
-    {:noreply, socket}
-  end
-
-  defp broadcast_comment(socket, comment) do
+  defp broadcast_comment(socket, event, comment) do
     comment = Repo.preload(comment, :user)
     rendered_comment = Phoenix.View.render(CommentView, "comment.json", %{
       comment: comment
     })
-    broadcast! socket, "new_comment", rendered_comment
+    broadcast! socket, event, %{rendered_comment: rendered_comment, id: socket.assigns.user_id}
   end
 end

@@ -26,10 +26,11 @@ defmodule Udia.PostChannelTest do
   setup do
     user = insert_user(username: "seto")
     post = insert_post(user, %{content: "some content", title: "some title"})
+    comment = insert_comment(user, post, %{body: "some comment"})
     token = Phoenix.Token.sign(@endpoint, "user socket", user.id)
     {:ok, socket} = connect(UserSocket, %{"token" => token})
 
-    {:ok, socket: socket, user: user, post: post}
+    {:ok, socket: socket, user: user, post: post, comment: comment}
   end
 
   test "join channel", %{socket: socket, post: post} do
@@ -77,5 +78,21 @@ defmodule Udia.PostChannelTest do
     vote = insert_vote(user, post, %{vote: 1})
     {:ok, resp, _socket} = subscribe_and_join(socket, "posts:#{post.id}", %{})
     assert resp.point == vote.vote
+  end
+
+  test "As a user, I can edit my own comment and have that change broadcast", %{socket: socket, comment: comment} do
+    {:ok, _, socket} = subscribe_and_join(socket, "posts:#{comment.post_id}", %{})
+
+    ref = push socket, "edit_comment", %{id: comment.id, body: "edited comment"}
+    assert_reply ref, :ok, %{}
+    assert_broadcast "edit_comment", %{}
+  end
+
+  test "As a user, I can delete my own comment and have that change broadcast", %{socket: socket, comment: comment} do
+    {:ok, _, socket} = subscribe_and_join(socket, "posts:#{comment.post_id}", %{})
+
+    ref = push socket, "delete_comment", %{id: comment.id}
+    assert_reply ref, :ok, %{}
+    assert_broadcast "delete_comment", %{}
   end
 end
