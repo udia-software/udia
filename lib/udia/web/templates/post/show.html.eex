@@ -5,7 +5,7 @@
         <button class="mini ui icon basic button" id="vote-up-link">
           <i class="chevron circle up icon"></i>
         </button>
-        <span id="vote-span" class="item">14</span>
+        <span id="vote-span" class="item">...</span>
         <button class="mini ui icon basic button" id="vote-down-link">
           <i class="chevron circle down icon"></i>
         </button>

@@ -65,8 +65,9 @@ defmodule Udia.PostControllerTest do
   @tag login_as: "samwell"
   test "creates resource and redirects when data is valid", %{conn: conn} do
     conn = post conn, post_path(conn, :create), post: @valid_attrs
-    assert redirected_to(conn) == post_path(conn, :index)
     assert Repo.get_by(Post, @valid_attrs)
+    post = Repo.get_by(Post, @valid_attrs)
+    assert redirected_to(conn) == post_path(conn, :show, post)
   end
 
   @tag login_as: "samwell"
