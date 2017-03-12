@@ -20,9 +20,7 @@
 // All portions of the code written by UDIA are Copyright (c) 2016-2017
 // Udia Software Incorporated. All Rights Reserved.
 ///////////////////////////////////////////////////////////////////////////
-import {
-  Presence
-} from "phoenix"
+import {Presence} from "phoenix"
 
 let Post = {
   init(socket, element) {
@@ -72,8 +70,29 @@ let Post = {
 
     // On new comment, render in message container
     postChannel.on("new_comment", (resp) => {
-      postChannel.params.last_seen_id = resp.id
-      this.renderComment(msgContainer, resp)
+      postChannel.params.last_seen_id = resp.rendered_comment.id
+      if (resp.id == window.userId) {
+        this.renderComment(msgContainer, postChannel, resp.id, resp.rendered_comment)
+      } else {
+        this.renderComment(msgContainer, postChannel, window.userId, resp.rendered_comment)
+      }
+    })
+
+    // On edit comment
+    postChannel.on("edit_comment", resp => {
+      postChannel.params.last_seen_id = resp.rendered_comment.id
+      this.removeComment(msgContainer, resp.rendered_comment.id)
+      if (resp.id == window.userId) {
+        this.renderComment(msgContainer, postChannel, resp.id, resp.rendered_comment)
+      } else {
+        this.renderComment(msgContainer, postChannel, window.userId, resp.rendered_comment)
+      }
+    })
+
+    // On delete comment
+    postChannel.on("delete_comment", resp => {
+      postChannel.params.last_seen_id = resp.rendered_comment.id
+      this.removeComment(msgContainer, resp.rendered_comment.id)
     })
 
     // Up vote event
@@ -121,7 +140,7 @@ let Post = {
           postChannel.params.last_seen_id = Math.max(...ids)
         }
         resp.comments.filter(comment => {
-          this.renderComment(msgContainer, comment)
+          this.renderComment(msgContainer, postChannel, resp.id, comment)
         })
       })
       .receive("error", reason => console.log("join failed", reason))
@@ -144,11 +163,59 @@ let Post = {
     return div.innerHTML
   },
 
-  renderComment(msgContainer, {
+  removeComment(msgContainer, id) {
+    let template = document.getElementById(`template-${id}`)
+    msgContainer.removeChild(template)
+    msgContainer.scrollTop = msgContainer.scrollHeight
+  },
+
+  renderComment(msgContainer, postChannel, userId, {
     user,
+    id,
     body
   }) {
-    let template = document.createElement("div");
+    let template = document.createElement("div")
+    template.id = `template-${id}`
+    template.className = "comment"
+
+    if (userId == user.id) {
+      template.innerHTML = `
+      <div class="content">
+        <a href="/users/${user.id}" class="author">${this.esc(user.username)}</a>
+        <div class="metadata">
+          <span class="date">Today at 5:42PM (STUB)</span>
+        </div>
+        <div class="text">
+          ${this.esc(body)}
+        </div>
+        <div class="actions">
+          <a class="reply">Reply</a>
+          <a class="edit" id="edit-comment-${id}">Edit</a>
+          <a class="delete" id="delete-comment-${id}">Delete</a>
+        </div>
+      </div>
+    `
+    msgContainer.appendChild(template)
+    msgContainer.scrollTop = msgContainer.scrollHeight
+
+    let editBtn = document.getElementById(`edit-comment-${id}`)
+    let deleteBtn = document.getElementById(`delete-comment-${id}`)
+
+    editBtn.addEventListener("click", () => {
+      let promptValue = prompt("", body)
+      if (promptValue != null) {
+        postChannel.push("edit_comment", {id: id, body: promptValue})
+      }
+    })
+
+    deleteBtn.addEventListener("click", () => {
+      let confirmed = confirm("Are you sure?")
+      if (confirmed) {
+        postChannel.push("delete_comment", {id: id})
+      }
+    })
+
+  } else {
     template.innerHTML = `
       <div class="content">
         <a href="/users/${user.id}" class="author">${this.esc(user.username)}</a>
@@ -160,14 +227,14 @@ let Post = {
         </div>
         <div class="actions">
           <a class="reply">Reply</a>
-          <a class="edit">Edit</a>
-          <a class="delete">Delete</a>
         </div>
       </div>
     `
-    template.className = "comment";
     msgContainer.appendChild(template)
     msgContainer.scrollTop = msgContainer.scrollHeight
+  }
+    
+
   },
 
   renderPresence(presences) {

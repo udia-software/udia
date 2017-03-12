@@ -55,6 +55,7 @@ defmodule Udia.Web.Auth do
 
     conn
     |> assign(:current_user, user)
+    |> assign(:user_id, user.id)
     |> assign(:user_token, token)
   end
 
