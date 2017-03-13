@@ -203,7 +203,7 @@ let Post = {
           <div id="body-comment-${id}">${body}</div>
         </div>
         <div class="actions">
-          <a class="reply">Reply</a>
+          <a class="reply" id="reply-comment-${id}">Reply</a>
           <a class="edit" id="edit-comment-${id}">Edit</a>
           <a class="delete" id="delete-comment-${id}">Delete</a>
         </div>
@@ -282,13 +282,41 @@ let Post = {
           <div id="body-comment-${id}">${body}</div>
         </div>
         <div class="actions">
-          <a class="reply">Reply</a>
+          <a class="reply" id="reply-comment-${id}">Reply</a>
         </div>
       </div>
     `
      msgContainer.appendChild(template)
      msgContainer.scrollTop = msgContainer.scrollHeight
-   }    
+   }
+   // Reply a comment eventListener
+   let replyBtn = document.getElementById(`reply-comment-${id}`)
+   replyBtn.addEventListener("click", () => {
+    let formReply = document.createElement("div")
+    formReply.className = "ui form"
+    formReply.innerHTML = `
+      <div class="field">
+        <textarea rows="3" id="reply-input-${id}"></textarea>
+      </div>
+      <div class="ui basic button" id="reply-cancel-${id}">Cancel</div>
+      <div class="ui positive button" id="reply-save-${id}">Save</div>
+    `
+    let template = document.getElementById(`template-${id}`)
+    template.appendChild(formReply)
+
+    //Reply cancel
+    $(`#reply-cancel-${id}`).on("click", () => {
+      template.removeChild(formReply)
+    })
+
+    //Reply submit
+    $(`#reply-save-${id}`).on("click", () => {
+      let replyInput = $(`#reply-input-${id}`)
+      postChannel.push("reply_comment", {id: id, body: replyInput.val()})
+      replyInput.val("")
+    })
+   })
+
   },
 
   renderPresence(presences) {

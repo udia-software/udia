@@ -108,6 +108,23 @@ defmodule Udia.Web.PostChannel do
     end
   end
 
+  def handle_in("reply_comment", %{"id" => id, "body" => body}, socket) do
+    changeset =
+      Udia.Logs.Comment
+      |> Repo.get(id)
+      |> build_assoc(:child_comments, parent_comment_id: id)
+      |> Udia.Logs.comment_changeset(%{body: body})
+
+    case Repo.insert(changeset) do
+      {:ok, comment} ->
+        comment = Repo.preload(comment, :parent_comment)
+        user = Repo.get(User, comment.parent_comment.user_id)
+        broadcast! socket, "reply_comment", %{comment: comment, user: user}
+        {:noreply, socket}
+      {:error, changeset} -> {:reply, {:error, %{errors: changeset.errors}}, socket}
+    end
+  end
+
   def handle_in("delete_comment", %{"id" => id}, socket) do
     comment = Repo.get(Udia.Logs.Comment, id)
     case Repo.delete(comment) do
