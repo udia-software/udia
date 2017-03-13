@@ -157,8 +157,9 @@ let Post = {
     })
   },
 
-  esc(str) {
+  esc(str, id) {
     let div = document.createElement("div")
+    div.id = "body-comment-${id}"
     div.appendChild(document.createTextNode(str))
     return div.innerHTML
   },
@@ -185,8 +186,8 @@ let Post = {
         <div class="metadata">
           <span class="date">Today at 5:42PM (STUB)</span>
         </div>
-        <div class="text">
-          ${this.esc(body)}
+        <div class="text" id="comment-text-${id}">
+          <div id="body-comment-${id}">${body}</div>
         </div>
         <div class="actions">
           <a class="reply">Reply</a>
@@ -214,13 +215,37 @@ let Post = {
       </div>
     `
     msgContainer.appendChild(modal)
+    let commentText = document.getElementById(`comment-text-${id}`)
+    let bodyComment = document.getElementById(`body-comment-${id}`)
+    
 
     editBtn.addEventListener("click", () => {
-      let promptValue = prompt("", body)
-      if (promptValue != null) {
-        postChannel.push("edit_comment", {id: id, body: promptValue})
-      }
+      let formInput = document.createElement("div")
+      formInput.innerHTML = `
+      <div class="ui mini form">
+        <div class="field">
+          <textarea rows="2" id="textarea-${id}"></textarea>
+        </div>
+        <div class="ui basic button" id="edit-cancel-${id}">Cancel</div>
+        <div class="ui basic positive button" id="edit-submit-${id}">Save Changes</div>
+      </div>
+      `
+      commentText.removeChild(bodyComment)
+      commentText.appendChild(formInput)
+      $(`#textarea-${id}`).val(body)
+      $(`#textarea-${id}`).focus()
+
+      $(`#edit-cancel-${id}`).on("click", () => {
+        commentText.removeChild(formInput)
+        commentText.appendChild(bodyComment)
+      })
+      $(`#edit-submit-${id}`).on("click", () => {
+        postChannel.push("edit_comment", {id: id, body: $(`#textarea-${id}`).val()})
+      })
     })
+
+
+
 
     deleteBtn.addEventListener("click", () => {
       $(`#small-modal-${id}`).modal('show')
