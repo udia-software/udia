@@ -81,18 +81,16 @@ let Post = {
     // On edit comment
     postChannel.on("edit_comment", resp => {
       postChannel.params.last_seen_id = resp.rendered_comment.id
-      this.removeComment(msgContainer, resp.rendered_comment.id)
-      if (resp.id == window.userId) {
-        this.renderComment(msgContainer, postChannel, resp.id, resp.rendered_comment)
-      } else {
-        this.renderComment(msgContainer, postChannel, window.userId, resp.rendered_comment)
+      if (resp.id != window.userId) {
+        this.removeComment(msgContainer, resp)
       }
+      this.replaceComment(msgContainer, resp)
     })
 
     // On delete comment
     postChannel.on("delete_comment", resp => {
       postChannel.params.last_seen_id = resp.rendered_comment.id
-      this.removeComment(msgContainer, resp.rendered_comment.id)
+      this.removeTemplateComment(msgContainer, resp.rendered_comment.id)
     })
 
     // Up vote event
@@ -157,14 +155,29 @@ let Post = {
     })
   },
 
-  esc(str, id) {
+  esc(str) {
     let div = document.createElement("div")
-    div.id = "body-comment-${id}"
     div.appendChild(document.createTextNode(str))
     return div.innerHTML
   },
 
-  removeComment(msgContainer, id) {
+  replaceComment(msgContainer, resp) {
+    let newBodyComment = document.createElement("div")
+    newBodyComment.id = `body-comment-${resp.rendered_comment.id}`
+    newBodyComment.innerHTML = `${resp.rendered_comment.body}`
+    let commentText = document.getElementById(`comment-text-${resp.rendered_comment.id}`)
+    commentText.appendChild(newBodyComment)
+    msgContainer.scrollTop = msgContainer.scrollHeight
+  },
+
+  removeComment(msgContainer, resp) {
+    let commentText = document.getElementById(`comment-text-${resp.rendered_comment.id}`)
+    let bodyComment = document.getElementById(`body-comment-${resp.rendered_comment.id}`)
+    commentText.removeChild(bodyComment)
+    msgContainer.scrollTop = msgContainer.scrollHeight
+  },
+
+  removeTemplateComment(msgContainer, id) {
     let template = document.getElementById(`template-${id}`)
     msgContainer.removeChild(template)
     msgContainer.scrollTop = msgContainer.scrollHeight
@@ -206,21 +219,21 @@ let Post = {
     modal.innerHTML = `
       <div class="ui small modal" id="small-modal-${id}">
         <div class="content">
-          <p>Do you want to delete this comment?</p>
+          <p>Are you sure you want to delete this comment?</p>
         </div>
         <div class="actions">
-          <div class="ui approve button" id="approve-${id}">Approve</div>
           <div class="ui cancel button" id="cancel-${id}">Cancel</div>
+          <div class="ui negative button" id="approve-${id}">Yes, Delete this comment!</div>
         </div>
       </div>
     `
     msgContainer.appendChild(modal)
-    let commentText = document.getElementById(`comment-text-${id}`)
-    let bodyComment = document.getElementById(`body-comment-${id}`)
-    
+    let commentText = document.getElementById(`comment-text-${id}`) 
 
+    // Edit a comment eventListener
     editBtn.addEventListener("click", () => {
       let formInput = document.createElement("div")
+      formInput.id = `form-${id}`
       formInput.innerHTML = `
       <div class="ui mini form">
         <div class="field">
@@ -230,9 +243,11 @@ let Post = {
         <div class="ui basic positive button" id="edit-submit-${id}">Save Changes</div>
       </div>
       `
+      let bodyComment = document.getElementById(`body-comment-${id}`)
+      let bodyValue = bodyComment.textContent
       commentText.removeChild(bodyComment)
       commentText.appendChild(formInput)
-      $(`#textarea-${id}`).val(body)
+      $(`#textarea-${id}`).val(bodyValue)
       $(`#textarea-${id}`).focus()
 
       $(`#edit-cancel-${id}`).on("click", () => {
@@ -241,12 +256,11 @@ let Post = {
       })
       $(`#edit-submit-${id}`).on("click", () => {
         postChannel.push("edit_comment", {id: id, body: $(`#textarea-${id}`).val()})
+        commentText.removeChild(formInput)
       })
     })
 
-
-
-
+    // Delete a comment eventListener
     deleteBtn.addEventListener("click", () => {
       $(`#small-modal-${id}`).modal('show')
     })
@@ -257,26 +271,24 @@ let Post = {
       $(`#small-modal-${id}`).modal('close')
     })
 
-  } else {
+   } else {
     template.innerHTML = `
       <div class="content">
         <a href="/users/${user.id}" class="author">${this.esc(user.username)}</a>
         <div class="metadata">
           <span class="date">Today at 5:42PM (STUB)</span>
         </div>
-        <div class="text">
-          ${this.esc(body)}
+        <div class="text" id="comment-text-${id}">
+          <div id="body-comment-${id}">${body}</div>
         </div>
         <div class="actions">
           <a class="reply">Reply</a>
         </div>
       </div>
     `
-    msgContainer.appendChild(template)
-    msgContainer.scrollTop = msgContainer.scrollHeight
-  }
-    
-
+     msgContainer.appendChild(template)
+     msgContainer.scrollTop = msgContainer.scrollHeight
+   }    
   },
 
   renderPresence(presences) {
