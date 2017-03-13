@@ -201,6 +201,20 @@ let Post = {
     let editBtn = document.getElementById(`edit-comment-${id}`)
     let deleteBtn = document.getElementById(`delete-comment-${id}`)
 
+    let modal = document.createElement("div")
+    modal.innerHTML = `
+      <div class="ui small modal" id="small-modal-${id}">
+        <div class="content">
+          <p>Do you want to delete this comment?</p>
+        </div>
+        <div class="actions">
+          <div class="ui approve button" id="approve-${id}">Approve</div>
+          <div class="ui cancel button" id="cancel-${id}">Cancel</div>
+        </div>
+      </div>
+    `
+    msgContainer.appendChild(modal)
+
     editBtn.addEventListener("click", () => {
       let promptValue = prompt("", body)
       if (promptValue != null) {
@@ -209,10 +223,13 @@ let Post = {
     })
 
     deleteBtn.addEventListener("click", () => {
-      let confirmed = confirm("Are you sure?")
-      if (confirmed) {
-        postChannel.push("delete_comment", {id: id})
-      }
+      $(`#small-modal-${id}`).modal('show')
+    })
+    $(`#approve-${id}`).on("click", () => {
+      postChannel.push("delete_comment", {id: id})
+    })
+    $(`#cancel-${id}`).on("click", () => {
+      $(`#small-modal-${id}`).modal('close')
     })
 
   } else {
