@@ -137,6 +137,27 @@ defmodule Udia.Logs do
     post
     |> cast(attrs, [:title, :content])
     |> validate_required([:title, :content])
+    |> slugify_title()
+  end
+
+  defp slugify_title(changeset) do
+    if title = get_change(changeset, :title) do
+      put_change(changeset, :slug, slugify(title))
+    else
+      changeset
+    end
+  end
+
+  defp slugify(str) do
+    str
+    |> String.downcase()
+    |> String.replace(~r/[^\w-]+/u, "-")
+  end
+
+  defimpl Phoenix.Param, for: Udia.Logs.Post do
+    def to_param(%{slug: slug, id: id}) do
+      "#{id}-#{slug}"
+    end
   end
 
   def get_comment!(id), do: Repo.get!(Comment, id)

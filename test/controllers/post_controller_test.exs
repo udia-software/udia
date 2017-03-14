@@ -86,9 +86,17 @@ defmodule Udia.PostControllerTest do
   @tag login_as: "samwell"
   test "renders page not found when id is nonexistent", %{conn: conn} do
     assert_error_sent 404, fn ->
-      get conn, post_path(conn, :show, -1)
+      get conn, post_path(conn, :show, 1984)
     end
   end
+
+  @tag login_as: "samwell"
+  test "renders 400 when id is invalid", %{conn: conn} do
+    assert_error_sent 400, fn ->
+      get conn, post_path(conn, :show, "foo")
+    end
+  end
+
 
   @tag login_as: "samwell"
   test "renders form for editing chosen resource", %{conn: conn, user: user} do
