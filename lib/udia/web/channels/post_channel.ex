@@ -26,6 +26,7 @@ defmodule Udia.Web.PostChannel do
   alias Udia.Web.Presence
   alias Udia.Auths.User
   alias Udia.Logs.Post
+  alias Udia.Logs.Comment
   alias Udia.Reactions
   alias Udia.Reactions.Vote
 
@@ -61,7 +62,7 @@ defmodule Udia.Web.PostChannel do
   end
 
   def handle_info(:after_join, socket) do
-    user = Repo.get(Udia.Auths.User, socket.assigns.user_id)
+    user = Repo.get(User, socket.assigns.user_id)
     push socket, "presence_state", Presence.list(socket)
     if socket.assigns.user_id > 0 do
       {:ok, _} = Presence.track(socket, socket.assigns.user_id, %{
@@ -95,7 +96,7 @@ defmodule Udia.Web.PostChannel do
 
   def handle_in("edit_comment", %{"id" => id, "body" => body}, socket) do
     changeset =
-      Udia.Logs.Comment
+      Comment
       |> Repo.get(id)
       |> Udia.Logs.comment_changeset(%{body: body})
 
@@ -108,14 +109,41 @@ defmodule Udia.Web.PostChannel do
     end
   end
 
+  def handle_in("reply_comment", %{"id" => id, "body" => body}, socket) do
+    changeset =
+      User
+      |> Repo.get(socket.assigns.user_id)
+      |> build_assoc(:comments, post_id: socket.assigns.post_id)
+      |> Udia.Logs.comment_changeset(%{body: body})
+
+    case Repo.insert(changeset) do
+      {:ok, comment} ->
+        comment =
+          comment
+          |> Repo.preload(:parent_comment)
+          |> Ecto.Changeset.change(%{parent_comment_id: id})
+          |> Repo.update!
+
+        broadcast_comment(socket, "reply_comment", comment)
+        {:noreply, socket}
+      {:error, changeset} ->
+        {:reply, {:error, %{errors: changeset.errors}}, socket}
+    end
+  end
+
   def handle_in("delete_comment", %{"id" => id}, socket) do
-    comment = Repo.get(Udia.Logs.Comment, id)
-    case Repo.delete(comment) do
+    comment =
+      Comment
+      |> Repo.get(id)
+      |> Repo.preload(:parent_comment)
+      |> Ecto.Changeset.change(%{body: nil, user_id: nil})
+
+    case Repo.update(comment) do
       {:ok, comment} ->
         broadcast_comment(socket, "delete_comment", comment)
         {:reply, :ok, socket}
       {:error, changeset} ->
-        {:reply, {:error, %{errors: changeset.errors}}, socket} 
+        {:reply, {:error, %{errors: changeset.errors}}, socket}
     end
   end
 

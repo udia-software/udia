@@ -95,4 +95,10 @@ defmodule Udia.PostChannelTest do
     assert_reply ref, :ok, %{}
     assert_broadcast "delete_comment", %{}
   end
+
+  test "As a user, i can reply to a comment and have that change broadcast", %{socket: socket, comment: comment} do
+    {:ok, _, socket} = subscribe_and_join(socket, "posts:#{comment.post_id}", %{})
+    push socket, "reply_comment", %{id: comment.id, body: "new comment"}
+    assert_broadcast "reply_comment", %{}
+  end
 end
