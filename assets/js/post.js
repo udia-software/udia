@@ -89,7 +89,6 @@ let Post = {
 
     // On reply comment
     postChannel.on("reply_comment", resp => {
-      console.log("reply comment", resp)
       if (resp.id == window.userId) {
         this.renderComment(msgContainer, postChannel, resp.id, resp.rendered_comment)
       } else {
@@ -99,9 +98,19 @@ let Post = {
 
     // On delete comment
     postChannel.on("delete_comment", resp => {
-      console.log("delete comment", resp)
       postChannel.params.last_seen_id = resp.rendered_comment.id
-      this.removeTemplateComment(msgContainer, resp.rendered_comment.parent_id, resp.rendered_comment.id)
+      let id = resp.rendered_comment.id
+      let actions = document.getElementById(`actions-${id}`)
+      let bodyComment = document.getElementById(`body-comment-${id}`)
+      bodyComment.textContent = "[Deleted!]"
+      if (resp.id == window.userId) {
+        while (actions.childNodes.length > 0) {
+          actions.removeChild(actions.childNodes[0])
+        }
+      } else {
+        let reply = document.getElementById(`reply-comment-${id}`)
+        actions.removeChild(reply)
+      }
     })
 
     // Up vote event
@@ -188,13 +197,6 @@ let Post = {
     msgContainer.scrollTop = msgContainer.scrollHeight
   },
 
-  removeTemplateComment(msgContainer, parentId, id) {
-    let parentTemplate = document.getElementById(`template-${parentId}`)
-    let template = document.getElementById(`template-${id}`)
-    parentTemplate.removeChild(template)
-    msgContainer.scrollTop = msgContainer.scrollHeight
-  },
-
   renderComment(msgContainer, postChannel, userId, {
     user,
     id,
@@ -203,61 +205,92 @@ let Post = {
   }) {
     let template = document.createElement("div")
     template.id = `template-${id}`
-    template.className = "comment"
 
-   if (parent_id != null) {
-    let replyTemplate = document.createElement("div")
-    replyTemplate.className = "ui comments"
-    replyTemplate.id = `template-${id}`
+    if (user == null) {
 
-    if (userId == user.id) {
-    replyTemplate.innerHTML = `
-      <div class="comment">
-        <div class="content">
-          <a href="/users/${user.id}">${this.esc(user.username)}</a>
-          <div class="metadata">
-            <span class="date">Today at 5:42PM (STUB)</span>
-          </div>
-          <div class="text" id="comment-text-${id}">
-            <div id="body-comment-${id}">${body}</div>
-          </div>
-          <div class="actions">
-            <a class="reply" id="reply-comment-${id}">Reply</a>
-            <a class="edit" id="edit-comment-${id}">Edit</a>
-            <a class="delete" id="delete-comment-${id}">Delete</a>
+      if (parent_id != null) {
+        template.className = "ui comments"
+        template.innerHTML = `
+        <div class="comment">
+          <div class="content">
+            <div>[Deleted]</div>
+            <div class="text">
+              <div>Deleted!</div>
+            </div>
           </div>
         </div>
-      </div>
-    `
-    let parentTemplate = document.getElementById(`template-${parent_id}`)
-    parentTemplate.appendChild(replyTemplate)
-    this.editAndDeleteListener(msgContainer, postChannel, id)
-
-  } else {
-
-    replyTemplate.innerHTML = `
-      <div class="comment">
-        <div class="content">
-          <a href="/users/${user.id}">${this.esc(user.username)}</a>
-          <div class="metadata">
-            <span class="date">Today at 5:42PM (STUB)</span>
+        ` 
+        let parentTemplate = document.getElementById(`template-${parent_id}`)
+        parentTemplate.appendChild(template)
+      } else {
+        template.className = "comment"
+        template.innerHTML = `
+          <div class="content">
+            <div>[Deleted]</div>
+            <div class="text">
+              <div>Deleted!</div>
+            </div>
           </div>
-          <div class="text" id="comment-text-${id}">
-            <div id="body-comment-${id}">${body}</div>
-          </div>
-          <div class="actions">
-            <a class="reply" id="reply-comment-${id}">Reply</a>
+        `
+        msgContainer.appendChild(template)
+      }
+
+    } else {
+
+     if (parent_id != null) {
+      let replyTemplate = document.createElement("div")
+      replyTemplate.className = "ui comments"
+      replyTemplate.id = `template-${id}`
+
+      if (userId == user.id) {
+        replyTemplate.innerHTML = `
+        <div class="comment">
+          <div class="content">
+            <a href="/users/${user.id}">${this.esc(user.username)}</a>
+            <div class="metadata">
+              <span class="date">Today at 5:42PM (STUB)</span>
+            </div>
+            <div class="text" id="comment-text-${id}">
+              <div id="body-comment-${id}">${body}</div>
+            </div>
+            <div class="actions" id="actions-${id}">
+              <a class="reply" id="reply-comment-${id}">Reply</a>
+              <a class="edit" id="edit-comment-${id}">Edit</a>
+              <a class="delete" id="delete-comment-${id}">Delete</a>
+            </div>
           </div>
         </div>
-      </div>
-    `
-    let parentTemplate = document.getElementById(`template-${parent_id}`)
-    parentTemplate.appendChild(replyTemplate)
-  }
+        `
+        let parentTemplate = document.getElementById(`template-${parent_id}`)
+        parentTemplate.appendChild(replyTemplate)
+        this.editAndDeleteListener(msgContainer, postChannel, id)
 
-   } else {
+      } else {
 
-    if (userId == user.id) {
+        replyTemplate.innerHTML = `
+        <div class="comment">
+          <div class="content">
+            <a href="/users/${user.id}">${this.esc(user.username)}</a>
+            <div class="metadata">
+              <span class="date">Today at 5:42PM (STUB)</span>
+            </div>
+            <div class="text" id="comment-text-${id}">
+              <div id="body-comment-${id}">${body}</div>
+            </div>
+            <div class="actions" id="actions-${id}">
+              <a class="reply" id="reply-comment-${id}">Reply</a>
+            </div>
+          </div>
+        </div>
+        `
+        let parentTemplate = document.getElementById(`template-${parent_id}`)
+        parentTemplate.appendChild(replyTemplate)
+      }
+
+     } else {
+
+      if (userId == user.id) {
+      template.className = "comment"
       template.innerHTML = `
       <div class="content">
         <a href="/users/${user.id}" class="author">${this.esc(user.username)}</a>
@@ -267,19 +300,20 @@ let Post = {
         <div class="text" id="comment-text-${id}">
           <div id="body-comment-${id}">${body}</div>
         </div>
-        <div class="actions">
+        <div class="actions" id="actions-${id}">
           <a class="reply" id="reply-comment-${id}">Reply</a>
           <a class="edit" id="edit-comment-${id}">Edit</a>
           <a class="delete" id="delete-comment-${id}">Delete</a>
         </div>
       </div>
-    `
-    msgContainer.appendChild(template)
-    msgContainer.scrollTop = msgContainer.scrollHeight
-    this.editAndDeleteListener(msgContainer, postChannel, id)
+      `
+      msgContainer.appendChild(template)
+      msgContainer.scrollTop = msgContainer.scrollHeight
+      this.editAndDeleteListener(msgContainer, postChannel, id)
 
-   } else {
-    template.innerHTML = `
+     } else {
+      template.className = "comment"
+      template.innerHTML = `
       <div class="content">
         <a href="/users/${user.id}" class="author">${this.esc(user.username)}</a>
         <div class="metadata">
@@ -288,15 +322,21 @@ let Post = {
         <div class="text" id="comment-text-${id}">
           <div id="body-comment-${id}">${body}</div>
         </div>
-        <div class="actions">
+        <div class="actions" id="actions-${id}">
           <a class="reply" id="reply-comment-${id}">Reply</a>
         </div>
       </div>
-    `
-     msgContainer.appendChild(template)
-     msgContainer.scrollTop = msgContainer.scrollHeight
-   }
+      `
+       msgContainer.appendChild(template)
+       msgContainer.scrollTop = msgContainer.scrollHeight
+     }
+    }
+    this.replyListener(postChannel, id)    
   }
+
+  },
+
+  replyListener(postChannel, id) {
 
    // Reply a comment eventListener
    let replyBtn = document.getElementById(`reply-comment-${id}`)
@@ -325,9 +365,8 @@ let Post = {
       replyInput.val("")
       template.removeChild(formReply)
     })
-   })
-
-  },
+   })    
+ },
 
   editAndDeleteListener(msgContainer, postChannel, id) {
     let editBtn = document.getElementById(`edit-comment-${id}`)

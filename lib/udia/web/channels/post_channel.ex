@@ -136,8 +136,9 @@ defmodule Udia.Web.PostChannel do
       Comment
       |> Repo.get(id)
       |> Repo.preload(:parent_comment)
+      |> Ecto.Changeset.change(%{body: nil, user_id: nil})
 
-    case Repo.delete(comment) do
+    case Repo.update(comment) do
       {:ok, comment} ->
         broadcast_comment(socket, "delete_comment", comment)
         {:reply, :ok, socket}
