@@ -23,9 +23,11 @@
 defmodule Udia.Logs.Post do
   use Ecto.Schema
 
+  @primary_key {:id, Udia.Permalink, autogenerate: true}
   schema "logs_posts" do
     field :title, :string
     field :content, :string
+    field :slug, :string
     belongs_to :user, Udia.Auths.User
     has_many :comments, Udia.Logs.Comment
     has_many :vote, Udia.Reactions.Vote

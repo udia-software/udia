@@ -48,8 +48,6 @@ Udia is currently configured to run on Heroku using:
 
 * [heroku-buildpack-elixir](https://github.com/HashNuke/heroku-buildpack-elixir.git)
 * [heroku-buildpack-phoenix-static](https://github.com/gjaldon/heroku-buildpack-phoenix-static.git)
-* 1.3 Temporary solution [heroku-buildpack-phoenix-static](https://github.com/vircung/heroku-buildpack-phoenix-static.git)
-    * Until https://github.com/gjaldon/heroku-buildpack-phoenix-static/pull/58 is merged
 
 Within the Procfile, a heroku release will run `POOL_SIZE=2 mix ecto.migrate` every time a successfull deploy to `master` finishes. This will ensure seemless database migrations when deploying code to production.
 
