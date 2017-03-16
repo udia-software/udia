@@ -24,6 +24,18 @@ defmodule Udia.Web.PostController do
   use Udia.Web, :controller
 
   alias Udia.Logs
+  alias Udia.Logs.Category
+
+  plug :load_categories when action in [:new, :create, :edit, :update]
+
+  defp load_categories(conn, _) do
+    query =
+      Category
+      |> Logs.alphabetical
+      |> Logs.names_and_ids
+    categories = Repo.all query
+    assign(conn, :categories, categories)
+  end
 
   def action(conn, _) do
     apply(__MODULE__, action_name(conn),

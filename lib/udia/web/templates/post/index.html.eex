@@ -1,3 +1,7 @@
+<%= if @current_user do %>
+<%= link "New post", to: post_path(@conn, :new), class: "ui primary basic button" %>
+<%= link "New category", to: category_path(@conn, :new), class: "ui secondary basic button" %>
+<% end %>
 <div class="ui unstackable items">
   <%= for post <- @posts do %>
     <div class="item">
@@ -21,7 +25,3 @@
     </div>
   <% end %>
 </div>
-
-<%= if @current_user do %>
-<%= link "New post", to: post_path(@conn, :new), class: "btn btn-success" %>
-<% end %>

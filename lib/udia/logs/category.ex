@@ -20,23 +20,12 @@
 # All portions of the code written by UDIA are Copyright (c) 2016-2017
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
+defmodule Udia.Logs.Category do
+  use Ecto.Schema
+  
+  schema "logs_categories" do
+    field :name, :string
 
-# Script for populating the database. You can run it as:
-#
-#     mix run priv/repo/seeds.exs
-#
-# Inside the script, you can read and write to any of your
-# repositories directly:
-#
-#     Udia.Repo.insert!(%Udia.SomeModel{})
-#
-# We recommend using the bang functions (`insert!`, `update!`
-# and so on) as they will fail if something goes wrong.
-
-alias Udia.Repo
-alias Udia.Logs.Category
-
-for category <- ~w(Random Pictures Philosophy) do
-  Repo.get_by(Category, name: category) ||
-    Repo.insert!(%Category{name: category})
+    timestamps()
+  end
 end

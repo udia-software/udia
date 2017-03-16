@@ -26,6 +26,7 @@ To start your Phoenix server:
   * Install Node.js dependencies with `cd assets && npm install`
   * Start Phoenix endpoint with `mix phx.server` or `iex -S mix phx.server`
   * Generate a code analysis report with `mix credo`
+  * (Optional) Seed your database with `mix run priv/repo/seeds.exs`
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
@@ -51,7 +52,7 @@ Udia is currently configured to run on Heroku using:
 
 Within the Procfile, a heroku release will run `POOL_SIZE=2 mix ecto.migrate` every time a successfull deploy to `master` finishes. This will ensure seemless database migrations when deploying code to production.
 
-## Configuration & Environment Variables
+## Development/Testing Configuration & Environment Variables
 
 Application will work with default settings if using something like [PostgresApp](https://postgresapp.com/), however if you need to change the credentials the following enviornment variables are available.
 
