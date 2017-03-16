@@ -31,7 +31,7 @@ defmodule Udia.Web.PostChannel do
   alias Udia.Reactions.Vote
 
 
-  def join("posts:" <> post_id, params, socket) do
+  def join("post:" <> post_id, params, socket) do
     send self(), :after_join
     last_seen_id = params["last_seen_id"] || 0
     post_id = String.to_integer(post_id)

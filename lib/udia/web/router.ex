@@ -39,9 +39,10 @@ defmodule Udia.Web.Router do
   scope "/", Udia.Web do
     # These routes need authentication
     pipe_through [:browser, :authenticate_user]
-    # TODO: remove node pages for the form and only have the endpoints for creating the data (Create, Update, Delete)
+
     resources "/posts", PostController, only: [:new, :create, :edit, :update, :delete]
     resources "/comments", CommentController, only: [:create, :update, :delete]
+    resources "/categories", CategoryController
   end
 
   scope "/", Udia.Web do
