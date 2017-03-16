@@ -5,12 +5,12 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.15.0">
-    <title>Udia.Web.Router.Helpers – udia v0.0.1</title>
+    <title>Udia.Web.Router.Helpers – udia v0.1.1</title>
     <link rel="stylesheet" href="dist/app-f7824c48e6.css" />
     
       <link rel="canonical" href="https://hexdocs.pm/udia/Udia.Web.Router.Helpers.html" />
     
-    <script src="dist/sidebar_items-e3f9a57bf6.js"></script>
+    <script src="dist/sidebar_items-5bae6e8e05.js"></script>
   </head>
   <body data-type="modules">
     <script>if(localStorage.getItem('night-mode')) document.body.className += ' night-mode';</script>
@@ -28,7 +28,7 @@
         udia
       </h1>
       <h2 class="sidebar-projectVersion">
-        v0.0.1
+        v0.1.1
       </h2>
     </div>
     
@@ -60,7 +60,7 @@
 
 
       <h1>
-        <small class="visible-xs">udia v0.0.1</small>
+        <small class="visible-xs">udia v0.1.1</small>
         Udia.Web.Router.Helpers
         
         
@@ -89,6 +89,42 @@
       <a href="#functions">Functions</a>
     </h2>
     <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#category_path/2">category_path(conn_or_endpoint, action)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#category_path/3">category_path(conn_or_endpoint, action, params)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#category_path/4">category_path(conn_or_endpoint, action, id, params)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#category_url/2">category_url(conn_or_endpoint, action)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#category_url/3">category_url(conn_or_endpoint, action, params)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#category_url/4">category_url(conn_or_endpoint, action, id, params)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
   <div class="summary-signature">
     <a href="#comment_path/2">comment_path(conn_or_endpoint, action)</a>
   </div>
@@ -150,47 +186,47 @@
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#node_path/2">node_path(conn_or_endpoint, action)</a>
-  </div>
-  
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#node_path/3">node_path(conn_or_endpoint, action, id)</a>
-  </div>
-  
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#node_path/4">node_path(conn_or_endpoint, action, id, params)</a>
-  </div>
-  
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#node_url/2">node_url(conn_or_endpoint, action)</a>
-  </div>
-  
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#node_url/3">node_url(conn_or_endpoint, action, id)</a>
-  </div>
-  
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#node_url/4">node_url(conn_or_endpoint, action, id, params)</a>
-  </div>
-  
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
     <a href="#path/2">path(data, path)</a>
   </div>
   
     <div class="summary-synopsis"><p>Generates the path information including any necessary prefix</p>
 </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#post_path/2">post_path(conn_or_endpoint, action)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#post_path/3">post_path(conn_or_endpoint, action, id)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#post_path/4">post_path(conn_or_endpoint, action, id, params)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#post_url/2">post_url(conn_or_endpoint, action)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#post_url/3">post_url(conn_or_endpoint, action, id)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#post_url/4">post_url(conn_or_endpoint, action, id, params)</a>
+  </div>
   
 </div>
 <div class="summary-row">
@@ -311,7 +347,97 @@
             </a>
             Functions
           </h1>
-          <div class="detail" id="comment_path/2">
+          <div class="detail" id="category_path/2">
+  
+  <div class="detail-header">
+    <a href="#category_path/2" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">category_path(conn_or_endpoint, action)</span>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="category_path/3">
+  
+  <div class="detail-header">
+    <a href="#category_path/3" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">category_path(conn_or_endpoint, action, params)</span>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="category_path/4">
+  
+  <div class="detail-header">
+    <a href="#category_path/4" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">category_path(conn_or_endpoint, action, id, params)</span>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="category_url/2">
+  
+  <div class="detail-header">
+    <a href="#category_url/2" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">category_url(conn_or_endpoint, action)</span>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="category_url/3">
+  
+  <div class="detail-header">
+    <a href="#category_url/3" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">category_url(conn_or_endpoint, action, params)</span>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="category_url/4">
+  
+  <div class="detail-header">
+    <a href="#category_url/4" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">category_url(conn_or_endpoint, action, id, params)</span>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="comment_path/2">
   
   <div class="detail-header">
     <a href="#comment_path/2" class="detail-link" title="Link to this function">
@@ -461,96 +587,6 @@
     
   </section>
 </div>
-<div class="detail" id="node_path/2">
-  
-  <div class="detail-header">
-    <a href="#node_path/2" class="detail-link" title="Link to this function">
-      <i class="icon-link"></i>
-    </a>
-    <span class="signature">node_path(conn_or_endpoint, action)</span>
-    
-    
-    
-  </div>
-  <section class="docstring">
-    
-  </section>
-</div>
-<div class="detail" id="node_path/3">
-  
-  <div class="detail-header">
-    <a href="#node_path/3" class="detail-link" title="Link to this function">
-      <i class="icon-link"></i>
-    </a>
-    <span class="signature">node_path(conn_or_endpoint, action, id)</span>
-    
-    
-    
-  </div>
-  <section class="docstring">
-    
-  </section>
-</div>
-<div class="detail" id="node_path/4">
-  
-  <div class="detail-header">
-    <a href="#node_path/4" class="detail-link" title="Link to this function">
-      <i class="icon-link"></i>
-    </a>
-    <span class="signature">node_path(conn_or_endpoint, action, id, params)</span>
-    
-    
-    
-  </div>
-  <section class="docstring">
-    
-  </section>
-</div>
-<div class="detail" id="node_url/2">
-  
-  <div class="detail-header">
-    <a href="#node_url/2" class="detail-link" title="Link to this function">
-      <i class="icon-link"></i>
-    </a>
-    <span class="signature">node_url(conn_or_endpoint, action)</span>
-    
-    
-    
-  </div>
-  <section class="docstring">
-    
-  </section>
-</div>
-<div class="detail" id="node_url/3">
-  
-  <div class="detail-header">
-    <a href="#node_url/3" class="detail-link" title="Link to this function">
-      <i class="icon-link"></i>
-    </a>
-    <span class="signature">node_url(conn_or_endpoint, action, id)</span>
-    
-    
-    
-  </div>
-  <section class="docstring">
-    
-  </section>
-</div>
-<div class="detail" id="node_url/4">
-  
-  <div class="detail-header">
-    <a href="#node_url/4" class="detail-link" title="Link to this function">
-      <i class="icon-link"></i>
-    </a>
-    <span class="signature">node_url(conn_or_endpoint, action, id, params)</span>
-    
-    
-    
-  </div>
-  <section class="docstring">
-    
-  </section>
-</div>
 <div class="detail" id="path/2">
   
   <div class="detail-header">
@@ -565,6 +601,96 @@
   <section class="docstring">
     <p>Generates the path information including any necessary prefix.</p>
 
+  </section>
+</div>
+<div class="detail" id="post_path/2">
+  
+  <div class="detail-header">
+    <a href="#post_path/2" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">post_path(conn_or_endpoint, action)</span>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="post_path/3">
+  
+  <div class="detail-header">
+    <a href="#post_path/3" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">post_path(conn_or_endpoint, action, id)</span>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="post_path/4">
+  
+  <div class="detail-header">
+    <a href="#post_path/4" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">post_path(conn_or_endpoint, action, id, params)</span>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="post_url/2">
+  
+  <div class="detail-header">
+    <a href="#post_url/2" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">post_url(conn_or_endpoint, action)</span>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="post_url/3">
+  
+  <div class="detail-header">
+    <a href="#post_url/3" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">post_url(conn_or_endpoint, action, id)</span>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="post_url/4">
+  
+  <div class="detail-header">
+    <a href="#post_url/4" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">post_url(conn_or_endpoint, action, id, params)</span>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
   </section>
 </div>
 <div class="detail" id="session_path/2">

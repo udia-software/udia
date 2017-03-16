@@ -5,10 +5,10 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.15.0">
-    <title>Udia.Web.LayoutView – udia v0.1.1</title>
+    <title>Udia.Reactions – udia v0.1.1</title>
     <link rel="stylesheet" href="dist/app-f7824c48e6.css" />
     
-      <link rel="canonical" href="https://hexdocs.pm/udia/Udia.Web.LayoutView.html" />
+      <link rel="canonical" href="https://hexdocs.pm/udia/Udia.Reactions.html" />
     
     <script src="dist/sidebar_items-5bae6e8e05.js"></script>
   </head>
@@ -61,11 +61,16 @@
 
       <h1>
         <small class="visible-xs">udia v0.1.1</small>
-        Udia.Web.LayoutView
+        Udia.Reactions
         
         
       </h1>
 
+      
+        <section id="moduledoc">
+          <p>The boundary for the reations system.</p>
+
+        </section>
       
 
       
@@ -85,49 +90,20 @@
     </h2>
     <div class="summary-row">
   <div class="summary-signature">
-    <a href="#__phoenix_recompile__?/0">__phoenix_recompile__?()</a>
+    <a href="#get_point/1">get_point(post_id)</a>
   </div>
-  
-    <div class="summary-synopsis"><p>Returns true whenever the list of templates changes in the filesystem</p>
-</div>
   
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#__resource__/0">__resource__()</a>
+    <a href="#get_vote/2">get_vote(user_id, post_id)</a>
   </div>
-  
-    <div class="summary-synopsis"><p>The resource name, as an atom, for this view</p>
-</div>
   
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#__templates__/0">__templates__()</a>
+    <a href="#vote_changeset/2">vote_changeset(vote, attrs)</a>
   </div>
-  
-    <div class="summary-synopsis"><p>Returns the template root alongside all templates</p>
-</div>
-  
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#render/2">render(template, assigns \\ %{})</a>
-  </div>
-  
-    <div class="summary-synopsis"><p>Renders the given template locally</p>
-</div>
-  
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#template_not_found/2">template_not_found(template, assigns)</a>
-  </div>
-  
-    <div class="summary-synopsis"><p>Callback invoked when no template is found.
-By default it raises but can be customized
-to render a particular template</p>
-</div>
   
 </div>
 
@@ -149,94 +125,49 @@ to render a particular template</p>
             </a>
             Functions
           </h1>
-          <div class="detail" id="__phoenix_recompile__?/0">
+          <div class="detail" id="get_point/1">
   
   <div class="detail-header">
-    <a href="#__phoenix_recompile__?/0" class="detail-link" title="Link to this function">
+    <a href="#get_point/1" class="detail-link" title="Link to this function">
       <i class="icon-link"></i>
     </a>
-    <span class="signature">__phoenix_recompile__?()</span>
+    <span class="signature">get_point(post_id)</span>
     
     
     
   </div>
   <section class="docstring">
-    <p>Returns true whenever the list of templates changes in the filesystem.</p>
-
+    
   </section>
 </div>
-<div class="detail" id="__resource__/0">
+<div class="detail" id="get_vote/2">
   
   <div class="detail-header">
-    <a href="#__resource__/0" class="detail-link" title="Link to this function">
+    <a href="#get_vote/2" class="detail-link" title="Link to this function">
       <i class="icon-link"></i>
     </a>
-    <span class="signature">__resource__()</span>
+    <span class="signature">get_vote(user_id, post_id)</span>
     
     
     
   </div>
   <section class="docstring">
-    <p>The resource name, as an atom, for this view</p>
-
+    
   </section>
 </div>
-<div class="detail" id="__templates__/0">
+<div class="detail" id="vote_changeset/2">
   
   <div class="detail-header">
-    <a href="#__templates__/0" class="detail-link" title="Link to this function">
+    <a href="#vote_changeset/2" class="detail-link" title="Link to this function">
       <i class="icon-link"></i>
     </a>
-    <span class="signature">__templates__()</span>
+    <span class="signature">vote_changeset(vote, attrs)</span>
     
     
     
   </div>
   <section class="docstring">
-    <p>Returns the template root alongside all templates.</p>
-
-  </section>
-</div>
-<div class="detail" id="render/2">
-  
-    <span id="render/1" />
-  
-  <div class="detail-header">
-    <a href="#render/2" class="detail-link" title="Link to this function">
-      <i class="icon-link"></i>
-    </a>
-    <span class="signature">render(template, assigns \\ %{})</span>
     
-    
-    
-  </div>
-  <section class="docstring">
-    <p>Renders the given template locally.</p>
-
-  </section>
-</div>
-<div class="detail" id="template_not_found/2">
-  
-  <div class="detail-header">
-    <a href="#template_not_found/2" class="detail-link" title="Link to this function">
-      <i class="icon-link"></i>
-    </a>
-    <span class="signature">template_not_found(template, assigns)</span>
-    
-    
-    
-      <div class="specs">
-        
-          <pre>template_not_found(<a href="https://hexdocs.pm/phoenix/1.3.0-rc.0/Phoenix.Template.html#t:name/0">Phoenix.Template.name</a>, map) :: no_return</pre>
-        
-      </div>
-    
-  </div>
-  <section class="docstring">
-    <p>Callback invoked when no template is found.
-By default it raises but can be customized
-to render a particular template.</p>
-
   </section>
 </div>
 

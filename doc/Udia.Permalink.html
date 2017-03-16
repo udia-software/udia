@@ -5,10 +5,10 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.15.0">
-    <title>Udia.Web.LayoutView – udia v0.1.1</title>
+    <title>Udia.Permalink – udia v0.1.1</title>
     <link rel="stylesheet" href="dist/app-f7824c48e6.css" />
     
-      <link rel="canonical" href="https://hexdocs.pm/udia/Udia.Web.LayoutView.html" />
+      <link rel="canonical" href="https://hexdocs.pm/udia/Udia.Permalink.html" />
     
     <script src="dist/sidebar_items-5bae6e8e05.js"></script>
   </head>
@@ -61,7 +61,7 @@
 
       <h1>
         <small class="visible-xs">udia v0.1.1</small>
-        Udia.Web.LayoutView
+        Udia.Permalink
         
         
       </h1>
@@ -85,48 +85,37 @@
     </h2>
     <div class="summary-row">
   <div class="summary-signature">
-    <a href="#__phoenix_recompile__?/0">__phoenix_recompile__?()</a>
+    <a href="#cast/1">cast(binary)</a>
   </div>
   
-    <div class="summary-synopsis"><p>Returns true whenever the list of templates changes in the filesystem</p>
+    <div class="summary-synopsis"><p>Casts the given input to the custom type</p>
 </div>
   
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#__resource__/0">__resource__()</a>
+    <a href="#dump/1">dump(integer)</a>
   </div>
   
-    <div class="summary-synopsis"><p>The resource name, as an atom, for this view</p>
+    <div class="summary-synopsis"><p>Dumps the given term into an Ecto native type</p>
 </div>
   
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#__templates__/0">__templates__()</a>
+    <a href="#load/1">load(integer)</a>
   </div>
   
-    <div class="summary-synopsis"><p>Returns the template root alongside all templates</p>
+    <div class="summary-synopsis"><p>Loads the given term into a custom type</p>
 </div>
   
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#render/2">render(template, assigns \\ %{})</a>
+    <a href="#type/0">type()</a>
   </div>
   
-    <div class="summary-synopsis"><p>Renders the given template locally</p>
-</div>
-  
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#template_not_found/2">template_not_found(template, assigns)</a>
-  </div>
-  
-    <div class="summary-synopsis"><p>Callback invoked when no template is found.
-By default it raises but can be customized
-to render a particular template</p>
+    <div class="summary-synopsis"><p>Returns the underlying schema type for the custom type</p>
 </div>
   
 </div>
@@ -149,93 +138,91 @@ to render a particular template</p>
             </a>
             Functions
           </h1>
-          <div class="detail" id="__phoenix_recompile__?/0">
+          <div class="detail" id="cast/1">
   
   <div class="detail-header">
-    <a href="#__phoenix_recompile__?/0" class="detail-link" title="Link to this function">
+    <a href="#cast/1" class="detail-link" title="Link to this function">
       <i class="icon-link"></i>
     </a>
-    <span class="signature">__phoenix_recompile__?()</span>
+    <span class="signature">cast(binary)</span>
     
     
     
   </div>
   <section class="docstring">
-    <p>Returns true whenever the list of templates changes in the filesystem.</p>
+    <p>Casts the given input to the custom type.</p>
+<p>This callback is called on external input and can return any type,
+as long as the <a href="#dump/1"><code class="inline">dump/1</code></a> function is able to convert the returned
+value back into an Ecto native type. There are two situations where
+this callback is called:</p>
+<ol>
+<li>When casting values by <a href="https://hexdocs.pm/ecto/2.1.4/Ecto.Changeset.html"><code class="inline">Ecto.Changeset</code></a>
+</li>
+<li>When passing arguments to <a href="https://hexdocs.pm/ecto/2.1.4/Ecto.Query.html"><code class="inline">Ecto.Query</code></a>
+</li>
+</ol>
+<p>Callback implementation for <a href="https://hexdocs.pm/ecto/2.1.4/Ecto.Type.html#c:cast/1"><code class="inline">Ecto.Type.cast/1</code></a>.</p>
 
   </section>
 </div>
-<div class="detail" id="__resource__/0">
+<div class="detail" id="dump/1">
   
   <div class="detail-header">
-    <a href="#__resource__/0" class="detail-link" title="Link to this function">
+    <a href="#dump/1" class="detail-link" title="Link to this function">
       <i class="icon-link"></i>
     </a>
-    <span class="signature">__resource__()</span>
+    <span class="signature">dump(integer)</span>
     
     
     
   </div>
   <section class="docstring">
-    <p>The resource name, as an atom, for this view</p>
+    <p>Dumps the given term into an Ecto native type.</p>
+<p>This callback is called with any term that was stored in the struct
+and it needs to validate them and convert it to an Ecto native type.</p>
+<p>Callback implementation for <a href="https://hexdocs.pm/ecto/2.1.4/Ecto.Type.html#c:dump/1"><code class="inline">Ecto.Type.dump/1</code></a>.</p>
 
   </section>
 </div>
-<div class="detail" id="__templates__/0">
+<div class="detail" id="load/1">
   
   <div class="detail-header">
-    <a href="#__templates__/0" class="detail-link" title="Link to this function">
+    <a href="#load/1" class="detail-link" title="Link to this function">
       <i class="icon-link"></i>
     </a>
-    <span class="signature">__templates__()</span>
+    <span class="signature">load(integer)</span>
     
     
     
   </div>
   <section class="docstring">
-    <p>Returns the template root alongside all templates.</p>
+    <p>Loads the given term into a custom type.</p>
+<p>This callback is called when loading data from the database and
+receive an Ecto native type. It can return any type, as long as
+the <a href="#dump/1"><code class="inline">dump/1</code></a> function is able to convert the returned value back
+into an Ecto native type.</p>
+<p>Callback implementation for <a href="https://hexdocs.pm/ecto/2.1.4/Ecto.Type.html#c:load/1"><code class="inline">Ecto.Type.load/1</code></a>.</p>
 
   </section>
 </div>
-<div class="detail" id="render/2">
-  
-    <span id="render/1" />
+<div class="detail" id="type/0">
   
   <div class="detail-header">
-    <a href="#render/2" class="detail-link" title="Link to this function">
+    <a href="#type/0" class="detail-link" title="Link to this function">
       <i class="icon-link"></i>
     </a>
-    <span class="signature">render(template, assigns \\ %{})</span>
+    <span class="signature">type()</span>
     
     
     
   </div>
   <section class="docstring">
-    <p>Renders the given template locally.</p>
-
-  </section>
-</div>
-<div class="detail" id="template_not_found/2">
-  
-  <div class="detail-header">
-    <a href="#template_not_found/2" class="detail-link" title="Link to this function">
-      <i class="icon-link"></i>
-    </a>
-    <span class="signature">template_not_found(template, assigns)</span>
-    
-    
-    
-      <div class="specs">
-        
-          <pre>template_not_found(<a href="https://hexdocs.pm/phoenix/1.3.0-rc.0/Phoenix.Template.html#t:name/0">Phoenix.Template.name</a>, map) :: no_return</pre>
-        
-      </div>
-    
-  </div>
-  <section class="docstring">
-    <p>Callback invoked when no template is found.
-By default it raises but can be customized
-to render a particular template.</p>
+    <p>Returns the underlying schema type for the custom type.</p>
+<p>For example, if you want to provide your own date
+structures, the type function should return <code class="inline">:date</code>.</p>
+<p>Note this function is not required to return Ecto primitive
+types, the type is only required to be known by the adapter.</p>
+<p>Callback implementation for <a href="https://hexdocs.pm/ecto/2.1.4/Ecto.Type.html#c:type/0"><code class="inline">Ecto.Type.type/0</code></a>.</p>
 
   </section>
 </div>
