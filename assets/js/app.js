@@ -43,8 +43,10 @@ import "phoenix_html"
 
 import socket from "./socket"
 import Post from "./post"
+import Category from "./category"
 
 Post.init(socket, document.getElementById("post"))
+Category.init(socket, document.getElementById("category"))
 
 // Perform Semantic UI Widget initializations here.
 $('.ui.dropdown').dropdown({
