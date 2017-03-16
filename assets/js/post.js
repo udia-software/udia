@@ -33,7 +33,7 @@ let Post = {
   },
 
   onReady(postId, socket) {
-    let postChannel = socket.channel("posts:" + postId)
+    let postChannel = socket.channel("post:" + postId)
     let msgContainer = document.getElementById("msg-container")
 
     // These elements only exist when the user is authenticated.

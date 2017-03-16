@@ -34,32 +34,32 @@ defmodule Udia.PostChannelTest do
   end
 
   test "join channel", %{socket: socket, post: post} do
-    {:ok, _, socket} = subscribe_and_join(socket, "posts:#{post.id}", %{})
+    {:ok, _, socket} = subscribe_and_join(socket, "post:#{post.id}", %{})
 
     assert socket.assigns.post_id == post.id
   end
 
   test "insert new comment", %{socket: socket, post: post} do
-    {:ok, _, socket} = subscribe_and_join(socket, "posts:#{post.id}", %{})
+    {:ok, _, socket} = subscribe_and_join(socket, "post:#{post.id}", %{})
     ref = push socket, "new_comment", %{"body" => "some content"}
     assert_reply ref, :ok, %{}
     assert_broadcast "new_comment", %{}
   end
 
   test "A user should be able to vote on a post +1", %{socket: socket, post: post} do
-    {:ok, _, socket} = subscribe_and_join(socket, "posts:#{post.id}", %{})
+    {:ok, _, socket} = subscribe_and_join(socket, "post:#{post.id}", %{})
     push socket, "up_vote", %{}
     assert_broadcast "up_vote", %{point: 1, value: 1}
   end
 
   test "A user should be able to vote on a post -1", %{socket: socket, post: post} do
-    {:ok, _, socket} = subscribe_and_join(socket, "posts:#{post.id}", %{})
+    {:ok, _, socket} = subscribe_and_join(socket, "post:#{post.id}", %{})
     push socket, "down_vote", %{}
     assert_broadcast "down_vote", %{point: -1, value: -1}
   end
 
   test "A user has already vote +1 and try to vote again", %{socket: socket, post: post} do
-    {:ok, _, socket} = subscribe_and_join(socket, "posts:#{post.id}", %{})
+    {:ok, _, socket} = subscribe_and_join(socket, "post:#{post.id}", %{})
     push socket, "up_vote", %{}
     assert_broadcast "up_vote", %{point: 1, value: 1}
     push socket, "up_vote", %{}
@@ -67,7 +67,7 @@ defmodule Udia.PostChannelTest do
   end
 
   test "A user has already vote -1 and try to vote again", %{socket: socket, post: post} do
-    {:ok, _, socket} = subscribe_and_join(socket, "posts:#{post.id}", %{})
+    {:ok, _, socket} = subscribe_and_join(socket, "post:#{post.id}", %{})
     push socket, "down_vote", %{}
     assert_broadcast "down_vote", %{point: -1, value: -1}
     push socket, "down_vote", %{}
@@ -76,12 +76,12 @@ defmodule Udia.PostChannelTest do
 
   test "Post should display the sum of all votes from users", %{socket: socket, post: post, user: user} do
     vote = insert_vote(user, post, %{vote: 1})
-    {:ok, resp, _socket} = subscribe_and_join(socket, "posts:#{post.id}", %{})
+    {:ok, resp, _socket} = subscribe_and_join(socket, "post:#{post.id}", %{})
     assert resp.point == vote.vote
   end
 
   test "As a user, I can edit my own comment and have that change broadcast", %{socket: socket, comment: comment} do
-    {:ok, _, socket} = subscribe_and_join(socket, "posts:#{comment.post_id}", %{})
+    {:ok, _, socket} = subscribe_and_join(socket, "post:#{comment.post_id}", %{})
 
     ref = push socket, "edit_comment", %{id: comment.id, body: "edited comment"}
     assert_reply ref, :ok, %{}
@@ -89,7 +89,7 @@ defmodule Udia.PostChannelTest do
   end
 
   test "As a user, I can delete my own comment and have that change broadcast", %{socket: socket, comment: comment} do
-    {:ok, _, socket} = subscribe_and_join(socket, "posts:#{comment.post_id}", %{})
+    {:ok, _, socket} = subscribe_and_join(socket, "post:#{comment.post_id}", %{})
 
     ref = push socket, "delete_comment", %{id: comment.id}
     assert_reply ref, :ok, %{}
@@ -97,7 +97,7 @@ defmodule Udia.PostChannelTest do
   end
 
   test "As a user, i can reply to a comment and have that change broadcast", %{socket: socket, comment: comment} do
-    {:ok, _, socket} = subscribe_and_join(socket, "posts:#{comment.post_id}", %{})
+    {:ok, _, socket} = subscribe_and_join(socket, "post:#{comment.post_id}", %{})
     push socket, "reply_comment", %{id: comment.id, body: "new comment"}
     assert_broadcast "reply_comment", %{}
   end
