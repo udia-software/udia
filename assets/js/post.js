@@ -116,25 +116,30 @@ let Post = {
     // Up vote event
     postChannel.on("up_vote", resp => {
       voteSpan.textContent = resp.point
-      if (resp.value == 1) {
-        $(voteUpLink).addClass("green").removeClass("inverted");
-        $(voteDownLink).addClass("red").addClass("inverted");
-      } else {
-        $(voteUpLink).removeClass("green").removeClass("inverted");
-        $(voteDownLink).removeClass("red").removeClass("inverted");
-      }
+        if (resp.id == window.userId) {
+            if (resp.value == 1) {
+                $(voteUpLink).addClass("green").removeClass("inverted");
+                $(voteDownLink).addClass("red").addClass("inverted");
+            } else {
+                $(voteUpLink).removeClass("green").removeClass("inverted");
+                $(voteDownLink).removeClass("red").removeClass("inverted");
+            }
+        }
     })
 
     // Down vote event
     postChannel.on("down_vote", resp => {
       voteSpan.textContent = resp.point
-      if (resp.value == -1) {
-        $(voteUpLink).addClass("green").addClass("inverted");
-        $(voteDownLink).addClass("red").removeClass("inverted");
-      } else {
-        $(voteUpLink).removeClass("green").removeClass("inverted");
-        $(voteDownLink).removeClass("red").removeClass("inverted");
-      }
+        if (resp.id == window.userId) {
+
+            if (resp.value == -1) {
+                $(voteUpLink).addClass("green").addClass("inverted");
+                $(voteDownLink).addClass("red").removeClass("inverted");
+            } else {
+                $(voteUpLink).removeClass("green").removeClass("inverted");
+                $(voteDownLink).removeClass("red").removeClass("inverted");
+            }
+        }
     })
 
     // On join channel, get all comments

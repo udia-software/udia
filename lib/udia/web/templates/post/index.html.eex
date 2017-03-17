@@ -6,11 +6,11 @@
   <%= for post <- @posts do %>
     <div class="item">
       <div class="vote ui list">
-        <button class="mini ui icon basic button">
+        <button class="mini ui icon basic button" id="vote-up-link-<%= post.id %>">
           <i class="chevron circle up icon"></i>
         </button>
-        <span class="item">...</span>
-        <button class="mini ui icon basic button">
+        <span id="vote-span-<%= post.id %>" class="item">...</span>
+        <button class="mini ui icon basic button" id="vote-down-link-<%= post.id %>">
           <i class="chevron circle down icon"></i>
         </button>
       </div>
