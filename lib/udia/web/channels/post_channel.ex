@@ -204,7 +204,7 @@ defmodule Udia.Web.PostChannel do
   defp handle_broadcast({:ok, vote}, event, socket) do
     [point] = Reactions.get_point(socket.assigns.post_id)
     broadcast! socket, event, %{point: point, value: vote.vote, id: socket.assigns.user_id}
-    @endpoint.broadcast! "category:lobby", event, %{point: point, value: vote.vote, id: socket.assigns.user_id}
+    @endpoint.broadcast! "category:lobby", event, %{point: point, value: vote.vote, id: socket.assigns.user_id, post_id: socket.assigns.post_id}
     {:noreply, socket}
   end
 

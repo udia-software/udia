@@ -22,73 +22,97 @@
 ///////////////////////////////////////////////////////////////////////////
 
 let Category = {
-    init(socket, element) {
-        if (!element) { return }
+    init(socket, elements) {
+        if (!elements) { return }
         socket.connect()
-        let postId = element.getAttribute("data-id")
-        this.onReady(socket, postId)
+        let ids = elements.map((k, v) => {
+            let replaced = v.id.replace(/\D/g, "")
+            return replaced
+        })
+
+        let posts = ids.filter((k, v) => {
+            return ids[k] != ids[k + 1]
+        })
+        this.onReady(socket, posts.toArray())
     },
 
-    onReady(socket, postId) {
-        let categoryChannel = socket.channel("category:lobby", {id: postId})
-        let voteUpLink = document.getElementById("vote-up-link-" + postId)
-        let voteDownLink = document.getElementById("vote-down-link-" + postId)
-        let voteSpan = document.getElementById("vote-span")
+    onReady(socket, allId) {
+        let categoryChannel = socket.channel("category:lobby", {ids: allId})
+
+        allId.forEach(id => {
+
+        let voteUpLink = document.getElementById("vote-up-link-" + id)
+        let voteDownLink = document.getElementById("vote-down-link-" + id)
+        let voteSpan = document.getElementById("vote-span-" + id)
 
         voteUpLink.addEventListener("click", e => {
-            categoryChannel.push("up_vote", {id: postId})
+            categoryChannel.push("up_vote", {id: id})
         })
 
         voteDownLink.addEventListener("click", e => {
-            categoryChannel.push("down_vote", {id: postId})
+            categoryChannel.push("down_vote", {id: id})
         })
 
         // Up vote event
         categoryChannel.on("up_vote", resp => {
-            voteSpan.textContent = resp.point
-            if (resp.id == window.userId) {
+            if (resp.post_id == id) {
+                voteSpan.textContent = resp.point
 
-                if (resp.value == 1) {
-                    $(voteUpLink).addClass("green").removeClass("inverted");
-                    $(voteDownLink).addClass("red").addClass("inverted");
-                } else {
-                    $(voteUpLink).removeClass("green").removeClass("inverted");
-                    $(voteDownLink).removeClass("red").removeClass("inverted");
+                if (resp.id == window.userId) {
+
+                    if (resp.value == 1) {
+                        $(voteUpLink).addClass("green").removeClass("inverted");
+                        $(voteDownLink).addClass("red").addClass("inverted");
+                    } else {
+                        $(voteUpLink).removeClass("green").removeClass("inverted");
+                        $(voteDownLink).removeClass("red").removeClass("inverted");
+                    }
                 }
             }
         })
 
         // Down vote event
         categoryChannel.on("down_vote", resp => {
-            voteSpan.textContent = resp.point
-            if (resp.id == window.userId) {
+            if (resp.post_id == id) {
+                voteSpan.textContent = resp.point
 
-                if (resp.value == -1) {
-                    $(voteUpLink).addClass("green").addClass("inverted");
-                    $(voteDownLink).addClass("red").removeClass("inverted");
-                } else {
-                    $(voteUpLink).removeClass("green").removeClass("inverted");
-                    $(voteDownLink).removeClass("red").removeClass("inverted");
+                if (resp.id == window.userId) {
+
+                    if (resp.value == -1) {
+                        $(voteUpLink).addClass("green").addClass("inverted");
+                        $(voteDownLink).addClass("red").removeClass("inverted");
+                    } else {
+                        $(voteUpLink).removeClass("green").removeClass("inverted");
+                        $(voteDownLink).removeClass("red").removeClass("inverted");
+                    }
                 }
             }
+        })
+
         })
 
         categoryChannel.join()
             .receive("ok", resp => {
 
-                if (resp.point == null) {
-                    voteSpan.textContent = "0"
-                } else {
-                    voteSpan.textContent = resp.point
-                }
+                resp.forEach(res => {
 
-                if (resp.value == 1) {
-                    $(voteUpLink).addClass("green").removeClass("inverted");
-                    $(voteDownLink).addClass("red").addClass("inverted");
-                } else if (resp.value == -1) {
-                    $(voteDownLink).addClass("red").removeClass("inverted");
-                    $(voteUpLink).addClass("green").addClass("inverted");
-                }
+                    let voteUpLink = document.getElementById("vote-up-link-" + res.id)
+                    let voteDownLink = document.getElementById("vote-down-link-" + res.id)
+                    let voteSpan = document.getElementById("vote-span-" + res.id)
+                    if (res.point == null) {
+                        voteSpan.textContent = "0"
+                    } else {
+                        voteSpan.textContent = res.point
+                    }
+
+                    if (res.value == 1) {
+                        $(voteUpLink).addClass("green").removeClass("inverted");
+                        $(voteDownLink).addClass("red").addClass("inverted");
+                    } else if (res.value == -1) {
+                        $(voteDownLink).addClass("red").removeClass("inverted");
+                        $(voteUpLink).addClass("green").addClass("inverted");
+                    }
+                })
             })
             .receive("error", resp => { console.log("failed to join", resp)})
     },

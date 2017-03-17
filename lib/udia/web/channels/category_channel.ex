@@ -6,26 +6,29 @@ defmodule Udia.Web.CategoryChannel do
   alias Udia.Auths.User
   @endpoint Udia.Web.Endpoint
 
-  def join("category:lobby", %{"id" => post_id}, socket) do
+  def join("category:lobby", %{"ids" => ids}, socket) do
 
-    [point] = Reactions.get_point(post_id)
-    post =
-      Udia.Logs.Post
-      |> Repo.get(post_id)
-      |> Repo.preload(:user)
+    resp =
+      for id <- ids do
 
-    vote = Reactions.get_vote(post.user_id, post_id)
-    value =
-    if is_nil(vote) do
-      0
-    else
-      vote = Reactions.get_vote(socket.assigns.user_id, post_id)
-      vote.vote
-    end
-    {:ok, %{point: point, value: value}, socket}
+        [point] = Reactions.get_point(id)
+        vote = Reactions.get_vote(socket.assigns.user_id, id)
+        value =
+        if is_nil(vote) do
+          0
+        else
+          vote = Reactions.get_vote(socket.assigns.user_id, id)
+          vote.vote
+        end
+
+        %{point: point, value: value, id: id}
+      end
+
+    {:ok, resp, socket}
   end
 
   def handle_in("up_vote", %{"id" => post_id}, socket) do
+    post_id = String.to_integer(post_id)
     vote = Reactions.get_vote(socket.assigns.user_id, post_id)
     vote_assoc =
       User
@@ -45,6 +48,7 @@ defmodule Udia.Web.CategoryChannel do
   end
 
   def handle_in("down_vote", %{"id" => post_id}, socket) do
+    post_id = String.to_integer(post_id)
     vote = Reactions.get_vote(socket.assigns.user_id, post_id)
     vote_assoc =
       User
@@ -80,7 +84,7 @@ defmodule Udia.Web.CategoryChannel do
   defp handle_broadcast({:error, changeset}, _event, _post_id, socket), do: {:reply, {:error, %{errors: changeset.errors}}, socket}
   defp handle_broadcast({:ok, vote}, event, post_id, socket) do
     [point] = Reactions.get_point(post_id)
-    broadcast! socket, event, %{point: point, value: vote.vote, id: socket.assigns.user_id}
+    broadcast! socket, event, %{point: point, value: vote.vote, id: socket.assigns.user_id, post_id: post_id}
     @endpoint.broadcast! "post:#{post_id}", event, %{point: point, value: vote.vote, id: socket.assigns.user_id}
     {:noreply, socket}
   end
