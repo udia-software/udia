@@ -211,6 +211,8 @@ let Post = {
     let template = document.createElement("div")
     template.id = `template-${id}`
 
+    // Check null user for the deleted case
+
     if (user == null) {
 
       if (parent_id != null) {
@@ -249,22 +251,37 @@ let Post = {
 
       if (userId == user.id) {
         replyTemplate.innerHTML = `
-        <div class="comment">
-          <div class="content">
-            <a href="/users/${user.id}">${this.esc(user.username)}</a>
-            <div class="metadata">
-              <span class="date">Today at 5:42PM (STUB)</span>
+        <div class="ui unstackable items">
+          <div class="item">
+            <div class="vote ui list">
+              <button class="mini ui icon basic button" id="vote-up-link">
+                <i class="chevron circle up icon"></i>
+              </button>
+              <span id="vote-span" class="item">...</span>
+              <button class="mini ui icon basic button" id="vote-down-link">
+                <i class="chevron circle down icon"></i>
+              </button>
             </div>
-            <div class="text" id="comment-text-${id}">
-              <div id="body-comment-${id}">${body}</div>
-            </div>
-            <div class="actions" id="actions-${id}">
-              <a class="reply" id="reply-comment-${id}">Reply</a>
-              <a class="edit" id="edit-comment-${id}">Edit</a>
-              <a class="delete" id="delete-comment-${id}">Delete</a>
-            </div>
+
+            <div class="comment">
+              <div class="content">
+                <a href="/users/${user.id}">${this.esc(user.username)}</a>
+                <div class="metadata">
+                  <span class="date">Today at 5:42PM (STUB)</span>
+                </div>
+                <div class="text" id="comment-text-${id}">
+                  <div id="body-comment-${id}">${body}</div>
+                </div>
+                <div class="actions" id="actions-${id}">
+                  <a class="reply" id="reply-comment-${id}">Reply</a>
+                  <a class="edit" id="edit-comment-${id}">Edit</a>
+                  <a class="delete" id="delete-comment-${id}">Delete</a>
+                </div>
+              </div>
+            </div>            
           </div>
-        </div>
+        </div>        
+
         `
         let parentTemplate = document.getElementById(`template-${parent_id}`)
         parentTemplate.appendChild(replyTemplate)
@@ -273,18 +290,32 @@ let Post = {
       } else {
 
         replyTemplate.innerHTML = `
-        <div class="comment">
-          <div class="content">
-            <a href="/users/${user.id}">${this.esc(user.username)}</a>
-            <div class="metadata">
-              <span class="date">Today at 5:42PM (STUB)</span>
+        <div class="ui unstackable items">
+          <div class="item">
+            <div class="vote ui list">
+              <button class="mini ui icon basic button" id="vote-up-link">
+                <i class="chevron circle up icon"></i>
+              </button>
+              <span id="vote-span" class="item">...</span>
+              <button class="mini ui icon basic button" id="vote-down-link">
+                <i class="chevron circle down icon"></i>
+              </button>
             </div>
-            <div class="text" id="comment-text-${id}">
-              <div id="body-comment-${id}">${body}</div>
-            </div>
-            <div class="actions" id="actions-${id}">
-              <a class="reply" id="reply-comment-${id}">Reply</a>
-            </div>
+
+            <div class="comment">
+              <div class="content">
+                <a href="/users/${user.id}">${this.esc(user.username)}</a>
+                <div class="metadata">
+                  <span class="date">Today at 5:42PM (STUB)</span>
+                </div>
+                <div class="text" id="comment-text-${id}">
+                  <div id="body-comment-${id}">${body}</div>
+                </div>
+                <div class="actions" id="actions-${id}">
+                  <a class="reply" id="reply-comment-${id}">Reply</a>
+                </div>
+              </div>
+            </div>            
           </div>
         </div>
         `
@@ -297,20 +328,34 @@ let Post = {
       if (userId == user.id) {
       template.className = "comment"
       template.innerHTML = `
-      <div class="content">
-        <a href="/users/${user.id}" class="author">${this.esc(user.username)}</a>
-        <div class="metadata">
-          <span class="date">Today at 5:42PM (STUB)</span>
-        </div>
-        <div class="text" id="comment-text-${id}">
-          <div id="body-comment-${id}">${body}</div>
-        </div>
-        <div class="actions" id="actions-${id}">
-          <a class="reply" id="reply-comment-${id}">Reply</a>
-          <a class="edit" id="edit-comment-${id}">Edit</a>
-          <a class="delete" id="delete-comment-${id}">Delete</a>
-        </div>
-      </div>
+        <div class="ui unstackable items">
+          <div class="item">
+            <div class="vote ui list">
+              <button class="mini ui icon basic button" id="vote-up-link">
+                <i class="chevron circle up icon"></i>
+              </button>
+              <span id="vote-span" class="item">...</span>
+              <button class="mini ui icon basic button" id="vote-down-link">
+                <i class="chevron circle down icon"></i>
+              </button>
+            </div>
+
+            <div class="content">
+              <a href="/users/${user.id}" class="author">${this.esc(user.username)}</a>
+              <div class="metadata">
+                <span class="date">Today at 5:42PM (STUB)</span>
+              </div>
+              <div class="text" id="comment-text-${id}">
+                <div id="body-comment-${id}">${body}</div>
+              </div>
+              <div class="actions" id="actions-${id}">
+                <a class="reply" id="reply-comment-${id}">Reply</a>
+                <a class="edit" id="edit-comment-${id}">Edit</a>
+                <a class="delete" id="delete-comment-${id}">Delete</a>
+              </div>
+            </div>
+          </div>
+        </div>     
       `
       msgContainer.appendChild(template)
       msgContainer.scrollTop = msgContainer.scrollHeight
@@ -319,18 +364,32 @@ let Post = {
      } else {
       template.className = "comment"
       template.innerHTML = `
-      <div class="content">
-        <a href="/users/${user.id}" class="author">${this.esc(user.username)}</a>
-        <div class="metadata">
-          <span class="date">Today at 5:42PM (STUB)</span>
-        </div>
-        <div class="text" id="comment-text-${id}">
-          <div id="body-comment-${id}">${body}</div>
-        </div>
-        <div class="actions" id="actions-${id}">
-          <a class="reply" id="reply-comment-${id}">Reply</a>
-        </div>
-      </div>
+        <div class="ui unstackable items">
+          <div class="item">
+            <div class="vote ui list">
+              <button class="mini ui icon basic button" id="vote-up-link">
+                <i class="chevron circle up icon"></i>
+              </button>
+              <span id="vote-span" class="item">...</span>
+              <button class="mini ui icon basic button" id="vote-down-link">
+                <i class="chevron circle down icon"></i>
+              </button>
+            </div>
+
+            <div class="content">
+              <a href="/users/${user.id}" class="author">${this.esc(user.username)}</a>
+              <div class="metadata">
+                <span class="date">Today at 5:42PM (STUB)</span>
+              </div>
+              <div class="text" id="comment-text-${id}">
+                <div id="body-comment-${id}">${body}</div>
+              </div>
+              <div class="actions" id="actions-${id}">
+                <a class="reply" id="reply-comment-${id}">Reply</a>
+              </div>
+            </div>
+          </div>
+        </div> 
       `
        msgContainer.appendChild(template)
        msgContainer.scrollTop = msgContainer.scrollHeight
