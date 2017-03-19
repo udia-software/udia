@@ -29,6 +29,7 @@ defmodule Udia.Logs.Comment do
     belongs_to :post, Udia.Logs.Post
     belongs_to :parent_comment, Udia.Logs.Comment
     has_many :child_comments, Udia.Logs.Comment
+    has_many :vote, Udia.Reactions.Vote
 
     timestamps()
   end

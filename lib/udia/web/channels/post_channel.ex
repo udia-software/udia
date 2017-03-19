@@ -186,6 +186,45 @@ defmodule Udia.Web.PostChannel do
     end
   end
 
+  def handle_in("up_vote_comment", %{"id" => id}, socket) do
+    vote = Reactions.get_vote_comment(socket.assigns.user_id, id)
+    vote_assoc =
+      User
+      |> Repo.get(socket.assigns.user_id)
+      |> build_assoc(:vote, comment_id: id)
+
+    if is_nil(vote) do
+      insert_and_broadcast(vote_assoc, %{vote: 1}, "up_vote_comment", id, socket)
+    else
+      vote = Reactions.get_vote_comment(socket.assigns.user_id, id)
+      if vote.vote == 1 do
+        update_and_broadcast(vote, %{vote: 0}, "up_vote_comment", id, socket)
+      else
+        update_and_broadcast(vote, %{vote: 1}, "up_vote_comment", id, socket)
+      end
+    end
+  end
+
+  def handle_in("down_vote_comment", %{"id" => id}, socket) do
+    vote = Reactions.get_vote_comment(socket.assigns.user_id, id)
+    vote_assoc =
+      User
+      |> Repo.get(socket.assigns.user_id)
+      |> build_assoc(:vote, comment_id: id)
+
+    if is_nil(vote) do
+      insert_and_broadcast(vote_assoc, %{vote: -1}, "down_vote_comment", id, socket)
+    else
+      vote = Reactions.get_vote_comment(socket.assigns.user_id, id)
+      if vote.vote == -1 do
+        update_and_broadcast(vote, %{vote: 0}, "down_vote_comment", id, socket)
+      else
+        update_and_broadcast(vote, %{vote: -1}, "down_vote_comment", id, socket)
+      end
+    end
+  end
+
+  ## insert_and_broadcast/4
   defp insert_and_broadcast(%Vote{} = vote, attrs, event, socket) do
     vote
     |> Reactions.vote_changeset(attrs)
@@ -193,6 +232,15 @@ defmodule Udia.Web.PostChannel do
     |> handle_broadcast(event, socket)
   end
 
+  ## insert_and_broadcast/5
+  defp insert_and_broadcast(%Vote{} = vote, attrs, event, id, socket) do
+    vote
+    |> Reactions.vote_changeset(attrs)
+    |> Repo.insert
+    |> handle_broadcast(event, id, socket)
+  end
+
+  ## update_and_broadcast/4
   defp update_and_broadcast(%Vote{} = vote, attrs, event, socket) do
     vote
     |> Reactions.vote_changeset(attrs)
@@ -200,11 +248,28 @@ defmodule Udia.Web.PostChannel do
     |> handle_broadcast(event, socket)
   end
 
+  ## update_and_broadcast/5
+  defp update_and_broadcast(%Vote{} = vote, attrs, event, id, socket) do
+    vote
+    |> Reactions.vote_changeset(attrs)
+    |> Repo.update
+    |> handle_broadcast(event, id, socket)
+  end
+
+  ## handle_broadcast/3
   defp handle_broadcast({:error, changeset}, _event, socket), do: {:reply, {:error, %{errors: changeset.errors}}, socket}
   defp handle_broadcast({:ok, vote}, event, socket) do
     [point] = Reactions.get_point(socket.assigns.post_id)
     broadcast! socket, event, %{point: point, value: vote.vote, id: socket.assigns.user_id}
     @endpoint.broadcast! "category:lobby", event, %{point: point, value: vote.vote, id: socket.assigns.user_id, post_id: socket.assigns.post_id}
+    {:noreply, socket}
+  end
+
+  ## handle_broadcast/4
+  defp handle_broadcast({:error, changeset}, _event, _id, socket), do: {:reply, {:error, %{errors: changeset.errors}}, socket}
+  defp handle_broadcast({:ok, vote}, event, id, socket) do
+    [point] = Reactions.get_point_comment(id)
+    broadcast! socket, event, %{point: point, value: vote.vote, id: socket.assigns.user_id, comment_id: id}
     {:noreply, socket}
   end
 

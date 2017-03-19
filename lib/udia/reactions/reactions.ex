@@ -54,4 +54,30 @@ defmodule Udia.Reactions do
     |> Repo.all
   end
 
+  def get_vote_comment(user_id, comment_id) do
+    User
+    |> join(:inner, [u], c in assoc(u, :comments))
+    |> join(:inner, [u, c], v in assoc(c, :vote))
+    |> where([u, c, v], v.user_id == ^user_id and v.comment_id == ^comment_id)
+    |> select([u, c, v], v)
+    |> Repo.one
+  end
+
+  def get_point_comment(comment_id) do
+    User
+    |> join(:inner, [u], c in assoc(u, :comments))
+    |> join(:inner, [u, c], v in assoc(c, :vote))
+    |> where([u, c], c.id == ^comment_id)
+    |> select([u, c, v], sum(v.vote))
+    |> Repo.all
+  end
+
+  def get_all_vote(comment_id) do
+    User
+    |> join(:inner, [u], c in assoc(u, :comments))
+    |> join(:inner, [u, c], v in assoc(c, :vote))
+    |> where([u, c], c.id == ^comment_id)
+    |> select([u, c, v], v)
+    |> Repo.all
+  end
 end

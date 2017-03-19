@@ -74,6 +74,22 @@ defmodule Udia.PostChannelTest do
     assert_broadcast "down_vote", %{point: 0, value: 0}
   end
 
+  test "A user has already vote -1 and try to vote +1", %{socket: socket, post: post} do
+    {:ok, _, socket} = subscribe_and_join(socket, "post:#{post.id}", %{})
+    push socket, "down_vote", %{}
+    assert_broadcast "down_vote", %{}
+    push socket, "up_vote", %{}
+    assert_broadcast "up_vote", %{}
+  end
+
+  test "A user has already vote +1 and try to vote -1", %{socket: socket, post: post} do
+    {:ok, _, socket} = subscribe_and_join(socket, "post:#{post.id}", %{})
+    push socket, "up_vote", %{}
+    assert_broadcast "up_vote", %{}
+    push socket, "down_vote", %{}
+    assert_broadcast "down_vote", %{}
+  end
+
   test "Post should display the sum of all votes from users", %{socket: socket, post: post, user: user} do
     vote = insert_vote(user, post, %{vote: 1})
     {:ok, resp, _socket} = subscribe_and_join(socket, "post:#{post.id}", %{})
@@ -100,5 +116,49 @@ defmodule Udia.PostChannelTest do
     {:ok, _, socket} = subscribe_and_join(socket, "post:#{comment.post_id}", %{})
     push socket, "reply_comment", %{id: comment.id, body: "new comment"}
     assert_broadcast "reply_comment", %{}
+  end
+
+  test "As a user, i can up vote a comment and have that change broadcast", %{socket: socket, comment: comment} do
+    {:ok, _, socket} = subscribe_and_join(socket, "post:#{comment.post_id}", %{})
+    push socket, "up_vote_comment", %{id: comment.id}
+    assert_broadcast "up_vote_comment", %{}
+  end
+
+  test "As a user, i can down vote a comment and have that change broadcast", %{socket: socket, comment: comment} do
+    {:ok, _, socket} = subscribe_and_join(socket, "post:#{comment.post_id}", %{})
+    push socket, "down_vote_comment", %{id: comment.id}
+    assert_broadcast "down_vote_comment", %{}
+  end
+
+  test "User try to up vote a comment again", %{socket: socket, comment: comment} do
+    {:ok, _, socket} = subscribe_and_join(socket, "post:#{comment.post_id}", %{})
+    push socket, "up_vote_comment", %{id: comment.id}
+    assert_broadcast "up_vote_comment", %{}
+    push socket, "up_vote_comment", %{id: comment.id}
+    assert_broadcast "up_vote_comment", %{}
+  end
+
+  test "User try to down vote a comment again", %{socket: socket, comment: comment} do
+    {:ok, _, socket} = subscribe_and_join(socket, "post:#{comment.post_id}", %{})
+    push socket, "down_vote_comment", %{id: comment.id}
+    assert_broadcast "down_vote_comment", %{}
+    push socket, "down_vote_comment", %{id: comment.id}
+    assert_broadcast "down_vote_comment", %{}
+  end
+
+  test "User try to down vote a comment that already up vote", %{socket: socket, comment: comment} do
+    {:ok, _, socket} = subscribe_and_join(socket, "post:#{comment.post_id}", %{})
+    push socket, "up_vote_comment", %{id: comment.id}
+    assert_broadcast "up_vote_comment", %{}
+    push socket, "down_vote_comment", %{id: comment.id}
+    assert_broadcast "down_vote_comment", %{}
+  end
+
+  test "User try to up vote a comment that already down vote", %{socket: socket, comment: comment} do
+    {:ok, _, socket} = subscribe_and_join(socket, "post:#{comment.post_id}", %{})
+    push socket, "down_vote_comment", %{id: comment.id}
+    assert_broadcast "down_vote_comment", %{}
+    push socket, "up_vote_comment", %{id: comment.id}
+    assert_broadcast "up_vote_comment", %{}
   end
 end
