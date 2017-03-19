@@ -86,7 +86,8 @@ defmodule Udia.Mixfile do
 
   defp package do
     [name: :udia,
-     files: ["lib", "priv", "mix.exs", "README*", "LICENSE*", "assets", "config", "test", "logo*", "elixir_buildpack.config",
+     files: ["lib", "priv", "mix.exs", "README*", "LICENSE*", "config", "test", "logo*", "elixir_buildpack.config",
+            "assets/css", "assets/js", "assets/static", "assets/vendor", "assets/brunch-config.js", "assets/package.json",   
             "phoenix_static_buildpack.config", "Procfile", ".gitignore", ".travis.yml"],
      maintainers: ["Udia Software Incorporated", "Alexander Wong"],
      licenses: ["Common Public Attribution License Version 1.0 (CPAL)"],
