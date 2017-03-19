@@ -27,6 +27,7 @@ defmodule Udia.Reactions.Vote do
     field :vote, :integer, default: 0
     belongs_to :user, Udia.Auths.User
     belongs_to :post, Udia.Logs.Post
+    belongs_to :comment, Udia.Logs.Comment
 
     timestamps()
   end

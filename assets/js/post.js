@@ -142,6 +142,40 @@ let Post = {
         }
     })
 
+    // Up vote comment
+    postChannel.on("up_vote_comment", resp => {
+      let voteSpan = document.getElementById(`vote-span-${resp.comment_id}`)
+      let voteUpLink = document.getElementById(`vote-up-link-${resp.comment_id}`)
+      let voteDownLink = document.getElementById(`vote-down-link-${resp.comment_id}`)
+      voteSpan.textContent = resp.point
+      if (resp.id == window.userId) {
+        if (resp.value == 1) {
+          $(voteUpLink).addClass("green").removeClass("inverted")
+          $(voteDownLink).addClass("red").addClass("inverted")
+        } else {
+          $(voteUpLink).removeClass("green").removeClass("inverted")
+          $(voteDownLink).removeClass("red").removeClass("inverted")
+        }
+      }
+    })
+
+    // Down vote comment
+    postChannel.on("down_vote_comment", resp => {
+      let voteSpan = document.getElementById(`vote-span-${resp.comment_id}`)
+      let voteUpLink = document.getElementById(`vote-up-link-${resp.comment_id}`)
+      let voteDownLink = document.getElementById(`vote-down-link-${resp.comment_id}`)
+      voteSpan.textContent = resp.point
+      if (resp.id == window.userId) {
+        if (resp.value == -1) {
+          $(voteUpLink).addClass("green").addClass("inverted")
+          $(voteDownLink).addClass("red").removeClass("inverted")
+        } else {
+          $(voteUpLink).removeClass("green").removeClass("inverted")
+          $(voteDownLink).removeClass("red").removeClass("inverted")
+        }
+      }
+    })
+
     // On join channel, get all comments
     postChannel.join()
       .receive("ok", resp => {
@@ -205,6 +239,8 @@ let Post = {
   renderComment(msgContainer, postChannel, userId, {
     user,
     id,
+    point,
+    votes,
     parent_id,
     body
   }) {
@@ -254,11 +290,11 @@ let Post = {
         <div class="ui unstackable items">
           <div class="item">
             <div class="vote ui list">
-              <button class="mini ui icon basic button" id="vote-up-link">
+              <button class="mini ui icon basic button" id="vote-up-link-${id}">
                 <i class="chevron circle up icon"></i>
               </button>
-              <span id="vote-span" class="item">...</span>
-              <button class="mini ui icon basic button" id="vote-down-link">
+              <span id="vote-span-${id}" class="item">...</span>
+              <button class="mini ui icon basic button" id="vote-down-link-${id}">
                 <i class="chevron circle down icon"></i>
               </button>
             </div>
@@ -293,11 +329,11 @@ let Post = {
         <div class="ui unstackable items">
           <div class="item">
             <div class="vote ui list">
-              <button class="mini ui icon basic button" id="vote-up-link">
+              <button class="mini ui icon basic button" id="vote-up-link-${id}">
                 <i class="chevron circle up icon"></i>
               </button>
-              <span id="vote-span" class="item">...</span>
-              <button class="mini ui icon basic button" id="vote-down-link">
+              <span id="vote-span-${id}" class="item">...</span>
+              <button class="mini ui icon basic button" id="vote-down-link-${id}">
                 <i class="chevron circle down icon"></i>
               </button>
             </div>
@@ -331,11 +367,11 @@ let Post = {
         <div class="ui unstackable items">
           <div class="item">
             <div class="vote ui list">
-              <button class="mini ui icon basic button" id="vote-up-link">
+              <button class="mini ui icon basic button" id="vote-up-link-${id}">
                 <i class="chevron circle up icon"></i>
               </button>
-              <span id="vote-span" class="item">...</span>
-              <button class="mini ui icon basic button" id="vote-down-link">
+              <span id="vote-span-${id}" class="item">...</span>
+              <button class="mini ui icon basic button" id="vote-down-link-${id}">
                 <i class="chevron circle down icon"></i>
               </button>
             </div>
@@ -367,11 +403,11 @@ let Post = {
         <div class="ui unstackable items">
           <div class="item">
             <div class="vote ui list">
-              <button class="mini ui icon basic button" id="vote-up-link">
+              <button class="mini ui icon basic button" id="vote-up-link-${id}">
                 <i class="chevron circle up icon"></i>
               </button>
-              <span id="vote-span" class="item">...</span>
-              <button class="mini ui icon basic button" id="vote-down-link">
+              <span id="vote-span-${id}" class="item">...</span>
+              <button class="mini ui icon basic button" id="vote-down-link-${id}">
                 <i class="chevron circle down icon"></i>
               </button>
             </div>
@@ -395,9 +431,40 @@ let Post = {
        msgContainer.scrollTop = msgContainer.scrollHeight
      }
     }
-    this.replyListener(postChannel, id)    
+    this.replyListener(postChannel, id)
+    this.voteListener(postChannel, id)
+    let voteSpan = document.getElementById(`vote-span-${id}`)
+    let voteUpLink = document.getElementById(`vote-up-link-${id}`)
+    let voteDownLink = document.getElementById(`vote-down-link-${id}`)
+    if (point == null) {
+      voteSpan.textContent = 0
+    } else {
+      voteSpan.textContent = point
+    }
+
+    votes.forEach(vote => {
+      if (vote.user_id == window.userId && vote.vote == 1) {
+        $(voteUpLink).addClass("green").removeClass("inverted")
+        $(voteDownLink).addClass("red").addClass("inverted")
+      } else if (vote.user_id == window.userId && vote.vote == -1) {
+        $(voteDownLink).addClass("red").removeClass("inverted")
+        $(voteUpLink).addClass("green").addClass("inverted")
+      }
+    })
   }
 
+  },
+
+  voteListener(postChannel, id) {
+    let voteUpLink = document.getElementById(`vote-up-link-${id}`)
+    let voteDownLink = document.getElementById(`vote-down-link-${id}`)
+
+    voteUpLink.addEventListener("click", () => {
+      postChannel.push("up_vote_comment", {id: id})
+    })
+    voteDownLink.addEventListener("click", () => {
+      postChannel.push("down_vote_comment", {id: id})
+    })
   },
 
   replyListener(postChannel, id) {
