@@ -21,18 +21,25 @@
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
 defmodule Udia.Helper do
-  @epoch Date.from_erl!({1970, 1, 1})
+  alias Udia.Reactions
 
-  def epoch_seconds(date) do
-    date_seconds = :calendar.date_to_gregorian_days(date) * 86400
+  @epoch {1970, 1, 1}
+
+  defp epoch_seconds(naive_datetime) do
+    datetime_seconds = NaiveDateTime.to_erl(naive_datetime) |> :calendar.datetime_to_gregorian_seconds
     epoch_seconds = :calendar.date_to_gregorian_days(@epoch) * 86400
-    date_seconds - epoch_seconds
+    datetime_seconds - epoch_seconds
   end
 
-  def score(ups, downs), do: ups - downs
+  defp score(post_id), do: Reactions.get_point(post_id)
 
-  def hot(ups, downs, date) do
-    s = score(ups, downs)
+  def hot(post_id, naive_datetime) do
+    s =
+      case score(post_id) do
+        [nil] -> 0
+        [score] -> score
+      end
+
     order = :math.log10(max(abs(s), 1))
     sign =
       cond do
@@ -40,7 +47,7 @@ defmodule Udia.Helper do
         s < 0 -> -1
         true -> 0
       end
-    seconds = epoch_seconds(date) - 1134028003
+    seconds = epoch_seconds(naive_datetime) - 1134028003 # time of 7:46:43 am December 8, 2005
     Float.round(sign * order + seconds / 45000, 7)
   end
 end

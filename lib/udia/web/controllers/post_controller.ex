@@ -25,6 +25,7 @@ defmodule Udia.Web.PostController do
 
   alias Udia.Logs
   alias Udia.Logs.Category
+  alias Udia.Helper
 
   plug :load_categories when action in [:new, :create, :edit, :update]
 
@@ -43,7 +44,9 @@ defmodule Udia.Web.PostController do
   end
 
   def index(conn, _params, _user) do
-    posts = Logs.list_posts
+    posts = Logs.list_posts |> Enum.sort(fn(x, y) ->
+        Helper.hot(x.id, x.inserted_at) >= Helper.hot(y.id, y.inserted_at)
+      end)
     render conn, "index.html", posts: posts
   end
 
