@@ -24,6 +24,7 @@ defmodule Udia.Helper do
   alias Udia.Reactions
 
   @epoch {1970, 1, 1}
+  @current_timestamp :calendar.now_to_datetime(:erlang.timestamp)
 
   defp epoch_seconds(naive_datetime) do
     datetime_seconds = NaiveDateTime.to_erl(naive_datetime) |> :calendar.datetime_to_gregorian_seconds
@@ -47,7 +48,8 @@ defmodule Udia.Helper do
         s < 0 -> -1
         true -> 0
       end
-    seconds = epoch_seconds(naive_datetime) - 1134028003 # time of 7:46:43 am December 8, 2005
+    current_seconds = :calendar.datetime_to_gregorian_seconds(@current_timestamp)
+    seconds = epoch_seconds(naive_datetime) - current_seconds
     Float.round(sign * order + seconds / 45000, 7)
   end
 end
