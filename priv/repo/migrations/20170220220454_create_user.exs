@@ -28,7 +28,7 @@ defmodule Udia.Repo.Migrations.CreateUser do
       add :username, :string, null: false
       add :password_hash, :string
 
-      timestamps()
+      timestamps(type: :utc_datetime)
     end
 
     create unique_index(:auths_users, [:username])

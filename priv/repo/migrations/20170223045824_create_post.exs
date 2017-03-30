@@ -29,7 +29,7 @@ defmodule Udia.Repo.Migrations.CreatePost do
       add :content, :string
       add :user_id, references(:auths_users, on_delete: :nilify_all)
 
-      timestamps()
+      timestamps(type: :utc_datetime)
     end
     create index(:logs_posts, [:user_id])
 

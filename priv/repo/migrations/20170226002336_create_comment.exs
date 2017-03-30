@@ -30,7 +30,7 @@ defmodule Udia.Repo.Migrations.CreateComment do
       add :parent_comment_id, references(:logs_comments, on_delete: :nothing)
       add :user_id, references(:auths_users, on_delete: :nilify_all)
 
-      timestamps()
+      timestamps(type: :utc_datetime)
     end
     create index(:logs_comments, [:post_id])
     create index(:logs_comments, [:parent_comment_id])

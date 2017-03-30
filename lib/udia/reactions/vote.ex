@@ -29,6 +29,6 @@ defmodule Udia.Reactions.Vote do
     belongs_to :post, Udia.Logs.Post
     belongs_to :comment, Udia.Logs.Comment
 
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 end
