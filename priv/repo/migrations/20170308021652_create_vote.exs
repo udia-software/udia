@@ -29,7 +29,7 @@ defmodule Udia.Repo.Migrations.CreateVote do
       add :user_id, references(:auths_users, on_delete: :nilify_all)
       add :post_id, references(:logs_posts, on_delete: :delete_all)
 
-      timestamps()
+      timestamps(type: :utc_datetime)
     end
 
     create index(:reactions_votes, [:user_id])

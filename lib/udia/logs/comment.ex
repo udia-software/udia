@@ -31,6 +31,6 @@ defmodule Udia.Logs.Comment do
     has_many :child_comments, Udia.Logs.Comment
     has_many :vote, Udia.Reactions.Vote
 
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 end

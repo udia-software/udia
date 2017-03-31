@@ -5,7 +5,7 @@ defmodule Udia.Repo.Migrations.CreateUdia.Logs.Category do
     create table(:logs_categories) do
       add :name, :string
 
-      timestamps()
+      timestamps(type: :utc_datetime)
     end
 
   end

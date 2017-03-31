@@ -26,6 +26,6 @@ defmodule Udia.Logs.Category do
   schema "logs_categories" do
     field :name, :string
 
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 end
