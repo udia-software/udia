@@ -23,6 +23,11 @@ defmodule Udia.Web.Router do
   # Other scopes may use custom stacks.
   scope "/api", Udia.Web do
     pipe_through :api
+
+    post "/sessions", SessionController, :create
+    delete "/sessions", SessionController, :delete
+    post "/sessions/refresh", SessionController, :refresh
+
     resources "/users", UserController, except: [:new, :edit]
   end
 end

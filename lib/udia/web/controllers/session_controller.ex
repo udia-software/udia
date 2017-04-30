@@ -16,7 +16,7 @@ defmodule Udia.Web.SessionController do
       :error ->
         conn
         |> put_status(:unauthorized)
-        |> render("error.json")
+        |> render("error.json", error: "Invalid username or password")
     end
   end
 
@@ -53,7 +53,7 @@ defmodule Udia.Web.SessionController do
   end
 
   defp authenticate(%{"username" => username, "password" => password}) do
-    user = Repo.get_by(Udia.Accounts.User, username: username)
+    user = Repo.get_by(Udia.Accounts.User, username: username || "")
     case check_password(user, password) do
       true -> {:ok, user}
       _ -> :error

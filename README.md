@@ -11,9 +11,7 @@
 
 **Universal Dream | Infinite Awareness**
 
-Live site can be found at [https://a.udia.ca/](https://a.udia.ca).
-
-Staging site can be found at [https://udia-staging.herokuapp.com](https://udia-staging.herokuapp.com)
+A prototype of this site can be found at [https://a.udia.ca/](https://a.udia.ca).
 
 ## Quickstart (Development)
 
@@ -21,9 +19,11 @@ This project is using the [Phoenix Framework](http://www.phoenixframework.org/do
 
 ### Setup (Docker)
 
-Clone this repository and run `docker-compose up`, assuming you have Docker installed.
+Ensure Docker is installed on your machine.
 
-NOTE: Static assets building causes CPU usage to spike for OSX, perhaps comment that out and run brunch locally?
+1. Clone this repository and run `docker-compose build`.
+2. Run database migrations with `docker-compose run app mix ecto.migrate`.
+3. Start the web application with `docker-compose up`.
 
 ### Setup (without Docker on OSX)
 
@@ -45,7 +45,6 @@ To start the application:
   * Clone this repository and change directories into it `git clone https://github.com/udia-software/udia.git; cd udia`
   * Install dependencies with `mix deps.get`
   * Create and migrate your database with `mix ecto.create && mix ecto.migrate`
-  * Install Node.js dependencies with `cd assets && npm install`
   * Start Phoenix endpoint with `mix phx.server` or `iex -S mix phx.server`
   * (Optional) Seed your database with `mix run priv/repo/seeds.exs`
 
@@ -69,7 +68,6 @@ Ready to run in production? Please [check our deployment guides](http://www.phoe
 Udia is currently configured to run on Heroku using:
 
 * [heroku-buildpack-elixir](https://github.com/HashNuke/heroku-buildpack-elixir.git)
-* [heroku-buildpack-phoenix-static](https://github.com/gjaldon/heroku-buildpack-phoenix-static.git)
 
 Within the Procfile, a heroku release will run `POOL_SIZE=2 mix ecto.migrate` every time a successfull deploy to `master` finishes. This will ensure seemless database migrations when deploying code to production.
 
@@ -84,6 +82,20 @@ Application will work with default settings if using something like [PostgresApp
 | `POSTGRES_DEV_DB`    | `"udia_dev"`  | Development DB Name    |
 | `POSTGRES_TEST_DB`   | `"udia_test"` | Test DB Name           |
 | `POSTGRES_HOSTNAME`  | `"localhost"` | Hostname for DB        |
+| `POSTGRES_PORT`      | `5432`        | Port for DB            |
+
+## Production Environment Variables
+
+The following environment variables must be set for the application to run in production.
+
+| Environment Variable  | Default Value          | Description            |
+| --------------------- |:----------------------:| ----------------------:|
+| `PORT`                | ``                     | Port for web endpoint  |
+| `DOMAIN_NAME`         | `"udia.herokuapp.com"` | Domain name for web    |
+| `SECRET_KEY_BASE`     | ``                     | Secret key for web     |
+| `DATABASE_URL`        | ``                     | Postgres database URL  |
+| `POOL_SIZE`           | `"10"`                 | Postgres pool size     |
+| `GUARDIAN_SECRET_KEY` | ``                     | Secret for Guardian    |
 
 ## License
 

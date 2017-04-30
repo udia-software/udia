@@ -8,6 +8,10 @@ defmodule Udia.Web.SessionView do
     }
   end
 
+  def render("error.json", %{error: error}) do
+    %{error: error}
+  end
+
   def render("forbidden.json", %{error: error}) do
     %{error: error}
   end
