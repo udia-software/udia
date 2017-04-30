@@ -4,13 +4,14 @@ defmodule Udia.Web.Router do
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
-    plug :fetch_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
   end
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug Guardian.Plug.VerifyHeader, realm: "Bearer"
+    plug Guardian.Plug.LoadResource
   end
 
   scope "/", Udia.Web do
@@ -20,7 +21,8 @@ defmodule Udia.Web.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", Udia.Web do
-  #   pipe_through :api
-  # end
+  scope "/api", Udia.Web do
+    pipe_through :api
+    resources "/users", UserController, except: [:new, :edit]
+  end
 end
