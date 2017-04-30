@@ -1,4 +1,7 @@
 defmodule Udia.Accounts.User do
+  @moduledoc """
+  The schema for the Accounts User model.
+  """
   use Ecto.Schema
 
   @primary_key {:id, :binary_id, autogenerate: true}

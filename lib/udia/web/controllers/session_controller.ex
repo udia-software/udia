@@ -49,7 +49,7 @@ defmodule Udia.Web.SessionController do
   def unauthenticated(conn, _params) do
     conn
     |> put_status(:forbidden)
-    |> render("forbidden.json", error: "Not Authenticated")
+    |> render(Udia.Web.SessionView, "forbidden.json", error: "Not Authenticated")
   end
 
   defp authenticate(%{"username" => username, "password" => password}) do

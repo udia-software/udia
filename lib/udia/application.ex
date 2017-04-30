@@ -1,4 +1,7 @@
 defmodule Udia.Application do
+  @moduledoc """
+  Boundary for the web application Udia.
+  """
   use Application
 
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
