@@ -8,11 +8,11 @@ config :logger, level: :warn
 
 config :udia, Udia.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: System.get_env("POSTGRES_USERNAME") || "postgres",
-  password: System.get_env("POSTGRES_PASSWORD") || "postgres",
-  database: System.get_env("POSTGRES_TEST_DB") || "udia_test",
-  hostname: System.get_env("POSTGRES_HOSTNAME") || "localhost",
-  port: System.get_env("POSTGRES_PORT") || 5432,
+  username: "postgres",
+  password: "",
+  database: "travis_ci_test",
+  hostname: "localhost",
+  port: 5432,
   pool: Ecto.Adapters.SQL.Sandbox
 
 config :guardian, Guardian,
