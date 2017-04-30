@@ -20,6 +20,7 @@ defmodule Udia.Web.ConnCase do
       # Import conveniences for testing with connections
       use Phoenix.ConnTest
       import Udia.Web.Router.Helpers
+      import Udia.TestHelpers
 
       # The default endpoint for testing
       @endpoint Udia.Web.Endpoint

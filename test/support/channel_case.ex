@@ -19,6 +19,7 @@ defmodule Udia.Web.ChannelCase do
     quote do
       # Import conveniences for testing with channels
       use Phoenix.ChannelTest
+      import Udia.TestHelpers
 
       # The default endpoint for testing
       @endpoint Udia.Web.Endpoint

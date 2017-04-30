@@ -22,6 +22,7 @@ defmodule Udia.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import Udia.DataCase
+      import Udia.TestHelpers
     end
   end
 
