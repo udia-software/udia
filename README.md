@@ -11,21 +11,42 @@
 
 **Universal Dream | Infinite Awareness**
 
-Live site can be found at [http://a.udia.ca/](http://a.udia.ca)
+Live site can be found at [https://a.udia.ca/](https://a.udia.ca).
 
-## Requirements
-
-Please follow all installation instructions found at [phoenixframework.org/docs/installation](http://www.phoenixframework.org/docs/installation).
+Staging site can be found at [https://udia-staging.herokuapp.com](https://udia-staging.herokuapp.com)
 
 ## Quickstart (Development)
 
-To start your Phoenix server:
+This project is using the [Phoenix Framework](http://www.phoenixframework.org/docs/installation) 1.3 Release Client ([upgrade instructions](https://gist.github.com/chrismccord/71ab10d433c98b714b75c886eff17357)).
 
+### Setup (Docker)
+
+Clone this repository and run `docker-compose up`, assuming you have Docker installed.
+
+NOTE: Static assets building causes CPU usage to spike for OSX, perhaps comment that out and run brunch locally?
+
+### Setup (without Docker on OSX)
+
+Elixir & Hex:
+* Update your homebrew to latest: `brew update`
+* Install Elixir: `brew install elixir`
+* Install Elixir's package manager Hex: `mix local.hex`
+
+Phoenix:
+* Install the latest Phoenix Mix Archive: `mix archive.install https://github.com/phoenixframework/archives/raw/master/phx_new.ez`
+
+PostgreSQL:
+* Download and run the Postgres.app [https://postgresapp.com](https://postgresapp.com/)
+
+### Quickstart (Development)
+
+To start the application:
+
+  * Clone this repository and change directories into it `git clone https://github.com/udia-software/udia.git; cd udia`
   * Install dependencies with `mix deps.get`
   * Create and migrate your database with `mix ecto.create && mix ecto.migrate`
   * Install Node.js dependencies with `cd assets && npm install`
   * Start Phoenix endpoint with `mix phx.server` or `iex -S mix phx.server`
-  * Generate a code analysis report with `mix credo`
   * (Optional) Seed your database with `mix run priv/repo/seeds.exs`
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.

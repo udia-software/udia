@@ -1,88 +1,15 @@
 <!DOCTYPE html>
-<!--
-The contents of this file are subject to the Common Public Attribution
-License Version 1.0. (the "License"); you may not use this file except in
-compliance with the License. You may obtain a copy of the License at
-https://raw.githubusercontent.com/udia-software/udia/master/LICENSE.
-The License is based on the Mozilla Public License Version 1.1, but
-Sections 14 and 15 have been added to cover use of software over a computer
-network and provide for limited attribution for the Original Developer.
-In addition, Exhibit A has been modified to be consistent with Exhibit B.
-
-Software distributed under the License is distributed on an "AS IS" basis,
-WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
-the specific language governing rights and limitations under the License.
-
-The Original Code is UDIA.
-
-The Original Developer is the Initial Developer.  The Initial Developer of
-the Original Code is Udia Software Incorporated.
-
-All portions of the code written by UDIA are Copyright (c) 2016-2017
-Udia Software Incorporated. All Rights Reserved.
--->
 <html lang="en">
-
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0">
-  <meta name="description" content="Universal Dream, Infinite Awareness">
-  <meta name="author" content="Udia Software Incorporated">
-
-  <title>UDIA</title>
-  <link rel="stylesheet" href='<%= static_path(@conn, "/css/app.css") %>'>
-</head>
-
-<body>
-  <header>
-    <nav role="navigation" class="ui menu">
-      <%= link to: post_path(@conn, :index) do %>
-        <div class="header item">UDIA</div>
-      <% end %>
-      <div class="right menu">
-        <%= if @current_user do %>
-          <div class="ui dropdown item" tabindex="0">
-            Account
-            <i class="dropdown icon"></i>
-            <div class="menu" tabindex="-1">
-              <%= link to: user_path(@conn, :index) do %>
-                <div class="item">All Users</div>
-              <% end %>
-              <%= link to: user_path(@conn, :show, @current_user.id) do %>
-                <div class="item"><%= @current_user.username %></div>
-              <% end %>
-            </div>
-          </div>
-        <% else %>
-          <%= link to: user_path(@conn, :new) do %>
-            <div class="item">Register</div>
-          <% end %>
-          <%= link to: session_path(@conn, :new) do %>
-            <div class="item">Login</div>
-          <% end %>
-        <% end %>
-      </div>
-    </nav>
-  </header>
-
-  <div class="main ui container">
-    <%= if get_flash(@conn, :info) do %>
-      <div class="ui message">
-        <%= get_flash(@conn, :info) %>
-        <i class="close icon"></i>
-      </div>
-    <% end %>
-    <%= if get_flash(@conn, :error) do %>
-      <div class="ui danger message">
-        <%= get_flash(@conn, :error) %>
-        <i class="close icon"></i>
-      </div>
-    <% end %>
-    <main role="main"><%= render @view_module, @view_template, assigns %></main>
-  </div>
-  <script>window.userToken = "<%= assigns[:user_token] %>"</script>
-  <script>window.userId = "<%= assigns[:user_id] %>"</script>
-  <script src='<%= static_path(@conn, "/js/app.js") %>'></script>
-</body>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Universal Dream, Infinite Awareness">
+    <meta name="author" content="Udia Software Incorporated">
+    <title>UDIA</title>
+    <style>html {height:100%;} body {height: 100%;}</style>
+  </head>
+  <body>
+    <%= render @view_module, @view_template, assigns %>
+  </body>
 </html>

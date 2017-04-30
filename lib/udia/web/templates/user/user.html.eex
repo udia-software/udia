@@ -1,1 +1,0 @@
-<b><%= @user.username %></b> (<%= @user.id %>)
