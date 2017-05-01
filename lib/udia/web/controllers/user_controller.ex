@@ -8,9 +8,11 @@ defmodule Udia.Web.UserController do
 
   action_fallback Udia.Web.FallbackController
 
-  def index(conn, _params) do
-    users = Accounts.list_users()
-    render(conn, "index.json", users: users)
+  def index(conn, params) do
+    page = 
+      Udia.Accounts.User
+      |> Udia.Repo.paginate(params)
+    render(conn, "index.json", users: page.entries, pagination: Udia.PaginationHelpers.pagination(page))
   end
 
   def create(conn, user_params) do

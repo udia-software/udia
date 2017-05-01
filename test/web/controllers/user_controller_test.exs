@@ -22,12 +22,70 @@ defmodule Udia.Web.UserControllerTest do
     jwt = response["token"]
     user = response["user"]
 
-    # test user pagination/list on index
+    # test user list on index
     conn = build_conn()
     |> put_req_header("authorization", "Bearer: #{jwt}")
     |> get(user_path(conn, :index))
     response = json_response(conn, 200)
     assert response["data"] == [user]
+  end
+
+  test "paginates all entries on index", %{conn: conn} do
+    insert_user(%{username: "alice"})
+    insert_user(%{username: "bob"})
+    insert_user(%{username: "charlie"})
+    insert_user(%{username: "dani"})
+    insert_user(%{username: "eileen"})
+    insert_user(%{username: "frank"})
+    insert_user(%{username: "geralt"})
+    insert_user(%{username: "hank"})
+    insert_user(%{username: "ivan"})
+    insert_user(%{username: "jean"})
+    insert_user(%{username: "karyn"})
+    insert_user(%{username: "lando"})
+    insert_user(%{username: "marty"})
+    insert_user(%{username: "nancy"})
+    insert_user(%{username: "owen"})
+    insert_user(%{username: "poppy"})
+    insert_user(%{username: "quinn"})
+    insert_user(%{username: "rick"})
+    insert_user(%{username: "stanley"})
+    insert_user(%{username: "thor"})
+
+    conn = post conn, user_path(conn, :create), @create_attrs
+    response = json_response(conn, 201)
+    jwt = response["token"]
+
+    conn = build_conn()
+    |> put_req_header("authorization", "Bearer: #{jwt}")
+    |> get(user_path(conn, :index))
+    response = json_response(conn, 200)
+
+    assert response["pagination"] == %{
+      "page_number" => 1,
+      "page_size" => 10,
+      "total_entries" => 21,
+      "total_pages" => 3
+    }
+
+    insert_user(%{username: "victoria"})
+    insert_user(%{username: "walter"})
+    insert_user(%{username: "xeno"})
+    insert_user(%{username: "yvonne"})
+    insert_user(%{username: "zack"})
+
+    conn = build_conn()
+    |> put_req_header("authorization", "Bearer: #{jwt}")
+    |> get(user_path(conn, :index), %{"page": 2})
+    response = json_response(conn, 200)
+
+    assert response["pagination"] == %{
+      "page_number" => 2,
+      "page_size" => 10,
+      "total_entries" => 26,
+      "total_pages" => 3
+    }
+
   end
 
   test "creates user and renders user when data is valid", %{conn: conn} do
