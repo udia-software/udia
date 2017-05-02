@@ -42,6 +42,7 @@ defmodule Udia.Mixfile do
      {:cowboy, "~> 1.0"},
      {:comeonin, "~> 3.0"},
      {:guardian, "~> 0.14"},
+     {:guardian_db, "~> 0.8.0"},
      {:scrivener_ecto, "~> 1.2"},
      {:excoveralls, "~> 0.6", only: :test},
      {:credo, "~> 0.7", only: [:dev, :test]}]

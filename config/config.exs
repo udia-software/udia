@@ -15,11 +15,17 @@ config :logger, :console,
   metadata: [:request_id]
 
 config :guardian, Guardian,
+  hooks: GuardianDb,
   allowed_algos: ["HS512"],
   verivy_module: Guardian.JWT,
   issuer: "Udia",
   ttl: {30, :days},
   verify_issuer: true,
   serializer: Udia.GuardianSerializer
+
+config :guardian_db, GuardianDb,
+  repo: Udia.Repo,
+  schema_name: "auth_tokens",
+  sweep_interval: 120 # 120 minutes
 
 import_config "#{Mix.env}.exs"

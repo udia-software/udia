@@ -50,6 +50,13 @@ defmodule Udia.Web.SessionControllerTest do
     |> put_req_header("authorization", "Bearer: #{new_jwt}")
     conn = post conn, session_path(conn, :refresh)
     assert json_response(conn, 200)
+
+    # Ensure the old token is not valid
+    conn = build_conn()
+    |> put_req_header("authorization", "Bearer: #{old_jwt}")
+    conn = post conn, session_path(conn, :refresh)
+    response = json_response(conn, 403)
+    assert response["error"] == "Not Authenticated"
   end
 
   test "refresh session route returns unauthenticated on unauthenticated sessions", %{conn: conn} do
