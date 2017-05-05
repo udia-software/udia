@@ -116,17 +116,16 @@ defmodule Udia.Web.UserControllerTest do
     user = response["user"]
 
     # unauthenticated, throw 403
-    conn = put conn, user_path(conn, :update, user["id"])
+    conn = put conn, user_path(conn, :update, user["username"])
     response = json_response(conn, 403)
     assert response == %{"error" => "Not Authenticated"}
 
     # authenticated, valid password change
     conn = build_conn()
     |> put_req_header("authorization", "Bearer: #{jwt}")
-    |> put(user_path(conn, :update, user["id"], %{user: %{"password" => "hunter3"}}))
+    |> put(user_path(conn, :update, user["username"], %{user: %{"password" => "hunter3"}}))
     response = json_response(conn, 201)
     assert response["token"] != jwt
-    assert response["user"]["id"] == user["id"]
     assert response["user"]["inserted_at"] == user["inserted_at"]
     assert response["user"]["username"] == user["username"]
     assert response["user"]["updated_at"] != user["updated_at"]
@@ -140,14 +139,14 @@ defmodule Udia.Web.UserControllerTest do
     user = response["user"]
 
     # unauthenticated, throw 403
-    conn = put conn, user_path(conn, :update, user["id"])
+    conn = put conn, user_path(conn, :update, user["username"])
     response = json_response(conn, 403)
     assert response == %{"error" => "Not Authenticated"}
 
     # authenticated, invalid password change
     conn = build_conn()
     |> put_req_header("authorization", "Bearer: #{jwt}")
-    |> put(user_path(conn, :update, user["id"], %{user: %{"password" => "one"}}))
+    |> put(user_path(conn, :update, user["username"], %{user: %{"password" => "one"}}))
     response = json_response(conn, 422)
     assert response == %{"errors" => %{"password" => ["should be at least 6 character(s)"]}}
   end
@@ -163,7 +162,7 @@ defmodule Udia.Web.UserControllerTest do
     # authenticated, invalid password change
     conn = build_conn()
     |> put_req_header("authorization", "Bearer: #{jwt}")
-    |> put(user_path(conn, :update, mod_user.id, %{user: %{"password" => "hunter3"}}))
+    |> put(user_path(conn, :update, mod_user.username, %{user: %{"password" => "hunter3"}}))
     response = json_response(conn, 403)
     assert response == %{"error" => "Invalid user"}
   end
@@ -179,14 +178,14 @@ defmodule Udia.Web.UserControllerTest do
 
     # Delete fails when unauthenticated
     conn = build_conn()
-    |> delete(user_path(conn, :delete, user["id"]))
+    |> delete(user_path(conn, :delete, user["username"]))
     response = json_response(conn, 403)
     assert response == %{"error" => "Not Authenticated"}
 
     # Delete returns success, but doesn't actually delete user because auth doesn't match
     conn = build_conn()
     |> put_req_header("authorization", "Bearer: #{jwt}")
-    |> delete(user_path(conn, :delete, mod_user.id))
+    |> delete(user_path(conn, :delete, mod_user.username))
     response = json_response(conn, 403)
     assert response == %{"error" => "Invalid user"}
 
@@ -195,10 +194,22 @@ defmodule Udia.Web.UserControllerTest do
     # Delete returns success, and deletes the user
     conn = build_conn()
     |> put_req_header("authorization", "Bearer: #{jwt}")
-    |> delete(user_path(conn, :delete, user["id"]))
+    |> delete(user_path(conn, :delete, user["username"]))
     response = response(conn, 204)
     assert response == ""
 
     assert length(Accounts.list_users()) == 1
+  end
+
+  test "show user by username", %{conn: conn} do
+    # create a user, get JWT token and user data object
+    conn = post conn, user_path(conn, :create), @create_attrs
+    response = json_response(conn, 201)
+    user = response["user"]
+
+    conn = get conn, user_path(conn, :show, user["username"])
+    response = json_response(conn, 200)
+
+    assert response["data"] == user
   end
 end

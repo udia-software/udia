@@ -68,7 +68,7 @@ defmodule Udia.Accounts do
   def create_user(attrs \\ %{}) do
     %User{}
     |> user_registration_changeset(attrs)
-    |> Repo.insert()
+    |> PaperTrail.insert()
   end
 
   @doc """
@@ -86,7 +86,7 @@ defmodule Udia.Accounts do
   def update_user(%User{} = user, attrs) do
     user
     |> user_change_password_changeset(attrs)
-    |> Repo.update()
+    |> PaperTrail.update()
   end
 
   @doc """
@@ -102,7 +102,8 @@ defmodule Udia.Accounts do
 
   """
   def delete_user(%User{} = user) do
-    Repo.delete(user)
+    user
+    |> PaperTrail.delete()
   end
 
   defp user_changeset(%User{} = user, attrs) do

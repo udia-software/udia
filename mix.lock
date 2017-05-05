@@ -23,6 +23,7 @@
   "metrics": {:hex, :metrics, "1.0.1", "25f094dea2cda98213cecc3aeff09e940299d950904393b2a29d191c346a8486", [:rebar3], []},
   "mime": {:hex, :mime, "1.1.0", "01c1d6f4083d8aa5c7b8c246ade95139620ef8effb009edde934e0ec3b28090a", [:mix], []},
   "mimerl": {:hex, :mimerl, "1.0.2", "993f9b0e084083405ed8252b99460c4f0563e41729ab42d9074fd5e52439be88", [:rebar3], []},
+  "paper_trail": {:hex, :paper_trail, "0.7.4", "211fc93fffa1e4f1b5273757891fd4400e2222fe2b8e8d5b8332d31d07587877", [:mix], [{:ecto, ">= 2.1.0", [hex: :ecto, optional: false]}, {:poison, ">= 3.1.0 or >= 2.0.0", [hex: :poison, optional: false]}, {:postgrex, "~> 0.13.0", [hex: :postgrex, optional: false]}]},
   "phoenix": {:hex, :phoenix, "1.3.0-rc.1", "0d04948a4bd24823f101024c07b6a4d35e58f1fd92a465c1bc75dd37acd1041a", [:mix], [{:cowboy, "~> 1.0", [hex: :cowboy, optional: true]}, {:phoenix_pubsub, "~> 1.0", [hex: :phoenix_pubsub, optional: false]}, {:plug, "~> 1.3.2 or ~> 1.4", [hex: :plug, optional: false]}, {:poison, "~> 2.2 or ~> 3.0", [hex: :poison, optional: false]}]},
   "phoenix_ecto": {:hex, :phoenix_ecto, "3.2.3", "450c749876ff1de4a78fdb305a142a76817c77a1cd79aeca29e5fc9a6c630b26", [:mix], [{:ecto, "~> 2.1", [hex: :ecto, optional: false]}, {:phoenix_html, "~> 2.9", [hex: :phoenix_html, optional: true]}, {:plug, "~> 1.0", [hex: :plug, optional: false]}]},
   "phoenix_html": {:hex, :phoenix_html, "2.9.3", "1b5a2122cbf743aa242f54dced8a4f1cc778b8bd304f4b4c0043a6250c58e258", [:mix], [{:plug, "~> 1.0", [hex: :plug, optional: false]}]},

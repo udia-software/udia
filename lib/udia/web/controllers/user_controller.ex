@@ -17,7 +17,8 @@ defmodule Udia.Web.UserController do
 
   def create(conn, user_params) do
     case Accounts.create_user(user_params) do
-      {:ok, user} ->
+      {:ok, user_versioned} ->
+        user = Map.get(user_versioned, :model)
         new_conn = Guardian.Plug.api_sign_in(conn, user, :access)
         jwt = Guardian.Plug.current_token(new_conn)
 
@@ -31,13 +32,13 @@ defmodule Udia.Web.UserController do
     end
   end
 
-  def show(conn, %{"id" => id}) do
-    user = Accounts.get_user!(id)
+  def show(conn, %{"id" => username}) do
+    user = Accounts.get_user_by_username!(username)
     render(conn, "show.json", user: user)
   end
 
-  def update(conn, %{"id" => id, "user" => user_params}) do
-    user = Accounts.get_user!(id)
+  def update(conn, %{"id" => username, "user" => user_params}) do
+    user = Accounts.get_user_by_username!(username)
     cur_user = Guardian.Plug.current_resource(conn)
 
     if cur_user.id != user.id do
@@ -46,7 +47,8 @@ defmodule Udia.Web.UserController do
       |> render(Udia.Web.SessionView, "forbidden.json", error: "Invalid user")
     else
       case Accounts.update_user(user, user_params) do
-        {:ok, user} ->
+        {:ok, user_versioned} ->
+          user = Map.get(user_versioned, :model)
           new_conn = Guardian.Plug.api_sign_in(conn, user, :access)
           jwt = Guardian.Plug.current_token(new_conn)
 
@@ -61,17 +63,16 @@ defmodule Udia.Web.UserController do
     end
   end
 
-  def delete(conn, %{"id" => id}) do
-    user = Accounts.get_user!(id)
+  def delete(conn, %{"id" => username}) do
+    user = Accounts.get_user_by_username!(username)
     cur_user = Guardian.Plug.current_resource(conn)
     if cur_user.id != user.id do
       conn
       |> put_status(:forbidden)
       |> render(Udia.Web.SessionView, "forbidden.json", error: "Invalid user")
     else
-      with {:ok, %User{}} <- Accounts.delete_user(user) do
-        send_resp(conn, :no_content, "")
-      end
+      Accounts.delete_user(user)
+      send_resp(conn, :no_content, "")
     end
   end
 end

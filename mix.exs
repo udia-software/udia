@@ -44,6 +44,7 @@ defmodule Udia.Mixfile do
      {:guardian, "~> 0.14"},
      {:guardian_db, "~> 0.8.0"},
      {:scrivener_ecto, "~> 1.2"},
+     {:paper_trail, "~> 0.7.4"},
      {:excoveralls, "~> 0.6", only: :test},
      {:credo, "~> 0.7", only: [:dev, :test]}]
   end

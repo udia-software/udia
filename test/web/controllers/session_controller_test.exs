@@ -13,7 +13,6 @@ defmodule Udia.Web.SessionControllerTest do
 
     assert Map.has_key?(response, "token")
     assert Map.has_key?(response, "user")
-    assert response["user"]["id"] == user.id
     assert response["user"]["username"] == user.username
   end
 

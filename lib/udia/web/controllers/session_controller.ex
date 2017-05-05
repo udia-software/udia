@@ -39,10 +39,6 @@ defmodule Udia.Web.SessionController do
         conn
         |> put_status(:ok)
         |> render("show.json", user: user, jwt: new_jwt)
-      {:error, _reason} ->
-        conn
-        |> put_status(:unauthorized)
-        |> render("forbidden.json", error: "Not Authenticated")
     end
   end
 

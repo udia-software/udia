@@ -44,7 +44,10 @@ defmodule Udia.AccountsTest do
   end
 
   test "create_user/1 with valid data creates a user" do
-    assert {:ok, %User{} = user} = Accounts.create_user(@create_attrs)
+    assert {:ok, %{
+      model: %User{} = user,
+      version: %PaperTrail.Version{}
+    }} = Accounts.create_user(@create_attrs)
     assert user.password_hash
     assert user.username == "udia"
     assert Map.has_key?(user, :inserted_at)
@@ -60,7 +63,10 @@ defmodule Udia.AccountsTest do
 
   test "update_user/2 with valid data updates the user" do
     base_user = insert_user(@create_attrs)
-    assert {:ok, %User{} = user} = Accounts.update_user(base_user, %{password: "hunter3"})
+    assert {:ok, %{
+      model: %User{} = user,
+      version: %PaperTrail.Version{}
+    }} = Accounts.update_user(base_user, %{password: "hunter3"})
     assert base_user.password_hash != user.password_hash
   end
 
@@ -73,7 +79,10 @@ defmodule Udia.AccountsTest do
   test "delete_user/1 deletes the user" do
     insert_user(@create_attrs)
     assert [%User{} = user] = Accounts.list_users()
-    assert {:ok, %User{}} = Accounts.delete_user(user)
+    assert {:ok, %{
+      model: %User{},
+      version: %PaperTrail.Version{}
+    }} = Accounts.delete_user(user)
     assert Accounts.list_users() == []
   end
 end

@@ -28,4 +28,6 @@ config :guardian_db, GuardianDb,
   schema_name: "auth_tokens",
   sweep_interval: 120 # 120 minutes
 
+config :paper_trail, repo: Udia.Repo, originator: [name: :accounts_user, model: Udia.Accounts.User]
+
 import_config "#{Mix.env}.exs"

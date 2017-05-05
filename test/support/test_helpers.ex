@@ -5,7 +5,7 @@ defmodule Udia.TestHelpers do
       password: "supersecret",
     })
 
-    {:ok, user} = Udia.Accounts.create_user(changes)
-    user
+    {:ok, user_versioned} = Udia.Accounts.create_user(changes)
+    Map.get(user_versioned, :model)
   end
 end
