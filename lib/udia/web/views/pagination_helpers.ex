@@ -1,4 +1,7 @@
 defmodule Udia.PaginationHelpers do
+  @moduledoc """
+  Helper method for API pagination
+  """
   def pagination(page) do
     %{
       page_number: page.page_number,
