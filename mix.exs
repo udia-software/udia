@@ -20,8 +20,8 @@ defmodule Udia.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [mod: {Udia.Application, []},
-     applications: [:scrivener_ecto],
-     extra_applications: [:logger, :runtime_tools]]
+     extra_applications: [:logger, :runtime_tools, :cowboy, :comeonin,
+                          :scrivener_ecto]]
   end
 
   # Specifies which paths to compile per environment.

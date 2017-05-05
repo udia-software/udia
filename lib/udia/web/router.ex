@@ -18,6 +18,7 @@ defmodule Udia.Web.Router do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
+    get "/.well-known/acme-challenge/:id", LetsEncryptController, :index
   end
 
   # Other scopes may use custom stacks.

@@ -27,7 +27,7 @@ config :udia, Udia.Repo,
   password: System.get_env("POSTGRES_PASSWORD") || "postgres",
   database: System.get_env("POSTGRES_DEV_DB") || "udia_dev",
   hostname: System.get_env("POSTGRES_HOSTNAME") || "localhost",
-  port: System.get_env("POSTGRES_PORT") || 5432,
+  port: System.get_env("POSTGRES_PORT") || "5432",
   pool_size: 10
 
 config :guardian, Guardian,

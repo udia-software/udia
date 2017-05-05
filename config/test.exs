@@ -12,8 +12,12 @@ config :udia, Udia.Repo,
   password: System.get_env("POSTGRES_PASSWORD") || "postgres",
   database: System.get_env("POSTGRES_TEST_DB") || "udia_test",
   hostname: System.get_env("POSTGRES_HOSTNAME") || "localhost",
-  port: System.get_env("POSTGRES_PORT") || 5432,
+  port: System.get_env("POSTGRES_PORT") || "5432",
   pool: Ecto.Adapters.SQL.Sandbox
 
 config :guardian, Guardian,
   secret_key: "8AkIfrSA1oWLv0n1aX0RnQhn6ID9LnspyqCvaMawQklazG8fgczu94LjVKQtFeAW"
+
+# reduce security on test environment
+config :comeonin, :bcrypt_log_rounds, 4
+config :comeonin, :pbkdf2_rounds, 1

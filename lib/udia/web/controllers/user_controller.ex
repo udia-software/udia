@@ -10,7 +10,7 @@ defmodule Udia.Web.UserController do
 
   def index(conn, params) do
     page = 
-      Udia.Accounts.User
+      User
       |> Udia.Repo.paginate(params)
     render(conn, "index.json", users: page.entries, pagination: Udia.PaginationHelpers.pagination(page))
   end
