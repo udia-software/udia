@@ -11,7 +11,8 @@ defmodule Udia.Repo.Migrations.AddGuardianAuthTokens do
       add :exp, :bigint
       add :jwt, :text
       add :claims, :map
-      timestamps()
+
+      timestamps(type: :utc_datetime)
     end
   end
 end

@@ -30,5 +30,6 @@ defmodule Udia.Web.Router do
     post "/sessions/refresh", SessionController, :refresh
 
     resources "/users", UserController, except: [:new, :edit]
+    resources "/posts", PostController, except: [:new, :edit]
   end
 end
