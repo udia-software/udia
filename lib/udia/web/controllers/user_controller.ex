@@ -53,7 +53,7 @@ defmodule Udia.Web.UserController do
           jwt = Guardian.Plug.current_token(new_conn)
 
           new_conn
-          |> put_status(:created)
+          |> put_status(:accepted)
           |> render(Udia.Web.SessionView, "show.json", user: user, jwt: jwt)
         {:error, changeset} ->
           conn

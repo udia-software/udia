@@ -6,6 +6,7 @@ defmodule Udia.Logs do
   import Ecto.{Query, Changeset}, warn: false
   alias Udia.Repo
 
+  alias Udia.Accounts.User
   alias Udia.Logs.Post
 
   @doc """
@@ -18,7 +19,9 @@ defmodule Udia.Logs do
 
   """
   def list_posts do
-    Repo.all(Post)
+    Post
+    |> Repo.all()
+    |> Repo.preload(:author)
   end
 
   @doc """
@@ -35,8 +38,12 @@ defmodule Udia.Logs do
       ** (Ecto.NoResultsError)
 
   """
-  def get_post!(id), do: Repo.get!(Post, id)
-
+  def get_post!(id) do
+    Post
+    |> Repo.get!(id)
+    |> Repo.preload(:author)
+  end
+ 
   @doc """
   Creates a post.
 
@@ -49,10 +56,11 @@ defmodule Udia.Logs do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_post(attrs \\ %{}) do
-    %Post{}
+  def create_post(%User{} = user, attrs \\ %{}) do
+    user
+    |> Ecto.build_assoc(:posts)
     |> post_changeset(attrs)
-    |> Repo.insert()
+    |> PaperTrail.insert(user: user)
   end
 
   @doc """
@@ -67,10 +75,10 @@ defmodule Udia.Logs do
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_post(%Post{} = post, attrs) do
+  def update_post(%User{} = user, %Post{} = post, attrs) do
     post
     |> post_changeset(attrs)
-    |> Repo.update()
+    |> PaperTrail.update(user: user)
   end
 
   @doc """
@@ -86,7 +94,8 @@ defmodule Udia.Logs do
 
   """
   def delete_post(%Post{} = post) do
-    Repo.delete(post)
+    post
+    |> PaperTrail.delete()
   end
 
   @doc """

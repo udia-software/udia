@@ -124,7 +124,7 @@ defmodule Udia.Web.UserControllerTest do
     conn = build_conn()
     |> put_req_header("authorization", "Bearer: #{jwt}")
     |> put(user_path(conn, :update, user["username"], %{user: %{"password" => "hunter3"}}))
-    response = json_response(conn, 201)
+    response = json_response(conn, 202)
     assert response["token"] != jwt
     assert response["user"]["inserted_at"] == user["inserted_at"]
     assert response["user"]["username"] == user["username"]

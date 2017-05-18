@@ -4,19 +4,33 @@ defmodule Udia.Web.PostController do
   alias Udia.Logs
   alias Udia.Logs.Post
 
+  plug Guardian.Plug.EnsureAuthenticated, [handler: Udia.Web.SessionController] when action in [:create, :update, :delete]
+
   action_fallback Udia.Web.FallbackController
 
-  def index(conn, _params) do
-    posts = Logs.list_posts()
-    render(conn, "index.json", posts: posts)
+  def index(conn, params) do
+    page =
+      Post
+      |> Udia.Repo.paginate(params)
+    posts = page.entries
+      |> Udia.Repo.preload(:author)
+    render(conn, "index.json", posts: posts, pagination: Udia.PaginationHelpers.pagination(page))
   end
 
   def create(conn, %{"post" => post_params}) do
-    with {:ok, %Post{} = post} <- Logs.create_post(post_params) do
-      conn
-      |> put_status(:created)
-      |> put_resp_header("location", post_path(conn, :show, post))
-      |> render("show.json", post: post)
+    cur_user = Guardian.Plug.current_resource(conn)
+    case Logs.create_post(cur_user, post_params) do
+      {:ok, post_versioned} ->
+        post = Map.get(post_versioned, :model)
+
+        conn
+        |> put_status(:created)
+        |> put_resp_header("location", post_path(conn, :show, post))
+        |> render("show.json", post: post)
+      {:error, changeset} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(Udia.Web.ChangesetView, "error.json", changeset: changeset)
     end
   end
 
@@ -27,16 +41,39 @@ defmodule Udia.Web.PostController do
 
   def update(conn, %{"id" => id, "post" => post_params}) do
     post = Logs.get_post!(id)
+    cur_user = Guardian.Plug.current_resource(conn)
 
-    with {:ok, %Post{} = post} <- Logs.update_post(post, post_params) do
-      render(conn, "show.json", post: post)
+    if cur_user.id != post.author do
+      conn
+      |> put_status(:forbidden)
+      |> render(Udia.Web.SessionView, "forbidden.json", error: "Invalid user")
+    else
+      case Logs.update_post(cur_user, post, post_params) do
+        {:ok, post_versioned} ->
+          post = Map.get(post_versioned, :model)
+
+          conn
+          |> put_status(:accepted)
+          |> render("show.json", post: post)
+        {:error, changeset} ->
+          conn
+          |> put_status(:unprocessable_entity)
+          |> render(Udia.Web.ChangesetView, "error.json", changeset: changeset)
+      end
     end
   end
 
   def delete(conn, %{"id" => id}) do
+    cur_user = Guardian.Plug.current_resource(conn)
     post = Logs.get_post!(id)
-    with {:ok, %Post{}} <- Logs.delete_post(post) do
-      send_resp(conn, :no_content, "")
+
+    if cur_user.id != post.author do
+      conn
+      |> put_status(:forbidden)
+      |> render(Udia.Web.SessionView, "forbidden.json", error: "Invalid user")
+    else
+      Logs.delete_post(post)
+      send_resp(conn, :no_content, "")      
     end
   end
 end

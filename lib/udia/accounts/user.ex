@@ -9,7 +9,7 @@ defmodule Udia.Accounts.User do
     field :username, :string
     field :password_hash, :string
     field :password, :string, virtual: true
-    has_many :posts, Udia.Logs.Post
+    has_many :posts, Udia.Logs.Post, foreign_key: :author_id
 
     timestamps()
   end
