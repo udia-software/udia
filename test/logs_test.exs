@@ -88,7 +88,7 @@ defmodule Udia.LogsTest do
     }} = Logs.delete_post(base_post)
 
     assert_raise Ecto.NoResultsError, fn ->
-      Logs.get_post!(base_post.id)
+      Logs.get_post!(post.id)
     end
   end
 
