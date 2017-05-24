@@ -57,8 +57,10 @@ defmodule Udia.AccountsTest do
 
   test "create_user/1 with invalid data returns error changeset" do
     assert {:error, %Ecto.Changeset{} = err} = Accounts.create_user(@invalid_attrs)
-    assert err.errors == [password: {"should be at least %{count} character(s)", [count: 6, validation: :length, min: 6]},
-                          username: {"can't be blank", [validation: :required]}]
+    assert err.errors == [
+      password: {"should be at least %{count} character(s)", [count: 6, validation: :length, min: 6]},
+      username: {"can't be blank", [validation: :required]}
+    ]
   end
 
   test "update_user/2 with valid data updates the user" do

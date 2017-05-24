@@ -1,8 +1,6 @@
 defmodule Udia.Web.PostControllerTest do
   use Udia.Web.ConnCase
 
-  alias Udia.Logs
-
   @create_attrs %{content: "some content", title: "some title", type: "text"}
   @update_attrs %{content: "some updated content", title: "some updated title"}
   @invalid_attrs %{content: nil, title: nil, type: nil}
