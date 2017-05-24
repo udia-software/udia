@@ -17,11 +17,12 @@ defmodule Udia.Web.PostController do
     render(conn, "index.json", posts: posts, pagination: Udia.PaginationHelpers.pagination(page))
   end
 
-  def create(conn, %{"post" => post_params}) do
+  def create(conn, post_params) do
     cur_user = Guardian.Plug.current_resource(conn)
     case Logs.create_post(cur_user, post_params) do
       {:ok, post_versioned} ->
         post = Map.get(post_versioned, :model)
+        post = Udia.Repo.preload(post, :author)
 
         conn
         |> put_status(:created)
@@ -36,14 +37,17 @@ defmodule Udia.Web.PostController do
 
   def show(conn, %{"id" => id}) do
     post = Logs.get_post!(id)
+    post = Udia.Repo.preload(post, :author)
     render(conn, "show.json", post: post)
   end
 
   def update(conn, %{"id" => id, "post" => post_params}) do
     post = Logs.get_post!(id)
+    post = Udia.Repo.preload(post, :author)
+
     cur_user = Guardian.Plug.current_resource(conn)
 
-    if cur_user.id != post.author do
+    if cur_user.id != post.author_id do
       conn
       |> put_status(:forbidden)
       |> render(Udia.Web.SessionView, "forbidden.json", error: "Invalid user")
@@ -67,7 +71,7 @@ defmodule Udia.Web.PostController do
     cur_user = Guardian.Plug.current_resource(conn)
     post = Logs.get_post!(id)
 
-    if cur_user.id != post.author do
+    if cur_user.id != post.author_id do
       conn
       |> put_status(:forbidden)
       |> render(Udia.Web.SessionView, "forbidden.json", error: "Invalid user")

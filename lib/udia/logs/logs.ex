@@ -21,7 +21,6 @@ defmodule Udia.Logs do
   def list_posts do
     Post
     |> Repo.all()
-    |> Repo.preload(:author)
   end
 
   @doc """
@@ -41,7 +40,6 @@ defmodule Udia.Logs do
   def get_post!(id) do
     Post
     |> Repo.get!(id)
-    |> Repo.preload(:author)
   end
  
   @doc """

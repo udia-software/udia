@@ -211,5 +211,9 @@ defmodule Udia.Web.UserControllerTest do
     response = json_response(conn, 200)
 
     assert response["data"] == user
+
+    assert_raise Ecto.NoResultsError, fn ->
+      get conn, user_path(conn, :show, "no_user")
+    end
   end
 end
