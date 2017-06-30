@@ -38,12 +38,7 @@ defmodule Udia.Web.Endpoint do
     key: "_udia_key",
     signing_salt: "/QNbi41D"
 
-  if Mix.env == :dev do
-    plug CORSPlug, origin: ["http://localhost:3000"]
-  else
-    plug CORSPlug, origin: ["https://udia-client.herokuapp.com"]
-  end
-
+  plug CORSPlug, origin: ["http://localhost:3000", "https://udia-client.herokuapp.com"]
 
   plug Udia.Web.Router
 
