@@ -41,6 +41,7 @@ defmodule Udia.Mixfile do
      {:gettext, "~> 0.13.1"},
      {:cowboy, "~> 1.1.2"},
      {:comeonin, "~> 3.0.2"},
+     {:cors_plug, "~> 1.2"},
      {:guardian, "~> 0.14.4"},
      {:guardian_db, "~> 0.8.0"},
      {:scrivener_ecto, "~> 1.2.2"},

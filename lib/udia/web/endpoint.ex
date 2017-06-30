@@ -38,6 +38,8 @@ defmodule Udia.Web.Endpoint do
     key: "_udia_key",
     signing_salt: "/QNbi41D"
 
+  plug CORSPlug, origin: ["http://localhost:3000"]
+
   plug Udia.Web.Router
 
   @doc """
