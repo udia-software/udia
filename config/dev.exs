@@ -1,5 +1,7 @@
 use Mix.Config
 
+config :udia, :environment, :dev
+
 config :udia, Udia.Web.Endpoint,
   http: [port: 4000],
   debug_errors: true,

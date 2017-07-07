@@ -1,4 +1,5 @@
 defmodule Udia.Web.Endpoint do
+  use Mix.Config
   use Phoenix.Endpoint, otp_app: :udia
 
   socket "/socket", Udia.Web.UserSocket
@@ -38,7 +39,17 @@ defmodule Udia.Web.Endpoint do
     key: "_udia_key",
     signing_salt: "/QNbi41D"
 
-  plug CORSPlug, origin: ["http://localhost:3000", "https://udia-client.herokuapp.com"]
+  if Application.get_env(:udia, :environment) == :dev do
+    plug CORSPlug, origin: [
+      "http://localhost:3000",
+    ]
+  else
+    plug CORSPlug, origin: [
+      "https://udia.ca",
+      "https://www.udia.ca",
+    ]
+  end
+
 
   plug Udia.Web.Router
 

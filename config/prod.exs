@@ -1,5 +1,7 @@
 use Mix.Config
 
+config :udia, :environment, :prod
+
 config :udia, Udia.Web.Endpoint,
   http: [port: {:system, "PORT"}],
   url: [host: System.get_env("DOMAIN_NAME") || "udia.herokuapp.com", port: 443],
