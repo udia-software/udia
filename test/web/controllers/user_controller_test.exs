@@ -1,63 +1,219 @@
-###############################################################################
-# The contents of this file are subject to the Common Public Attribution
-# License Version 1.0. (the "License"); you may not use this file except in
-# compliance with the License. You may obtain a copy of the License at
-# https://raw.githubusercontent.com/udia-software/udia/master/LICENSE.
-# The License is based on the Mozilla Public License Version 1.1, but
-# Sections 14 and 15 have been added to cover use of software over a computer
-# network and provide for limited attribution for the Original Developer.
-# In addition, Exhibit A has been modified to be consistent with Exhibit B.
-#
-# Software distributed under the License is distributed on an "AS IS" basis,
-# WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
-# the specific language governing rights and limitations under the License.
-#
-# The Original Code is UDIA.
-#
-# The Original Developer is the Initial Developer.  The Initial Developer of
-# the Original Code is Udia Software Incorporated.
-#
-# All portions of the code written by UDIA are Copyright (c) 2016-2017
-# Udia Software Incorporated. All Rights Reserved.
-###############################################################################
-defmodule Udia.UserControllerTest do
+defmodule Udia.Web.UserControllerTest do
   use Udia.Web.ConnCase
 
-  @request_params %{
-    "user" => %{username: "Seto", password: "090909"}
-  }
+  alias Udia.Accounts
 
-  setup do
+  @create_attrs %{password: "hunter2", username: "udia"}
+  @invalid_attrs %{password: "one", username: nil}
+
+  setup %{conn: conn} do
+    {:ok, conn: put_req_header(conn, "accept", "application/json")}
+  end
+
+  test "lists all entries on index", %{conn: conn} do
+    # unauthenticated, throw 403
+    conn = get conn, user_path(conn, :index)
+    response = json_response(conn, 403)
+    assert response == %{"error" => "Not Authenticated"}
+
+    # create a user, get JWT token and user data object
+    conn = post conn, user_path(conn, :create), @create_attrs
+    response = json_response(conn, 201)
+    jwt = response["token"]
+    user = response["user"]
+
+    # test user list on index
     conn = build_conn()
-    {:ok, conn: conn}
+    |> put_req_header("authorization", "Bearer: #{jwt}")
+    |> get(user_path(conn, :index))
+    response = json_response(conn, 200)
+    assert response["data"] == [user]
   end
 
-  test "create an user", %{conn: conn} do
-    conn = conn |> post("/users", @request_params)
-    user = conn.assigns.current_user
+  test "paginates all entries on index", %{conn: conn} do
+    insert_user(%{username: "alice"})
+    insert_user(%{username: "bob"})
+    insert_user(%{username: "charlie"})
+    insert_user(%{username: "dani"})
+    insert_user(%{username: "eileen"})
+    insert_user(%{username: "frank"})
+    insert_user(%{username: "geralt"})
+    insert_user(%{username: "hank"})
+    insert_user(%{username: "ivan"})
+    insert_user(%{username: "jean"})
+    insert_user(%{username: "karyn"})
+    insert_user(%{username: "lando"})
+    insert_user(%{username: "marty"})
+    insert_user(%{username: "nancy"})
+    insert_user(%{username: "owen"})
+    insert_user(%{username: "poppy"})
+    insert_user(%{username: "quinn"})
+    insert_user(%{username: "rick"})
+    insert_user(%{username: "stanley"})
+    insert_user(%{username: "thor"})
 
-    assert conn.status == 302
-    assert redirected_to(conn) == user_path(conn, :index)
-    assert user.username == "Seto"
+    conn = post conn, user_path(conn, :create), @create_attrs
+    response = json_response(conn, 201)
+    jwt = response["token"]
+
+    conn = build_conn()
+    |> put_req_header("authorization", "Bearer: #{jwt}")
+    |> get(user_path(conn, :index))
+    response = json_response(conn, 200)
+
+    assert response["pagination"] == %{
+      "page_number" => 1,
+      "page_size" => 10,
+      "total_entries" => 21,
+      "total_pages" => 3
+    }
+
+    insert_user(%{username: "victoria"})
+    insert_user(%{username: "walter"})
+    insert_user(%{username: "xeno"})
+    insert_user(%{username: "yvonne"})
+    insert_user(%{username: "zack"})
+
+    conn = build_conn()
+    |> put_req_header("authorization", "Bearer: #{jwt}")
+    |> get(user_path(conn, :index), %{"page": 2})
+    response = json_response(conn, 200)
+
+    assert response["pagination"] == %{
+      "page_number" => 2,
+      "page_size" => 10,
+      "total_entries" => 26,
+      "total_pages" => 3
+    }
+
   end
 
-  test "list all users", %{conn: conn} do
-    conn = conn
-           |> post("/users", @request_params)
-           |> get("/users")
+  test "creates user and renders user when data is valid", %{conn: conn} do
+    conn = post conn, user_path(conn, :create), @create_attrs
+    response = json_response(conn, 201)
 
-    assert html_response(conn, 200) =~ "Listing users"
+    assert Map.has_key?(response, "token")
+    assert Map.has_key?(response, "user")
   end
 
-  test "render user form new", %{conn: conn} do
-    conn = get conn, user_path(conn, :new)
-    assert html_response(conn, 200) =~ "New User"
+  test "does not create user and renders errors when data is invalid", %{conn: conn} do
+    conn = post conn, user_path(conn, :create), @invalid_attrs
+    response = json_response(conn, 422)
+
+    assert response == %{
+      "errors" => %{
+        "username" => ["can't be blank"],
+        "password" => ["should be at least 6 character(s)"]
+      }
+    }
   end
 
-  test "show an user", %{conn: conn} do
-    conn = conn |> post(user_path(conn, :create), @request_params)
-    user_id = conn.assigns.current_user.id
-    conn = get conn, user_path(conn, :show, user_id)
-    assert html_response(conn, 200) =~ "Showing user"
+  test "updates chosen user and renders user when data is valid", %{conn: conn} do
+    # create a user, get JWT token and user data object
+    conn = post conn, user_path(conn, :create), @create_attrs
+    response = json_response(conn, 201)
+    jwt = response["token"]
+    user = response["user"]
+
+    # unauthenticated, throw 403
+    conn = put conn, user_path(conn, :update, user["username"])
+    response = json_response(conn, 403)
+    assert response == %{"error" => "Not Authenticated"}
+
+    # authenticated, valid password change
+    conn = build_conn()
+    |> put_req_header("authorization", "Bearer: #{jwt}")
+    |> put(user_path(conn, :update, user["username"], %{user: %{"password" => "hunter3"}}))
+    response = json_response(conn, 202)
+    assert response["token"] != jwt
+    assert response["user"]["inserted_at"] == user["inserted_at"]
+    assert response["user"]["username"] == user["username"]
+    assert response["user"]["updated_at"] != user["updated_at"]
+  end
+
+  test "does not update chosen user and renders errors when data is invalid", %{conn: conn} do
+    # create a user, get JWT token and user data object
+    conn = post conn, user_path(conn, :create), @create_attrs
+    response = json_response(conn, 201)
+    jwt = response["token"]
+    user = response["user"]
+
+    # unauthenticated, throw 403
+    conn = put conn, user_path(conn, :update, user["username"])
+    response = json_response(conn, 403)
+    assert response == %{"error" => "Not Authenticated"}
+
+    # authenticated, invalid password change
+    conn = build_conn()
+    |> put_req_header("authorization", "Bearer: #{jwt}")
+    |> put(user_path(conn, :update, user["username"], %{user: %{"password" => "one"}}))
+    response = json_response(conn, 422)
+    assert response == %{"errors" => %{"password" => ["should be at least 6 character(s)"]}}
+  end
+
+  test "does not update chosen user and renders errors when user is invalid", %{conn: conn} do
+    # create a user, get JWT token and user data object
+    conn = post conn, user_path(conn, :create), @create_attrs
+    response = json_response(conn, 201)
+    jwt = response["token"]
+
+    mod_user = insert_user(%{username: "bob"})
+
+    # authenticated, invalid password change
+    conn = build_conn()
+    |> put_req_header("authorization", "Bearer: #{jwt}")
+    |> put(user_path(conn, :update, mod_user.username, %{user: %{"password" => "hunter3"}}))
+    response = json_response(conn, 403)
+    assert response == %{"error" => "Invalid user"}
+  end
+
+  test "deletes chosen user", %{conn: conn} do
+    # create a user, get JWT token and user data object
+    conn = post conn, user_path(conn, :create), @create_attrs
+    response = json_response(conn, 201)
+    jwt = response["token"]
+    user = response["user"]
+
+    mod_user = insert_user(%{username: "bob"})
+
+    # Delete fails when unauthenticated
+    conn = build_conn()
+    |> delete(user_path(conn, :delete, user["username"]))
+    response = json_response(conn, 403)
+    assert response == %{"error" => "Not Authenticated"}
+
+    # Delete returns success, but doesn't actually delete user because auth doesn't match
+    conn = build_conn()
+    |> put_req_header("authorization", "Bearer: #{jwt}")
+    |> delete(user_path(conn, :delete, mod_user.username))
+    response = json_response(conn, 403)
+    assert response == %{"error" => "Invalid user"}
+
+    assert length(Accounts.list_users()) == 2
+
+    # Delete returns success, and deletes the user
+    conn = build_conn()
+    |> put_req_header("authorization", "Bearer: #{jwt}")
+    |> delete(user_path(conn, :delete, user["username"]))
+    response = response(conn, 204)
+    assert response == ""
+
+    assert length(Accounts.list_users()) == 1
+  end
+
+  test "show user by username", %{conn: conn} do
+    # create a user, get JWT token and user data object
+    conn = post conn, user_path(conn, :create), @create_attrs
+    response = json_response(conn, 201)
+    user = response["user"]
+
+    conn = get conn, user_path(conn, :show, user["username"])
+    response = json_response(conn, 200)
+
+    assert response["data"] == user
+
+    assert_raise Ecto.NoResultsError, fn ->
+      get conn, user_path(conn, :show, "no_user")
+    end
   end
 end

@@ -1,49 +1,65 @@
-###############################################################################
-# The contents of this file are subject to the Common Public Attribution
-# License Version 1.0. (the "License"); you may not use this file except in
-# compliance with the License. You may obtain a copy of the License at
-# https://raw.githubusercontent.com/udia-software/udia/master/LICENSE.
-# The License is based on the Mozilla Public License Version 1.1, but
-# Sections 14 and 15 have been added to cover use of software over a computer
-# network and provide for limited attribution for the Original Developer.
-# In addition, Exhibit A has been modified to be consistent with Exhibit B.
-#
-# Software distributed under the License is distributed on an "AS IS" basis,
-# WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
-# the specific language governing rights and limitations under the License.
-#
-# The Original Code is UDIA.
-#
-# The Original Developer is the Initial Developer.  The Initial Developer of
-# the Original Code is Udia Software Incorporated.
-#
-# All portions of the code written by UDIA are Copyright (c) 2016-2017
-# Udia Software Incorporated. All Rights Reserved.
-###############################################################################
 defmodule Udia.Web.SessionController do
   use Udia.Web, :controller
+  alias Udia.Repo
 
-  def new(conn, _) do
-    render conn, "new.html"
-  end
+  plug Guardian.Plug.EnsureAuthenticated, [handler: Udia.Web.SessionController] when action in [:refresh]
 
-  def create(conn, %{"session" => %{"username" => user, "password" => pass}}) do
-    case Udia.Web.Auth.login_by_username_and_pass(conn, user, pass, repo: Repo) do
-      {:ok, conn} ->
+  def create(conn, params) do
+    case authenticate(params) do
+      {:ok, user} ->
+        new_conn = Guardian.Plug.api_sign_in(conn, user, :access)
+        jwt = Guardian.Plug.current_token(new_conn)
+
+        new_conn
+        |> put_status(:created)
+        |> render("show.json", user: user, jwt: jwt)
+      :error ->
         conn
-        |> put_flash(:info, "Welcome back, #{user}.")
-        |> redirect(to: post_path(conn, :index))
-      {:error, _reason, conn} ->
-        conn
-        |> put_flash(:error, "Invalid username/password combination.")
-        |> render("new.html")
+        |> put_status(:unauthorized)
+        |> render("error.json", error: "Invalid username or password")
     end
   end
 
   def delete(conn, _) do
+    jwt = Guardian.Plug.current_token(conn)
+    Guardian.revoke!(jwt)
+
     conn
-    |> Udia.Web.Auth.logout()
-    |> put_flash(:info, "You have successfully logged out. Goodbye!")
-    |> redirect(to: post_path(conn, :index))
+    |> put_status(:ok)
+    |> render("delete.json")
+  end
+
+  def refresh(conn, _params) do
+    user = Guardian.Plug.current_resource(conn)
+    jwt = Guardian.Plug.current_token(conn)
+    {:ok, claims} = Guardian.Plug.claims(conn)
+
+    case Guardian.refresh!(jwt, claims, %{ttl: {30, :days}}) do
+      {:ok, new_jwt, _new_claims} ->
+        conn
+        |> put_status(:ok)
+        |> render("show.json", user: user, jwt: new_jwt)
+    end
+  end
+
+  def unauthenticated(conn, _params) do
+    conn
+    |> put_status(:forbidden)
+    |> render(Udia.Web.SessionView, "forbidden.json", error: "Not Authenticated")
+  end
+
+  defp authenticate(%{"username" => username, "password" => password}) do
+    user = Repo.get_by(Udia.Accounts.User, username: username || "")
+    case check_password(user, password) do
+      true -> {:ok, user}
+      _ -> :error
+    end
+  end
+
+  defp check_password(user, password) do
+    case user do
+      nil -> Comeonin.Bcrypt.dummy_checkpw()
+      _ -> Comeonin.Bcrypt.checkpw(password, user.password_hash)
+    end
   end
 end

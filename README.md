@@ -11,21 +11,41 @@
 
 **Universal Dream | Infinite Awareness**
 
-Live site can be found at [http://a.udia.ca/](http://a.udia.ca)
-
-## Requirements
-
-Please follow all installation instructions found at [phoenixframework.org/docs/installation](http://www.phoenixframework.org/docs/installation).
+A prototype of this site can be found at [https://a.udia.ca/](https://a.udia.ca).
 
 ## Quickstart (Development)
 
-To start your Phoenix server:
+This project is using the [Phoenix Framework](http://www.phoenixframework.org/docs/installation) 1.3 Release Client ([upgrade instructions](https://gist.github.com/chrismccord/71ab10d433c98b714b75c886eff17357)).
 
+### Setup (Docker)
+
+Ensure Docker is installed on your machine.
+
+1. Clone this repository and run `docker-compose build`.
+2. Run database migrations with `docker-compose run app mix ecto.migrate`.
+3. Start the web application with `docker-compose up`.
+
+### Setup (without Docker on OSX)
+
+Elixir & Hex:
+* Update your homebrew to latest: `brew update`
+* Install Elixir: `brew install elixir`
+* Install Elixir's package manager Hex: `mix local.hex`
+
+Phoenix:
+* Install the latest Phoenix Mix Archive: `mix archive.install https://github.com/phoenixframework/archives/raw/master/phx_new.ez`
+
+PostgreSQL:
+* Download and run the Postgres.app [https://postgresapp.com](https://postgresapp.com/)
+
+### Quickstart (Development)
+
+To start the application:
+
+  * Clone this repository and change directories into it `git clone https://github.com/udia-software/udia.git; cd udia`
   * Install dependencies with `mix deps.get`
   * Create and migrate your database with `mix ecto.create && mix ecto.migrate`
-  * Install Node.js dependencies with `cd assets && npm install`
   * Start Phoenix endpoint with `mix phx.server` or `iex -S mix phx.server`
-  * Generate a code analysis report with `mix credo`
   * (Optional) Seed your database with `mix run priv/repo/seeds.exs`
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
@@ -48,7 +68,6 @@ Ready to run in production? Please [check our deployment guides](http://www.phoe
 Udia is currently configured to run on Heroku using:
 
 * [heroku-buildpack-elixir](https://github.com/HashNuke/heroku-buildpack-elixir.git)
-* [heroku-buildpack-phoenix-static](https://github.com/gjaldon/heroku-buildpack-phoenix-static.git)
 
 Within the Procfile, a heroku release will run `POOL_SIZE=2 mix ecto.migrate` every time a successfull deploy to `master` finishes. This will ensure seemless database migrations when deploying code to production.
 
@@ -63,6 +82,20 @@ Application will work with default settings if using something like [PostgresApp
 | `POSTGRES_DEV_DB`    | `"udia_dev"`  | Development DB Name    |
 | `POSTGRES_TEST_DB`   | `"udia_test"` | Test DB Name           |
 | `POSTGRES_HOSTNAME`  | `"localhost"` | Hostname for DB        |
+| `POSTGRES_PORT`      | `5432`        | Port for DB            |
+
+## Production Environment Variables
+
+The following environment variables must be set for the application to run in production.
+
+| Environment Variable  | Default Value          | Description            |
+| --------------------- |:----------------------:| ----------------------:|
+| `PORT`                | ``                     | Port for web endpoint  |
+| `DOMAIN_NAME`         | `"udia.herokuapp.com"` | Domain name for web    |
+| `SECRET_KEY_BASE`     | ``                     | Secret key for web     |
+| `DATABASE_URL`        | ``                     | Postgres database URL  |
+| `POOL_SIZE`           | `"10"`                 | Postgres pool size     |
+| `GUARDIAN_SECRET_KEY` | ``                     | Secret for Guardian    |
 
 ## License
 

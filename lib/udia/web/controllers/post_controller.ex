@@ -1,104 +1,83 @@
-###############################################################################
-# The contents of this file are subject to the Common Public Attribution
-# License Version 1.0. (the "License"); you may not use this file except in
-# compliance with the License. You may obtain a copy of the License at
-# https://raw.githubusercontent.com/udia-software/udia/master/LICENSE.
-# The License is based on the Mozilla Public License Version 1.1, but
-# Sections 14 and 15 have been added to cover use of software over a computer
-# network and provide for limited attribution for the Original Developer.
-# In addition, Exhibit A has been modified to be consistent with Exhibit B.
-#
-# Software distributed under the License is distributed on an "AS IS" basis,
-# WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
-# the specific language governing rights and limitations under the License.
-#
-# The Original Code is UDIA.
-#
-# The Original Developer is the Initial Developer.  The Initial Developer of
-# the Original Code is Udia Software Incorporated.
-#
-# All portions of the code written by UDIA are Copyright (c) 2016-2017
-# Udia Software Incorporated. All Rights Reserved.
-###############################################################################
 defmodule Udia.Web.PostController do
   use Udia.Web, :controller
 
   alias Udia.Logs
-  alias Udia.Logs.Category
-  alias Udia.Helper
+  alias Udia.Logs.Post
 
-  plug :load_categories when action in [:new, :create, :edit, :update]
+  plug Guardian.Plug.EnsureAuthenticated, [handler: Udia.Web.SessionController] when action in [:create, :update, :delete]
 
-  defp load_categories(conn, _) do
-    query =
-      Category
-      |> Logs.alphabetical
-      |> Logs.names_and_ids
-    categories = Repo.all query
-    assign(conn, :categories, categories)
+  action_fallback Udia.Web.FallbackController
+
+  def index(conn, params) do
+    page =
+      Post
+      |> Udia.Repo.paginate(params)
+    posts = page.entries
+      |> Udia.Repo.preload(:author)
+    render(conn, "index.json", posts: posts, pagination: Udia.PaginationHelpers.pagination(page))
   end
 
-  def action(conn, _) do
-    apply(__MODULE__, action_name(conn),
-      [conn, conn.params, conn.assigns.current_user])
-  end
+  def create(conn, post_params) do
+    cur_user = Guardian.Plug.current_resource(conn)
+    case Logs.create_post(cur_user, post_params) do
+      {:ok, post_versioned} ->
+        post = Map.get(post_versioned, :model)
+        post = Udia.Repo.preload(post, :author)
 
-  def index(conn, _params, _user) do
-    posts = Logs.list_posts |> Enum.sort(fn(x, y) ->
-        Helper.hot(x.id, x.inserted_at) >= Helper.hot(y.id, y.inserted_at)
-      end)
-    render conn, "index.html", posts: posts
-  end
-
-  def new(conn, _params, user) do
-    changeset =
-      user
-      |> build_assoc(:posts)
-      |> Logs.change_post
-
-    render conn, "new.html", changeset: changeset
-  end
-
-  def create(conn, %{"post" => post_params}, user) do
-    case Logs.create_post(user, post_params) do
-      {:ok, post} ->
         conn
-        |> put_flash(:info, "Post created successfully.")
-        |> redirect(to: post_path(conn, :show, post))
+        |> put_status(:created)
+        |> put_resp_header("location", post_path(conn, :show, post))
+        |> render("show.json", post: post)
       {:error, changeset} ->
-        render conn, "new.html", changeset: changeset
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(Udia.Web.ChangesetView, "error.json", changeset: changeset)
     end
   end
 
-  def show(conn, %{"id" => id}, _user) do
+  def show(conn, %{"id" => id}) do
     post = Logs.get_post!(id)
-    render conn, "show.html", post: post
+    post = Udia.Repo.preload(post, :author)
+    render(conn, "show.json", post: post)
   end
 
-  def edit(conn, %{"id" => id}, _user) do
+  def update(conn, %{"id" => id, "post" => post_params}) do
     post = Logs.get_post!(id)
-    changeset = Logs.change_post(post)
-    render conn, "edit.html", post: post, changeset: changeset
-  end
+    post = Udia.Repo.preload(post, :author)
 
-  def update(conn, %{"id" => id, "post" => post_params}, _user) do
-    post = Logs.get_post!(id)
+    cur_user = Guardian.Plug.current_resource(conn)
 
-    case Logs.update_post(post, post_params) do
-      {:ok, post} ->
-        conn
-        |> put_flash(:info, "Post updated successfully.")
-        |> redirect(to: post_path(conn, :show, post))
-      {:error, changeset} ->
-        render conn, "edit.html", post: post, changeset: changeset
+    if cur_user.id != post.author_id do
+      conn
+      |> put_status(:forbidden)
+      |> render(Udia.Web.SessionView, "forbidden.json", error: "Invalid user")
+    else
+      case Logs.update_post(cur_user, post, post_params) do
+        {:ok, post_versioned} ->
+          post = Map.get(post_versioned, :model)
+
+          conn
+          |> put_status(:accepted)
+          |> render("show.json", post: post)
+        {:error, changeset} ->
+          conn
+          |> put_status(:unprocessable_entity)
+          |> render(Udia.Web.ChangesetView, "error.json", changeset: changeset)
+      end
     end
   end
 
-  def delete(conn, %{"id" => id}, _user) do
-    Logs.delete_post!(id)
+  def delete(conn, %{"id" => id}) do
+    cur_user = Guardian.Plug.current_resource(conn)
+    post = Logs.get_post!(id)
 
-    conn
-    |> put_flash(:info, "Post deleted successfully.")
-    |> redirect(to: post_path(conn, :index))
+    if cur_user.id != post.author_id do
+      conn
+      |> put_status(:forbidden)
+      |> render(Udia.Web.SessionView, "forbidden.json", error: "Invalid user")
+    else
+      Logs.delete_post(post)
+      send_resp(conn, :no_content, "")      
+    end
   end
 end

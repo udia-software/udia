@@ -1,25 +1,26 @@
-###############################################################################
-# The contents of this file are subject to the Common Public Attribution
-# License Version 1.0. (the "License"); you may not use this file except in
-# compliance with the License. You may obtain a copy of the License at
-# https://raw.githubusercontent.com/udia-software/udia/master/LICENSE.
-# The License is based on the Mozilla Public License Version 1.1, but
-# Sections 14 and 15 have been added to cover use of software over a computer
-# network and provide for limited attribution for the Original Developer.
-# In addition, Exhibit A has been modified to be consistent with Exhibit B.
-#
-# Software distributed under the License is distributed on an "AS IS" basis,
-# WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
-# the specific language governing rights and limitations under the License.
-#
-# The Original Code is UDIA.
-#Í
-# The Original Developer is the Initial Developer.  The Initial Developer of
-# the Original Code is Udia Software Incorporated.
-#
-# All portions of the code written by UDIA are Copyright (c) 2016-2017
-# Udia Software Incorporated. All Rights Reserved.
-###############################################################################
 defmodule Udia.Web.PostView do
   use Udia.Web, :view
+  alias Udia.Web.PostView
+  alias Udia.Web.UserView
+
+  def render("index.json", %{posts: posts, pagination: pagination}) do
+    %{
+      data: render_many(posts, PostView, "post.json"),
+      pagination: pagination
+    }
+  end
+
+  def render("show.json", %{post: post}) do
+    %{data: render_one(post, PostView, "post.json")}
+  end
+
+  def render("post.json", %{post: post}) do
+    %{id: post.id,
+      title: post.title,
+      type: post.type,
+      content: post.content,
+      inserted_at: post.inserted_at,
+      updated_at: post.updated_at,
+      author: render_one(post.author, UserView, "user.json")}
+  end
 end

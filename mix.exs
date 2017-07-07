@@ -1,59 +1,27 @@
-###############################################################################
-# The contents of this file are subject to the Common Public Attribution
-# License Version 1.0. (the "License"); you may not use this file except in
-# compliance with the License. You may obtain a copy of the License at
-# https://raw.githubusercontent.com/udia-software/udia/master/LICENSE.
-# The License is based on the Mozilla Public License Version 1.1, but
-# Sections 14 and 15 have been added to cover use of software over a computer
-# network and provide for limited attribution for the Original Developer.
-# In addition, Exhibit A has been modified to be consistent with Exhibit B.
-#
-# Software distributed under the License is distributed on an "AS IS" basis,
-# WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
-# the specific language governing rights and limitations under the License.
-#
-# The Original Code is UDIA.
-#
-# The Original Developer is the Initial Developer.  The Initial Developer of
-# the Original Code is Udia Software Incorporated.
-#
-# All portions of the code written by UDIA are Copyright (c) 2016-2017
-# Udia Software Incorporated. All Rights Reserved.
-###############################################################################
 defmodule Udia.Mixfile do
   use Mix.Project
 
   def project do
     [app: :udia,
-     version: "0.1.2",
-     elixir: "~> 1.4.1",
+     version: "0.0.1",
+     elixir: "~> 1.4",
      elixirc_paths: elixirc_paths(Mix.env),
      compilers: [:phoenix, :gettext] ++ Mix.compilers,
-     build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     build_path: "_build",
-     config_path: "config/config.exs",
-     deps_path: "deps",
-     lockfile: "mix.lock",
-     test_coverage: [tool: ExCoveralls],
-     preferred_cli_env: [
-       "coveralls": :test,
-       "coveralls.detail": :test,
-       "coveralls.post": :test,
-       "coveralls.html": :test
-     ],
+     aliases: aliases(),
+     deps: deps(),
      description: description(),
      package: package(),
-     deps: deps()]
+     test_coverage: [tool: ExCoveralls]]
   end
 
   # Configuration for the OTP application.
   #
   # Type `mix help compile.app` for more information.
   def application do
-    [mod: {Udia, []},
-     applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger,
-                    :gettext, :phoenix_ecto, :postgrex, :comeonin]]
+    [mod: {Udia.Application, []},
+     extra_applications: [:logger, :runtime_tools, :cowboy, :comeonin,
+                          :scrivener_ecto]]
   end
 
   # Specifies which paths to compile per environment.
@@ -64,34 +32,48 @@ defmodule Udia.Mixfile do
   #
   # Type `mix help deps` for examples and options.
   defp deps do
-    [{:phoenix, "~> 1.3.0-rc"},
-     {:phoenix_pubsub, "~> 1.0"},
-     {:phoenix_ecto, "~> 3.0"},
-     {:postgrex, ">= 0.0.0"},
-     {:phoenix_html, "~> 2.6"},
-     {:phoenix_live_reload, "~> 1.0", only: :dev},
-     {:gettext, "~> 0.11"},
-     {:cowboy, "~> 1.0"},
-     {:comeonin, "~> 3.0"},
-     {:excoveralls, "~> 0.6", only: :test},
-     {:credo, "~> 0.5", only: [:dev, :test]},
-     {:ex_doc, ">= 0.0.0", only: :dev},]
+    [{:phoenix, "~> 1.3.0-rc.2", override: true},
+     {:phoenix_pubsub, "~> 1.0.2"},
+     {:phoenix_ecto, "~> 3.2.3"},
+     {:postgrex, "~> 0.13.3"},
+     {:phoenix_html, "~> 2.9.3"},
+     {:phoenix_live_reload, "~> 1.0.8", only: :dev},
+     {:gettext, "~> 0.13.1"},
+     {:cowboy, "~> 1.1.2"},
+     {:comeonin, "~> 3.0.2"},
+     {:cors_plug, "~> 1.2"},
+     {:guardian, "~> 0.14.4"},
+     {:guardian_db, "~> 0.8.0"},
+     {:scrivener_ecto, "~> 1.2.2"},
+     {:paper_trail, "~> 0.7.5"},
+     {:excoveralls, "~> 0.7.0", only: :test},
+     {:credo, "~> 0.8.1", only: [:dev, :test]}]
   end
 
   defp description do
     """
-    A web application in pursuit of solving meaning, validating universal basic income, and happiness.
+    A web application in pursuit of meaning in life.
     """
   end
 
   defp package do
     [name: :udia,
-     files: ["lib", "priv", "mix.exs", "README*", "LICENSE*", "config", "test", "logo*", "elixir_buildpack.config",
-            "assets/css", "assets/js", "assets/static", "assets/vendor", "assets/brunch-config.js", "assets/package.json",   
-            "phoenix_static_buildpack.config", "Procfile", ".gitignore", ".travis.yml"],
-     maintainers: ["Udia Software Incorporated", "Alexander Wong"],
-     licenses: ["Common Public Attribution License Version 1.0 (CPAL)"],
-     links: %{"GitHub" => "https://github.com/udia-software/udia",
-              "Site" => "https://a.udia.ca"}]
+     files: ["config", "lib", "priv", "test", ".gitignore", ".travis.yml",
+             "docker-compose.yml", "elixir_buildpack.config",
+             "Procfile", "Dockerfile", "LICENSE*", "README*", "mix.exs"],
+    ]
+  end
+
+  # Aliases are shortcuts or tasks specific to the current project.
+  # For example, to create, migrate and run the seeds file at once:
+  #
+  #     $ mix ecto.setup
+  #
+  # See the documentation for `Mix` for more info on aliases.
+  defp aliases do
+    ["ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
+     "ecto.reset": ["ecto.drop", "ecto.setup"],
+     "test": ["ecto.create --quiet", "ecto.migrate", "test"],
+     "sanity": ["coveralls", "credo"]]
   end
 end

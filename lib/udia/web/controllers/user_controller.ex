@@ -1,57 +1,78 @@
-###############################################################################
-# The contents of this file are subject to the Common Public Attribution
-# License Version 1.0. (the "License"); you may not use this file except in
-# compliance with the License. You may obtain a copy of the License at
-# https://raw.githubusercontent.com/udia-software/udia/master/LICENSE.
-# The License is based on the Mozilla Public License Version 1.1, but
-# Sections 14 and 15 have been added to cover use of software over a computer
-# network and provide for limited attribution for the Original Developer.
-# In addition, Exhibit A has been modified to be consistent with Exhibit B.
-#
-# Software distributed under the License is distributed on an "AS IS" basis,
-# WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
-# the specific language governing rights and limitations under the License.
-#
-# The Original Code is UDIA.
-#
-# The Original Developer is the Initial Developer.  The Initial Developer of
-# the Original Code is Udia Software Incorporated.
-#
-# All portions of the code written by UDIA are Copyright (c) 2016-2017
-# Udia Software Incorporated. All Rights Reserved.
-###############################################################################
 defmodule Udia.Web.UserController do
   use Udia.Web, :controller
 
-  alias Udia.Auths.User
-  alias Udia.Auths
+  alias Udia.Accounts
+  alias Udia.Accounts.User
 
-  plug :authenticate_user when action in [:index]
+  plug Guardian.Plug.EnsureAuthenticated, [handler: Udia.Web.SessionController] when action in [:index, :update, :delete]
 
-  def index(conn, _params) do
-    users = Auths.list_users()
-    render(conn, "index.html", users: users)
+  action_fallback Udia.Web.FallbackController
+
+  def index(conn, params) do
+    page = 
+      User
+      |> Udia.Repo.paginate(params)
+    render(conn, "index.json", users: page.entries, pagination: Udia.PaginationHelpers.pagination(page))
   end
 
-  def new(conn, _params) do
-    changeset = Auths.change_user(%User{})
-    render(conn, "new.html", changeset: changeset)
-  end
+  def create(conn, user_params) do
+    case Accounts.create_user(user_params) do
+      {:ok, user_versioned} ->
+        user = Map.get(user_versioned, :model)
+        new_conn = Guardian.Plug.api_sign_in(conn, user, :access)
+        jwt = Guardian.Plug.current_token(new_conn)
 
-  def create(conn, %{"user" => user_params}) do
-    case Auths.create_user(user_params) do
-      {:ok, user} ->
-        conn
-        |> Udia.Web.Auth.login(user)
-        |> put_flash(:info, "#{user.username} created!")
-        |> redirect(to: user_path(conn, :index))
+        new_conn
+        |> put_status(:created)
+        |> render(Udia.Web.SessionView, "show.json", user: user, jwt: jwt)
       {:error, changeset} ->
-        render(conn, "new.html", changeset: changeset)
+        conn
+        |> put_status(:unprocessable_entity)
+        |> render(Udia.Web.ChangesetView, "error.json", changeset: changeset)
     end
   end
 
-  def show(conn, %{"id" => id}) do
-    user = Auths.get_user!(id)
-    render(conn, "show.html", user: user)
+  def show(conn, %{"id" => username}) do
+    user = Accounts.get_user_by_username!(username)
+    render(conn, "show.json", user: user)
+  end
+
+  def update(conn, %{"id" => username, "user" => user_params}) do
+    user = Accounts.get_user_by_username!(username)
+    cur_user = Guardian.Plug.current_resource(conn)
+
+    if cur_user.id != user.id do
+      conn
+      |> put_status(:forbidden)
+      |> render(Udia.Web.SessionView, "forbidden.json", error: "Invalid user")
+    else
+      case Accounts.update_user(user, user_params) do
+        {:ok, user_versioned} ->
+          user = Map.get(user_versioned, :model)
+          new_conn = Guardian.Plug.api_sign_in(conn, user, :access)
+          jwt = Guardian.Plug.current_token(new_conn)
+
+          new_conn
+          |> put_status(:accepted)
+          |> render(Udia.Web.SessionView, "show.json", user: user, jwt: jwt)
+        {:error, changeset} ->
+          conn
+          |> put_status(:unprocessable_entity)
+          |> render(Udia.Web.ChangesetView, "error.json", changeset: changeset)
+      end
+    end
+  end
+
+  def delete(conn, %{"id" => username}) do
+    user = Accounts.get_user_by_username!(username)
+    cur_user = Guardian.Plug.current_resource(conn)
+    if cur_user.id != user.id do
+      conn
+      |> put_status(:forbidden)
+      |> render(Udia.Web.SessionView, "forbidden.json", error: "Invalid user")
+    else
+      Accounts.delete_user(user)
+      send_resp(conn, :no_content, "")
+    end
   end
 end

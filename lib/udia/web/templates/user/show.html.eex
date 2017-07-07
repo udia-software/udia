@@ -1,5 +1,0 @@
-<h2>Showing user</h2>
-<%= render "user.html", user: @user %>
-<%= if @current_user && @current_user.username == @user.username do %>
-    <%= link "Log out", to: session_path(@conn, :delete, @current_user), method: "delete" %>
-<% end %>

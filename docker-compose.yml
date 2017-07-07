@@ -1,0 +1,27 @@
+version: '2'
+services:
+  db:
+    image: postgres:9.4
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'postgres'
+      POSTGRES_DB: 'udia_dev'
+  app:
+    build: .
+    command: mix phx.server
+    volumes:
+      - .:/app
+    ports:
+      - "4000:4000"
+      - "9485:9485"
+    depends_on:
+      - db
+    links:
+      - db:database
+    environment:
+      MIX_ENV: 'dev'
+      POSTGRES_USERNAME: 'postgres'
+      POSTGRES_PASSWORD: 'postgres'
+      POSTGRES_DEV_DB: 'udia_dev'
+      POSTGRES_HOSTNAME: 'database'
+      POSTGRES_PORT: "5432"
