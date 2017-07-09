@@ -22,24 +22,25 @@ This project is using the [Phoenix Framework](http://www.phoenixframework.org/do
 
 Ensure Docker is installed on your machine.
 
-1. Clone this repository and run `docker-compose build`.
-2. Run database migrations with `docker-compose run app mix ecto.migrate`.
-3. Start the web application with `docker-compose up`.
+1. Clone this repository and change directories into it `git clone https://github.com/udia-software/udia.git; cd udia`
+2. Run `docker-compose build`.
+3. Run database migrations with `docker-compose run app mix ecto.migrate`.
+4. Start the web application with `docker-compose up`.
 
-### Setup (without Docker on OSX)
+### Setup (without Docker on OSX/Linux)
 
 Elixir & Hex:
 * Update your homebrew to latest: `brew update`
 * Install Elixir: `brew install elixir`
 * Install Elixir's package manager Hex: `mix local.hex`
+* Alternatively install Elixir using your distribution's package manager.
 
 Phoenix:
 * Install the latest Phoenix Mix Archive: `mix archive.install https://github.com/phoenixframework/archives/raw/master/phx_new.ez`
 
 PostgreSQL:
 * Download and run the Postgres.app [https://postgresapp.com](https://postgresapp.com/)
-
-### Quickstart (Development)
+* Alternatively setup your PostGreSQL instance and configure all relevant environment variables
 
 To start the application:
 
