@@ -11,7 +11,8 @@
 
 **Universal Dream | Infinite Awareness**
 
-A prototype of this site can be found at [https://a.udia.ca/](https://a.udia.ca).
+* The public facing API can be found at [https://a.udia.ca/](https://a.udia.ca).
+* The public client is at [udia-software/udia-client](https://github.com/udia-software/udia-client) and can be found at [https://www.udia.ca](https://www.udia.ca)
 
 ## Quickstart (Development)
 
