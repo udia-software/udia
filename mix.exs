@@ -40,7 +40,7 @@ defmodule Udia.Mixfile do
      {:phoenix_live_reload, "~> 1.0.8", only: :dev},
      {:gettext, "~> 0.13.1"},
      {:cowboy, "~> 1.1.2"},
-     {:comeonin, "~> 3.0.2"},
+     {:comeonin, "~> 3.2.0"},
      {:cors_plug, "~> 1.2"},
      {:guardian, "~> 0.14.4"},
      {:guardian_db, "~> 0.8.0"},
