@@ -1,6 +1,7 @@
 defmodule Udia.Web.PostController do
   use Udia.Web, :controller
 
+  import Ecto.Query
   alias Udia.Logs
   alias Udia.Logs.Post
 
@@ -11,6 +12,7 @@ defmodule Udia.Web.PostController do
   def index(conn, params) do
     page =
       Post
+      |> order_by(desc: :inserted_at)
       |> Udia.Repo.paginate(params)
     posts = page.entries
       |> Udia.Repo.preload(:author)
