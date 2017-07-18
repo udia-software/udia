@@ -1,6 +1,45 @@
 defmodule Udia.Logs.Comment do
   @moduledoc """
   The schema for the Logs Comment model.
+
+  Example: %Udia.Logs.Comment{
+    __meta__: #Ecto.Schema.Metadata<:loaded, "logs_comments">,
+    author: #Ecto.Association.NotLoaded<association :author is not loaded>,
+    author_id: 388,
+    children: #Ecto.Association.NotLoaded<association :children is not loaded>,
+    content: "some content",
+    id: 1,
+    inserted_at: %DateTime{
+      calendar: Calendar.ISO,
+      day: 18,
+      hour: 21,
+      microsecond: {382226, 6},
+      minute: 13,
+      month: 7,
+      second: 25,
+      std_offset: 0,
+      time_zone: "Etc/UTC",
+      utc_offset: 0,
+      year: 2017,
+      zone_abbr: "UTC"},
+    parent: #Ecto.Association.NotLoaded<association :parent is not loaded>,
+    parent_id: nil,
+    post: #Ecto.Association.NotLoaded<association :post is not loaded>,
+    post_id: nil,
+    type: "text",
+    updated_at: %DateTime{
+      calendar: Calendar.ISO,
+      day: 18,
+      hour: 21,
+      microsecond: {382232, 6},
+      minute: 13,
+      month: 7,
+      second: 25,
+      std_offset: 0,
+      time_zone: "Etc/UTC",
+      utc_offset: 0,
+      year: 2017,
+      zone_abbr: "UTC"}}
   """
   use Ecto.Schema
   import Ecto.Changeset
@@ -51,7 +90,7 @@ defmodule Udia.Logs.Comment do
   @doc false
   def changeset(%Comment{} = comment, attrs) do
     comment
-    |> cast(attrs, [:content, :type])
-    |> validate_required([:content, :type])
+    |> cast(attrs, [:content, :type, :post_id])
+    |> validate_required([:content, :type, :post_id])
   end
 end

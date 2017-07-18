@@ -12,7 +12,7 @@ defmodule Udia.Web.PostController do
   def index(conn, params) do
     page =
       Post
-      |> order_by(desc: :inserted_at)
+      |> order_by(desc: :updated_at)
       |> Udia.Repo.paginate(params)
     posts = page.entries
       |> Udia.Repo.preload(:author)
@@ -57,6 +57,7 @@ defmodule Udia.Web.PostController do
       case Logs.update_post(cur_user, post, post_params) do
         {:ok, post_versioned} ->
           post = Map.get(post_versioned, :model)
+          post = Udia.Repo.preload(post, :author)
 
           conn
           |> put_status(:accepted)

@@ -107,62 +107,118 @@ defmodule Udia.LogsTest do
   describe "comments" do
     alias Udia.Logs.Comment
 
-    @valid_attrs %{author: "some author", content: "some content"}
-    @update_attrs %{author: "some updated author", content: "some updated content"}
-    @invalid_attrs %{author: nil, content: nil}
+    @user_params %{username: "udia", password: "hunter2"}
+    @post_params %{content: "Popular Test Post", title: "This Post Dawg", type: "text"}
 
-    def comment_fixture(attrs \\ %{}) do
-      {:ok, comment} =
-        attrs
-        |> Enum.into(@valid_attrs)
-        |> Logs.create_comment()
-
-      comment
-    end
+    @create_attrs %{content: "some content", type: "text"}
+    @update_attrs %{content: "some updated content", type: "text"}
+    @invalid_attrs %{author: nil, content: nil, type: nil}
 
     test "list_comments/0 returns all comments" do
-      comment = comment_fixture()
+      assert Logs.list_comments() == []
+
+      user = insert_user(@user_params)
+      post = insert_post(user, @post_params)
+
+      comment = insert_comment(user, post, @create_attrs)
       assert Logs.list_comments() == [comment]
     end
 
     test "get_comment!/1 returns the comment with given id" do
-      comment = comment_fixture()
+      user = insert_user(@user_params)
+      post = insert_post(user, @post_params)
+
+      comment = insert_comment(user, post, @create_attrs)
+
       assert Logs.get_comment!(comment.id) == comment
+      assert_raise Ecto.NoResultsError, fn ->
+        Logs.get_comment!(-1)
+      end
     end
 
     test "create_comment/1 with valid data creates a comment" do
-      assert {:ok, %Comment{} = comment} = Logs.create_comment(@valid_attrs)
-      assert comment.author == "some author"
+      user = insert_user(@user_params)
+      post = insert_post(user, @post_params)
+
+      assert {:ok, %{
+        model: %Comment{} = comment,
+        version: %PaperTrail.Version{}
+      }} = Logs.create_comment(user, @create_attrs |> Enum.into(%{
+        post_id: post.id
+      }))
+
+      assert comment.author_id == user.id
       assert comment.content == "some content"
+      assert comment.type == "text"
+      assert Map.has_key?(comment, :inserted_at)
+      assert Map.has_key?(comment, :updated_at)
+      assert Map.has_key?(comment, :id)
+      assert Map.has_key?(comment, :post_id)
+
+      updated_post = Udia.Logs.get_post!(post.id)
+      |> Udia.Repo.preload(:comments)
+      assert updated_post.comments == [comment]
     end
 
     test "create_comment/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Logs.create_comment(@invalid_attrs)
+      user = insert_user(@user_params)
+
+      assert {:error, %Ecto.Changeset{} = err} = Logs.create_comment(user, @invalid_attrs)
+      assert err.errors == [
+        content: {"can't be blank", [validation: :required]},
+        type: {"can't be blank", [validation: :required]},
+        post_id: {"can't be blank", [validation: :required]},
+      ]
     end
 
     test "update_comment/2 with valid data updates the comment" do
-      comment = comment_fixture()
-      assert {:ok, comment} = Logs.update_comment(comment, @update_attrs)
-      assert %Comment{} = comment
-      assert comment.author == "some updated author"
+      user = insert_user(@user_params)
+      post = insert_post(user, @post_params)
+      base_comment = insert_comment(user, post, @create_attrs)
+
+      assert {:ok, %{
+        model: %Comment{} = comment,
+        version: %PaperTrail.Version{}
+      }} = Logs.update_comment(user, base_comment, @update_attrs)
       assert comment.content == "some updated content"
+      assert comment.id == base_comment.id
     end
 
     test "update_comment/2 with invalid data returns error changeset" do
-      comment = comment_fixture()
-      assert {:error, %Ecto.Changeset{}} = Logs.update_comment(comment, @invalid_attrs)
-      assert comment == Logs.get_comment!(comment.id)
+      user = insert_user(@user_params)
+      post = insert_post(user, @post_params)
+      base_comment = insert_comment(user, post, @create_attrs)
+
+      assert {:error, %Ecto.Changeset{} = err} = Logs.update_comment(user, base_comment, @invalid_attrs)
+      assert err.errors == [
+        content: {"can't be blank", [validation: :required]},
+        type: {"can't be blank", [validation: :required]}
+      ]
     end
 
     test "delete_comment/1 deletes the comment" do
-      comment = comment_fixture()
-      assert {:ok, %Comment{}} = Logs.delete_comment(comment)
-      assert_raise Ecto.NoResultsError, fn -> Logs.get_comment!(comment.id) end
+      user = insert_user(@user_params)
+      post = insert_post(user, @post_params)
+      base_comment = insert_comment(user, post, @create_attrs)
+
+      assert {:ok, %{
+        model: %Comment{} = comment,
+        version: %PaperTrail.Version{}
+      }} = Logs.delete_comment(base_comment)
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Logs.get_comment!(comment.id)
+      end
     end
 
     test "change_comment/1 returns a comment changeset" do
-      comment = comment_fixture()
-      assert %Ecto.Changeset{} = Logs.change_comment(comment)
+      user = insert_user(@user_params)
+      post = insert_post(user, @post_params)
+      comment = insert_comment(user, post, @create_attrs)
+
+      changeset = Logs.change_comment(comment)
+      assert %Ecto.Changeset{} = changeset
+      assert changeset.data == comment
     end
   end
 end

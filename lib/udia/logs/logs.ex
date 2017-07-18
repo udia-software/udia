@@ -151,10 +151,11 @@ defmodule Udia.Logs do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_comment(attrs \\ %{}) do
-    %Comment{}
+  def create_comment(%User{} = user, attrs \\ %{}) do
+    user
+    |> Ecto.build_assoc(:comments)
     |> Comment.changeset(attrs)
-    |> Repo.insert()
+    |> PaperTrail.insert(user: user)
   end
 
   @doc """
@@ -169,10 +170,10 @@ defmodule Udia.Logs do
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_comment(%Comment{} = comment, attrs) do
+  def update_comment(%User{} = user, %Comment{} = comment, attrs) do
     comment
     |> Comment.changeset(attrs)
-    |> Repo.update()
+    |> PaperTrail.update(user: user)
   end
 
   @doc """
@@ -188,7 +189,7 @@ defmodule Udia.Logs do
 
   """
   def delete_comment(%Comment{} = comment) do
-    Repo.delete(comment)
+    PaperTrail.delete(comment)
   end
 
   @doc """

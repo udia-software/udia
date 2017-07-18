@@ -12,6 +12,7 @@ defmodule Udia.Logs.Post do
     field :content, :string
     field :type, :string
     belongs_to :author, Udia.Accounts.User
+    has_many :comments, Udia.Logs.Comment
 
     timestamps()
   end

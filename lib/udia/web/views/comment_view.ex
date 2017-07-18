@@ -1,9 +1,13 @@
 defmodule Udia.Web.CommentView do
   use Udia.Web, :view
   alias Udia.Web.CommentView
+  alias Udia.Web.UserView
 
-  def render("index.json", %{comments: comments}) do
-    %{data: render_many(comments, CommentView, "comment.json")}
+  def render("index.json", %{comments: comments, pagination: pagination}) do
+    %{
+      data: render_many(comments, CommentView, "comment.json"),
+      pagination: pagination
+    }
   end
 
   def render("show.json", %{comment: comment}) do
@@ -13,6 +17,12 @@ defmodule Udia.Web.CommentView do
   def render("comment.json", %{comment: comment}) do
     %{id: comment.id,
       content: comment.content,
-      author: comment.author}
+      type: comment.type,
+      inserted_at: comment.inserted_at,
+      updated_at: comment.updated_at,
+      post_id: comment.post_id,
+      children_ids: comment.children,
+      parent_id: comment.parent,
+      author: render_one(comment.author, UserView, "user.json")}
   end
 end
