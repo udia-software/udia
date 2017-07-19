@@ -24,6 +24,7 @@ defmodule Udia.TestHelpers do
       post_id: post.id,
       content: "Random Content #{Base.encode16(:crypto.strong_rand_bytes(8))}",
       type: "text",
+      parent_id: nil,
     })
     {:ok, comment_versioned} = Udia.Logs.create_comment(user, changes)
     Map.get(comment_versioned, :model)

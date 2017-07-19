@@ -10,12 +10,33 @@ defmodule Udia.Web.CommentController do
   action_fallback Udia.Web.FallbackController
 
   def index(conn, params) do
-    page = 
-      Comment
-      |> order_by(desc: :updated_at)
-      |> Udia.Repo.paginate(params)
-    comments = page.entries
-      |> Udia.Repo.preload(:author)
+    page = cond do
+      Map.has_key?(params, "post_id") && Map.has_key?(params, "parent_id") ->
+        # If post_id is specified in params, perform return comments for post
+        post_id = Map.get(params, "post_id")
+        parent_id = Map.get(params, "parent_id")
+
+        Comment
+        |> where([c], c.post_id == ^post_id)
+        |> where([c], c.parent_id == ^parent_id)
+        |> order_by(desc: :updated_at)
+        |> Udia.Repo.paginate(params)
+      Map.has_key?(params, "post_id") ->
+        post_id = Map.get(params, "post_id")
+
+        Comment
+        |> where([c], c.post_id == ^post_id)
+        |> where([c], is_nil(c.parent_id))
+        |> order_by(desc: :updated_at)
+        |> Udia.Repo.paginate(params)
+      true ->
+        # By default return all comments 
+        Comment
+        |> order_by(desc: :updated_at)
+        |> Udia.Repo.paginate(params)
+    end 
+    comments = page.entries |> Udia.Repo.preload(:author)
+
     render(conn, "index.json", comments: comments, pagination: Udia.PaginationHelpers.pagination(page))
   end
 
@@ -73,7 +94,7 @@ defmodule Udia.Web.CommentController do
   def delete(conn, %{"id" => id}) do
     cur_user = Guardian.Plug.current_resource(conn)
     comment = Logs.get_comment!(id)
-    if cur_user.id != comment.author.id do
+    if cur_user.id != comment.author_id do
       conn
       |> put_status(:forbidden)
       |> render(Udia.Web.SessionView, "forbidden.json", error: "Invalid user")

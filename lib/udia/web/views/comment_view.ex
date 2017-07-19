@@ -21,8 +21,8 @@ defmodule Udia.Web.CommentView do
       inserted_at: comment.inserted_at,
       updated_at: comment.updated_at,
       post_id: comment.post_id,
-      children_ids: comment.children,
-      parent_id: comment.parent,
+      # children: comment.children,
+      parent_id: comment.parent_id,
       author: render_one(comment.author, UserView, "user.json")}
   end
 end

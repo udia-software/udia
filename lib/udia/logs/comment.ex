@@ -90,7 +90,7 @@ defmodule Udia.Logs.Comment do
   @doc false
   def changeset(%Comment{} = comment, attrs) do
     comment
-    |> cast(attrs, [:content, :type, :post_id])
+    |> cast(attrs, [:content, :type, :post_id, :parent_id])
     |> validate_required([:content, :type, :post_id])
   end
 end
