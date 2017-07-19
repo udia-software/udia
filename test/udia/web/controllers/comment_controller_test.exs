@@ -1,9 +1,6 @@
 defmodule Udia.Web.CommentControllerTest do
   use Udia.Web.ConnCase
 
-  alias Udia.Logs
-  alias Udia.Logs.Comment
-
   @user_params %{username: "udia", password: "hunter2"}
   @post_params %{content: "Popular Test Post", title: "This Post Dawg", type: "text"}
 
