@@ -148,6 +148,30 @@ defmodule Udia.Web.CommentControllerTest do
     }]
   end
 
+  test "show comment given id", %{conn: conn} do
+    user = insert_user(@user_params)
+    post = insert_post(user, @post_params)
+    comment = insert_comment(user, post, @create_attrs)
+
+    conn = build_conn()
+    |> get(comment_path(conn, :show, comment.id))
+    response = json_response(conn, 200)
+    assert response["data"] == %{
+      "id" => comment.id,
+      "author" => %{
+        "username" => user.username,
+        "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
+        "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
+      },
+      "content" => "some content",
+      "parent_id" => nil,
+      "post_id" => post.id,
+      "type" => "text",
+      "inserted_at" => String.replace(to_string(comment.inserted_at), " ", "T"),
+      "updated_at" => String.replace(to_string(comment.updated_at), " ", "T"),
+    }
+  end
+
   test "creates comment and renders comment when data is valid", %{conn: conn} do
     # create a user and get the login token
     user = insert_user(@user_params)
@@ -267,6 +291,19 @@ defmodule Udia.Web.CommentControllerTest do
         "type" => ["can't be blank"]
       }
     }
+
+    # attempt to update with another user's JWT
+    hacker_params = %{username: "hax", password: "hunter3"}
+    insert_user(hacker_params)
+    conn = post conn, session_path(conn, :create), hacker_params
+    jwt = json_response(conn, 201)["token"]
+    conn = build_conn()
+    |> put_req_header("authorization", "Bearer: #{jwt}")
+    conn = put conn, comment_path(conn, :update, comment.id), %{"comment" => @update_attrs}
+    response = json_response(conn, 403)
+    assert response == %{
+      "error" => "Invalid user"
+    }
   end
   
   test "deletes chosen comment", %{conn: conn} do
@@ -283,5 +320,32 @@ defmodule Udia.Web.CommentControllerTest do
     |> put_req_header("authorization", "Bearer: #{jwt}")
     conn = delete conn, comment_path(conn, :delete, comment.id)
     assert response(conn, 204) == ""
+  end
+
+  test "does not delete chosen post when data is invalid", %{conn: conn} do
+    user = insert_user(@user_params)
+    post = insert_post(user, @post_params)
+    comment = insert_comment(user, post, @create_attrs)
+
+    # attempt to delete with another user's JWT
+    hacker_params = %{username: "hax", password: "hunter3"}
+    insert_user(hacker_params)
+    conn = post conn, session_path(conn, :create), hacker_params
+    jwt = json_response(conn, 201)["token"]
+
+    conn = build_conn()
+    |> put_req_header("authorization", "Bearer: #{jwt}")
+    conn = delete conn, comment_path(conn, :delete, comment.id)
+    response = json_response(conn, 403)
+    assert response == %{
+      "error" => "Invalid user"
+    }
+
+    # attempt to delete a non-existant comment
+    conn = build_conn()
+    |> put_req_header("authorization", "Bearer: #{jwt}")
+    assert_raise Ecto.NoResultsError, fn ->
+      delete conn, comment_path(conn, :delete, -1)
+    end
   end
 end
