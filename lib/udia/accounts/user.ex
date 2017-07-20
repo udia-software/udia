@@ -10,6 +10,7 @@ defmodule Udia.Accounts.User do
     field :password_hash, :string
     field :password, :string, virtual: true
 
+    has_many :journeys, Udia.Logs.Journey, foreign_key: :explorer_id
     has_many :posts, Udia.Logs.Post, foreign_key: :author_id
     has_many :comments, Udia.Logs.Comment, foreign_key: :author_id
 

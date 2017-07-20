@@ -1,8 +1,8 @@
 defmodule Udia.Web.PostControllerTest do
   use Udia.Web.ConnCase
 
-  @create_attrs %{content: "some content", title: "some title", type: "text"}
-  @update_attrs %{content: "some updated content", title: "some updated title"}
+  @create_attrs %{content: "some content", title: "some title", type: "text", journey: nil}
+  @update_attrs %{content: "some updated content", title: "some updated title", journey: nil}
   @invalid_attrs %{content: nil, title: nil, type: nil}
 
   setup %{conn: conn} do

@@ -32,5 +32,6 @@ defmodule Udia.Web.Router do
     resources "/users", UserController, except: [:new, :edit]
     resources "/posts", PostController, except: [:new, :edit]
     resources "/comments", CommentController, except: [:new, :edit]
+    resources "/journeys", JourneyController, except: [:new, :edit]
   end
 end
