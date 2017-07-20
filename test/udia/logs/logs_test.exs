@@ -10,6 +10,7 @@ defmodule Udia.LogsTest do
     @create_attrs %{content: "some content", title: "some title", type: "text"}
     @update_attrs %{content: "some updated content", title: "some updated title"}
     @invalid_attrs %{content: nil, title: nil, type: nil}
+    @journey_params %{description: "some description", title: "some title"}
 
     test "list_posts/1 returns all posts" do
       assert Logs.list_posts() == []
@@ -31,18 +32,30 @@ defmodule Udia.LogsTest do
 
     test "create_post/2 with valid data creates a post" do
       user = insert_user(@user_params)
+      journey = insert_journey(user, @journey_params)
 
       assert {:ok, %{
         model: %Post{} = post,
         version: %PaperTrail.Version{}
-      }} = Logs.create_post(user, @create_attrs)
+      }} = Logs.create_post(user, @create_attrs |> Enum.into(%{
+        journey_id: journey.id
+      }))
+
       assert post.author_id == user.id
       assert post.content == "some content"
       assert post.title == "some title"
       assert post.type == "text"
+      assert post.journey_id == journey.id
       assert Map.has_key?(post, :inserted_at)
       assert Map.has_key?(post, :updated_at)
       assert Map.has_key?(post, :id)
+
+      updated_journey = Udia.Logs.get_journey!(journey.id)
+      |> Udia.Repo.preload(:posts)
+      assert updated_journey.posts == [post]
+
+      post = Udia.Repo.preload(post, :journey)
+      assert post.journey.title == journey.title
     end
 
     test "create_post/2 with invalid data returns error changeset" do
@@ -227,7 +240,8 @@ defmodule Udia.LogsTest do
 
     @user_params %{username: "ram", password: "dass~~"}
     @journey_params %{description: "some description", title: "some title"}
-    
+    @create_attrs %{content: "some content", title: "some title", type: "text"}
+
     @update_attrs %{description: "some updated description", title: "some updated title"}
     @invalid_attrs %{description: nil, title: nil}
     
@@ -306,5 +320,6 @@ defmodule Udia.LogsTest do
 
       assert %Ecto.Changeset{} = Logs.change_journey(journey)
     end
+    
   end
 end
