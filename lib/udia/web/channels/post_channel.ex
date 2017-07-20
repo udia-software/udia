@@ -21,9 +21,12 @@
 # Udia Software Incorporated. All Rights Reserved.
 ###############################################################################
 defmodule Udia.Web.PostChannel do
+  @moduledoc """
+  Module for post websocket & channel functionality
+  """
   use Udia.Web, :channel
 
-  def join("post:" <> post_id, params, socket) do
+  def join("post:" <> _post_id, _params, socket) do
     {:ok, %{}, assign(socket, :post_id, "")}
   end
 end
