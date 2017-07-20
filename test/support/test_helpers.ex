@@ -29,4 +29,24 @@ defmodule Udia.TestHelpers do
     {:ok, comment_versioned} = Udia.Logs.create_comment(user, changes)
     Map.get(comment_versioned, :model)
   end
+
+  def insert_post_with_journey(%Udia.Accounts.User{} = user, %Udia.Logs.Journey{} = journey, attrs \\%{}) do
+    changes = attrs |> Enum.into(%{
+      title: "Random Title #{Base.encode16(:crypto.strong_rand_bytes(8))}",
+      content: "Random Content #{Base.encode16(:crypto.strong_rand_bytes(8))}",
+      type: "text",
+      journey_id: journey.id
+    })
+    {:ok, post_versioned} = Udia.Logs.create_post(user, changes)
+    Map.get(post_versioned, :model)
+  end
+
+  def insert_journey(%Udia.Accounts.User{} = user, attrs \\%{}) do
+    changes = attrs |> Enum.into(%{
+      title: "Random Title #{Base.encode16(:crypto.strong_rand_bytes(8))}",
+      description: "Random Content #{Base.encode16(:crypto.strong_rand_bytes(8))}"
+    })
+    {:ok, journey_versioned} = Udia.Logs.create_journey(user, changes)
+    Map.get(journey_versioned, :model)
+  end
 end
