@@ -240,7 +240,6 @@ defmodule Udia.LogsTest do
 
     @user_params %{username: "ram", password: "dass~~"}
     @journey_params %{description: "some description", title: "some title"}
-    @create_attrs %{content: "some content", title: "some title", type: "text"}
 
     @update_attrs %{description: "some updated description", title: "some updated title"}
     @invalid_attrs %{description: nil, title: nil}
