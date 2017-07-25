@@ -309,8 +309,14 @@ defmodule Udia.LogsTest do
       user = insert_user(@user_params)
       journey = insert_journey(user, @journey_params)
 
-      assert {:ok, %Journey{}} = Logs.delete_journey(journey)
-      assert_raise Ecto.NoResultsError, fn -> Logs.get_journey!(journey.id) end
+      assert {:ok, %{
+        model: %Journey{} = journey,
+        version: %PaperTrail.Version{}
+      }} = Logs.delete_journey(journey)
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Logs.get_journey!(journey.id)
+      end
     end
 
     test "change_journey/1 returns a journey changeset" do

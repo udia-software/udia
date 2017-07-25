@@ -2,7 +2,6 @@ defmodule Udia.Web.JourneyController do
   use Udia.Web, :controller
 
   alias Udia.Logs
-  alias Udia.Logs.Journey
 
   plug Guardian.Plug.EnsureAuthenticated, [handler: Udia.Web.SessionController] when action in [:create, :update, :delete]
 
@@ -11,7 +10,6 @@ defmodule Udia.Web.JourneyController do
   def index(conn, _params) do
     journeys = Logs.list_journeys()
     |> Udia.Repo.preload(:explorer)
-    |> Udia.Repo.preload(posts: :author)
 
     render(conn, "index.json", journeys: journeys)
   end
@@ -22,7 +20,6 @@ defmodule Udia.Web.JourneyController do
       {:ok, journey_versioned} ->
         journey = Map.get(journey_versioned, :model)
         |> Udia.Repo.preload(:explorer)
-        |> Udia.Repo.preload(posts: :author)
        
         conn
         |> put_status(:created)
@@ -39,8 +36,7 @@ defmodule Udia.Web.JourneyController do
 
   def show(conn, %{"id" => id}) do
     journey = Logs.get_journey!(id)
-    journey = Udia.Repo.preload(journey, :explorer)
-    journey = Udia.Repo.preload(journey, :posts)
+    |> Udia.Repo.preload(:explorer)
     render(conn, "show.json", journey: journey)
   end
 
@@ -56,8 +52,7 @@ defmodule Udia.Web.JourneyController do
       case Logs.update_journey(cur_user, journey, journey_params) do
         {:ok, journey_versioned} ->
           journey = Map.get(journey_versioned, :model)
-          journey = Udia.Repo.preload(journey, :explorer)
-          journey = Udia.Repo.preload(journey, :posts)
+          |> Udia.Repo.preload(:explorer)
 
           conn
           |> put_status(:accepted)

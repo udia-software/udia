@@ -1,7 +1,6 @@
 defmodule Udia.Web.JourneyView do
   use Udia.Web, :view
   alias Udia.Web.JourneyView
-  alias Udia.Web.PostView
   alias Udia.Web.UserView
 
   def render("index.json", %{journeys: journeys}) do
@@ -18,7 +17,6 @@ defmodule Udia.Web.JourneyView do
       description: journey.description,
       explorer: render_one(journey.explorer, UserView, "user.json"),
       inserted_at: journey.inserted_at,
-      updated_at: journey.updated_at,
-      posts: render_many(journey.posts, PostView, "post.json")}
+      updated_at: journey.updated_at}
   end
 end

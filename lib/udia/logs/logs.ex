@@ -286,7 +286,7 @@ defmodule Udia.Logs do
 
   """
   def delete_journey(%Journey{} = journey) do
-    Repo.delete(journey)
+    PaperTrail.delete(journey)
   end
 
   @doc """

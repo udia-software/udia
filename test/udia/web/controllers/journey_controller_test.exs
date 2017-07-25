@@ -6,7 +6,6 @@ defmodule Udia.Web.JourneyControllerTest do
   @invalid_attrs %{description: nil, title: nil}
 
   @user_params %{username: "zezima", password: "n0valyfe"}
-  @post_params %{content: "nyan cat", title: "shitpost123", type: "text"}
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
@@ -37,46 +36,8 @@ defmodule Udia.Web.JourneyControllerTest do
       "title" => journey.title,
       "description" => journey.description,
       "inserted_at" => String.replace(to_string(journey.inserted_at), " ", "T"),
-      "updated_at" => String.replace(to_string(journey.updated_at), " ", "T"),
-      "posts" => []
+      "updated_at" => String.replace(to_string(journey.updated_at), " ", "T")
     }]
-  end
-
-  test "lists nested posts on index", %{conn: conn} do
-    user = insert_user(@user_params)
-    journey = insert_journey(user, @journey_params)
-    post = insert_post_with_journey(user, journey, @post_params)
-
-    conn = build_conn()
-    |> get(journey_path(conn, :index))
-
-    response = json_response(conn, 200)
-    assert response["data"] == [%{
-      "id" => journey.id,
-      "explorer" => %{
-        "username" => user.username,
-        "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
-        "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
-      },
-      "title" => journey.title,
-      "description" => journey.description,
-      "inserted_at" => String.replace(to_string(journey.inserted_at), " ", "T"),
-      "updated_at" => String.replace(to_string(journey.updated_at), " ", "T"),
-      "posts" => [%{
-        "id" => post.id,
-        "author" => %{
-          "username" => user.username,
-          "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
-          "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
-        },
-        "content" => post.content,
-        "title" => post.title,
-        "type" => "text",
-        "inserted_at" => String.replace(to_string(post.inserted_at), " ", "T"),
-        "updated_at" => String.replace(to_string(post.updated_at), " ", "T"),
-      }]
-    }]
-
   end
 
   test "creates journey and renders journey when data is valid", %{conn: conn} do
