@@ -9,6 +9,7 @@ defmodule Udia.Logs do
   alias Udia.Accounts.User
   alias Udia.Logs.Post
   alias Udia.Logs.Comment
+  alias Udia.Logs.Journey
 
   @doc """
   Returns the list of posts.

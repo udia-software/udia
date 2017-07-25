@@ -1,15 +1,17 @@
 defmodule Udia.Web.JourneyController do
   use Udia.Web, :controller
 
+  import Ecto.Query
   alias Udia.Logs
+  alias Udia.Logs.Journey
 
   plug Guardian.Plug.EnsureAuthenticated, [handler: Udia.Web.SessionController] when action in [:create, :update, :delete]
 
   action_fallback Udia.Web.FallbackController
 
   def index(conn, params) do
-    page = 
-      Logs
+    page =
+      Journey
       |> order_by(desc: :updated_at)
       |> Udia.Repo.paginate(params)
     journeys = page.entries
