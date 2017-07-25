@@ -9,6 +9,7 @@ defmodule Udia.Logs do
   alias Udia.Accounts.User
   alias Udia.Logs.Post
   alias Udia.Logs.Comment
+  alias Udia.Logs.Journey
 
   @doc """
   Returns the list of posts.
@@ -203,5 +204,102 @@ defmodule Udia.Logs do
   """
   def change_comment(%Comment{} = comment) do
     Comment.changeset(comment, %{})
+  end
+
+  alias Udia.Logs.Journey
+
+  @doc """
+  Returns the list of journeys.
+
+  ## Examples
+
+      iex> list_journeys()
+      [%Journey{}, ...]
+
+  """
+  def list_journeys do
+    Repo.all(Journey)
+  end
+
+  @doc """
+  Gets a single journey.
+
+  Raises `Ecto.NoResultsError` if the Journey does not exist.
+
+  ## Examples
+
+      iex> get_journey!(123)
+      %Journey{}
+
+      iex> get_journey!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_journey!(id), do: Repo.get!(Journey, id)
+
+  @doc """
+  Creates a journey.
+
+  ## Examples
+
+      iex> create_journey(%{field: value})
+      {:ok, %Journey{}}
+
+      iex> create_journey(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_journey(%User{} = user, attrs \\ %{}) do
+    user 
+    |> Ecto.build_assoc(:journeys)
+    |> Journey.changeset(attrs)
+    |> PaperTrail.insert(user: user)
+  end
+
+  @doc """
+  Updates a journey.
+
+  ## Examples
+
+      iex> update_journey(journey, %{field: new_value})
+      {:ok, %Journey{}}
+
+      iex> update_journey(journey, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_journey(%User{} = user, %Journey{} = journey, attrs) do
+    journey
+    |> Journey.changeset(attrs)
+    |> PaperTrail.update(user: user)
+  end
+
+  @doc """
+  Deletes a Journey.
+
+  ## Examples
+
+      iex> delete_journey(journey)
+      {:ok, %Journey{}}
+
+      iex> delete_journey(journey)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_journey(%Journey{} = journey) do
+    PaperTrail.delete(journey)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking journey changes.
+
+  ## Examples
+
+      iex> change_journey(journey)
+      %Ecto.Changeset{source: %Journey{}}
+
+  """
+  def change_journey(%Journey{} = journey) do
+    Journey.changeset(journey, %{})
   end
 end

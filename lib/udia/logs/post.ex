@@ -12,6 +12,7 @@ defmodule Udia.Logs.Post do
     field :content, :string
     field :type, :string
     belongs_to :author, Udia.Accounts.User
+    belongs_to :journey, Udia.Logs.Journey
     has_many :comments, Udia.Logs.Comment
 
     timestamps()
@@ -19,8 +20,8 @@ defmodule Udia.Logs.Post do
 
   @doc false
   def changeset(%Post{} = post, attrs) do
-    post
-    |> cast(attrs, [:title, :type, :content])
+    post = post
+    |> cast(attrs, [:title, :type, :content, :journey_id])
     |> validate_required([:title, :type, :content])
   end
 end

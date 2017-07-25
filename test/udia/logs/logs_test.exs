@@ -10,6 +10,7 @@ defmodule Udia.LogsTest do
     @create_attrs %{content: "some content", title: "some title", type: "text"}
     @update_attrs %{content: "some updated content", title: "some updated title"}
     @invalid_attrs %{content: nil, title: nil, type: nil}
+    @journey_params %{description: "some description", title: "some title"}
 
     test "list_posts/1 returns all posts" do
       assert Logs.list_posts() == []
@@ -29,13 +30,14 @@ defmodule Udia.LogsTest do
       end
     end
 
-    test "create_post/1 with valid data creates a post" do
+    test "create_post/2 with valid data creates a post" do
       user = insert_user(@user_params)
 
       assert {:ok, %{
         model: %Post{} = post,
         version: %PaperTrail.Version{}
       }} = Logs.create_post(user, @create_attrs)
+
       assert post.author_id == user.id
       assert post.content == "some content"
       assert post.title == "some title"
@@ -45,7 +47,35 @@ defmodule Udia.LogsTest do
       assert Map.has_key?(post, :id)
     end
 
-    test "create_post/1 with invalid data returns error changeset" do
+    test "create_post/2 with a journey creates a post with journey correctly referenced" do
+      user = insert_user(@user_params)
+      journey = insert_journey(user, @journey_params)
+
+      assert {:ok, %{
+        model: %Post{} = post,
+        version: %PaperTrail.Version{}
+      }} = Logs.create_post(user, @create_attrs |> Enum.into(%{
+        journey_id: journey.id
+      }))
+
+      assert post.author_id == user.id
+      assert post.content == "some content"
+      assert post.title == "some title"
+      assert post.type == "text"
+      assert post.journey_id == journey.id
+      assert Map.has_key?(post, :inserted_at)
+      assert Map.has_key?(post, :updated_at)
+      assert Map.has_key?(post, :id)
+
+      updated_journey = Udia.Logs.get_journey!(journey.id)
+      |> Udia.Repo.preload(:posts)
+      assert updated_journey.posts == [post]
+
+      post = Udia.Repo.preload(post, :journey)
+      assert post.journey.title == journey.title
+    end
+
+    test "create_post/2 with invalid data returns error changeset" do
       user = insert_user(@user_params)
       assert {:error, %Ecto.Changeset{} = err} = Logs.create_post(user, @invalid_attrs)
       assert err.errors == [
@@ -55,7 +85,7 @@ defmodule Udia.LogsTest do
       ]
     end
 
-    test "update_post/2 with valid data updates the post" do
+    test "update_post/3 with valid data updates the post" do
       user = insert_user(@user_params)
       base_post = insert_post(user, @create_attrs)
 
@@ -68,7 +98,7 @@ defmodule Udia.LogsTest do
       assert post.id == base_post.id
     end
 
-    test "update_post/2 with invalid data returns error changeset" do
+    test "update_post/3 with invalid data returns error changeset" do
       user = insert_user(@user_params)
       base_post = insert_post(user, @create_attrs)
 
@@ -136,7 +166,7 @@ defmodule Udia.LogsTest do
       end
     end
 
-    test "create_comment/1 with valid data creates a comment" do
+    test "create_comment/2 with valid data creates a comment" do
       user = insert_user(@user_params)
       post = insert_post(user, @post_params)
 
@@ -160,7 +190,7 @@ defmodule Udia.LogsTest do
       assert updated_post.comments == [comment]
     end
 
-    test "create_comment/1 with invalid data returns error changeset" do
+    test "create_comment/2 with invalid data returns error changeset" do
       user = insert_user(@user_params)
 
       assert {:error, %Ecto.Changeset{} = err} = Logs.create_comment(user, @invalid_attrs)
@@ -171,7 +201,7 @@ defmodule Udia.LogsTest do
       ]
     end
 
-    test "update_comment/2 with valid data updates the comment" do
+    test "update_comment/3 with valid data updates the comment" do
       user = insert_user(@user_params)
       post = insert_post(user, @post_params)
       base_comment = insert_comment(user, post, @create_attrs)
@@ -184,7 +214,7 @@ defmodule Udia.LogsTest do
       assert comment.id == base_comment.id
     end
 
-    test "update_comment/2 with invalid data returns error changeset" do
+    test "update_comment/3 with invalid data returns error changeset" do
       user = insert_user(@user_params)
       post = insert_post(user, @post_params)
       base_comment = insert_comment(user, post, @create_attrs)
@@ -220,5 +250,98 @@ defmodule Udia.LogsTest do
       assert %Ecto.Changeset{} = changeset
       assert changeset.data == comment
     end
+  end
+
+  describe "journeys" do
+    alias Udia.Logs.Journey
+
+    @user_params %{username: "ram", password: "dass~~"}
+    @journey_params %{description: "some description", title: "some title"}
+
+    @update_attrs %{description: "some updated description", title: "some updated title"}
+    @invalid_attrs %{description: nil, title: nil}
+    
+    test "list_journeys/0 returns all journeys" do
+      assert Logs.list_journeys() == []
+
+      user = insert_user(@user_params)
+      journey = insert_journey(user, @journey_params)
+
+      assert Logs.list_journeys() == [journey]
+    end
+
+    test "get_journey!/1 returns the journey with given id" do
+      user = insert_user(@user_params)
+      journey = insert_journey(user, @journey_params)
+      
+      assert Logs.get_journey!(journey.id) == journey
+    end
+
+    test "create_journey/1 with valid data creates a journey" do
+      user = insert_user(@user_params)
+      
+      assert {:ok, %{
+        model: %Journey{} = journey,
+        version: %PaperTrail.Version{}
+      }} = Logs.create_journey(user, @journey_params)
+
+      assert journey.description == "some description"
+      assert journey.title == "some title"
+    end
+
+    test "create_journey/1 with invalid data returns error changeset" do
+      user = insert_user(@user_params)
+
+      assert {:error, %Ecto.Changeset{} = err} = Logs.create_journey(user, @invalid_attrs)
+      assert err.errors == [
+        title: {"can't be blank", [validation: :required]},
+        description: {"can't be blank", [validation: :required]}
+      ]    
+    end
+
+    test "update_journey/2 with valid data updates the journey" do
+      user = insert_user(@user_params)
+      base_journey = insert_journey(user, @journey_params)
+
+      assert {:ok, %{
+        model: %Journey{} = journey,
+        version: %PaperTrail.Version{}
+      }} = Logs.update_journey(user, base_journey, @update_attrs)
+      assert journey.description == "some updated description"
+      assert journey.id == base_journey.id
+    end
+
+    test "update_journey/2 with invalid data returns error changeset" do
+      user = insert_user(@user_params)
+      base_journey = insert_journey(user, @journey_params)
+
+      assert {:error, %Ecto.Changeset{} = err} = Logs.update_journey(user, base_journey, @invalid_attrs)
+      assert err.errors == [
+        title: {"can't be blank", [validation: :required]},
+        description: {"can't be blank", [validation: :required]}
+      ]
+    end
+
+    test "delete_journey/1 deletes the journey" do
+      user = insert_user(@user_params)
+      journey = insert_journey(user, @journey_params)
+
+      assert {:ok, %{
+        model: %Journey{} = journey,
+        version: %PaperTrail.Version{}
+      }} = Logs.delete_journey(journey)
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Logs.get_journey!(journey.id)
+      end
+    end
+
+    test "change_journey/1 returns a journey changeset" do
+      user = insert_user(@user_params)
+      journey = insert_journey(user, @journey_params)
+
+      assert %Ecto.Changeset{} = Logs.change_journey(journey)
+    end
+    
   end
 end
