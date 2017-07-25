@@ -7,11 +7,14 @@ defmodule Udia.Web.JourneyController do
 
   action_fallback Udia.Web.FallbackController
 
-  def index(conn, _params) do
-    journeys = Logs.list_journeys()
-    |> Udia.Repo.preload(:explorer)
-
-    render(conn, "index.json", journeys: journeys)
+  def index(conn, params) do
+    page = 
+      Logs
+      |> order_by(desc: :updated_at)
+      |> Udia.Repo.paginate(params)
+    journeys = page.entries
+      |> Udia.Repo.preload(:explorer)
+    render(conn, "index.json", journeys: journeys, pagination: Udia.PaginationHelpers.pagination(page))
   end
 
   def create(conn, journey_params) do
