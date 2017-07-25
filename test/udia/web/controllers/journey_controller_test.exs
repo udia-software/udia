@@ -40,6 +40,33 @@ defmodule Udia.Web.JourneyControllerTest do
     }]
   end
 
+  test "show journey given id", %{conn: conn} do
+    # Create the user
+    user = insert_user()
+    journey = insert_journey(user, @journey_params)
+
+    # Show the journey
+    conn = get conn, journey_path(conn, :show, journey.id)
+    response = json_response(conn, 200)
+    assert response["data"] == %{
+      "id" => journey.id,
+      "explorer" => %{
+        "username" => user.username,
+        "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
+        "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
+      },
+      "title" => journey.title,
+      "description" => journey.description,
+      "inserted_at" => String.replace(to_string(journey.inserted_at), " ", "T"),
+      "updated_at" => String.replace(to_string(journey.updated_at), " ", "T")
+    }
+
+    # Throw a 404 if journey not found
+    assert_raise Ecto.NoResultsError, fn ->
+      get conn, journey_path(conn, :show, -1)
+    end
+  end
+
   test "creates journey and renders journey when data is valid", %{conn: conn} do
     user = insert_user(@user_params)
     conn = post conn, session_path(conn, :create), @user_params
