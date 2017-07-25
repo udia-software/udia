@@ -32,6 +32,23 @@ defmodule Udia.LogsTest do
 
     test "create_post/2 with valid data creates a post" do
       user = insert_user(@user_params)
+
+      assert {:ok, %{
+        model: %Post{} = post,
+        version: %PaperTrail.Version{}
+      }} = Logs.create_post(user, @create_attrs)
+
+      assert post.author_id == user.id
+      assert post.content == "some content"
+      assert post.title == "some title"
+      assert post.type == "text"
+      assert Map.has_key?(post, :inserted_at)
+      assert Map.has_key?(post, :updated_at)
+      assert Map.has_key?(post, :id)
+    end
+
+    test "create_post/2 with a journey creates a post with journey correctly referenced" do
+      user = insert_user(@user_params)
       journey = insert_journey(user, @journey_params)
 
       assert {:ok, %{
