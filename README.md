@@ -90,14 +90,15 @@ Application will work with default settings if using something like [PostgresApp
 
 The following environment variables must be set for the application to run in production.
 
-| Environment Variable  | Default Value          | Description            |
-| --------------------- |:----------------------:| ----------------------:|
-| `PORT`                | ``                     | Port for web endpoint  |
-| `DOMAIN_NAME`         | `"udia.herokuapp.com"` | Domain name for web    |
-| `SECRET_KEY_BASE`     | ``                     | Secret key for web     |
-| `DATABASE_URL`        | ``                     | Postgres database URL  |
-| `POOL_SIZE`           | `"10"`                 | Postgres pool size     |
-| `GUARDIAN_SECRET_KEY` | ``                     | Secret for Guardian    |
+| Environment Variable  | Default Value           | Description            |
+| --------------------- |:-----------------------:| ----------------------:|
+| `PORT`                | ``                      | Port for web endpoint  |
+| `DOMAIN_NAME`         | `"udia.herokuapp.com"`  | Domain name for web    |
+| `SECRET_KEY_BASE`     | ``                      | Secret key for web     |
+| `DATABASE_URL`        | ``                      | Postgres database URL  |
+| `POOL_SIZE`           | `"10"`                  | Postgres pool size     |
+| `GUARDIAN_SECRET_KEY` | ``                      | Secret for Guardian    |
+| `CLIENT_ORIGIN_URL`   | `"https://www.udia.ca"` | Domain URL for client  |
 
 ## License
 

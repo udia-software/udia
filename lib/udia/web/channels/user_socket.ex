@@ -22,6 +22,7 @@
 ###############################################################################
 defmodule Udia.Web.UserSocket do
   use Phoenix.Socket
+  import Guardian.Phoenix.Socket
 
   ## Channels
   channel "post:*", Udia.Web.PostChannel
@@ -30,31 +31,16 @@ defmodule Udia.Web.UserSocket do
     transport :websocket, Phoenix.Transports.WebSocket, timeout: 60_000
   else
     transport :websocket, Phoenix.Transports.WebSocket, timeout: 45_000,
-      check_origin: ["https://udia.ca", "https://www.udia.ca"]
+      check_origin: [
+        Application.get_env(:udia, :udia_client)[:client_origin_url],
+      ]
   end
 
-  ## Transports
-  # transport :longpoll, Phoenix.Transports.LongPoll
-
-  # Socket params are passed from the client and can
-  # be used to verify and authenticate a user. After
-  # verification, you can put default assigns into
-  # the socket that will be set for all channels, ie
-  #
-  #     {:ok, assign(socket, :user_id, verified_user_id)}
-  #
-  # To deny connection, return `:error`.
-  #
-  # See `Phoenix.Token` documentation for examples in
-  # performing token verification on connect.
-  @max_age 2 * 7 * 24 * 60 * 60
-  def connect(%{"token" => token}, socket) do
-    case Phoenix.Token.verify(socket, "user socket", token, max_age: @max_age) do
-      {:ok, user_id} ->
-        # if the user id exists, assign to the user id.
-        {:ok, assign(socket, :user_id, user_id)}
-      {:error, _reason} ->
-        # if the user doesn't exist, assign the null id user
+  def connect(%{"guardian_token" => jwt}, socket) do
+    case sign_in(socket, jwt) do
+      {:ok, authed_socket, guardian_params} ->
+        {:ok, assign(authed_socket, :user_id, guardian_params.resource.username)}
+      _ ->
         {:ok, assign(socket, :user_id, "")}
     end
   end
@@ -63,17 +49,8 @@ defmodule Udia.Web.UserSocket do
     {:ok, assign(socket, :user_id, "")}
   end
 
-  # Socket id's are topics that allow you to identify all sockets for a given user:
-  #
-  #     def id(socket), do: "user_socket:#{socket.assigns.user_id}"
-  #
-  # Would allow you to broadcast a "disconnect" event and terminate
-  # all active sockets and channels for a given user:
-  #
-  #     Udia.Web.Endpoint.broadcast("user_socket:#{user.id}", "disconnect", %{})
-  #
-  # Returning `nil` makes this socket anonymous.
   def id(socket) do
+    # unauthenticated will have empty string user_id, no guardian_default_claims
     "users_socket:#{socket.assigns.user_id}"
   end
 end

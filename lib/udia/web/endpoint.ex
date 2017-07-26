@@ -45,8 +45,7 @@ defmodule Udia.Web.Endpoint do
     ]
   else
     plug CORSPlug, origin: [
-      "https://udia.ca",
-      "https://www.udia.ca",
+      Application.get_env(:udia, :client_origin_url)[:client_origin_url],
     ]
   end
 
