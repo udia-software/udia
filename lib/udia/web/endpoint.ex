@@ -39,15 +39,9 @@ defmodule Udia.Web.Endpoint do
     key: "_udia_key",
     signing_salt: "/QNbi41D"
 
-  if Application.get_env(:udia, :environment) == :dev do
-    plug CORSPlug, origin: [
-      "http://localhost:3000",
-    ]
-  else
-    plug CORSPlug, origin: [
-      Application.get_env(:udia, :client_origin_url)[:client_origin_url],
-    ]
-  end
+  plug CORSPlug, origin: [
+    Application.get_env(:udia, :udia_client)[:client_origin_url],
+  ]
 
 
   plug Udia.Web.Router

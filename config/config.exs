@@ -16,6 +16,9 @@ config :logger, :console,
 config :udia, :lets_encrypt,
   challenge: System.get_env("LETS_ENCRYPT_CHALLENGE") || "NO_CHALLENGE"
 
+config :udia, :udia_client,
+  client_origin_url: "http://localhost:3000"
+
 config :guardian, Guardian,
   hooks: GuardianDb,
   allowed_algos: ["HS512"],
