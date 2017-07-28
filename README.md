@@ -6,6 +6,7 @@
 [![Deps Status](https://beta.hexfaktor.org/badge/prod/github/udia-software/udia.svg)](https://beta.hexfaktor.org/github/udia-software/udia)
 [![Hex.pm](https://img.shields.io/hexpm/v/udia.svg)](https://hex.pm/packages/udia)
 [![Docs](https://img.shields.io/badge/hexdocs-udia-green.svg)](https://hexdocs.pm/udia/api-reference.html)
+[![Join the chat at https://gitter.im/udia-software/Lobby](https://badges.gitter.im/udia-software/Lobby.svg)](https://gitter.im/udia-software/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [![UDIA](logo.png)](http://a.udia.ca)
 
