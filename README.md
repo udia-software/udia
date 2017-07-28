@@ -6,6 +6,7 @@
 [![Deps Status](https://beta.hexfaktor.org/badge/prod/github/udia-software/udia.svg)](https://beta.hexfaktor.org/github/udia-software/udia)
 [![Hex.pm](https://img.shields.io/hexpm/v/udia.svg)](https://hex.pm/packages/udia)
 [![Docs](https://img.shields.io/badge/hexdocs-udia-green.svg)](https://hexdocs.pm/udia/api-reference.html)
+[![Join the chat at https://gitter.im/udia-software/Lobby](https://badges.gitter.im/udia-software/Lobby.svg)](https://gitter.im/udia-software/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [![UDIA](logo.png)](http://a.udia.ca)
 
@@ -90,14 +91,15 @@ Application will work with default settings if using something like [PostgresApp
 
 The following environment variables must be set for the application to run in production.
 
-| Environment Variable  | Default Value          | Description            |
-| --------------------- |:----------------------:| ----------------------:|
-| `PORT`                | ``                     | Port for web endpoint  |
-| `DOMAIN_NAME`         | `"udia.herokuapp.com"` | Domain name for web    |
-| `SECRET_KEY_BASE`     | ``                     | Secret key for web     |
-| `DATABASE_URL`        | ``                     | Postgres database URL  |
-| `POOL_SIZE`           | `"10"`                 | Postgres pool size     |
-| `GUARDIAN_SECRET_KEY` | ``                     | Secret for Guardian    |
+| Environment Variable  | Default Value           | Description            |
+| --------------------- |:-----------------------:| ----------------------:|
+| `PORT`                | ``                      | Port for web endpoint  |
+| `DOMAIN_NAME`         | `"udia.herokuapp.com"`  | Domain name for web    |
+| `SECRET_KEY_BASE`     | ``                      | Secret key for web     |
+| `DATABASE_URL`        | ``                      | Postgres database URL  |
+| `POOL_SIZE`           | `"10"`                  | Postgres pool size     |
+| `GUARDIAN_SECRET_KEY` | ``                      | Secret for Guardian    |
+| `CLIENT_ORIGIN_URL`   | `"https://www.udia.ca"` | Domain URL for client  |
 
 ## License
 
