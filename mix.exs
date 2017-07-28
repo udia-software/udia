@@ -32,22 +32,25 @@ defmodule Udia.Mixfile do
   #
   # Type `mix help deps` for examples and options.
   defp deps do
-    [{:phoenix, "~> 1.3.0-rc.3", override: true},
-     {:phoenix_pubsub, "~> 1.0.2"},
-     {:phoenix_ecto, "~> 3.2.3"},
-     {:postgrex, "~> 0.13.3"},
-     {:phoenix_html, "~> 2.10.2"},
-     {:phoenix_live_reload, "~> 1.0.8", only: :dev},
-     {:gettext, "~> 0.13.1"},
-     {:cowboy, "~> 1.1.2"},
-     {:comeonin, "~> 4.0.0"},
-     {:cors_plug, "~> 1.4"},
-     {:guardian, "~> 0.14.5"},
-     {:guardian_db, "~> 0.8.0"},
-     {:scrivener_ecto, "~> 1.2.2"},
-     {:paper_trail, "~> 0.7.5"},
-     {:excoveralls, "~> 0.7.0", only: :test},
-     {:credo, "~> 0.8.1", only: [:dev, :test]}]
+    [
+      {:bcrypt_elixir, "~> 0.12"},
+      {:phoenix, "~> 1.3.0-rc.3", override: true},
+      {:phoenix_pubsub, "~> 1.0.2"},
+      {:phoenix_ecto, "~> 3.2.3"},
+      {:postgrex, "~> 0.13.3"},
+      {:phoenix_html, "~> 2.10.2"},
+      {:phoenix_live_reload, "~> 1.0.8", only: :dev},
+      {:gettext, "~> 0.13.1"},
+      {:cowboy, "~> 1.1.2"},
+      {:comeonin, "~> 4.0.0"},
+      {:cors_plug, "~> 1.4"},
+      {:guardian, "~> 0.14.5"},
+      {:guardian_db, "~> 0.8.0"},
+      {:scrivener_ecto, "~> 1.2.2"},
+      {:paper_trail, "~> 0.7.5"},
+      {:excoveralls, "~> 0.7.0", only: :test},
+      {:credo, "~> 0.8.1", only: [:dev, :test]}
+    ]
   end
 
   defp description do
