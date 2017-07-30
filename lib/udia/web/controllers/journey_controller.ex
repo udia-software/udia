@@ -23,7 +23,8 @@ defmodule Udia.Web.JourneyController do
     cur_user = Guardian.Plug.current_resource(conn)
     case Logs.create_journey(cur_user, journey_params) do
       {:ok, journey_versioned} ->
-        journey = Map.get(journey_versioned, :model)
+        journey = journey_versioned
+        |> Map.get(:model)
         |> Udia.Repo.preload(:explorer)
        
         conn
@@ -40,7 +41,8 @@ defmodule Udia.Web.JourneyController do
   end
 
   def show(conn, %{"id" => id}) do
-    journey = Logs.get_journey!(id)
+    journey = id
+    |> Logs.get_journey!()
     |> Udia.Repo.preload(:explorer)
     render(conn, "show.json", journey: journey)
   end
@@ -56,7 +58,8 @@ defmodule Udia.Web.JourneyController do
     else
       case Logs.update_journey(cur_user, journey, journey_params) do
         {:ok, journey_versioned} ->
-          journey = Map.get(journey_versioned, :model)
+          journey = journey_versioned
+          |> Map.get(:model)
           |> Udia.Repo.preload(:explorer)
 
           conn
