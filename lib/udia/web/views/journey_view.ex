@@ -3,8 +3,11 @@ defmodule Udia.Web.JourneyView do
   alias Udia.Web.JourneyView
   alias Udia.Web.UserView
 
-  def render("index.json", %{journeys: journeys}) do
-    %{data: render_many(journeys, JourneyView, "journey.json")}
+  def render("index.json", %{journeys: journeys, pagination: pagination}) do
+    %{
+      data: render_many(journeys, JourneyView, "journey.json"),
+      pagination: pagination
+    }
   end
 
   def render("show.json", %{journey: journey}) do

@@ -23,7 +23,7 @@ defmodule Udia.Web.JourneyController do
         |> order_by(desc: :updated_at)
         |> Udia.Repo.paginate(params)
     end
-      
+    
     journeys = page.entries
       |> Udia.Repo.preload(:explorer)
     render(conn, "index.json", journeys: journeys, pagination: Udia.PaginationHelpers.pagination(page))
