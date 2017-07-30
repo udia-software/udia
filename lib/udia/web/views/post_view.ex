@@ -21,6 +21,7 @@ defmodule Udia.Web.PostView do
       content: post.content,
       inserted_at: post.inserted_at,
       updated_at: post.updated_at,
-      author: render_one(post.author, UserView, "user.json")}
+      author: render_one(post.author, UserView, "user.json"),
+      journey: post.journey_id}
   end
 end

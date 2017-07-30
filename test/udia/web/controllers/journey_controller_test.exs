@@ -6,6 +6,8 @@ defmodule Udia.Web.JourneyControllerTest do
   @invalid_attrs %{description: nil, title: nil}
 
   @user_params %{username: "zezima", password: "n0valyfe"}
+  @user_params_2 %{username: "t3hnoobshow", password: "lumbridge"}
+  @user_params_3 %{username: "mark gerhard", password: "andrew gower"}
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
@@ -38,6 +40,40 @@ defmodule Udia.Web.JourneyControllerTest do
       "inserted_at" => String.replace(to_string(journey.inserted_at), " ", "T"),
       "updated_at" => String.replace(to_string(journey.updated_at), " ", "T")
     }]
+  end
+
+  test "lists journeys of a user", %{conn: conn} do
+    # create a user
+    user_1 = insert_user(@user_params)
+    user_2 = insert_user(@user_params_2)
+    user_3 = insert_user(@user_params_3)
+
+    # insert journeys
+    journey_1_of_user_1 = insert_journey(user_1, @journey_params)
+    journey_2_of_user_1 = insert_journey(user_1, @journey_params)
+    journey_1_of_user_2 = insert_journey(user_2, @journey_params)
+
+    # test list journeys of user 1
+    conn = build_conn()
+    |> get(journey_path(conn, :index), %{"explorer_id": user_1.id})
+    response = json_response(conn, 200)
+    assert length(response["data"]) == 2
+    journey_ids = Enum.map(response["data"], fn j -> j["id"] end)
+    assert Enum.member?(journey_ids, journey_1_of_user_1.id)
+    assert Enum.member?(journey_ids, journey_2_of_user_1.id)
+    
+    # test list journeys of user 2
+    conn = build_conn()
+    |> get(journey_path(conn, :index), %{"explorer_id": user_2.id})
+    response = json_response(conn, 200)
+    assert length(response["data"]) == 1
+    assert Enum.at(response["data"], 0)["id"] == journey_1_of_user_2.id
+
+    # test list journeys of user 3
+    conn = build_conn()
+    |> get(journey_path(conn, :index), %{"explorer_id": user_3.id})
+    response = json_response(conn, 200)
+    assert length(response["data"]) == 0
   end
 
   test "show journey given id", %{conn: conn} do

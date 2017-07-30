@@ -10,10 +10,20 @@ defmodule Udia.Web.JourneyController do
   action_fallback Udia.Web.FallbackController
 
   def index(conn, params) do
-    page =
-      Journey
-      |> order_by(desc: :updated_at)
-      |> Udia.Repo.paginate(params)
+    page = cond do
+      Map.has_key?(params, "explorer_id") ->
+        explorer_id = Map.get(params, "explorer_id")
+
+        Journey
+        |> where([j], j.explorer_id == ^explorer_id)
+        |> order_by(desc: :updated_at)
+        |> Udia.Repo.paginate(params)
+      true ->
+        Journey
+        |> order_by(desc: :updated_at)
+        |> Udia.Repo.paginate(params)
+    end
+      
     journeys = page.entries
       |> Udia.Repo.preload(:explorer)
     render(conn, "index.json", journeys: journeys, pagination: Udia.PaginationHelpers.pagination(page))

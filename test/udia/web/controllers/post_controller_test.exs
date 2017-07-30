@@ -38,6 +38,7 @@ defmodule Udia.Web.PostControllerTest do
       "type" => "text",
       "inserted_at" => String.replace(to_string(post.inserted_at), " ", "T"),
       "updated_at" => String.replace(to_string(post.updated_at), " ", "T"),
+      "journey" => nil
     }]
   end
 
@@ -52,22 +53,27 @@ defmodule Udia.Web.PostControllerTest do
     post_with_journey = insert_post(user, @create_attrs |> Enum.into(%{"journey_id": journey.id}))
 
     #create a post not referencing the journey
-    post = insert_post(user, @create_attrs)
+    insert_post(user, @create_attrs)
     
     # test list all posts
     conn = build_conn()
     |> get(post_path(conn, :index), %{})
     response = json_response(conn, 200)
+    assert length(response["data"]) == 2
 
     # test list posts of a specific journey
     conn = build_conn()
     |> get(post_path(conn, :index), %{"journey_id": journey.id})
-    response = json_response(conn, 200)  
-    
+    response = json_response(conn, 200)
+    assert length(response["data"]) == 1
+    assert Enum.at(response["data"], 0)["id"] == post_with_journey.id
+    assert Enum.at(response["data"], 0)["journey"] == journey.id
+
     # test lists posts of an non-existent journey
     conn = build_conn()
     |> get(post_path(conn, :index), %{"journey_id": 1234567890})
     response = json_response(conn, 200)
+    assert length(response["data"]) == 0
   end
 
   test "show post given id", %{conn: conn} do
@@ -90,6 +96,7 @@ defmodule Udia.Web.PostControllerTest do
       "type" => "text",
       "inserted_at" => String.replace(to_string(post.inserted_at), " ", "T"),
       "updated_at" => String.replace(to_string(post.updated_at), " ", "T"),
+      "journey" => nil
     }
 
     # Throw a 404 (fallback controller)
