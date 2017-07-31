@@ -1,5 +1,5 @@
-defmodule Udia.Web.CommentControllerTest do
-  use Udia.Web.ConnCase
+defmodule UdiaWeb.CommentControllerTest do
+  use UdiaWeb.ConnCase
 
   @user_params %{username: "udia", password: "hunter2"}
   @post_params %{content: "Popular Test Post", title: "This Post Dawg", type: "text"}

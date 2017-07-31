@@ -3,10 +3,10 @@ use Mix.Config
 config :udia,
   ecto_repos: [Udia.Repo]
 
-config :udia, Udia.Web.Endpoint,
+config :udia, UdiaWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "hYywfBjO0UWwRXFyPCimrtCBLqCL5pbuvCcq31O2kE9tamarHP0avawxKANPtG62",
-  render_errors: [view: Udia.Web.ErrorView, accepts: ~w(html json)],
+  render_errors: [view: UdiaWeb.ErrorView, accepts: ~w(html json)],
   pubsub: [name: Udia.PubSub, adapter: Phoenix.PubSub.PG2]
 
 config :logger, :console,

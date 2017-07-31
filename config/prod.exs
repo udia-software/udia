@@ -2,7 +2,7 @@ use Mix.Config
 
 config :udia, :environment, :prod
 
-config :udia, Udia.Web.Endpoint,
+config :udia, UdiaWeb.Endpoint,
   http: [port: {:system, "PORT"}],
   url: [host: System.get_env("DOMAIN_NAME") || "udia.herokuapp.com", port: 443],
   force_ssl: [rewrite_on: [:x_forwarded_proto]],

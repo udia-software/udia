@@ -1,5 +1,5 @@
-defmodule Udia.Web.PageControllerTest do
-  use Udia.Web.ConnCase
+defmodule UdiaWeb.PageControllerTest do
+  use UdiaWeb.ConnCase
 
   test "GET /", %{conn: conn} do
     conn = get conn, "/"

@@ -1,5 +1,5 @@
-defmodule Udia.Web.PostControllerTest do
-  use Udia.Web.ConnCase
+defmodule UdiaWeb.PostControllerTest do
+  use UdiaWeb.ConnCase
 
   @create_attrs %{content: "some content", title: "some title", type: "text"}
   @update_attrs %{content: "some updated content", title: "some updated title"}

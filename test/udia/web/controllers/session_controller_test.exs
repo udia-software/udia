@@ -1,5 +1,5 @@
-defmodule Udia.Web.SessionControllerTest do
-  use Udia.Web.ConnCase
+defmodule UdiaWeb.SessionControllerTest do
+  use UdiaWeb.ConnCase
 
   @login_attrs %{username: "udia", password: "hunter2"}
   setup %{conn: conn} do

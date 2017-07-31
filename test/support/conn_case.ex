@@ -1,4 +1,4 @@
-defmodule Udia.Web.ConnCase do
+defmodule UdiaWeb.ConnCase do
   @moduledoc """
   This module defines the test case to be used by
   tests that require setting up a connection.
@@ -19,11 +19,11 @@ defmodule Udia.Web.ConnCase do
     quote do
       # Import conveniences for testing with connections
       use Phoenix.ConnTest
-      import Udia.Web.Router.Helpers
+      import UdiaWeb.Router.Helpers
       import Udia.TestHelpers
 
       # The default endpoint for testing
-      @endpoint Udia.Web.Endpoint
+      @endpoint UdiaWeb.Endpoint
     end
   end
 

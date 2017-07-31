@@ -1,5 +1,5 @@
-defmodule Udia.Web.UserControllerTest do
-  use Udia.Web.ConnCase
+defmodule UdiaWeb.UserControllerTest do
+  use UdiaWeb.ConnCase
 
   alias Udia.Accounts
 

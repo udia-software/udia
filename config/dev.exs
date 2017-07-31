@@ -2,20 +2,20 @@ use Mix.Config
 
 config :udia, :environment, :dev
 
-config :udia, Udia.Web.Endpoint,
+config :udia, UdiaWeb.Endpoint,
   http: [port: 4000],
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
   watchers: []
 
-config :udia, Udia.Web.Endpoint,
+config :udia, UdiaWeb.Endpoint,
   live_reload: [
     patterns: [
       ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$},
       ~r{priv/gettext/.*(po)$},
-      ~r{lib/udia/web/views/.*(ex)$},
-      ~r{lib/udia/web/templates/.*(eex)$}
+      ~r{lib/udia_web/views/.*(ex)$},
+      ~r{lib/udia_web/templates/.*(eex)$}
     ]
   ]
 
