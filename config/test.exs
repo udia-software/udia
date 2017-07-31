@@ -2,7 +2,7 @@ use Mix.Config
 
 config :udia, :environment, :test
 
-config :udia, Udia.Web.Endpoint,
+config :udia, UdiaWeb.Endpoint,
   http: [port: 4001],
   server: false
 

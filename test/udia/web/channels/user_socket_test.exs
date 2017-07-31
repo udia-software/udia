@@ -1,6 +1,6 @@
-defmodule Udia.Web.UserSocketTest do
-  use Udia.Web.ChannelCase, async: true
-  alias Udia.Web.UserSocket
+defmodule UdiaWeb.UserSocketTest do
+  use UdiaWeb.ChannelCase, async: true
+  alias UdiaWeb.UserSocket
 
   test "socket authentication with valid token" do
     user = insert_user(%{username: "udiasocketboi", password: "hunter2"})
