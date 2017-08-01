@@ -34,6 +34,7 @@ defmodule Udia.Web.JourneyControllerTest do
         "username" => user.username,
         "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
         "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
+        "id" => user.id,
       },
       "title" => journey.title,
       "description" => journey.description,
@@ -90,6 +91,7 @@ defmodule Udia.Web.JourneyControllerTest do
         "username" => user.username,
         "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
         "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
+        "id" => user.id,
       },
       "title" => journey.title,
       "description" => journey.description,
@@ -120,6 +122,7 @@ defmodule Udia.Web.JourneyControllerTest do
       "username" => user.username,
       "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
       "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
+      "id" => user.id,
     }
     assert response["data"]["inserted_at"]
     assert response["data"]["updated_at"]
@@ -168,6 +171,7 @@ defmodule Udia.Web.JourneyControllerTest do
       "username" => user.username,
       "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
       "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
+      "id" => user.id,
     }
     assert response["data"]["inserted_at"]
     assert response["data"]["updated_at"]

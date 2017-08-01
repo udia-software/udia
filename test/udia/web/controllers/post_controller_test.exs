@@ -32,6 +32,7 @@ defmodule Udia.Web.PostControllerTest do
         "username" => user.username,
         "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
         "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
+        "id" => user.id,
       },
       "content" => "some content",
       "title" => "some title",
@@ -90,6 +91,7 @@ defmodule Udia.Web.PostControllerTest do
         "username" => user.username,
         "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
         "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
+        "id" => user.id,
       },
       "content" => "some content",
       "title" => "some title",
@@ -124,6 +126,7 @@ defmodule Udia.Web.PostControllerTest do
       "username" => user.username,
       "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
       "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
+      "id" => user.id,
     }
     assert response["data"]["inserted_at"]
     assert response["data"]["updated_at"]
@@ -177,6 +180,7 @@ defmodule Udia.Web.PostControllerTest do
       "username" => user.username,
       "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
       "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
+      "id" => user.id,
     }
     assert response["data"]["content"] == "some updated content"
     assert response["data"]["title"] == "some updated title"

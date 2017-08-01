@@ -34,6 +34,7 @@ defmodule Udia.Web.CommentControllerTest do
         "username" => user.username,
         "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
         "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
+        "id" => user.id,
       },
       "content" => "some content",
       "parent_id" => nil,
@@ -64,6 +65,7 @@ defmodule Udia.Web.CommentControllerTest do
         "username" => user.username,
         "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
         "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
+        "id" => user.id,
       },
       "content" => "some content",
       "parent_id" => nil,
@@ -84,6 +86,7 @@ defmodule Udia.Web.CommentControllerTest do
         "username" => user.username,
         "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
         "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
+        "id" => user.id,
       },
       "content" => "some content",
       "parent_id" => nil,
@@ -115,6 +118,7 @@ defmodule Udia.Web.CommentControllerTest do
         "username" => user.username,
         "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
         "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
+        "id" => user.id,
       },
       "content" => "some content",
       "parent_id" => nil,
@@ -138,6 +142,7 @@ defmodule Udia.Web.CommentControllerTest do
         "username" => user.username,
         "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
         "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
+        "id" => user.id,
       },
       "content" => "some nested content",
       "parent_id" => comment.id,
@@ -162,6 +167,7 @@ defmodule Udia.Web.CommentControllerTest do
         "username" => user.username,
         "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
         "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
+        "id" => user.id,
       },
       "content" => "some content",
       "parent_id" => nil,
@@ -197,6 +203,7 @@ defmodule Udia.Web.CommentControllerTest do
       "username" => user.username,
       "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
       "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
+      "id" => user.id,
     }
     assert response["data"]["inserted_at"]
     assert response["data"]["updated_at"]
@@ -221,6 +228,7 @@ defmodule Udia.Web.CommentControllerTest do
       "username" => user.username,
       "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
       "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
+      "id" => user.id,
     }
     assert response["data"]["inserted_at"]
     assert response["data"]["updated_at"]
@@ -282,6 +290,7 @@ defmodule Udia.Web.CommentControllerTest do
       "username" => user.username,
       "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
       "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
+      "id" => user.id,
     }
     assert response["data"]["inserted_at"] == String.replace(to_string(comment.inserted_at), " ", "T")
     assert response["data"]["updated_at"]

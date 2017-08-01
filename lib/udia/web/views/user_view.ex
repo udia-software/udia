@@ -16,6 +16,7 @@ defmodule Udia.Web.UserView do
   def render("user.json", %{user: user}) do
     %{username: user.username,
       inserted_at: user.inserted_at,
-      updated_at: user.updated_at}
+      updated_at: user.updated_at,
+      id: user.id}
   end
 end
