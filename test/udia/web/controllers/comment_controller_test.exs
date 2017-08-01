@@ -200,6 +200,30 @@ defmodule Udia.Web.CommentControllerTest do
     }
     assert response["data"]["inserted_at"]
     assert response["data"]["updated_at"]
+
+    # create a nested comment
+    comment_parent_id = response["data"]["id"]
+    conn = build_conn()
+    |> put_req_header("authorization", "Bearer: #{jwt}")
+    conn = post conn, comment_path(conn, :create), %{
+      type: "text",
+      content: "Nested Comment",
+      post_id: post.id,
+      parent_id: comment_parent_id
+    }
+    response = json_response(conn, 201)
+    assert response["data"]["id"]
+    assert response["data"]["parent_id"] == comment_parent_id
+    assert response["data"]["post_id"] == post.id
+    assert response["data"]["type"] == "text"
+    assert response["data"]["content"] == "Nested Comment"
+    assert response["data"]["author"] == %{
+      "username" => user.username,
+      "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
+      "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
+    }
+    assert response["data"]["inserted_at"]
+    assert response["data"]["updated_at"]
   end
   
   test "does not create comment and renders errors when data is invalid", %{conn: conn} do
