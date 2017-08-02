@@ -56,7 +56,7 @@ defmodule UdiaWeb.JourneyControllerTest do
 
     # test list journeys of user 1
     conn = build_conn()
-    |> get(journey_path(conn, :index), %{"explorer_id": user_1.id})
+    |> get(journey_path(conn, :index), %{"username": user_1.username})
     response = json_response(conn, 200)
     assert length(response["data"]) == 2
     journey_ids = Enum.map(response["data"], fn j -> j["id"] end)
@@ -65,14 +65,14 @@ defmodule UdiaWeb.JourneyControllerTest do
     
     # test list journeys of user 2
     conn = build_conn()
-    |> get(journey_path(conn, :index), %{"explorer_id": user_2.id})
+    |> get(journey_path(conn, :index), %{"username": user_2.username})
     response = json_response(conn, 200)
     assert length(response["data"]) == 1
     assert Enum.at(response["data"], 0)["id"] == journey_1_of_user_2.id
 
     # test list journeys of user 3
     conn = build_conn()
-    |> get(journey_path(conn, :index), %{"explorer_id": user_3.id})
+    |> get(journey_path(conn, :index), %{"username": user_3.username})
     response = json_response(conn, 200)
     assert length(response["data"]) == 0
   end

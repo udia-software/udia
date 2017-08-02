@@ -11,8 +11,10 @@ defmodule UdiaWeb.JourneyController do
 
   def index(conn, params) do
     page = cond do
-      Map.has_key?(params, "explorer_id") ->
-        explorer_id = Map.get(params, "explorer_id")
+      Map.has_key?(params, "username") ->
+        username = Map.get(params, "username")
+        user = Udia.Accounts.get_user_by_username!(username)
+        explorer_id = user.id
 
         Journey
         |> where([j], j.explorer_id == ^explorer_id)
