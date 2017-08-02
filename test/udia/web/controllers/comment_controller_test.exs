@@ -24,7 +24,7 @@ defmodule UdiaWeb.CommentControllerTest do
     post = insert_post(user, @post_params)
     comment = insert_comment(user, post, @create_attrs)
 
-    # test post list on index
+    # test comment list on index
     conn = build_conn()
     |> get(comment_path(conn, :index))
     response = json_response(conn, 200)

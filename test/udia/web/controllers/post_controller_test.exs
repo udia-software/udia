@@ -4,6 +4,7 @@ defmodule UdiaWeb.PostControllerTest do
   @create_attrs %{content: "some content", title: "some title", type: "text"}
   @update_attrs %{content: "some updated content", title: "some updated title"}
   @invalid_attrs %{content: nil, title: nil, type: nil}
+  @journey_params %{description: "some description", title: "some title"}
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
@@ -37,7 +38,78 @@ defmodule UdiaWeb.PostControllerTest do
       "type" => "text",
       "inserted_at" => String.replace(to_string(post.inserted_at), " ", "T"),
       "updated_at" => String.replace(to_string(post.updated_at), " ", "T"),
+      "journey_id" => nil
     }]
+  end
+
+  test "lists all posts of a user", %{conn: conn} do
+    # create a user
+    user = insert_user()
+
+    # no posts, empty array
+    conn = get conn, post_path(conn, :index, %{"username" => user.username})
+    response = json_response(conn, 200)
+    assert response["data"] == []
+
+    # add a post
+    post = insert_post(user, @create_attrs)
+
+    # add a post that belongs to another user
+    user_2 = insert_user()
+    insert_post(user_2, @create_attrs)
+
+    # test post list on index
+    conn = build_conn()
+    |> get(post_path(conn, :index, %{"username" => user.username}))
+    response = json_response(conn, 200)
+    assert response["data"] == [%{
+      "id" => post.id,
+      "author" => %{
+        "username" => user.username,
+        "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
+        "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
+      },
+      "content" => "some content",
+      "title" => "some title",
+      "type" => "text",
+      "inserted_at" => String.replace(to_string(post.inserted_at), " ", "T"),
+      "updated_at" => String.replace(to_string(post.updated_at), " ", "T"),
+      "journey_id" => nil
+    }]
+  end
+
+  test "lists posts of a journey", %{conn: conn} do
+    # create a user
+    user = insert_user()
+
+    #add a journey
+    journey = insert_journey(user, @journey_params)
+
+    #create a post referencing the journey
+    post_with_journey = insert_post(user, @create_attrs |> Enum.into(%{"journey_id": journey.id}))
+
+    #create a post not referencing the journey
+    insert_post(user, @create_attrs)
+    
+    # test list all posts
+    conn = build_conn()
+    |> get(post_path(conn, :index), %{})
+    response = json_response(conn, 200)
+    assert length(response["data"]) == 2
+
+    # test list posts of a specific journey
+    conn = build_conn()
+    |> get(post_path(conn, :index), %{"journey_id": journey.id})
+    response = json_response(conn, 200)
+    assert length(response["data"]) == 1
+    assert Enum.at(response["data"], 0)["id"] == post_with_journey.id
+    assert Enum.at(response["data"], 0)["journey_id"] == journey.id
+
+    # test lists posts of an non-existent journey
+    conn = build_conn()
+    |> get(post_path(conn, :index), %{"journey_id": 1234567890})
+    response = json_response(conn, 200)
+    assert length(response["data"]) == 0
   end
 
   test "show post given id", %{conn: conn} do
@@ -60,6 +132,7 @@ defmodule UdiaWeb.PostControllerTest do
       "type" => "text",
       "inserted_at" => String.replace(to_string(post.inserted_at), " ", "T"),
       "updated_at" => String.replace(to_string(post.updated_at), " ", "T"),
+      "journey_id" => nil
     }
 
     # Throw a 404 (fallback controller)

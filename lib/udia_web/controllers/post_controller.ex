@@ -10,10 +10,28 @@ defmodule UdiaWeb.PostController do
   action_fallback UdiaWeb.FallbackController
 
   def index(conn, params) do
-    page =
-      Post
-      |> order_by(desc: :updated_at)
-      |> Udia.Repo.paginate(params)
+    page = cond do
+      Map.has_key?(params, "journey_id") ->
+        journey_id = Map.get(params, "journey_id")
+
+        Post
+        |> where([p], p.journey_id == ^journey_id)
+        |> order_by(desc: :updated_at)
+        |> Udia.Repo.paginate(params)
+      Map.has_key?(params, "username") ->
+        username = Map.get(params, "username")
+        user = Udia.Accounts.get_user_by_username!(username)
+
+        Post
+        |> where([p], p.author_id == ^user.id)
+        |> order_by(desc: :updated_at)
+        |> Udia.Repo.paginate(params)
+      true ->
+        Post
+        |> order_by(desc: :updated_at)
+        |> Udia.Repo.paginate(params)
+    end
+      
     posts = page.entries
       |> Udia.Repo.preload(:author)
     render(conn, "index.json", posts: posts, pagination: UdiaWeb.PaginationHelpers.pagination(page))
