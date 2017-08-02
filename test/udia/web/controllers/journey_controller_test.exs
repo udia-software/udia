@@ -1,5 +1,5 @@
-defmodule Udia.Web.JourneyControllerTest do
-  use Udia.Web.ConnCase
+defmodule UdiaWeb.JourneyControllerTest do
+  use UdiaWeb.ConnCase
 
   @journey_params %{description: "some description", title: "some title"}
   @update_attrs %{description: "some updated description", title: "some updated title"}

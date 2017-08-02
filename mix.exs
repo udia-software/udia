@@ -2,17 +2,21 @@ defmodule Udia.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :udia,
-     version: "0.0.1",
-     elixir: "~> 1.4",
-     elixirc_paths: elixirc_paths(Mix.env),
-     compilers: [:phoenix, :gettext] ++ Mix.compilers,
-     start_permanent: Mix.env == :prod,
-     aliases: aliases(),
-     deps: deps(),
-     description: description(),
-     package: package(),
-     test_coverage: [tool: ExCoveralls]]
+    [
+      app: :udia,
+      version: "0.1.3",
+      elixir: "~> 1.4",
+      elixirc_paths: elixirc_paths(Mix.env),
+      compilers: [:phoenix, :gettext] ++ Mix.compilers,
+      start_permanent: Mix.env == :prod,
+      aliases: aliases(),
+      deps: deps(),
+      description: description(),
+      package: package(),
+      test_coverage: [tool: ExCoveralls],
+      source_url: "https://github.com/udia-software/udia",
+      homepage_url: "https://www.udia.ca"
+    ]
   end
 
   # Configuration for the OTP application.
@@ -32,22 +36,26 @@ defmodule Udia.Mixfile do
   #
   # Type `mix help deps` for examples and options.
   defp deps do
-    [{:phoenix, "~> 1.3.0-rc.2", override: true},
-     {:phoenix_pubsub, "~> 1.0.2"},
-     {:phoenix_ecto, "~> 3.2.3"},
-     {:postgrex, "~> 0.13.3"},
-     {:phoenix_html, "~> 2.9.3"},
-     {:phoenix_live_reload, "~> 1.0.8", only: :dev},
-     {:gettext, "~> 0.13.1"},
-     {:cowboy, "~> 1.1.2"},
-     {:comeonin, "~> 3.2.0"},
-     {:cors_plug, "~> 1.2"},
-     {:guardian, "~> 0.14.4"},
-     {:guardian_db, "~> 0.8.0"},
-     {:scrivener_ecto, "~> 1.2.2"},
-     {:paper_trail, "~> 0.7.5"},
-     {:excoveralls, "~> 0.7.0", only: :test},
-     {:credo, "~> 0.8.1", only: [:dev, :test]}]
+    [
+      {:bcrypt_elixir, "~> 0.12"},
+      {:phoenix, "~> 1.3.0"},
+      {:phoenix_pubsub, "~> 1.0.2"},
+      {:phoenix_ecto, "~> 3.2.3"},
+      {:postgrex, "~> 0.13.3"},
+      {:phoenix_html, "~> 2.10.2"},
+      {:phoenix_live_reload, "~> 1.0.8", only: :dev},
+      {:gettext, "~> 0.13.1"},
+      {:cowboy, "~> 1.1.2"},
+      {:comeonin, "~> 4.0.0"},
+      {:cors_plug, "== 1.3.0"},
+      {:guardian, "~> 0.14.5"},
+      {:guardian_db, "~> 0.8.0"},
+      {:scrivener_ecto, "~> 1.2.2"},
+      {:paper_trail, "~> 0.7.5"},
+      {:excoveralls, "~> 0.7.0", only: :test},
+      {:credo, "~> 0.8.4", only: [:dev, :test]},
+      {:ex_doc, "~> 0.16.2", only: :dev},
+    ]
   end
 
   defp description do
@@ -57,10 +65,14 @@ defmodule Udia.Mixfile do
   end
 
   defp package do
-    [name: :udia,
-     files: ["config", "lib", "priv", "test", ".gitignore", ".travis.yml",
-             "docker-compose.yml", "elixir_buildpack.config",
-             "Procfile", "Dockerfile", "LICENSE*", "README*", "mix.exs"],
+    [
+      name: :udia,
+      files: ["config", "lib", "priv", "test", ".gitignore", ".travis.yml",
+              "docker-compose.yml", "elixir_buildpack.config", "Procfile",
+              "Dockerfile", "LICENSE*", "README*", "mix.exs", "logo*"],
+      licenses: ["Common Public Attribution License Version 1.0"],
+      maintainers: ["Alexander Wong <admin@udia.ca>"],
+      links: %{"GitHub" => "https://github.com/udia-software/udia"}
     ]
   end
 

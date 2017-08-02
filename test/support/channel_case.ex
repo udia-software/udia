@@ -1,4 +1,4 @@
-defmodule Udia.Web.ChannelCase do
+defmodule UdiaWeb.ChannelCase do
   @moduledoc """
   This module defines the test case to be used by
   channel tests.
@@ -22,7 +22,7 @@ defmodule Udia.Web.ChannelCase do
       import Udia.TestHelpers
 
       # The default endpoint for testing
-      @endpoint Udia.Web.Endpoint
+      @endpoint UdiaWeb.Endpoint
     end
   end
 

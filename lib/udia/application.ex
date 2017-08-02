@@ -14,7 +14,9 @@ defmodule Udia.Application do
       # Start the Ecto repository
       supervisor(Udia.Repo, []),
       # Start the endpoint when the application starts
-      supervisor(Udia.Web.Endpoint, []),
+      supervisor(UdiaWeb.Endpoint, []),
+      # Start the presence supervisor
+      supervisor(UdiaWeb.Presence, []),
       # Start your own worker by calling: Udia.Worker.start_link(arg1, arg2, arg3)
       # worker(Udia.Worker, [arg1, arg2, arg3]),
       worker(GuardianDb.ExpiredSweeper, []),

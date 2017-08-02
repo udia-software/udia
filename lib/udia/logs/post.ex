@@ -20,7 +20,7 @@ defmodule Udia.Logs.Post do
 
   @doc false
   def changeset(%Post{} = post, attrs) do
-    post = post
+    post
     |> cast(attrs, [:title, :type, :content, :journey_id])
     |> validate_required([:title, :type, :content])
   end

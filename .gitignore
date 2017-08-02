@@ -28,3 +28,6 @@ assets/node_modules
 
 # Coveralls
 /cover
+
+# ExDoc generated files
+/doc
