@@ -14,10 +14,9 @@ defmodule UdiaWeb.JourneyController do
       Map.has_key?(params, "username") ->
         username = Map.get(params, "username")
         user = Udia.Accounts.get_user_by_username!(username)
-        explorer_id = user.id
 
         Journey
-        |> where([j], j.explorer_id == ^explorer_id)
+        |> where([j], j.explorer_id == ^user.id)
         |> order_by(desc: :updated_at)
         |> Udia.Repo.paginate(params)
       true ->

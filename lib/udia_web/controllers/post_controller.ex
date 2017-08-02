@@ -18,6 +18,14 @@ defmodule UdiaWeb.PostController do
         |> where([p], p.journey_id == ^journey_id)
         |> order_by(desc: :updated_at)
         |> Udia.Repo.paginate(params)
+      Map.has_key?(params, "username") ->
+        username = Map.get(params, "username")
+        user = Udia.Accounts.get_user_by_username!(username)
+
+        Post
+        |> where([p], p.author_id == ^user.id)
+        |> order_by(desc: :updated_at)
+        |> Udia.Repo.paginate(params)
       true ->
         Post
         |> order_by(desc: :updated_at)

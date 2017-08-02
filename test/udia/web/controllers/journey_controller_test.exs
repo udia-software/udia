@@ -7,7 +7,7 @@ defmodule UdiaWeb.JourneyControllerTest do
 
   @user_params %{username: "zezima", password: "n0valyfe"}
   @user_params_2 %{username: "t3hnoobshow", password: "lumbridge"}
-  @user_params_3 %{username: "mark gerhard", password: "andrew gower"}
+  @user_params_3 %{username: "mark_gerhard", password: "andrew gower"}
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
@@ -34,7 +34,6 @@ defmodule UdiaWeb.JourneyControllerTest do
         "username" => user.username,
         "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
         "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
-        "id" => user.id,
       },
       "title" => journey.title,
       "description" => journey.description,
@@ -91,7 +90,6 @@ defmodule UdiaWeb.JourneyControllerTest do
         "username" => user.username,
         "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
         "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
-        "id" => user.id,
       },
       "title" => journey.title,
       "description" => journey.description,
@@ -122,7 +120,6 @@ defmodule UdiaWeb.JourneyControllerTest do
       "username" => user.username,
       "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
       "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
-      "id" => user.id,
     }
     assert response["data"]["inserted_at"]
     assert response["data"]["updated_at"]
@@ -171,7 +168,6 @@ defmodule UdiaWeb.JourneyControllerTest do
       "username" => user.username,
       "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
       "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
-      "id" => user.id,
     }
     assert response["data"]["inserted_at"]
     assert response["data"]["updated_at"]

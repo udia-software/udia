@@ -32,14 +32,49 @@ defmodule UdiaWeb.PostControllerTest do
         "username" => user.username,
         "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
         "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
-        "id" => user.id,
       },
       "content" => "some content",
       "title" => "some title",
       "type" => "text",
       "inserted_at" => String.replace(to_string(post.inserted_at), " ", "T"),
       "updated_at" => String.replace(to_string(post.updated_at), " ", "T"),
-      "journey" => nil
+      "journey_id" => nil
+    }]
+  end
+
+  test "lists all posts of a user", %{conn: conn} do
+    # create a user
+    user = insert_user()
+
+    # no posts, empty array
+    conn = get conn, post_path(conn, :index, %{"username" => user.username})
+    response = json_response(conn, 200)
+    assert response["data"] == []
+
+    # add a post
+    post = insert_post(user, @create_attrs)
+
+    # add a post that belongs to another user
+    user_2 = insert_user()
+    insert_post(user_2, @create_attrs)
+
+    # test post list on index
+    conn = build_conn()
+    |> get(post_path(conn, :index, %{"username" => user.username}))
+    response = json_response(conn, 200)
+    assert response["data"] == [%{
+      "id" => post.id,
+      "author" => %{
+        "username" => user.username,
+        "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
+        "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
+      },
+      "content" => "some content",
+      "title" => "some title",
+      "type" => "text",
+      "inserted_at" => String.replace(to_string(post.inserted_at), " ", "T"),
+      "updated_at" => String.replace(to_string(post.updated_at), " ", "T"),
+      "journey_id" => nil
     }]
   end
 
@@ -68,7 +103,7 @@ defmodule UdiaWeb.PostControllerTest do
     response = json_response(conn, 200)
     assert length(response["data"]) == 1
     assert Enum.at(response["data"], 0)["id"] == post_with_journey.id
-    assert Enum.at(response["data"], 0)["journey"] == journey.id
+    assert Enum.at(response["data"], 0)["journey_id"] == journey.id
 
     # test lists posts of an non-existent journey
     conn = build_conn()
@@ -91,14 +126,13 @@ defmodule UdiaWeb.PostControllerTest do
         "username" => user.username,
         "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
         "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
-        "id" => user.id,
       },
       "content" => "some content",
       "title" => "some title",
       "type" => "text",
       "inserted_at" => String.replace(to_string(post.inserted_at), " ", "T"),
       "updated_at" => String.replace(to_string(post.updated_at), " ", "T"),
-      "journey" => nil
+      "journey_id" => nil
     }
 
     # Throw a 404 (fallback controller)
@@ -126,7 +160,6 @@ defmodule UdiaWeb.PostControllerTest do
       "username" => user.username,
       "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
       "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
-      "id" => user.id,
     }
     assert response["data"]["inserted_at"]
     assert response["data"]["updated_at"]
@@ -180,7 +213,6 @@ defmodule UdiaWeb.PostControllerTest do
       "username" => user.username,
       "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
       "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
-      "id" => user.id,
     }
     assert response["data"]["content"] == "some updated content"
     assert response["data"]["title"] == "some updated title"
