@@ -38,7 +38,7 @@ defmodule UdiaWeb.PostControllerTest do
       "type" => "text",
       "inserted_at" => String.replace(to_string(post.inserted_at), " ", "T"),
       "updated_at" => String.replace(to_string(post.updated_at), " ", "T"),
-      "journey_id" => nil
+      "journey" => nil
     }]
   end
 
@@ -74,7 +74,7 @@ defmodule UdiaWeb.PostControllerTest do
       "type" => "text",
       "inserted_at" => String.replace(to_string(post.inserted_at), " ", "T"),
       "updated_at" => String.replace(to_string(post.updated_at), " ", "T"),
-      "journey_id" => nil
+      "journey" => nil
     }]
   end
 
@@ -103,7 +103,7 @@ defmodule UdiaWeb.PostControllerTest do
     response = json_response(conn, 200)
     assert length(response["data"]) == 1
     assert Enum.at(response["data"], 0)["id"] == post_with_journey.id
-    assert Enum.at(response["data"], 0)["journey_id"] == journey.id
+    assert Enum.at(response["data"], 0)["journey"]["id"] == journey.id
 
     # test lists posts of an non-existent journey
     conn = build_conn()
@@ -132,7 +132,7 @@ defmodule UdiaWeb.PostControllerTest do
       "type" => "text",
       "inserted_at" => String.replace(to_string(post.inserted_at), " ", "T"),
       "updated_at" => String.replace(to_string(post.updated_at), " ", "T"),
-      "journey_id" => nil
+      "journey" => nil
     }
 
     # Throw a 404 (fallback controller)
