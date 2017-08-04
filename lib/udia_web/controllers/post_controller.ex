@@ -59,6 +59,7 @@ defmodule UdiaWeb.PostController do
   def show(conn, %{"id" => id}) do
     post = Logs.get_post!(id)
     post = Udia.Repo.preload(post, :author)
+    post = Udia.Repo.preload(post, journey: :explorer)
     render(conn, "show.json", post: post)
   end
 
