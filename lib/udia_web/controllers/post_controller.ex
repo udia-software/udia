@@ -44,6 +44,7 @@ defmodule UdiaWeb.PostController do
       {:ok, post_versioned} ->
         post = Map.get(post_versioned, :model)
         post = Udia.Repo.preload(post, :author)
+        post = Udia.Repo.preload(post, journey: :explorer)
 
         conn
         |> put_status(:created)
