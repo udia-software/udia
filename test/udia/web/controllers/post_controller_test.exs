@@ -135,6 +135,16 @@ defmodule UdiaWeb.PostControllerTest do
       "journey" => nil
     }
 
+    #add a journey
+    journey = insert_journey(user, @journey_params)
+
+    # show a post with a journey
+    post_with_journey = insert_post(user, @create_attrs |> Enum.into(%{"journey_id": journey.id}))
+    conn = get conn, post_path(conn, :show, post_with_journey.id)
+    response = json_response(conn, 200)
+    assert response["data"]["id"] == post_with_journey.id
+    assert response["data"]["journey"]["id"] == journey.id
+
     # Throw a 404 (fallback controller)
     assert_raise Ecto.NoResultsError, fn ->
       get conn, post_path(conn, :show, -1)
@@ -163,6 +173,17 @@ defmodule UdiaWeb.PostControllerTest do
     }
     assert response["data"]["inserted_at"]
     assert response["data"]["updated_at"]
+
+    #add a journey
+    journey = insert_journey(user, @journey_params)
+
+    # create a post with a journey
+    conn = build_conn()
+    |> put_req_header("authorization", "Bearer: #{jwt}")
+    conn = post conn, post_path(conn, :create), @create_attrs |> Enum.into(%{"journey_id": journey.id})
+    response = json_response(conn, 201)
+    assert response["data"]["id"]
+    assert response["data"]["journey"]["id"] == journey.id
   end
 
   test "does not create post and renders errors when data is invalid", %{conn: conn} do
