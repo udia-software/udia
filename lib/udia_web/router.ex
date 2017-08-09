@@ -33,6 +33,6 @@ defmodule UdiaWeb.Router do
     resources "/posts", PostController, except: [:new, :edit]
     resources "/comments", CommentController, except: [:new, :edit]
     resources "/journeys", JourneyController, except: [:new, :edit]
-    resources "/perceptions", PerceptionController, except: [:new, :edit]
+    resources "/perceptions", PerceptionController, only: [:index]
   end
 end
