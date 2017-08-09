@@ -27,8 +27,12 @@ defmodule UdiaWeb.PostChannel do
   use UdiaWeb, :channel
   alias UdiaWeb.Presence
 
-  def join("post:" <> _post_id, _params, socket) do
+  def join("post:" <> post_id, _params, socket) do
     send self(), :after_join
+    IO.puts("JOIN #{post_id} #{socket.assigns.user_id}")
+    :ok = ChannelWatcher.monitor(:post, self(), {
+      __MODULE__, :leave, [post_id, socket.assigns.user_id]
+    })
     {:ok, %{}, assign(socket, :post_id, "")}
   end
 
@@ -38,5 +42,9 @@ defmodule UdiaWeb.PostChannel do
       online_at: inspect(System.system_time(:seconds))
     })
     {:noreply, socket}
+  end
+
+  def leave(post_id, user_id) do
+    IO.puts("LEAVE #{post_id} #{user_id}")
   end
 end

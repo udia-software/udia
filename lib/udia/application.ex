@@ -20,6 +20,7 @@ defmodule Udia.Application do
       # Start your own worker by calling: Udia.Worker.start_link(arg1, arg2, arg3)
       # worker(Udia.Worker, [arg1, arg2, arg3]),
       worker(GuardianDb.ExpiredSweeper, []),
+      worker(ChannelWatcher, [:post])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

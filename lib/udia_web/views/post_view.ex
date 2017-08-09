@@ -22,6 +22,6 @@ defmodule UdiaWeb.PostView do
       inserted_at: post.inserted_at,
       updated_at: post.updated_at,
       author: render_one(post.author, UserView, "user.json"),
-      journey_id: post.journey_id}
+      journey: (if post.journey_id != nil, do: render_one(post.journey, JourneyView, "journey.json"), else: nil)}
   end
 end
