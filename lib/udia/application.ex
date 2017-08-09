@@ -3,6 +3,7 @@ defmodule Udia.Application do
   Boundary for the web application Udia.
   """
   use Application
+  require Logger
 
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
   # for more information on OTP Applications
@@ -26,6 +27,20 @@ defmodule Udia.Application do
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Udia.Supervisor]
-    Supervisor.start_link(children, opts)
+    start_links = Supervisor.start_link(children, opts)
+
+    # Last ditch enforce all presences to be good.
+    # This command is only run once on startup
+    # therefore it will clean up all hanging presences on startup
+    import Ecto.Query
+    cleanup_val = from(p in Udia.Records.Perception, where: p.counter > 0)
+    |> Udia.Repo.update_all(
+      set: [
+        counter: 0,
+        end_time: DateTime.from_unix!(System.system_time(:seconds))
+      ]
+    )
+    Logger.info "Presence Cleanup: #{inspect cleanup_val}"
+    start_links
   end
 end
