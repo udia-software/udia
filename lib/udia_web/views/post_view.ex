@@ -2,6 +2,7 @@ defmodule UdiaWeb.PostView do
   use UdiaWeb, :view
   alias UdiaWeb.PostView
   alias UdiaWeb.UserView
+  alias UdiaWeb.JourneyView
 
   def render("index.json", %{posts: posts, pagination: pagination}) do
     %{

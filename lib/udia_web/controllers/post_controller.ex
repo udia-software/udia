@@ -34,6 +34,7 @@ defmodule UdiaWeb.PostController do
       
     posts = page.entries
       |> Udia.Repo.preload(:author)
+      |> Udia.Repo.preload(journey: :explorer)
     render(conn, "index.json", posts: posts, pagination: UdiaWeb.PaginationHelpers.pagination(page))
   end
 
@@ -43,6 +44,7 @@ defmodule UdiaWeb.PostController do
       {:ok, post_versioned} ->
         post = Map.get(post_versioned, :model)
         post = Udia.Repo.preload(post, :author)
+        post = Udia.Repo.preload(post, journey: :explorer)
 
         conn
         |> put_status(:created)
@@ -58,6 +60,7 @@ defmodule UdiaWeb.PostController do
   def show(conn, %{"id" => id}) do
     post = Logs.get_post!(id)
     post = Udia.Repo.preload(post, :author)
+    post = Udia.Repo.preload(post, journey: :explorer)
     render(conn, "show.json", post: post)
   end
 
