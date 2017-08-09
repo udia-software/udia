@@ -33,8 +33,8 @@ defmodule Udia.Application do
     # This command is only run once on startup
     # therefore it will clean up all hanging presences on startup
     import Ecto.Query
-    cleanup_val = from(p in Udia.Records.Perception, where: p.counter > 0)
-    |> Udia.Repo.update_all(
+    cleanup_val = Udia.Repo.update_all(
+      from(p in Udia.Records.Perception, where: p.counter > 0),
       set: [
         counter: 0,
         end_time: DateTime.from_unix!(System.system_time(:seconds))
