@@ -15,7 +15,7 @@ defmodule UdiaWeb.PostChannelTest do
     {:ok, user: user, socket: socket}
   end
 
-  test "joining a post channel creates a presence", %{user: user, socket: socket} do
+  test "joining a post channel staggers a perception", %{user: user, socket: socket} do
     post = insert_post(user, @post_params)
 
     assert Records.list_perceptions() == []
@@ -30,8 +30,29 @@ defmodule UdiaWeb.PostChannelTest do
     assert head.end_time == nil
     assert head.counter == 1
 
-    val = close(socket)
-    IO.inspect(val)
+    socket_2 = subscribe_and_join!(socket, PostChannel, "post:#{post.id}")
+
+    assert (length Records.list_perceptions()) == 1
+    [head|_tail] = Records.list_perceptions()
+    assert head.post_id == post.id
+    assert head.user_id == user.id
+    assert head.start_time
+    assert head.end_time == nil
+    assert head.counter == 2
+
+    close(socket)
+    :timer.sleep(10) # necessary because of monitor process delay
+
+    assert (length Records.list_perceptions()) == 1
+    [head|_tail] = Records.list_perceptions()
+    assert head.post_id == post.id
+    assert head.user_id == user.id
+    assert head.start_time
+    assert head.end_time
+    assert head.counter == 1
+
+    close(socket_2)
+    :timer.sleep(10) # necessary beause of monitor process delay
 
     assert (length Records.list_perceptions()) == 1
     [head|_tail] = Records.list_perceptions()

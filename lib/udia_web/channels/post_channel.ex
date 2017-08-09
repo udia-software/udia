@@ -52,9 +52,6 @@ defmodule UdiaWeb.PostChannel do
 
       len_perceptions = length perceptions
       if len_perceptions > 0 do
-        if len_perceptions > 1 do
-          Logger.warn "Unclean perceptions (#{len_perceptions}) for post #{post_id} and user #{username}"
-          end
         [head|_tail] = perceptions
         {:ok, perception} = Records.update_perception(head, %{
           counter: head.counter + 1
@@ -68,8 +65,6 @@ defmodule UdiaWeb.PostChannel do
         })
         Logger.info "JOIN created perception #{perception.id}"
       end
-    else
-      Logger.info "JOIN #{post_id} <ANON> IGNORE"
     end
     {:ok, %{}, assign(socket, :post_id, "")}
   end
@@ -88,20 +83,13 @@ defmodule UdiaWeb.PostChannel do
 
       len_perceptions = length perceptions
       if len_perceptions > 0 do
-        if len_perceptions > 1 do
-          Logger.warn "Unclean perceptions (#{len_perceptions}) for post #{post_id} and user #{username}"
-        end
         [head|_tail] = perceptions
         {:ok, perception} = Records.update_perception(head, %{
           end_time: DateTime.from_unix!(System.system_time(:seconds)),
           counter: head.counter - 1
         })
         Logger.info "LEAVE updated perception #{perception.id}"
-      else
-        Logger.warn "Close nonexistant perception for post #{post_id} and user #{username}"
       end
-    else
-      Logger.info "LEAVE #{post_id} <ANON> IGNORE"
     end
   end
 

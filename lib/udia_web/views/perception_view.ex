@@ -10,10 +10,6 @@ defmodule UdiaWeb.PerceptionView do
     }
   end
 
-  def render("show.json", %{perception: perception}) do
-    %{data: render_one(perception, PerceptionView, "perception.json")}
-  end
-
   def render("perception.json", %{perception: perception}) do
     %{
       id: perception.id,
