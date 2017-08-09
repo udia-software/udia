@@ -46,15 +46,6 @@ defmodule Udia.Logs do
  
   @doc """
   Creates a post.
-
-  ## Examples
-
-      iex> create_post(%{field: value})
-      {:ok, %Post{}}
-
-      iex> create_post(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
   """
   def create_post(%User{} = user, attrs \\ %{}) do
     user
@@ -65,15 +56,6 @@ defmodule Udia.Logs do
 
   @doc """
   Updates a post.
-
-  ## Examples
-
-      iex> update_post(post, %{field: new_value})
-      {:ok, %Post{}}
-
-      iex> update_post(post, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
   """
   def update_post(%User{} = user, %Post{} = post, attrs) do
     post
@@ -142,15 +124,6 @@ defmodule Udia.Logs do
 
   @doc """
   Creates a comment.
-
-  ## Examples
-
-      iex> create_comment(%{field: value})
-      {:ok, %Comment{}}
-
-      iex> create_comment(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
   """
   def create_comment(%User{} = user, attrs \\ %{}) do
     user
@@ -161,15 +134,6 @@ defmodule Udia.Logs do
 
   @doc """
   Updates a comment.
-
-  ## Examples
-
-      iex> update_comment(comment, %{field: new_value})
-      {:ok, %Comment{}}
-
-      iex> update_comment(comment, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
   """
   def update_comment(%User{} = user, %Comment{} = comment, attrs) do
     comment
@@ -239,15 +203,6 @@ defmodule Udia.Logs do
 
   @doc """
   Creates a journey.
-
-  ## Examples
-
-      iex> create_journey(%{field: value})
-      {:ok, %Journey{}}
-
-      iex> create_journey(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
   """
   def create_journey(%User{} = user, attrs \\ %{}) do
     user 
@@ -258,15 +213,6 @@ defmodule Udia.Logs do
 
   @doc """
   Updates a journey.
-
-  ## Examples
-
-      iex> update_journey(journey, %{field: new_value})
-      {:ok, %Journey{}}
-
-      iex> update_journey(journey, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
   """
   def update_journey(%User{} = user, %Journey{} = journey, attrs) do
     journey

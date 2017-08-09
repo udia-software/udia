@@ -39,18 +39,18 @@ defmodule UdiaWeb.UserSocket do
   def connect(%{"guardian_token" => jwt}, socket) do
     case sign_in(socket, jwt) do
       {:ok, authed_socket, guardian_params} ->
-        {:ok, assign(authed_socket, :user_id, guardian_params.resource.username)}
+        {:ok, assign(authed_socket, :username, guardian_params.resource.username)}
       _ ->
-        {:ok, assign(socket, :user_id, "")}
+        {:ok, assign(socket, :username, "")}
     end
   end
 
   def connect(_params, socket) do
-    {:ok, assign(socket, :user_id, "")}
+    {:ok, assign(socket, :username, "")}
   end
 
   def id(socket) do
-    # unauthenticated will have empty string user_id, no guardian_default_claims
-    "users_socket:#{socket.assigns.user_id}"
+    # unauthenticated will have empty string username, no guardian_default_claims
+    "users_socket:#{socket.assigns.username}"
   end
 end

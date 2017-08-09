@@ -14,6 +14,7 @@ defmodule Udia.Logs.Post do
     belongs_to :author, Udia.Accounts.User
     belongs_to :journey, Udia.Logs.Journey
     has_many :comments, Udia.Logs.Comment
+    has_many :perceptions, Udia.Records.Perception
 
     timestamps()
   end

@@ -11,6 +11,14 @@ defmodule UdiaWeb.CommentController do
 
   def index(conn, params) do
     page = cond do
+      Map.has_key?(params, "username") ->
+        username = Map.get(params, "username")
+        user = Udia.Accounts.get_user_by_username!(username)
+
+        Comment
+        |> where([c], c.author_id == ^user.id)
+        |> order_by(desc: :updated_at)
+        |> Udia.Repo.paginate(params)
       Map.has_key?(params, "post_id") && Map.has_key?(params, "parent_id") ->
         # If post_id is specified in params, perform return comments for post
         post_id = Map.get(params, "post_id")
