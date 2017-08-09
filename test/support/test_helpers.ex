@@ -1,4 +1,7 @@
 defmodule Udia.TestHelpers do
+  alias Udia.Accounts.User
+  alias Udia.Logs.Post
+
   def insert_user(attrs \\ %{}) do
     changes = attrs |> Enum.into(%{
       username: "user#{Base.encode16(:crypto.strong_rand_bytes(8))}",
@@ -9,7 +12,7 @@ defmodule Udia.TestHelpers do
     Map.get(user_versioned, :model)
   end
 
-  def insert_post(%Udia.Accounts.User{} = user, attrs \\%{}) do
+  def insert_post(%User{} = user, attrs \\%{}) do
     changes = attrs |> Enum.into(%{
       title: "Random Title #{Base.encode16(:crypto.strong_rand_bytes(8))}",
       content: "Random Content #{Base.encode16(:crypto.strong_rand_bytes(8))}",
@@ -19,7 +22,7 @@ defmodule Udia.TestHelpers do
     Map.get(post_versioned, :model)
   end
 
-  def insert_comment(%Udia.Accounts.User{} = user, %Udia.Logs.Post{} = post, attrs \\%{}) do
+  def insert_comment(%User{} = user, %Post{} = post, attrs \\%{}) do
     changes = attrs |> Enum.into(%{
       post_id: post.id,
       content: "Random Content #{Base.encode16(:crypto.strong_rand_bytes(8))}",
@@ -31,12 +34,20 @@ defmodule Udia.TestHelpers do
     Map.get(comment_versioned, :model)
   end
 
-  def insert_journey(%Udia.Accounts.User{} = user, attrs \\%{}) do
+  def insert_journey(%User{} = user, attrs \\%{}) do
     changes = attrs |> Enum.into(%{
       title: "Random Title #{Base.encode16(:crypto.strong_rand_bytes(8))}",
       description: "Random Content #{Base.encode16(:crypto.strong_rand_bytes(8))}"
     })
     {:ok, journey_versioned} = Udia.Logs.create_journey(user, changes)
     Map.get(journey_versioned, :model)
+  end
+
+  def insert_perception(%User{} = user, %Post{} = post, attrs \\%{}) do
+    changes = attrs |> Enum.into(%{
+      post_id: post.id,
+    })
+    {:ok, perception} = Udia.Records.create_perception(user, changes)
+    perception
   end
 end

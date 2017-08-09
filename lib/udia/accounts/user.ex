@@ -13,6 +13,7 @@ defmodule Udia.Accounts.User do
     has_many :journeys, Udia.Logs.Journey, foreign_key: :explorer_id
     has_many :posts, Udia.Logs.Post, foreign_key: :author_id
     has_many :comments, Udia.Logs.Comment, foreign_key: :author_id
+    has_many :perceptions, Udia.Records.Perception, foreign_key: :user_id
 
     timestamps()
   end

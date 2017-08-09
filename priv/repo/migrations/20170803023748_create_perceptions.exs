@@ -7,8 +7,6 @@ defmodule Udia.Repo.Migrations.CreatePerceptions do
       add :end_time, :utc_datetime
       add :user_id, references(:accounts_users, on_delete: :nothing)
       add :post_id, references(:logs_posts, on_delete: :nothing)
-
-      timestamps()
     end
 
     create index(:perceptions, [:user_id])

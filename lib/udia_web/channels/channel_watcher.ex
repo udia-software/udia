@@ -1,8 +1,10 @@
 defmodule ChannelWatcher do
+  @moduledoc """
+  Provides functionality for listening to Channel joins and leaves (with errors)
+  """
   use GenServer
 
   ## Client API
-
   def monitor(server_name, pid, mfa) do
     GenServer.call(server_name, {:monitor, pid, mfa})
   end
@@ -12,7 +14,6 @@ defmodule ChannelWatcher do
   end
 
   ## Server API
-
   def start_link(name) do
     GenServer.start_link(__MODULE__, [], name: name)
   end
