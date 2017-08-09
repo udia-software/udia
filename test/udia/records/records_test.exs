@@ -8,8 +8,8 @@ defmodule Udia.RecordsTest do
 
     @user_params %{username: "udia", password: "hunter2"}
     @post_params %{content: "some content", title: "some title", type: "text"}
-    @valid_attrs %{end_time: "2010-04-17 14:30:00.000000Z", start_time: "2010-04-17 14:00:00.000000Z"}
-    @update_attrs %{end_time: "2011-05-18 15:01:01.000000Z"}
+    @valid_attrs %{end_time: "2010-04-17 14:30:00.000000Z", start_time: "2010-04-17 14:00:00.000000Z", counter: 1}
+    @update_attrs %{end_time: "2011-05-18 15:01:01.000000Z", counter: 2}
     @invalid_attrs %{end_time: nil, start_time: nil}
 
     test "list_perceptions/0 returns all perceptions" do

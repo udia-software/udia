@@ -25,26 +25,91 @@ defmodule UdiaWeb.PostChannel do
   Module for post websocket & channel functionality
   """
   use UdiaWeb, :channel
+  require Logger
+
+  import Ecto.Query
   alias UdiaWeb.Presence
+  alias Udia.Records
+  alias Udia.Records.Perception
 
   def join("post:" <> post_id, _params, socket) do
     send self(), :after_join
-    IO.puts("JOIN #{post_id} #{socket.assigns.user_id}")
     :ok = ChannelWatcher.monitor(:post, self(), {
-      __MODULE__, :leave, [post_id, socket.assigns.user_id]
+      __MODULE__, :leave, [post_id, socket.assigns.username]
     })
+
+    username = socket.assigns.username
+    # Only care about authenticated users (username set)
+    if username != "" do
+      Logger.info "JOIN #{post_id} #{username}"
+      # Search for perceptions with post_id and username and counter > 0.
+      # - If exists (There should only be one!), increment counter by one.
+      # - If does not exist, create a new perception with counter = 1.
+      user = Udia.Accounts.get_user_by_username!(username)
+      perceptions = Perception
+      |> where([p], p.post_id == ^post_id and p.user_id == ^user.id and p.counter > 0)
+      |> Udia.Repo.all()
+
+      len_perceptions = length perceptions
+      if len_perceptions > 0 do
+        if len_perceptions > 1 do
+          Logger.warn "Unclean perceptions (#{len_perceptions}) for post #{post_id} and user #{username}"
+          end
+        [head|_tail] = perceptions
+        {:ok, perception} = Records.update_perception(head, %{
+          counter: head.counter + 1
+        })
+        Logger.info "JOIN updated perception #{perception.id}"
+      else
+        {:ok, perception} = Records.create_perception(user, %{
+          start_time: DateTime.from_unix!(System.system_time(:seconds)),
+          counter: 1,
+          post_id: post_id
+        })
+        Logger.info "JOIN created perception #{perception.id}"
+      end
+    else
+      Logger.info "JOIN #{post_id} <ANON> IGNORE"
+    end
     {:ok, %{}, assign(socket, :post_id, "")}
+  end
+
+  def leave(post_id, username) do
+    # Only care about authenticated users (username set)
+    if username != "" do
+      Logger.info "LEAVE #{post_id} #{username}"
+      # Search for perceptions with post_id and username and counter > 0.
+      # - If exists (There should only be one!), decrement counter by one.
+
+      user = Udia.Accounts.get_user_by_username!(username)
+      perceptions = Perception
+      |> where([p], p.post_id == ^post_id and p.user_id == ^user.id and p.counter > 0)
+      |> Udia.Repo.all()
+
+      len_perceptions = length perceptions
+      if len_perceptions > 0 do
+        if len_perceptions > 1 do
+          Logger.warn "Unclean perceptions (#{len_perceptions}) for post #{post_id} and user #{username}"
+        end
+        [head|_tail] = perceptions
+        {:ok, perception} = Records.update_perception(head, %{
+          end_time: DateTime.from_unix!(System.system_time(:seconds)),
+          counter: head.counter - 1
+        })
+        Logger.info "LEAVE updated perception #{perception.id}"
+      else
+        Logger.warn "Close nonexistant perception for post #{post_id} and user #{username}"
+      end
+    else
+      Logger.info "LEAVE #{post_id} <ANON> IGNORE"
+    end
   end
 
   def handle_info(:after_join, socket) do
     push socket, "presence_state", Presence.list(socket)
-    {:ok, _} = Presence.track(socket, socket.assigns.user_id, %{
+    {:ok, _} = Presence.track(socket, socket.assigns.username, %{
       online_at: inspect(System.system_time(:seconds))
     })
     {:noreply, socket}
-  end
-
-  def leave(post_id, user_id) do
-    IO.puts("LEAVE #{post_id} #{user_id}")
   end
 end

@@ -53,5 +53,4 @@ defmodule ChannelWatcher do
   defp put_channel(state, pid, mfa) do
     %{state | channels: Map.put(state.channels, pid, mfa)}
   end
-
 end

@@ -5,6 +5,7 @@ defmodule Udia.Repo.Migrations.CreatePerceptions do
     create table(:perceptions) do
       add :start_time, :utc_datetime
       add :end_time, :utc_datetime
+      add :counter, :integer
       add :user_id, references(:accounts_users, on_delete: :nothing)
       add :post_id, references(:logs_posts, on_delete: :nothing)
     end

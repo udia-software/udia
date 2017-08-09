@@ -7,8 +7,9 @@ defmodule Udia.Records.Perception do
   alias Udia.Records.Perception
 
   schema "perceptions" do
-    field :end_time, :utc_datetime
     field :start_time, :utc_datetime
+    field :end_time, :utc_datetime
+    field :counter, :integer
     belongs_to :user, Udia.Accounts.User
     belongs_to :post, Udia.Logs.Post
   end
@@ -16,7 +17,7 @@ defmodule Udia.Records.Perception do
   @doc false
   def changeset(%Perception{} = perception, attrs) do
     perception
-    |> cast(attrs, [:start_time, :end_time, :post_id, :user_id])
-    |> validate_required([:start_time, :end_time, :post_id, :user_id])
+    |> cast(attrs, [:start_time, :end_time, :post_id, :user_id, :counter])
+    |> validate_required([:start_time, :post_id, :user_id, :counter])
   end
 end

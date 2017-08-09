@@ -3,7 +3,7 @@ defmodule UdiaWeb.PerceptionControllerTest do
 
   @user_params %{username: "udia", password: "hunter2"}
   @post_params %{content: "some content", title: "some title", type: "text"}
-  @valid_attrs %{end_time: "2010-04-17 14:30:00.000000Z", start_time: "2010-04-17 14:00:00.000000Z"}
+  @valid_attrs %{end_time: "2010-04-17 14:30:00.000000Z", start_time: "2010-04-17 14:00:00.000000Z", counter: 1}
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}

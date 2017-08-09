@@ -2,7 +2,6 @@ defmodule UdiaWeb.PerceptionController do
   use UdiaWeb, :controller
 
   import Ecto.Query
-  alias Udia.Records
   alias Udia.Records.Perception
 
   action_fallback UdiaWeb.FallbackController
