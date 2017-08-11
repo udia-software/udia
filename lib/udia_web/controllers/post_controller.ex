@@ -67,6 +67,7 @@ defmodule UdiaWeb.PostController do
   def update(conn, %{"id" => id, "post" => post_params}) do
     post = Logs.get_post!(id)
     post = Udia.Repo.preload(post, :author)
+    post = Udia.Repo.preload(post, journey: :explorer)
 
     cur_user = Guardian.Plug.current_resource(conn)
 

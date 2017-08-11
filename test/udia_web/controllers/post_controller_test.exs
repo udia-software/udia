@@ -247,6 +247,27 @@ defmodule UdiaWeb.PostControllerTest do
       assert response["data"]["type"] == "text"
       assert response["data"]["inserted_at"] == String.replace(to_string(post.inserted_at), " ", "T")
       assert response["data"]["updated_at"] > String.replace(to_string(post.updated_at), " ", "T")
+
+      #add a journey
+      journey = insert_journey(user, @journey_params)
+
+      # create a post with a journey
+      post_with_journey = insert_post(user, @create_attrs |> Enum.into(%{"journey_id": journey.id}))
+
+      # update that post
+      conn = build_conn()
+      |> put_req_header("authorization", "Bearer: #{jwt}")
+      conn = put conn, post_path(conn, :update, post_with_journey.id), %{"post" => @update_attrs}
+      response = json_response(conn, 202)
+      assert response["data"]["id"] == post_with_journey.id
+      assert response["data"]["author"] == %{
+        "username" => user.username,
+        "inserted_at" => String.replace(to_string(user.inserted_at), " ", "T"),
+        "updated_at" => String.replace(to_string(user.updated_at), " ", "T"),
+      }
+      assert response["data"]["content"] == "some updated content"
+      assert response["data"]["title"] == "some updated title"
+      assert response["data"]["journey"]["id"] == journey.id
     end
 
     test "does not update chosen post and renders errors when data is invalid", %{conn: conn} do
