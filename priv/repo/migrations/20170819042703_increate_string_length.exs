@@ -8,7 +8,7 @@ defmodule Udia.Repo.Migrations.IncreateStringLength do
     alter table(:logs_posts) do
       modify :content, :string, size: 20000
     end
-    alter table(:logs_journey) do
+    alter table(:logs_journeys) do
       modify :description, :string, size: 20000
     end
   end
