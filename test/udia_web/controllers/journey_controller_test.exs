@@ -1,10 +1,10 @@
 defmodule UdiaWeb.JourneyControllerTest do
   use UdiaWeb.ConnCase
 
-  time = DateTime.utc_now()
+  @time DateTime.utc_now()
 
-  @journey_params %{description: "some description", title: "some title", start_time: time}
-  @update_attrs %{description: "some updated description", title: "some updated title", start_time: time}
+  @journey_params %{description: "some description", title: "some title", start_time: @time}
+  @update_attrs %{description: "some updated description", title: "some updated title", start_time: @time}
   @invalid_attrs %{description: nil, title: nil, start_time: nil}
 
   @user_params %{username: "zezima", password: "n0valyfe"}
@@ -40,7 +40,9 @@ defmodule UdiaWeb.JourneyControllerTest do
       "title" => journey.title,
       "description" => journey.description,
       "inserted_at" => String.replace(to_string(journey.inserted_at), " ", "T"),
-      "updated_at" => String.replace(to_string(journey.updated_at), " ", "T")
+      "updated_at" => String.replace(to_string(journey.updated_at), " ", "T"),
+      "start_time" => DateTime.to_iso8601(@time),
+      "end_time" => nil
     }]
   end
 
@@ -96,7 +98,9 @@ defmodule UdiaWeb.JourneyControllerTest do
       "title" => journey.title,
       "description" => journey.description,
       "inserted_at" => String.replace(to_string(journey.inserted_at), " ", "T"),
-      "updated_at" => String.replace(to_string(journey.updated_at), " ", "T")
+      "updated_at" => String.replace(to_string(journey.updated_at), " ", "T"),
+      "start_time" => DateTime.to_iso8601(@time),
+      "end_time" => nil
     }
 
     # Throw a 404 if journey not found

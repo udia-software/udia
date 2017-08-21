@@ -20,6 +20,9 @@ defmodule UdiaWeb.JourneyView do
       description: journey.description,
       explorer: render_one(journey.explorer, UserView, "user.json"),
       inserted_at: journey.inserted_at,
-      updated_at: journey.updated_at}
+      updated_at: journey.updated_at,
+      start_time: journey.start_time,
+      end_time: journey.end_time
+    }
   end
 end
