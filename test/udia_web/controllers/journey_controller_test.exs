@@ -1,9 +1,11 @@
 defmodule UdiaWeb.JourneyControllerTest do
   use UdiaWeb.ConnCase
 
-  @journey_params %{description: "some description", title: "some title"}
-  @update_attrs %{description: "some updated description", title: "some updated title"}
-  @invalid_attrs %{description: nil, title: nil}
+  time = DateTime.utc_now()
+
+  @journey_params %{description: "some description", title: "some title", start_time: time}
+  @update_attrs %{description: "some updated description", title: "some updated title", start_time: time}
+  @invalid_attrs %{description: nil, title: nil, start_time: nil}
 
   @user_params %{username: "zezima", password: "n0valyfe"}
   @user_params_2 %{username: "t3hnoobshow", password: "lumbridge"}
@@ -145,7 +147,8 @@ defmodule UdiaWeb.JourneyControllerTest do
     assert response == %{
       "errors" => %{
         "title" => ["can't be blank"],
-        "description" => ["can't be blank"]
+        "description" => ["can't be blank"],
+        "start_time" => ["can't be blank"]
       }
     }
   end
@@ -197,7 +200,8 @@ defmodule UdiaWeb.JourneyControllerTest do
     assert response == %{
       "errors" => %{
         "title" => ["can't be blank"],
-        "description" => ["can't be blank"]
+        "description" => ["can't be blank"],
+        "start_time" => ["can't be blank"]
       }
     }
 

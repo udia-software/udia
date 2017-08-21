@@ -1,10 +1,12 @@
 defmodule UdiaWeb.PostControllerTest do
   use UdiaWeb.ConnCase
 
+  time = DateTime.utc_now()
+
   @create_attrs %{content: "some content", title: "some title", type: "text"}
   @update_attrs %{content: "some updated content", title: "some updated title"}
   @invalid_attrs %{content: nil, title: nil, type: nil}
-  @journey_params %{description: "some description", title: "some title"}
+  @journey_params %{description: "some description", title: "some title", start_time: time}
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}

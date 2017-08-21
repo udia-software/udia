@@ -6,11 +6,13 @@ defmodule Udia.LogsTest do
   describe "posts" do
     alias Udia.Logs.Post
 
+    time = DateTime.utc_now()
+
     @user_params %{username: "udia", password: "hunter2"}
     @create_attrs %{content: "some content", title: "some title", type: "text"}
     @update_attrs %{content: "some updated content", title: "some updated title"}
     @invalid_attrs %{content: nil, title: nil, type: nil}
-    @journey_params %{description: "some description", title: "some title"}
+    @journey_params %{description: "some description", title: "some title", start_time: time}
 
     test "list_posts/1 returns all posts" do
       assert Logs.list_posts() == []
@@ -255,11 +257,13 @@ defmodule Udia.LogsTest do
   describe "journeys" do
     alias Udia.Logs.Journey
 
+    time = DateTime.utc_now()
+
     @user_params %{username: "ram", password: "dass~~"}
-    @journey_params %{description: "some description", title: "some title"}
+    @journey_params %{description: "some description", title: "some title", start_time: time}
 
     @update_attrs %{description: "some updated description", title: "some updated title"}
-    @invalid_attrs %{description: nil, title: nil}
+    @invalid_attrs %{description: nil, title: nil, start_time: nil}
     
     test "list_journeys/0 returns all journeys" do
       assert Logs.list_journeys() == []
@@ -295,7 +299,8 @@ defmodule Udia.LogsTest do
       assert {:error, %Ecto.Changeset{} = err} = Logs.create_journey(user, @invalid_attrs)
       assert err.errors == [
         title: {"can't be blank", [validation: :required]},
-        description: {"can't be blank", [validation: :required]}
+        description: {"can't be blank", [validation: :required]},
+        start_time: {"can't be blank", [validation: :required]}
       ]    
     end
 
@@ -318,7 +323,8 @@ defmodule Udia.LogsTest do
       assert {:error, %Ecto.Changeset{} = err} = Logs.update_journey(user, base_journey, @invalid_attrs)
       assert err.errors == [
         title: {"can't be blank", [validation: :required]},
-        description: {"can't be blank", [validation: :required]}
+        description: {"can't be blank", [validation: :required]},
+        start_time: {"can't be blank", [validation: :required]}
       ]
     end
 
