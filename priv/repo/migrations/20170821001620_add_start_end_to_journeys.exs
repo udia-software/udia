@@ -3,8 +3,8 @@ defmodule Udia.Repo.Migrations.AddStartEndToJourneys do
 
   def change do
     alter table(:logs_journeys) do
-      add :start_time, :utc_datetime, default: fragment("now()")
-      add :end_time, :utc_datetime
+      add :start_date, :utc_datetime, default: fragment("now()")
+      add :end_date, :utc_datetime
     end
   end
 end

@@ -3,9 +3,9 @@ defmodule UdiaWeb.JourneyControllerTest do
 
   @time DateTime.utc_now()
 
-  @journey_params %{description: "some description", title: "some title", start_time: @time}
-  @update_attrs %{description: "some updated description", title: "some updated title", start_time: @time}
-  @invalid_attrs %{description: nil, title: nil, start_time: nil}
+  @journey_params %{description: "some description", title: "some title", start_date: @time}
+  @update_attrs %{description: "some updated description", title: "some updated title", start_date: @time}
+  @invalid_attrs %{description: nil, title: nil, start_date: nil}
 
   @user_params %{username: "zezima", password: "n0valyfe"}
   @user_params_2 %{username: "t3hnoobshow", password: "lumbridge"}
@@ -41,8 +41,8 @@ defmodule UdiaWeb.JourneyControllerTest do
       "description" => journey.description,
       "inserted_at" => String.replace(to_string(journey.inserted_at), " ", "T"),
       "updated_at" => String.replace(to_string(journey.updated_at), " ", "T"),
-      "start_time" => DateTime.to_iso8601(@time),
-      "end_time" => nil
+      "start_date" => DateTime.to_iso8601(@time),
+      "end_date" => nil
     }]
   end
 
@@ -99,8 +99,8 @@ defmodule UdiaWeb.JourneyControllerTest do
       "description" => journey.description,
       "inserted_at" => String.replace(to_string(journey.inserted_at), " ", "T"),
       "updated_at" => String.replace(to_string(journey.updated_at), " ", "T"),
-      "start_time" => DateTime.to_iso8601(@time),
-      "end_time" => nil
+      "start_date" => DateTime.to_iso8601(@time),
+      "end_date" => nil
     }
 
     # Throw a 404 if journey not found
@@ -152,7 +152,7 @@ defmodule UdiaWeb.JourneyControllerTest do
       "errors" => %{
         "title" => ["can't be blank"],
         "description" => ["can't be blank"],
-        "start_time" => ["can't be blank"]
+        "start_date" => ["can't be blank"]
       }
     }
   end
@@ -205,7 +205,7 @@ defmodule UdiaWeb.JourneyControllerTest do
       "errors" => %{
         "title" => ["can't be blank"],
         "description" => ["can't be blank"],
-        "start_time" => ["can't be blank"]
+        "start_date" => ["can't be blank"]
       }
     }
 

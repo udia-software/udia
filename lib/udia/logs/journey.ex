@@ -12,8 +12,8 @@ defmodule Udia.Logs.Journey do
     field :title, :string
     belongs_to :explorer, Udia.Accounts.User
     has_many :posts, Udia.Logs.Post
-    field :start_time, :utc_datetime
-    field :end_time, :utc_datetime
+    field :start_date, :utc_datetime
+    field :end_date, :utc_datetime
 
     timestamps()
   end
@@ -21,7 +21,7 @@ defmodule Udia.Logs.Journey do
   @doc false
   def changeset(%Journey{} = journey, attrs) do
     journey
-    |> cast(attrs, [:title, :description, :start_time, :end_time])
-    |> validate_required([:title, :description, :start_time])
+    |> cast(attrs, [:title, :description, :start_date, :end_date])
+    |> validate_required([:title, :description, :start_date])
   end
 end
