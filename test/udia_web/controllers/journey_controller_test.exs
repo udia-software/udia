@@ -1,9 +1,11 @@
 defmodule UdiaWeb.JourneyControllerTest do
   use UdiaWeb.ConnCase
 
-  @journey_params %{description: "some description", title: "some title"}
-  @update_attrs %{description: "some updated description", title: "some updated title"}
-  @invalid_attrs %{description: nil, title: nil}
+  @time DateTime.utc_now()
+
+  @journey_params %{description: "some description", title: "some title", start_date: @time}
+  @update_attrs %{description: "some updated description", title: "some updated title", start_date: @time}
+  @invalid_attrs %{description: nil, title: nil, start_date: nil}
 
   @user_params %{username: "zezima", password: "n0valyfe"}
   @user_params_2 %{username: "t3hnoobshow", password: "lumbridge"}
@@ -38,7 +40,9 @@ defmodule UdiaWeb.JourneyControllerTest do
       "title" => journey.title,
       "description" => journey.description,
       "inserted_at" => String.replace(to_string(journey.inserted_at), " ", "T"),
-      "updated_at" => String.replace(to_string(journey.updated_at), " ", "T")
+      "updated_at" => String.replace(to_string(journey.updated_at), " ", "T"),
+      "start_date" => DateTime.to_iso8601(@time),
+      "end_date" => nil
     }]
   end
 
@@ -94,7 +98,9 @@ defmodule UdiaWeb.JourneyControllerTest do
       "title" => journey.title,
       "description" => journey.description,
       "inserted_at" => String.replace(to_string(journey.inserted_at), " ", "T"),
-      "updated_at" => String.replace(to_string(journey.updated_at), " ", "T")
+      "updated_at" => String.replace(to_string(journey.updated_at), " ", "T"),
+      "start_date" => DateTime.to_iso8601(@time),
+      "end_date" => nil
     }
 
     # Throw a 404 if journey not found
@@ -145,7 +151,8 @@ defmodule UdiaWeb.JourneyControllerTest do
     assert response == %{
       "errors" => %{
         "title" => ["can't be blank"],
-        "description" => ["can't be blank"]
+        "description" => ["can't be blank"],
+        "start_date" => ["can't be blank"]
       }
     }
   end
@@ -197,7 +204,8 @@ defmodule UdiaWeb.JourneyControllerTest do
     assert response == %{
       "errors" => %{
         "title" => ["can't be blank"],
-        "description" => ["can't be blank"]
+        "description" => ["can't be blank"],
+        "start_date" => ["can't be blank"]
       }
     }
 
