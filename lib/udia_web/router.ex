@@ -19,6 +19,7 @@ defmodule UdiaWeb.Router do
 
     get "/", PageController, :index
     get "/.well-known/acme-challenge/:id", LetsEncryptController, :index
+
   end
 
   # Other scopes may use custom stacks.
@@ -29,10 +30,17 @@ defmodule UdiaWeb.Router do
     delete "/sessions", SessionController, :delete
     post "/sessions/refresh", SessionController, :refresh
 
+    get "/sessions/email", SessionController, :email
+
     resources "/users", UserController, except: [:new, :edit]
     resources "/posts", PostController, except: [:new, :edit]
     resources "/comments", CommentController, except: [:new, :edit]
     resources "/journeys", JourneyController, except: [:new, :edit]
     resources "/perceptions", PerceptionController, only: [:index]
+  end
+
+  # Development only, view sent emails
+  if Mix.env == :dev do
+    forward "/sent_emails", Bamboo.SentEmailViewerPlug, []
   end
 end

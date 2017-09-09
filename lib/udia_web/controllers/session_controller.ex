@@ -48,6 +48,14 @@ defmodule UdiaWeb.SessionController do
     |> render(UdiaWeb.SessionView, "forbidden.json", error: "Not Authenticated")
   end
 
+  # TODO: remove this test route
+  def email(conn, _params) do
+    Udia.Mailer.welcome_email |> Udia.Mailer.deliver_now
+    conn
+    |> put_status(:forbidden)
+    |> render(UdiaWeb.SessionView, "forbidden.json", error: "Email get test")
+  end
+
   defp authenticate(%{"username" => username, "password" => password}) do
     user = Repo.get_by(Udia.Accounts.User, username: username || "")
     case check_password(user, password) do

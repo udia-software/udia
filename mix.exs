@@ -23,9 +23,11 @@ defmodule Udia.Mixfile do
   #
   # Type `mix help compile.app` for more information.
   def application do
-    [mod: {Udia.Application, []},
-     extra_applications: [:logger, :runtime_tools, :cowboy, :comeonin,
-                          :scrivener_ecto]]
+    [
+      mod: {Udia.Application, []},
+      extra_applications: [:logger, :runtime_tools, :cowboy, :comeonin,
+                           :scrivener_ecto, :bamboo],
+    ]
   end
 
   # Specifies which paths to compile per environment.
@@ -52,6 +54,7 @@ defmodule Udia.Mixfile do
       {:guardian_db, "~> 0.8.0"},
       {:scrivener_ecto, "~> 1.2.2"},
       {:paper_trail, "~> 0.7.5"},
+      {:bamboo, github: "thoughtbot/bamboo"},
       {:excoveralls, "~> 0.7.2", only: :test},
       {:credo, "~> 0.8.5", only: [:dev, :test]},
       {:ex_doc, "~> 0.16.2", only: :dev},

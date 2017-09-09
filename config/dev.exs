@@ -34,3 +34,6 @@ config :udia, Udia.Repo,
 
 config :guardian, Guardian,
   secret_key: "8AkIfrSA1oWLv0n1aX0RnQhn6ID9LnspyqCvaMawQklazG8fgczu94LjVKQtFeAW"
+
+config :udia, Udia.Mailer,
+  adapter: Bamboo.LocalAdapter

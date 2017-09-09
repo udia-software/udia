@@ -33,6 +33,9 @@ config :guardian_db, GuardianDb,
   schema_name: "auth_tokens",
   sweep_interval: 120 # 120 minutes
 
+config :udia, Udia.Mailer,
+  adapter: Bamboo.LocalAdapter
+
 config :paper_trail,
   repo: Udia.Repo,
   originator: [name: :user, model: Udia.Accounts.User]

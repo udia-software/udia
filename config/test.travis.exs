@@ -22,3 +22,6 @@ config :guardian, Guardian,
 
 # reduce security on test environment
 config :bcrypt_elixir, :log_rounds, 4
+
+config :udia, Udia.Mailer,
+  adapter: Bamboo.TestAdapter

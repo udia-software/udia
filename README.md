@@ -100,6 +100,8 @@ The following environment variables must be set for the application to run in pr
 | `POOL_SIZE`           | `"10"`                  | Postgres pool size     |
 | `GUARDIAN_SECRET_KEY` | ``                      | Secret for Guardian    |
 | `CLIENT_ORIGIN_URL`   | `"https://www.udia.ca"` | Domain URL for client  |
+| `MAILGUN_API_KEY`     | ``                      | API key for Mailgun     |
+| `MAILGUN_DOMAIN_NAME` | ``                      | Domain name for Mailgun |
 
 ## License
 
