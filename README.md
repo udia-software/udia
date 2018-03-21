@@ -4,11 +4,27 @@ Prototype, do not use for anything.
 
 ## Quickstart
 
+1. Clone Repo: `git clone https://pi.alexander-wong.com/gogs/udia-software/udia && cd udia`
+
+**Basic**
+
 Requires NodeJS installed on your machine. (`lts/*`, `stable` supported)
 
-1. Clone Repo: `git clone https://pi.alexander-wong.com/gogs/udia-software/udia && cd udia`
 2. Install npm dependencies: `npm install`
 3. Run application `npm start`
+
+**With Docker**
+
+Requires Docker installed on your machine.
+
+2. Run application `docker-compose up`
+
+## Environment Variables
+
+| Environment Variable Name | Default Value | Description    |
+|---------------------------|---------------|----------------|
+|`NODE_ENV`                 |`development`  |Node Environment|
+|`PORT`                     |`3000`         |Express port    |
 
 ## License
 
