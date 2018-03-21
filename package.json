@@ -1,0 +1,15 @@
+{
+  "name": "udia",
+  "version": "0.0.1",
+  "description": "Like Standard File, but with collaboration",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://pi.alexander-wong.com/gogs/udia-software/udia.git"
+  },
+  "author": "Alexander Wong <alex@udia.ca>",
+  "license": "AGPL-3.0"
+}
