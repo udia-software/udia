@@ -2,6 +2,14 @@
 
 Prototype, do not use for anything.
 
+## Quickstart
+
+Requires NodeJS installed on your machine. (`lts/*`, `stable` supported)
+
+1. Clone Repo: `git clone https://pi.alexander-wong.com/gogs/udia-software/udia && cd udia`
+2. Install npm dependencies: `npm install`
+3. Run application `npm start`
+
 ## License
 
 **GNU Affero General Public License v3 (AGPL-3.0)**
