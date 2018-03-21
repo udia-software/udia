@@ -1,9 +1,59 @@
 version: '3'
+
 services:
-  web:
-    build: .
-    environment:
-      NODE_ENV: development
-      PORT: 3000
+  roach:
+    image: cockroachdb/cockroach
+    command: start --insecure
     ports:
-      - "3000:3000"
+      - 8080:8080
+      - 26257:26257
+    networks:
+        - roachnet
+    volumes:
+      - ./data/roach:/cockroach/cockroach-data
+  roach-a:
+    image: cockroachdb/cockroach
+    command: start --insecure --join=roach
+    networks:
+        - roachnet
+    volumes:
+      - ./data/roach-a:/cockroach/cockroach-data
+  roach-b:
+    image: cockroachdb/cockroach
+    command: start --insecure --join=roach
+    networks:
+        - roachnet
+    volumes:
+      - ./data/roach-b:/cockroach/cockroach-data
+  roach-c:
+    image: cockroachdb/cockroach
+    command: start --insecure --join=roach
+    networks:
+        - roachnet
+    volumes:
+      - ./data/roach-c:/cockroach/cockroach-data
+  # roach-d:
+  #   image: cockroachdb/cockroach
+  #   command: start --insecure --join=roach
+  #   networks:
+  #       - roachnet
+  #   volumes:
+  #     - ./data/roach-d:/cockroach/cockroach-data
+
+  # commenting this out temporarily, server doesn't wait until dbs are up
+  # web:
+  #   build: .
+  #   depends_on:
+  #     - roach
+  #     - roach-a
+  #     - roach-b
+  #     - roach-c
+  #   environment:
+  #     NODE_ENV: development
+  #     PORT: 3000
+  #     SQL_CONN_STR: postgres://root@roach:26257/udiadb
+  #   ports:
+  #     - "3000:3000"
+
+networks:
+  roachnet:

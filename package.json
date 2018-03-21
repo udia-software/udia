@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Warn: no tests!\" && exit 0",
-    "prestart": "tsc",
+    "prestart": "rm -rf dist/* && tsc",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
-    "start": "node dist/server.js",
+    "start": "node dist/index.js",
     "posttest": "npm run lint",
     "prepublishOnly": "npm run lint"
   },
@@ -18,13 +18,17 @@
   "author": "Alexander Wong <alex@udia.ca>",
   "license": "AGPL-3.0",
   "dependencies": {
+    "body-parser": "^1.18.2",
     "express": "^4.16.3",
+    "pg": "^7.4.1",
     "pjson": "^1.0.9",
     "typescript": "^2.7.2"
   },
   "devDependencies": {
     "@types/express": "^4.11.1",
     "@types/node": "^9.4.7",
-    "tslint": "^5.9.1"
+    "@types/pg": "^7.4.5",
+    "tslint": "^5.9.1",
+    "tslint-config-prettier": "^1.10.0"
   }
 }

@@ -88,5 +88,10 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+# Typescript Output
+dist/*
+
+# CockroachDB data
+data
 
 # End of https://www.gitignore.io/api/osx,node

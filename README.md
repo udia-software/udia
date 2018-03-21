@@ -4,27 +4,26 @@ Prototype, do not use for anything.
 
 ## Quickstart
 
+* Requires Docker installed on your machine.
+* Requires NodeJS installed on your machine. (`lts/*`, `stable` supported)
+
 1. Clone Repo: `git clone https://pi.alexander-wong.com/gogs/udia-software/udia && cd udia`
-
-**Basic**
-
-Requires NodeJS installed on your machine. (`lts/*`, `stable` supported)
-
-2. Install npm dependencies: `npm install`
-3. Run application `npm start`
-
-**With Docker**
-
-Requires Docker installed on your machine.
-
-2. Run application `docker-compose up`
+2. Spin up development CockroachDB cluster `docker-compose up`
+3. Install npm dependencies: `npm install`
+4. Run application `npm start`
 
 ## Environment Variables
 
-| Environment Variable Name | Default Value | Description    |
-|---------------------------|---------------|----------------|
-|`NODE_ENV`                 |`development`  |Node Environment|
-|`PORT`                     |`3000`         |Express port    |
+| Environment Variable Name | Default Value | Description         |
+|---------------------------|---------------|---------------------|
+|`NODE_ENV`                 |`development`  |Node Environment     |
+|`PORT`                     |`3000`         |Express port         |
+|`SQL_CONN_STR`             |` `            |SQL Connection String|
+|`SQL_DB` (if no conn str)  |` `            |SQL Database name    |
+|`SQL_HOST` (!!)            |` `            |SQL Hostname         |
+|`SQL_USER` (!!)            |` `            |SQL User             |
+|`SQL_PASSWORD` (!!)        |` `            |SQL Password         |
+|`SQL_PORT` (!!)            |` `            |SQL Port Number      |
 
 ## License
 
