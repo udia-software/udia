@@ -4,26 +4,32 @@ Prototype, do not use for anything.
 
 ## Quickstart
 
-* Requires Docker installed on your machine.
-* Requires NodeJS installed on your machine. (`lts/*`, `stable` supported)
+1.  Clone Repo: `git clone https://pi.alexander-wong.com/gogs/udia-software/udia && cd udia`
 
-1. Clone Repo: `git clone https://pi.alexander-wong.com/gogs/udia-software/udia && cd udia`
-2. Spin up development CockroachDB cluster `docker-compose up`
-3. Install npm dependencies: `npm install`
-4. Run application `npm start`
+**Docker (Reccomended)**
+
+2.  Start the application with `docker-compose up`
+
+**Manual**
+
+2.  Ensure you have a sql database accessible and ready. (`postgres, cockroachdb`)
+3.  Set your database connection string or values. (see [Environment Variables](#environment-variables))
+4.  Install npm dependencies: `npm install`
+5.  Run application: `npm start`
 
 ## Environment Variables
 
-| Environment Variable Name | Default Value | Description         |
-|---------------------------|---------------|---------------------|
-|`NODE_ENV`                 |`development`  |Node Environment     |
-|`PORT`                     |`3000`         |Express port         |
-|`SQL_CONN_STR`             |` `            |SQL Connection String|
-|`SQL_DB` (if no conn str)  |` `            |SQL Database name    |
-|`SQL_HOST` (!!)            |` `            |SQL Hostname         |
-|`SQL_USER` (!!)            |` `            |SQL User             |
-|`SQL_PASSWORD` (!!)        |` `            |SQL Password         |
-|`SQL_PORT` (!!)            |` `            |SQL Port Number      |
+| Environment Variable Name | Default Value           | Description           |
+| ------------------------- | ----------------------- | --------------------- |
+| `NODE_ENV`                | `development`           | Node Environment      |
+| `PORT`                    | `3000`                  | Express port          |
+| `SQL_CONN_STR`            | ``                      | SQL Connection String |
+| `SQL_DB` (if no conn str) | ``                      | SQL Database name     |
+| `SQL_HOST` (!!)           | ``                      | SQL Hostname          |
+| `SQL_USER` (!!)           | ``                      | SQL User              |
+| `SQL_PASSWORD` (!!)       | ``                      | SQL Password          |
+| `SQL_PORT` (!!)           | ``                      | SQL Port Number       |
+| `UUID_NS_URL`             | `http://localhost:3000` | UUIDv5 namespace url  |
 
 ## License
 

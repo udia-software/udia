@@ -1,6 +1,7 @@
 import { version } from "pjson";
 
 const APP_VERSION = version;
+
 // environment variables
 const NODE_ENV = process.env.NODE_ENV || "development";
 const PORT = process.env.PORT || "3000";
@@ -10,7 +11,7 @@ const SQL_DB = process.env.SQL_DB || "";
 const SQL_PASSWORD = process.env.SQL_PASSWORD || "";
 const SQL_PORT = process.env.SQL_PORT || "";
 const SQL_CONN_STR = process.env.SQL_CONN_STR || "postgres://root@localhost:26257/udiadb";
-
+const UUID_NS_URL = process.env.UUID_NS_URL || "http://localhost:3000";
 
 export {
   APP_VERSION,
@@ -21,5 +22,6 @@ export {
   SQL_DB,
   SQL_PASSWORD,
   SQL_PORT,
-  SQL_CONN_STR
+  SQL_CONN_STR,
+  UUID_NS_URL
 };

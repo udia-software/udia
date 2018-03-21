@@ -4,12 +4,39 @@
   "description": "Encrypted file and note storage, with collaboration",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Warn: no tests!\" && exit 0",
+    "test": "NODE_ENV=test jest --coverage",
     "prestart": "rm -rf dist/* && tsc",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "start": "node dist/index.js",
     "posttest": "npm run lint",
     "prepublishOnly": "npm run lint"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "testEnvironment": "node",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "collectCoverageFrom": [
+      "**/src/**"
+    ],
+    "coverageReporters": [
+      "json",
+      "lcov",
+      "text",
+      "html"
+    ]
   },
   "repository": {
     "type": "git",
@@ -22,12 +49,17 @@
     "express": "^4.16.3",
     "pg": "^7.4.1",
     "pjson": "^1.0.9",
+    "reflect-metadata": "^0.1.12",
+    "typeorm": "^0.1.16",
     "typescript": "^2.7.2"
   },
   "devDependencies": {
     "@types/express": "^4.11.1",
+    "@types/jest": "^22.2.0",
     "@types/node": "^9.4.7",
     "@types/pg": "^7.4.5",
+    "jest": "^22.4.3",
+    "ts-jest": "^22.4.2",
     "tslint": "^5.9.1",
     "tslint-config-prettier": "^1.10.0"
   }

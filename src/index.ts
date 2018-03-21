@@ -1,13 +1,15 @@
 import { createServer } from "http";
 import app from "./app";
 import { NODE_ENV, PORT } from "./constants";
-import database from "./database";
+import dbPool from "./db/dbPool";
 
 /**
- * Start the server. Initialize the Database Client.
+ * Start the server. Initialize the Database Client and tables.
  */
 const start = async () => {
-  await database.connect();
+  const pool = await dbPool.connect();
+
+  app.set("dbPool", pool);
   const server = createServer(app);
 
   server.listen(PORT, async () => {
@@ -16,7 +18,9 @@ const start = async () => {
   });
 
   server.on("close", async () => {
-    await database.end();
+    // tslint:disable-next-line no-console
+    console.log(`UDIA server shutting down...`);
+    await dbPool.end();
   });
 };
 
