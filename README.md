@@ -4,27 +4,22 @@ Prototype, do not use for anything.
 
 ## Quickstart
 
-1.  Clone Repo: `git clone https://pi.alexander-wong.com/gogs/udia-software/udia && cd udia`
+Clone Repo: `git clone https://pi.alexander-wong.com/gogs/udia-software/udia && cd udia`
 
 **Docker**
 
     Docker mode is the staging environment.
-2.  Start the application with `docker-compose up`
+1.  Start the application with `docker-compose up`
 
 **Manual**
 
     Manual is reccommended for live reloading and development.
 
-2.  Ensure you have a sql database accessible and ready. (`postgres` supported, `cockroachdb` beta)
-    - Helper Docker files: `docker-compose -f roach-compose.yml up` or `docker-compose -f postgres-compose.yml up`
-3.  Set your database connection string or values. (see [Environment Variables](#environment-variables))
-4.  Install npm dependencies: `npm install`
-5.  Run application: `npm start` or watch application `npm run watch`
-
-## Notes:
-
-- Generate schema migrations with the following script:
-`ts-node ./node_modules/.bin/typeorm migrations:generate -n`
+1.  Ensure you have a sql database accessible and ready. (`postgres` supported, `cockroachdb` beta)
+    - Helper Docker files: `docker-compose -f postgres-compose.yml up` or `docker-compose -f roach-compose.yml up`
+2.  Set your database connection string or values. (see [Environment Variables](#environment-variables))
+3.  Install dependencies: `yarn install`
+4.  Run application: `yarn start` or watch application `yarn run watch`
 
 ## Environment Variables
 
@@ -33,6 +28,7 @@ Prototype, do not use for anything.
 | `NODE_ENV` | `development` | Node Environment |
 | `PORT` | `3000` | Express port |
 | `TYPEORM_TYPE` | `postgres` | Database (`postgres` officially supported) |
+| `TYPEORM_LOGGING` | `true` | Log SQL queries to console |
 | `SQL_DB` | `udiadb` | SQL Database name |
 | `SQL_HOST` | `db` | SQL Hostname |
 | `SQL_USER` | `pguser` | SQL User |
