@@ -7,6 +7,8 @@
     "test": "NODE_ENV=test jest --coverage",
     "prestart": "rm -rf dist/* && tsc",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
+    "watch-ts": "tsc --watch",
+    "watch": "npm run watch-ts & nodemon dist/index.js",
     "start": "node dist/index.js",
     "posttest": "npm run lint",
     "prepublishOnly": "npm run lint"
@@ -59,6 +61,7 @@
     "@types/node": "^9.4.7",
     "@types/pg": "^7.4.5",
     "jest": "^22.4.3",
+    "nodemon": "^1.17.2",
     "ts-jest": "^22.4.2",
     "tslint": "^5.9.1",
     "tslint-config-prettier": "^1.10.0"

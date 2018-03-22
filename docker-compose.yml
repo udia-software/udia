@@ -5,37 +5,6 @@ version: '3'
 #   roachnet:
 
 services:
-  # roach:
-  #   image: cockroachdb/cockroach
-  #   command: start --insecure
-  #   ports:
-  #     - 8080:8080
-  #     - 26257:26257
-  #   networks:
-  #       - roachnet
-  #   volumes:
-  #     - ./data/roach:/cockroach/cockroach-data
-  # roach-a:
-  #   image: cockroachdb/cockroach
-  #   command: start --insecure --join=roach
-  #   networks:
-  #       - roachnet
-  #   volumes:
-  #     - ./data/roach-a:/cockroach/cockroach-data
-  # roach-b:
-  #   image: cockroachdb/cockroach
-  #   command: start --insecure --join=roach
-  #   networks:
-  #       - roachnet
-  #   volumes:
-  #     - ./data/roach-b:/cockroach/cockroach-data
-  # roach-c:
-  #   image: cockroachdb/cockroach
-  #   command: start --insecure --join=roach
-  #   networks:
-  #       - roachnet
-  #   volumes:
-  #     - ./data/roach-c:/cockroach/cockroach-data
   db:
     image: postgres
     healthcheck:
@@ -48,20 +17,20 @@ services:
       - 5432:5432
     environment:
       POSTGRES_PASSWORD: mysecretpassword
-      POSTGRES_USER: postgres
+      POSTGRES_USER: pguser
       POSTGRES_DB: udiadb
   web:
     build: .
     depends_on:
       - db
-#     - roach
-#     - roach-a
-#     - roach-b
-#     - roach-c
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       PORT: 3000
-      SQL_CONN_STR: postgres://postgres:mysecretpassword@db:5432/udiadb
-#     SQL_CONN_STR: postgres://root@localhost:26257/udiadb # cockroachdb
+      TYPEORM_TYPE: postgres
+      SQL_DB: udiadb
+      SQL_HOST: db
+      SQL_USER: pguser
+      SQL_PASSWORD: mysecretpassword
+      SQL_PORT: 5432
     ports:
       - "3000:3000"
