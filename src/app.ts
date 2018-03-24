@@ -1,10 +1,14 @@
 import bodyParser from "body-parser";
 import express from "express";
 import * as authController from "./controllers/auth";
-import metric from "./metric";
+import { middlewareLogger } from "./util/logger";
+import metric from "./util/metric";
 
 const app = express();
 
+app.set("trust proxy", ["loopback", "linklocal", "uniquelocal"]);
+
+app.use(middlewareLogger);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 

@@ -1,9 +1,10 @@
-import { compare, hash } from "bcrypt";
+import { hash, verify } from "argon2";
 import { Request, Response } from "express";
 import { sign } from "jsonwebtoken";
 import { Connection } from "typeorm";
-import { JWT_SECRET, SALT_ROUNDS } from "../constants";
+import { JWT_SECRET } from "../constants";
 import { User } from "../entity/User";
+import logger from "../util/logger";
 
 export const postAuth = async (req: Request, res: Response) => {
   try {
@@ -14,7 +15,7 @@ export const postAuth = async (req: Request, res: Response) => {
       pw_salt = ""
     } = req.body;
     const dbConnection: Connection = req.app.get("dbConnection");
-    const serverHashedPassword = await hash(password, +SALT_ROUNDS);
+    const serverHashedPassword = await hash(password);
     let newUser: User = new User();
     newUser.email = email.toLowerCase().trim();
     newUser.password = serverHashedPassword;
@@ -26,8 +27,7 @@ export const postAuth = async (req: Request, res: Response) => {
     });
     res.status(200).json({ jwt });
   } catch (error) {
-    // tslint:disable-next-line no-console
-    console.error(error);
+    logger.error("ERR postAuth", error);
     res.status(500).json({
       errors: ["Could not create user!", error]
     });
@@ -52,9 +52,9 @@ export const patchAuth = async (req: Request, res: Response) => {
     if (!user) {
       throw Error("User does not exist.");
     }
-    const passwordsMatch = await compare(current_password, user.password);
+    const passwordsMatch = await verify(user.password, current_password);
     if (passwordsMatch) {
-      const serverHashedPassword = await hash(password, +SALT_ROUNDS);
+      const serverHashedPassword = await hash(password);
       user.password = serverHashedPassword;
       await dbConnection.manager.save(user);
       res.status(204);
@@ -62,8 +62,7 @@ export const patchAuth = async (req: Request, res: Response) => {
       throw Error("Invalid password.");
     }
   } catch (error) {
-    // tslint:disable-next-line no-console
-    console.error(error);
+    logger.error("ERR patchAuth", error);
     res.status(500).json({
       errors: ["Could not update password!", error]
     });
@@ -80,7 +79,7 @@ export const postAuthSignIn = async (req: Request, res: Response) => {
     if (!user) {
       throw Error("User does not exist.");
     }
-    const passwordsMatch = await compare(password, user.password);
+    const passwordsMatch = await verify(user.password, password);
     if (passwordsMatch) {
       const token = sign(JSON.parse(JSON.stringify(user)), JWT_SECRET, {
         expiresIn: "10h"
@@ -90,8 +89,7 @@ export const postAuthSignIn = async (req: Request, res: Response) => {
       throw Error("Invalid password.");
     }
   } catch (error) {
-    // tslint:disable-next-line no-console
-    console.error(error);
+    logger.error("ERR postAuthSignIn", error);
     res.status(500).json({
       errors: ["Could not authenticate user!", error]
     });
@@ -116,8 +114,7 @@ export const getAuthParams = async (req: Request, res: Response) => {
       });
     }
   } catch (error) {
-    // tslint:disable-next-line no-console
-    console.error(error);
+    logger.error("ERR getAuthParams", error);
     res.status(500).json({
       errors: ["Could not get authentication params!", error]
     });

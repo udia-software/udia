@@ -88,9 +88,6 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-# Typescript Output
-dist/*
-
 # CockroachDB data
 data
 

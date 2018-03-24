@@ -1,43 +1,41 @@
+import crypto from "crypto";
 import { createServer } from "http";
+import Graceful from "node-graceful";
 import { createConnection } from "typeorm";
 import app from "./app";
 import { NODE_ENV, PORT } from "./constants";
+import logger from "./util/logger";
 
 /**
  * Start the server. Initialize the Database Client and tables.
+ * Throws an error if client initialization fails
  */
 const start = async () => {
-  const connection = await createConnection();
-  // tslint:disable-next-line no-console
-  console.log(
-    `Connected to ${connection.options.database} ${connection.options.type}: ${
-      connection.isConnected
-    }`
-  );
-  app.set("dbConnection", connection);
+  // crypto module may not exist in node binary (will throw error)
+  app.set("crypto", crypto);
+
+  // db not be available (will throw error)
+  const conn = await createConnection();
+  logger.info(`Connected to ${conn.options.database} ${conn.options.type}.`);
+  app.set("dbConnection", conn);
   const server = createServer(app);
 
   server.listen(PORT, async () => {
-    // tslint:disable-next-line no-console
-    console.log(`UDIA ${NODE_ENV} server running on port ${PORT}`);
+    logger.info(`UDIA ${NODE_ENV} server running on port ${PORT}.`);
   });
 
-  const shutdown = async () => {
-    // tslint:disable-next-line no-console
-    console.log("\n3)\tShutdown server request received.");
-    await connection.close();
-    // tslint:disable-next-line no-console
-    console.log(`2)\tDatabase connections closed.`);
-    await server.close(() => {
-      // tslint:disable-next-line no-console
-      console.log(`1)\tUDIA server shut down.`);
-      return process.exit(0);
+  Graceful.on("exit", (done, event, signal) => {
+    logger.warn(`3)\tGraceful ${signal} signal received.`);
+    server.close(() => {
+      logger.warn(`2)\tHTTP server closed.`);
+      conn.close().then(() => {
+        logger.warn(`1)\tDatabase connections closed.`);
+        done();
+      });
     });
-  };
+  });
 
-  process.on("SIGINT", shutdown);
-  process.on("SIGQUIT", shutdown);
-  process.on("SIGTERM", shutdown);
+  return server;
 };
 
 if (require.main === module) {

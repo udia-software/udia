@@ -10,7 +10,7 @@ import {
     uptime as o_uptime,
 } from "os";
 import { uptime as p_uptime, version as node_version } from "process";
-import { APP_VERSION } from "./constants";
+import { APP_VERSION } from "../constants";
 
 /**
  * CPU metrics are unreliable inside a containerized environment (Docker)

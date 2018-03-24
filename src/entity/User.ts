@@ -6,6 +6,14 @@ export class User {
 
   @Column({
     type: "varchar",
+    length: 24,
+    nullable: false
+  })
+  @Index({ unique: true })
+  public username: string;
+
+  @Column({
+    type: "varchar",
     length: 255,
     nullable: false
   })
@@ -14,7 +22,7 @@ export class User {
 
   @Column({
     type: "varchar",
-    length: 255,
+    length: 512,
     nullable: false
   })
   public password: string;
@@ -22,7 +30,7 @@ export class User {
   @Column({
     type: "varchar",
     length: 255,
-    default: () => "pbkdf2",
+    default: "pbkdf2",
     nullable: false
   })
   public pwFunc: string;
@@ -30,21 +38,21 @@ export class User {
   @Column({
     type: "varchar",
     length: 255,
-    default: () => "sha512",
+    default: "sha512",
     nullable: false
   })
   public pwAlg: string;
 
   @Column({
     type: "integer",
-    default: () => 5000,
+    default: 5000,
     nullable: false
   })
   public pwCost: number;
 
   @Column({
     type: "integer",
-    default: () => 512,
+    default: 512,
     nullable: false
   })
   public pwKeySize: number;

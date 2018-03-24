@@ -4,7 +4,7 @@
   "description": "Encrypted file and note storage, with collaboration",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_ENV=test jest --coverage",
+    "test": "NODE_ENV=test TYPEORM_LOGGING=false jest --coverage",
     "prestart": "rm -rf dist/* && tsc",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "watch-ts": "tsc --watch",
@@ -12,7 +12,7 @@
     "start": "node dist/index.js",
     "posttest": "yarn run lint",
     "prepublishOnly": "yarn run lint",
-    "makeMigrations": "ts-node node_modules/.bin/typeorm migrations:generate -n"
+    "makeMigrations": "ts-node node_modules/.bin/typeorm migrations:generate"
   },
   "jest": {
     "transform": {
@@ -48,15 +48,19 @@
   "author": "Alexander Wong <alex@udia.ca>",
   "license": "AGPL-3.0",
   "dependencies": {
-    "bcrypt": "^1.0.3",
+    "argon2": "^0.17.2",
     "body-parser": "^1.18.2",
     "express": "^4.16.3",
     "jsonwebtoken": "^8.2.0",
+    "moment": "^2.21.0",
+    "node-graceful": "^0.3.0",
+    "on-finished": "^2.3.0",
     "pg": "^7.4.1",
     "pjson": "^1.0.9",
     "reflect-metadata": "^0.1.12",
     "typeorm": "^0.1.16",
-    "typescript": "^2.7.2"
+    "typescript": "^2.7.2",
+    "winston": "^2.4.1"
   },
   "devDependencies": {
     "@types/bcrypt": "^1.0.0",
@@ -64,7 +68,10 @@
     "@types/jest": "^22.2.0",
     "@types/jsonwebtoken": "^7.2.6",
     "@types/node": "^9.4.7",
+    "@types/on-finished": "^2.3.1",
+    "@types/on-headers": "^1.0.0",
     "@types/pg": "^7.4.5",
+    "@types/winston": "^2.3.8",
     "jest": "^22.4.3",
     "nodemon": "^1.17.2",
     "ts-jest": "^22.4.2",
