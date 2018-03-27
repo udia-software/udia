@@ -1,7 +1,8 @@
 import crypto from "crypto";
 import { createServer } from "http";
 import Graceful from "node-graceful";
-import { createConnection } from "typeorm";
+import "reflect-metadata";
+import { Connection, createConnection } from "typeorm";
 import app from "./app";
 import { NODE_ENV, PORT } from "./constants";
 import logger from "./util/logger";
@@ -10,7 +11,7 @@ import logger from "./util/logger";
  * Start the server. Initialize the Database Client and tables.
  * Throws an error if client initialization fails
  */
-const start = async () => {
+const start = async (port: number = parseInt(PORT, 10)) => {
   // crypto module may not exist in node binary (will throw error)
   app.set("crypto", crypto);
 
@@ -20,8 +21,8 @@ const start = async () => {
   app.set("dbConnection", conn);
   const server = createServer(app);
 
-  server.listen(PORT, async () => {
-    logger.info(`UDIA ${NODE_ENV} server running on port ${PORT}.`);
+  server.listen(port, async () => {
+    logger.info(`UDIA ${NODE_ENV} server running on port ${port}.`);
   });
 
   Graceful.on("exit", (done, event, signal) => {
@@ -29,7 +30,7 @@ const start = async () => {
     server.close(() => {
       logger.warn(`2)\tHTTP server closed.`);
       conn.close().then(() => {
-        logger.warn(`1)\tDatabase connections closed.`);
+        logger.warn(`1)\tDatabase connection closed.`);
         done();
       });
     });

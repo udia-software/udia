@@ -41,7 +41,7 @@ export class User {
     default: "sha512",
     nullable: false
   })
-  public pwAlg: string;
+  public pwDigest: string;
 
   @Column({
     type: "integer",
@@ -51,31 +51,8 @@ export class User {
   public pwCost: number;
 
   @Column({
-    type: "integer",
-    default: 512,
-    nullable: false
-  })
-  public pwKeySize: number;
-
-  @Column({
     type: "varchar",
-    length: 255,
-    default: "",
-    nullable: false
-  })
-  public pwNonce: string;
-
-  @Column({
-    type: "varchar",
-    length: 255,
-    default: "",
-    nullable: false
-  })
-  public pwAuth: string;
-
-  @Column({
-    type: "varchar",
-    length: 255,
+    length: 512,
     default: "",
     nullable: false
   })

@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
+    "lib": ["es5", "es2015"],
     "target": "es2015",
     "module": "commonjs",
-    "sourceMap": true,
-    "removeComments": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
     "noImplicitAny": true,
     "outDir": "dist",
     "strict": true,

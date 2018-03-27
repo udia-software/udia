@@ -15,7 +15,20 @@ services:
       POSTGRES_PASSWORD: mysecretpassword
       POSTGRES_USER: pguser
       POSTGRES_DB: udiadb
-
+  testdb:
+    image: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+    restart: always
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_USER: pguser
+      POSTGRES_DB: udiadbtest
 # TYPEORM_TYPE: postgres
 # SQL_DB: udiadb
 # SQL_HOST: localhost

@@ -1,4 +1,4 @@
-import { Connection } from "typeorm";
+import { getConnection } from "typeorm";
 import { User } from "../entity/User";
 import Auth from "./Auth";
 
@@ -13,14 +13,13 @@ export default class UserManager {
    * @param pwSalt Password salt for client crypto derivation
    */
   public static async createUser(
-    dbConn: Connection,
     username: string,
     email: string,
     password: string,
     pwCost: number,
     pwSalt: string
   ) {
-    const userExists = await dbConn
+    const userExists = await getConnection()
       .getRepository(User)
       .createQueryBuilder("user")
       .where("email = :email", { email })
@@ -35,7 +34,7 @@ export default class UserManager {
     newUser.password = pwHash;
     newUser.pwCost = pwCost;
     newUser.pwSalt = pwSalt;
-    newUser = await dbConn.manager.save(newUser);
+    newUser = await getConnection().manager.save(newUser);
     return {
       user: newUser,
       jwt: Auth.signUserJWT(newUser)
