@@ -1,4 +1,11 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn
+} from "typeorm";
 
 @Entity()
 export class User {
@@ -58,17 +65,13 @@ export class User {
   })
   public pwSalt: string;
 
-  @Column({
-    type: "timestamp with time zone",
-    default: () => "CURRENT_TIMESTAMP",
-    nullable: false
+  @CreateDateColumn({
+    type: "timestamp with time zone"
   })
   public createdAt: Date;
 
-  @Column({
-    type: "timestamp with time zone",
-    default: () => "CURRENT_TIMESTAMP",
-    nullable: true
+  @UpdateDateColumn({
+    type: "timestamp with time zone"
   })
   public updatedAt: Date;
 }

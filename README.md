@@ -34,6 +34,7 @@ Clone Repo: `git clone https://pi.alexander-wong.com/gogs/udia-software/udia && 
 | `SQL_USER` | `pguser` | SQL User |
 | `SQL_PASSWORD` | `mysecretpassword` | SQL Password |
 | `SQL_PORT` | `5432` | SQL Port Number |
+| `CORS_ORIGIN` | `*` | Cross Origin Resource Sharing allow |
 
 ## License
 

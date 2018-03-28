@@ -106,4 +106,18 @@ export default class UserManager {
     }
     throw new Error("User not found for given email.");
   }
+
+  public static async deleteUser(id: string, pw: string) {
+    const user = await getConnection()
+      .getRepository(User)
+      .findOneById(id);
+    if (!user) {
+      throw new Error("User does not exist.");
+    }
+    const passwordsMatch = await Auth.verifyPassword(user.password, pw);
+    if (passwordsMatch) {
+      return getConnection().getRepository(User).deleteById(id);
+    }
+    throw new Error("Invalid password.");
+  }
 }

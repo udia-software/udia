@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { createSecureContext } from "tls";
 
 export function generateUserCryptoParams(email: string, uip: string) {
   const pwFunc = "pbkdf2";
@@ -18,7 +19,6 @@ export function generateUserCryptoParams(email: string, uip: string) {
     pwFunc,
     pwDigest
   );
-  generateKeyPairECDH();
   return { pw, mk, ak, pwSalt, pwCost, pwFunc: "pbkdf2", pwDigest };
 }
 
@@ -39,6 +39,10 @@ export function loginUserCryptoParams(
   return { pw, mk, ak };
 }
 
+/**
+ * Helper function for generating elliptic curve diffie hellman keys.
+ * Not sure what this is going to be used for yet.
+ */
 export function generateKeyPairECDH() {
   const ecdh = crypto.createECDH("prime256v1");
   const publicKey = ecdh.generateKeys("hex", "uncompressed");
