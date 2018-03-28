@@ -122,7 +122,8 @@ describe("Users", () => {
       expect(user).toHaveProperty("updatedAt");
       const createdAt = new Date(user.createdAt).getTime();
       const updatedAt = new Date(user.updatedAt).getTime();
-      expect(updatedAt).toEqual(createdAt);      done();
+      expect(updatedAt).toEqual(createdAt);
+      done();
     });
 
     it("should login a user.", async done => {
@@ -147,7 +148,21 @@ describe("Users", () => {
         pw
       });
       expect(postAuthSigninResp.data).toHaveProperty("jwt");
-      done();
+      expect(postAuthSigninResp.data).toHaveProperty("user");
+      const user = postAuthSigninResp.data.user;
+      expect(user).toHaveProperty("uuid");
+      expect(user).toHaveProperty("username");
+      expect(user).toHaveProperty("email");
+      expect(user).toHaveProperty("password");
+      expect(user).toHaveProperty("pwFunc");
+      expect(user).toHaveProperty("pwDigest");
+      expect(user).toHaveProperty("pwCost");
+      expect(user).toHaveProperty("pwSalt");
+      expect(user).toHaveProperty("createdAt");
+      expect(user).toHaveProperty("updatedAt");
+      const createdAt = new Date(user.createdAt).getTime();
+      const updatedAt = new Date(user.updatedAt).getTime();
+      expect(updatedAt).toEqual(createdAt);      done();
     });
 
     it("should update a user's password.", async done => {
