@@ -4,7 +4,7 @@
   "description": "Encrypted file and note storage, with collaboration",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_ENV=test TYPEORM_LOGGING=false jest --verbose",
+    "test": "NODE_ENV=test TYPEORM_LOGGING=true jest --verbose",
     "prestart": "rm -rf dist/* && tsc",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "watch-ts": "tsc --watch",

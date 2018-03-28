@@ -6,7 +6,11 @@ import { PORT } from "../../src/constants";
 import { User } from "../../src/entity/User";
 import start from "../../src/index";
 import Auth from "../../src/modules/Auth";
-import { generateUserCryptoParams, loginUserCryptoParams } from "../testHelper";
+import {
+  generateKeyPairECDH,
+  generateUserCryptoParams,
+  loginUserCryptoParams
+} from "../testHelper";
 
 let server: Server = null;
 let restClient: AxiosInstance = null;
@@ -27,25 +31,25 @@ beforeAll(async done => {
     .orWhere("username = :loginMe", { loginMe: "loginMe" })
     .orWhere("username = :updateMe", { updateMe: "updateMe" })
     .execute();
-  const stubUser = new User();
-  stubUser.username = "loginMe";
-  stubUser.email = "loginme@udia.ca";
   // userInputtedPassword = `Another secure p455word~`;
-  stubUser.password = `$argon2i$v=19$m=4096,t=3,p=1$oQsV2gDZcl3Qx2dfn+4hmg$2eeavsqCtG5zZRCQ/lVFSjrayzkmQGbdGYEi+p+Ny9w`;
-  stubUser.pwFunc = "pbkdf2";
-  stubUser.pwDigest = "sha512";
-  stubUser.pwCost = 3000;
-  stubUser.pwSalt = "c9b5f819984f9f2ef18ec4c4156dbbc802c79d11";
-  await getConnection().manager.save(stubUser);
-  const stub2User = new User();
-  stub2User.username = "updateMe";
-  stub2User.email = "updateme@udia.ca";
-  stub2User.password = `$argon2i$v=19$m=4096,t=3,p=1$aB/tWN70qSUzENu4daWsQg$8Er6+T3izJEXroNIrWcqxoqYqF7KGq7KJoo+P00XLuU`;
-  stub2User.pwFunc = "pbkdf2";
-  stub2User.pwDigest = "sha512";
-  stub2User.pwCost = 3000;
-  stub2User.pwSalt = "c2675135ef44266d8b0a37758aa890bcc65cadbd";
-  await getConnection().manager.save(stub2User);
+  const lmUser = new User();
+  lmUser.username = "loginMe";
+  lmUser.email = "loginme@udia.ca";
+  lmUser.password = `$argon2i$v=19$m=4096,t=3,p=1$oQsV2gDZcl3Qx2dfn+4hmg$2eeavsqCtG5zZRCQ/lVFSjrayzkmQGbdGYEi+p+Ny9w`;
+  lmUser.pwFunc = "pbkdf2";
+  lmUser.pwDigest = "sha512";
+  lmUser.pwCost = 3000;
+  lmUser.pwSalt = "c9b5f819984f9f2ef18ec4c4156dbbc802c79d11";
+  await getConnection().manager.save(lmUser);
+  const umUser = new User();
+  umUser.username = "updateMe";
+  umUser.email = "updateme@udia.ca";
+  umUser.password = `$argon2i$v=19$m=4096,t=3,p=1$J80klk+fZ4DZvxParIpdPQ$3GxiZIpzlE7KYkYC9chP3/2VYUaJNHpqKTNrIM+LBUQ`;
+  umUser.pwFunc = "pbkdf2";
+  umUser.pwDigest = "sha512";
+  umUser.pwCost = 3000;
+  umUser.pwSalt = "066c1fb06d3488df129bf476dfa6e58e6223293d";
+  await getConnection().manager.save(umUser);
   done();
 });
 
@@ -88,11 +92,32 @@ describe("Users", () => {
       expect(uak).toEqual(lak);
     });
 
-    it("should predictable perform server side hash/verify", async done => {
+    it("should perform server side hash/verify", async done => {
       const hashedPasswordStub = `695e4761dd4694a3a475243f202ea7239ff9f57fac`;
       const hash = await Auth.hashPassword(hashedPasswordStub);
       expect(await Auth.verifyPassword(hash, hashedPasswordStub)).toBe(true);
       done();
+    });
+
+    it("should generate valid public/private key pair", () => {
+      const {
+        ecdh: a,
+        publicKey: aPub,
+        privateKey: aPriv
+      } = generateKeyPairECDH();
+      const {
+        ecdh: b,
+        publicKey: bPub,
+        privateKey: bPriv
+      } = generateKeyPairECDH();
+      // console.log(a, aPub, aPriv)
+      // console.log(b, bPub, bPriv)
+      // Exchange and generate the secret...
+      const aliceSecret = a.computeSecret(bPub, "hex");
+      const bobSecret = b.computeSecret(aPub, "hex");
+      // console.log(aliceSecret.toString("hex"));
+      // console.log(bobSecret.toString("hex"));
+      expect(aliceSecret.toString("hex")).toEqual(bobSecret.toString("hex"));
     });
   });
 
@@ -101,6 +126,9 @@ describe("Users", () => {
       const username = "createMe";
       const email = "createMe@udia.ca";
       const userInputtedPassword = `My secure p455word!`;
+      // const username = "updateMe";
+      // const email = "updateMe@udia.ca";
+      // const userInputtedPassword = `Another secure p455word~`;
       const {
         pw,
         mk,
@@ -126,7 +154,6 @@ describe("Users", () => {
     it("should login a user.", async done => {
       const email = "loginMe@udia.ca";
       const userInputtedPassword = `Another secure p455word~`;
-
       const getAuthParamsResp = await restClient.get("/auth/params", {
         params: { email }
       });
@@ -151,40 +178,28 @@ describe("Users", () => {
 
     it("should update a user's password.", async done => {
       const email = "updateMe@udia.ca";
-      const userInputtedPassword = `Another secure p455word~`;
-      const newUserPassword = `Changed secure p455w3rd;`;
+      const uip = `Another secure p455word~`;
+      const newUip = `Changed secure p455w3rd;`;
       const getAuthParamsResp = await restClient.get("/auth/params", {
         params: { email }
       });
       const { pwCost, pwSalt, pwFunc, pwDigest } = getAuthParamsResp.data;
-      const { pw } = loginUserCryptoParams(
-        userInputtedPassword,
-        pwCost,
-        pwSalt,
-        pwFunc,
-        pwDigest
-      );
+      const old = loginUserCryptoParams(uip, pwCost, pwSalt, pwFunc, pwDigest);
       const postAuthSigninResp = await restClient.post("/auth/sign_in", {
         email,
-        pw
+        pw: old.pw
       });
       const jwt: string = postAuthSigninResp.data.jwt;
-      const { pw: newPw } = loginUserCryptoParams(
-        newUserPassword,
-        pwCost,
-        pwSalt,
-        pwFunc,
-        pwDigest
-      );
+      const n = loginUserCryptoParams(newUip, pwCost, pwSalt, pwFunc, pwDigest);
       const patchAuthResp = await restClient.patch(
         "/auth",
-        { newPw, pw },
+        { newPw: n.pw, pw: old.pw },
         { headers: { Authorization: `Bearer ${jwt}` } }
       );
       expect(patchAuthResp.status).toEqual(204);
       const changedPostAuthSigninResp = await restClient.post("/auth/sign_in", {
         email,
-        pw: newPw
+        pw: n.pw
       });
       expect(changedPostAuthSigninResp.data).toHaveProperty("jwt");
       done();
