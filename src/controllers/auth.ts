@@ -1,8 +1,4 @@
-import { NextFunction, Request, Response } from "express";
-import { sign } from "jsonwebtoken";
-import { Connection } from "typeorm";
-import { User } from "../entity/User";
-import Auth from "../modules/Auth";
+import { Request, Response } from "express";
 import UserManager from "../modules/UserManager";
 import logger from "../util/logger";
 

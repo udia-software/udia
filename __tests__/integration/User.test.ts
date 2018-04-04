@@ -1,8 +1,13 @@
+import { InMemoryCache } from "apollo-cache-inmemory";
+import { ApolloClient, ApolloClientOptions } from "apollo-client";
+import { ApolloLink } from "apollo-link";
+import { WebSocketLink } from "apollo-link-ws";
 import axios, { AxiosInstance } from "axios";
-import crypto from "crypto";
 import { Server } from "http";
+import { SubscriptionClient } from "subscriptions-transport-ws";
 import { setTimeout } from "timers";
 import { getConnection } from "typeorm";
+import WebSocket from "ws";
 import { PORT } from "../../src/constants";
 import { User } from "../../src/entity/User";
 import start from "../../src/index";
@@ -15,26 +20,10 @@ import {
 
 let server: Server = null;
 let restClient: AxiosInstance = null;
+let gqlClient: ApolloClient<any> = null;
+let subscriptionClient: SubscriptionClient = null;
 
-/**
- * Integration tests for User logic.
- * - Test REST API
- * - Test GraphQL API
- */
-beforeAll(async done => {
-  // Ports are staggered to prevent multiple tests from clobbering
-  const userTestPort = parseInt(PORT, 10) + 1;
-  server = await start(userTestPort);
-  restClient = axios.create({ baseURL: `http://0.0.0.0:${userTestPort}/api` });
-  await getConnection()
-    .createQueryBuilder()
-    .delete()
-    .from(User)
-    .where("username = :createMe", { createMe: "createMe" })
-    .orWhere("username = :loginMe", { loginMe: "loginMe" })
-    .orWhere("username = :updateMe", { updateMe: "updateMe" })
-    .orWhere("username = :deleteMe", { deleteMe: "deleteMe" })
-    .execute();
+async function createUsers() {
   // userInputtedPassword = `Another secure p455word~`;
   const lmUser = new User();
   lmUser.username = "loginMe";
@@ -63,10 +52,38 @@ beforeAll(async done => {
   dmUser.pwCost = 3000;
   dmUser.pwSalt = "2ae2691596ab7481fcf61e49e955db4fd36d9aca";
   await getConnection().manager.save(dmUser);
-  done();
-});
+}
 
-afterAll(async done => {
+/**
+ * Integration tests for User logic.
+ * - Test REST API
+ * - Test GraphQL API
+ */
+beforeAll(async done => {
+  // Ports are staggered to prevent multiple tests from clobbering
+  const userTestPort = parseInt(PORT, 10) + 1;
+  server = await start(userTestPort);
+  const GRAPHQL_ENDPOINT = `ws://0.0.0.0:${userTestPort}/graphql`;
+  restClient = axios.create({ baseURL: `http://0.0.0.0:${userTestPort}/api` });
+  const jwt = "";
+  const middlewareLink = new ApolloLink((operation, forward) => {
+    operation.setContext({ headers: { authorization: jwt } });
+    return forward(operation);
+  });
+  subscriptionClient = new SubscriptionClient(
+    GRAPHQL_ENDPOINT,
+    {
+      reconnect: true
+    },
+    WebSocket
+  );
+  const websocketLink = new WebSocketLink(subscriptionClient);
+  const link = middlewareLink.concat(websocketLink);
+  const apolloClientOptions: ApolloClientOptions<any> = {
+    link,
+    cache: new InMemoryCache()
+  };
+  gqlClient = new ApolloClient(apolloClientOptions);
   await getConnection()
     .createQueryBuilder()
     .delete()
@@ -76,7 +93,22 @@ afterAll(async done => {
     .orWhere("username = :updateMe", { updateMe: "updateMe" })
     .orWhere("username = :deleteMe", { deleteMe: "deleteMe" })
     .execute();
+  await createUsers();
+  done();
+});
+
+afterAll(async done => {
+  await subscriptionClient.close();
   await server.close();
+  await getConnection()
+    .createQueryBuilder()
+    .delete()
+    .from(User)
+    .where("username = :createMe", { createMe: "createMe" })
+    .orWhere("username = :loginMe", { loginMe: "loginMe" })
+    .orWhere("username = :updateMe", { updateMe: "updateMe" })
+    .orWhere("username = :deleteMe", { deleteMe: "deleteMe" })
+    .execute();
   done();
 });
 

@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import moment from "moment";
 import onFinished from "on-finished";
-import { format } from "util";
 import { Logger, transports } from "winston";
 import { NODE_ENV } from "../constants";
 

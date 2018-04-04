@@ -1,9 +1,6 @@
 import { hash, verify } from "argon2";
-import crypto from "crypto";
-import { NextFunction, Request, Response } from "express";
 import jwt from "express-jwt";
 import { sign, verify as jwtVerify } from "jsonwebtoken";
-import { getConnection } from "typeorm";
 import { JWT_SECRET } from "../constants";
 import { User } from "../entity/User";
 

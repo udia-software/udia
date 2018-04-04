@@ -16,7 +16,8 @@
     "runMigrations": "ts-node node_modules/.bin/typeorm migrations:run",
     "revertMigrations": "ts-node node_modules/.bin/typeorm migrations:revert",
     "dropSchema": "ts-node node_modules/.bin/typeorm schema:drop",
-    "clean": "rm -rf dist/* && rm log/*.log"
+    "clean": "rm -rf dist/*",
+    "cleanLogs": "rm -rf log/*.log"
   },
   "jest": {
     "transform": {
@@ -55,6 +56,7 @@
   "author": "Alexander Wong <alex@udia.ca>",
   "license": "AGPL-3.0",
   "dependencies": {
+    "apollo-link-ws": "^1.0.7",
     "apollo-server-express": "^1.3.4",
     "argon2": "^0.17.2",
     "body-parser": "^1.18.2",
@@ -73,7 +75,8 @@
     "ts-node": "^5.0.1",
     "typeorm": "^0.1.16",
     "typescript": "^2.7.2",
-    "winston": "^2.4.1"
+    "winston": "^2.4.1",
+    "ws": "^5.1.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.3",
@@ -86,9 +89,14 @@
     "@types/on-finished": "^2.3.1",
     "@types/pg": "^7.4.5",
     "@types/winston": "^2.3.8",
+    "apollo-cache-inmemory": "^1.1.12",
+    "apollo-client": "^2.2.8",
+    "apollo-link": "^1.2.1",
+    "apollo-link-http": "^1.5.3",
     "axios": "^0.18.0",
     "jest": "^22.4.3",
     "nodemon": "^1.17.2",
+    "subscriptions-transport-ws": "^0.9.7",
     "ts-jest": "^22.4.2",
     "tslint": "^5.9.1",
     "tslint-config-prettier": "^1.10.0"

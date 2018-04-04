@@ -2,7 +2,7 @@ import crypto from "crypto";
 import { createServer } from "http";
 import Graceful from "node-graceful";
 import "reflect-metadata";
-import { Connection, createConnection } from "typeorm";
+import { createConnection } from "typeorm";
 import app from "./app";
 import { NODE_ENV, PORT } from "./constants";
 import logger from "./util/logger";

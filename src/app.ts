@@ -4,7 +4,7 @@ import {
 } from "apollo-server-express";
 import bodyParser from "body-parser";
 import cors from "cors";
-import express, { Request } from "express";
+import express from "express";
 import { formatError } from "graphql";
 import { CORS_ORIGIN } from "./constants";
 import gqlSchema from "./gqlSchema";
@@ -45,6 +45,7 @@ app.use(Auth.verifyUserJWTMiddleware());
 app.use("/graphql", bodyParser.json(), graphqlExpress(graphqlBuildOptions));
 app.get("/health", (req, res) => res.json(metric()));
 app.use("/api", apiRouter);
+// TODO: GraphQL Server Side rendering with Hydrating client would be lit
 app.get("/", (req, res) => res.send("Hello world."));
 
 export default app;
