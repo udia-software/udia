@@ -19,8 +19,8 @@ const subscribersConfig = ["dist/subscriber/**/*.js"];
 if (NODE_ENV === "test") {
   // During Test, we perform transformations on the fly. Map to source.
   entitiesConfig[0] = "src/entity/**/*.ts";
-  migrationsConfig[0] = "src/entity/**/*.ts";
-  subscribersConfig[0] = "src/entity/**/*.ts";
+  migrationsConfig[0] = "src/migration/**/*.ts";
+  subscribersConfig[0] = "src/subscriber/**/*.ts";
   SQL_DB = `${SQL_DB}test`;
   SQL_PORT = "5433";
 }

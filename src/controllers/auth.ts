@@ -6,6 +6,19 @@ import Auth from "../modules/Auth";
 import UserManager from "../modules/UserManager";
 import logger from "../util/logger";
 
+export const getMe = async (req: Request, res: Response) => {
+  try {
+    const id = req.user.id;
+    const self = await UserManager.getUser(id);
+    return res.status(200).json(self);
+  } catch (error) {
+    logger.error("ERR getMe", error);
+    res.status(500).json({
+      errors: ["Could not get self user!", error]
+    });
+  }
+};
+
 export const postAuth = async (req: Request, res: Response) => {
   try {
     const {

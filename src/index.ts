@@ -11,7 +11,7 @@ import logger from "./util/logger";
  * Start the server. Initialize the Database Client and tables.
  * Throws an error if client initialization fails
  */
-const start = async (port: number = parseInt(PORT, 10)) => {
+const start = async (port: any = PORT) => {
   // crypto module may not exist in node binary (will throw error)
   app.set("crypto", crypto);
 

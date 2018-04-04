@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   deleteAuth,
   getAuthParams,
+  getMe,
   patchAuth,
   postAuth,
   postAuthSignIn
@@ -14,6 +15,7 @@ apiRouter
   .patch("/auth", patchAuth)
   .delete("/auth", deleteAuth)
   .post("/auth/sign_in", postAuthSignIn)
-  .get("/auth/params", getAuthParams);
+  .get("/auth/params", getAuthParams)
+  .get("/me", getMe);
 
 export default apiRouter;

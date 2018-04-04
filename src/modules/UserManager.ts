@@ -4,6 +4,16 @@ import Auth from "./Auth";
 
 export default class UserManager {
   /**
+   * Return the user given the user's uuid
+   * @param id uuid (typically from the jwt payload)
+   */
+  public static async getUser(id: string) {
+    return getConnection()
+      .getRepository(User)
+      .findOneById(id);
+  }
+
+  /**
    * Add a new user to the database, return the user and JWT.
    * @param username User supplied public facing handle
    * @param email User supplied email address
@@ -116,7 +126,9 @@ export default class UserManager {
     }
     const passwordsMatch = await Auth.verifyPassword(user.password, pw);
     if (passwordsMatch) {
-      return getConnection().getRepository(User).deleteById(id);
+      return getConnection()
+        .getRepository(User)
+        .deleteById(id);
     }
     throw new Error("Invalid password.");
   }

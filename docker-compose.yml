@@ -1,9 +1,5 @@
 version: '3'
 
-# CockroachDB service commented out temporarily, use postgres instead
-# networks:
-#   roachnet:
-
 services:
   db:
     image: postgres

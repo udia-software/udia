@@ -109,7 +109,7 @@ describe("Users", () => {
       });
       expect(postAuthResp.data).toHaveProperty("jwt");
       expect(postAuthResp.data).toHaveProperty("user");
-      const user = postAuthResp.data.user;
+      const { jwt, user } = postAuthResp.data;
       expect(user).toHaveProperty("uuid");
       expect(user).toHaveProperty("username");
       expect(user).toHaveProperty("email");
@@ -123,6 +123,10 @@ describe("Users", () => {
       const createdAt = new Date(user.createdAt).getTime();
       const updatedAt = new Date(user.updatedAt).getTime();
       expect(updatedAt).toEqual(createdAt);
+      const getMeResp = await restClient.get("/me", {
+        headers: { Authorization: `Bearer ${jwt}` }
+      });
+      expect(getMeResp.data).toEqual(user);
       done();
     });
 
@@ -162,7 +166,8 @@ describe("Users", () => {
       expect(user).toHaveProperty("updatedAt");
       const createdAt = new Date(user.createdAt).getTime();
       const updatedAt = new Date(user.updatedAt).getTime();
-      expect(updatedAt).toEqual(createdAt);      done();
+      expect(updatedAt).toEqual(createdAt);
+      done();
     });
 
     it("should update a user's password.", async done => {
