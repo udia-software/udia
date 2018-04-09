@@ -13,6 +13,34 @@ const resolvers = {
     }
   },
   Mutation: {
+    createUser: async (root: any, parameters: any, context: any) => {
+      const {
+        username,
+        email,
+        pw,
+        pwCost,
+        pwSalt,
+        pwFunc,
+        pwDigest
+      } = parameters || {
+        username: "",
+        email: "",
+        pw: "",
+        pwCost: 0,
+        pwSalt: "",
+        pwFunc: "",
+        pwDigest: ""
+      };
+      return UserManager.createUser(
+        username,
+        email,
+        pw,
+        pwCost,
+        pwSalt,
+        pwFunc,
+        pwDigest
+      );
+    },
     updateUserPassword: async (root: any, parameters: any, context: any) => {
       const id = context.user.id;
       const { newPw, pw } = parameters || { newPw: "", pw: "" };

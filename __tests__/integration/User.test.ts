@@ -1,9 +1,14 @@
 import { InMemoryCache } from "apollo-cache-inmemory";
 import { ApolloClient, ApolloClientOptions } from "apollo-client";
-import { ApolloLink } from "apollo-link";
+import { ApolloLink, split } from "apollo-link";
+import { HttpLink } from "apollo-link-http";
 import { WebSocketLink } from "apollo-link-ws";
+import { getOperationDefinition } from "apollo-utilities";
 import axios, { AxiosInstance } from "axios";
+import { OperationDefinitionNode } from "graphql";
+import gql from "graphql-tag";
 import { Server } from "http";
+import fetch from "node-fetch";
 import { SubscriptionClient } from "subscriptions-transport-ws";
 import { setTimeout } from "timers";
 import { getConnection } from "typeorm";
@@ -54,6 +59,19 @@ async function createUsers() {
   await getConnection().manager.save(dmUser);
 }
 
+async function deleteUsers() {
+  await getConnection()
+    .createQueryBuilder()
+    .delete()
+    .from(User)
+    .where("username = :createMe", { createMe: "createMe" })
+    .orWhere("username = :loginMe", { loginMe: "loginMe" })
+    .orWhere("username = :updateMe", { updateMe: "updateMe" })
+    .orWhere("username = :deleteMe", { deleteMe: "deleteMe" })
+    .orWhere("username = :gqlCreateMe", { gqlCreateMe: "gqlCreateMe" })
+    .execute();
+}
+
 /**
  * Integration tests for User logic.
  * - Test REST API
@@ -63,36 +81,45 @@ beforeAll(async done => {
   // Ports are staggered to prevent multiple tests from clobbering
   const userTestPort = parseInt(PORT, 10) + 1;
   server = await start(userTestPort);
-  const GRAPHQL_ENDPOINT = `ws://0.0.0.0:${userTestPort}/graphql`;
+  const GRAPHQL_HTTP_ENDPOINT = `http://0.0.0.0:${userTestPort}/graphql`;
+  const GRAPHQL_SUBSCRIPTIONS_ENDPOINT = `ws://0.0.0.0:${userTestPort}/subscriptions`;
   restClient = axios.create({ baseURL: `http://0.0.0.0:${userTestPort}/api` });
-  const jwt = "";
-  const middlewareLink = new ApolloLink((operation, forward) => {
-    operation.setContext({ headers: { authorization: jwt } });
+
+  const jwt = ""; // On the client, this should pull from Local Storage
+  const authorizationHeader = jwt ? `Bearer: ${jwt}` : "";
+  const middlewareAuthLink = new ApolloLink((operation, forward) => {
+    operation.setContext({ headers: { authorization: authorizationHeader } });
     return forward(operation);
   });
+  const httpLinkWithAuthToken = middlewareAuthLink.concat(
+    new HttpLink({ uri: GRAPHQL_HTTP_ENDPOINT, fetch })
+  );
+
   subscriptionClient = new SubscriptionClient(
-    GRAPHQL_ENDPOINT,
+    GRAPHQL_SUBSCRIPTIONS_ENDPOINT,
     {
-      reconnect: true
+      reconnect: true,
+      connectionParams: { authorization: authorizationHeader }
     },
     WebSocket
   );
-  const websocketLink = new WebSocketLink(subscriptionClient);
-  const link = middlewareLink.concat(websocketLink);
-  const apolloClientOptions: ApolloClientOptions<any> = {
+  const wsLinkWithAuthToken = new WebSocketLink(subscriptionClient);
+  const link = split(
+    ({ query }) => {
+      const { kind, operation } = getOperationDefinition(query) || {
+        kind: null,
+        operation: null
+      };
+      return kind === "OperationDefinition" && operation === "subscription";
+    },
+    wsLinkWithAuthToken,
+    httpLinkWithAuthToken
+  );
+  gqlClient = new ApolloClient({
     link,
     cache: new InMemoryCache()
-  };
-  gqlClient = new ApolloClient(apolloClientOptions);
-  await getConnection()
-    .createQueryBuilder()
-    .delete()
-    .from(User)
-    .where("username = :createMe", { createMe: "createMe" })
-    .orWhere("username = :loginMe", { loginMe: "loginMe" })
-    .orWhere("username = :updateMe", { updateMe: "updateMe" })
-    .orWhere("username = :deleteMe", { deleteMe: "deleteMe" })
-    .execute();
+  });
+  await deleteUsers();
   await createUsers();
   done();
 });
@@ -100,15 +127,7 @@ beforeAll(async done => {
 afterAll(async done => {
   await subscriptionClient.close();
   await server.close();
-  await getConnection()
-    .createQueryBuilder()
-    .delete()
-    .from(User)
-    .where("username = :createMe", { createMe: "createMe" })
-    .orWhere("username = :loginMe", { loginMe: "loginMe" })
-    .orWhere("username = :updateMe", { updateMe: "updateMe" })
-    .orWhere("username = :deleteMe", { deleteMe: "deleteMe" })
-    .execute();
+  await deleteUsers();
   done();
 });
 
@@ -266,7 +285,85 @@ describe("Users", () => {
   });
 
   describe("GraphQL API", () => {
-    it("should create a user.");
+    it("should create a user.", async done => {
+      const username = "gqlCreateMe";
+      const email = "gqlCreateMe@udia.ca";
+      const userInputtedPassword = "My Super S3C$^T P~!۩s";
+      const {
+        pw,
+        mk,
+        ak,
+        pwSalt,
+        pwCost,
+        pwFunc,
+        pwDigest
+      } = generateUserCryptoParams(email, userInputtedPassword);
+      const createUserMutationResp = await gqlClient.mutate({
+        mutation: gql`
+          mutation CreateNewUser(
+            $username: String!
+            $email: String!
+            $pw: String!
+            $pwCost: Int!
+            $pwSalt: String!
+            $pwFunc: String!
+            $pwDigest: String!
+          ) {
+            createUser(
+              username: $username
+              email: $email
+              pw: $pw
+              pwCost: $pwCost
+              pwSalt: $pwSalt
+              pwFunc: $pwFunc
+              pwDigest: $pwDigest
+            ) {
+              jwt
+              user {
+                uuid
+                username
+                email
+                password
+                pwFunc
+                pwDigest
+                pwCost
+                pwSalt
+                createdAt
+                updatedAt
+              }
+            }
+          }
+        `,
+        variables: {
+          username,
+          email,
+          pw,
+          pwCost,
+          pwSalt,
+          pwFunc,
+          pwDigest
+        }
+      });
+      expect(createUserMutationResp).toHaveProperty("data");
+      const createUserMutationRespData = createUserMutationResp.data;
+      expect(createUserMutationRespData).toHaveProperty("createUser");
+      const createUserData = createUserMutationRespData.createUser;
+      expect(createUserData).toHaveProperty("__typename", "UserAuthPayload");
+      expect(createUserData).toHaveProperty("jwt");
+      expect(createUserData).toHaveProperty("user");
+      const createdUser = createUserData.user;
+      expect(createdUser).toHaveProperty("__typename", "FullUser");
+      expect(createdUser).toHaveProperty("createdAt");
+      expect(createdUser).toHaveProperty("email", email.toLocaleLowerCase());
+      expect(createdUser).toHaveProperty("password");
+      expect(createdUser).toHaveProperty("pwCost", pwCost);
+      expect(createdUser).toHaveProperty("pwSalt", pwSalt);
+      expect(createdUser).toHaveProperty("pwDigest", pwDigest);
+      expect(createdUser).toHaveProperty("pwFunc", pwFunc);
+      expect(createdUser).toHaveProperty("username", username);
+      expect(createdUser).toHaveProperty("uuid");
+      done();
+    });
     it("should update a user.");
     it("should delete a user.");
   });

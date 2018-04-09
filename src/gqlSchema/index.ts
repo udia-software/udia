@@ -8,6 +8,15 @@ type Query {
 }
 
 type Mutation {
+  createUser(
+    username: String!,
+    email: String!,
+    pw: String!,
+    pwCost: Int!,
+    pwSalt: String!,
+    pwFunc: String!,
+    pwDigest: String!
+  ): UserAuthPayload!
   updateUserPassword(id: String!, newPw: String!, pw: String!): FullUser!
   signInUser(email: String!, pw: String!): UserAuthPayload!
   deleteUser(email: String!, pw: String!): Boolean
@@ -41,4 +50,4 @@ type UserAuthPayload {
 scalar DateTime
 `;
 
-export default makeExecutableSchema({ typeDefs, resolvers })
+export default makeExecutableSchema({ typeDefs, resolvers });
