@@ -1,7 +1,11 @@
-import { makeExecutableSchema } from "graphql-tools";
+import {
+  IExecutableSchemaDefinition,
+  ITypedef,
+  makeExecutableSchema
+} from "graphql-tools";
 import resolvers from "./resolvers";
 
-const typeDefs = `
+const typeDefs: ITypedef = `
 type Query {
   getUserAuthParams(email: String!): UserAuthParams!
   me: FullUser
@@ -12,25 +16,45 @@ type Mutation {
     username: String!,
     email: String!,
     pw: String!,
-    pwCost: Int!,
-    pwSalt: String!,
     pwFunc: String!,
-    pwDigest: String!
+    pwDigest: String!,
+    pwCost: Int!,
+    pwKeySize: Int!,
+    pwSalt: String!
   ): UserAuthPayload!
-  updateUserPassword(id: String!, newPw: String!, pw: String!): FullUser!
+  updatePassword(
+    newPw: String!,
+    pw: String!,
+    pwFunc: String!,
+    pwDigest: String!,
+    pwCost: Int!,
+    pwKeySize: Int!,
+    pwSalt: String!
+  ): FullUser!
   signInUser(email: String!, pw: String!): UserAuthPayload!
-  deleteUser(email: String!, pw: String!): Boolean
+  deleteUser(pw: String!): Boolean
 }
 
-type FullUser @model {
-  uuid: ID! @isUnique
-  username: String! @isUnique
-  email: String! @isUnique
-  password: String!
+type FullUser {
+  uuid: ID!
+  username: String!
+  emails: [UserEmail!]!
+  pwHash: String!
   pwFunc: String!
   pwDigest: String!
   pwCost: Int!
+  pwKeySize: Int!
   pwSalt: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type UserEmail {
+  email: String!
+  user: FullUser!
+  primary: Boolean!
+  verified: Boolean!
+  verificationHash: String
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -39,6 +63,7 @@ type UserAuthParams {
   pwFunc: String!
   pwDigest: String!
   pwCost: Int!
+  pwKeySize: Int!
   pwSalt: String!
 }
 
@@ -50,4 +75,8 @@ type UserAuthPayload {
 scalar DateTime
 `;
 
-export default makeExecutableSchema({ typeDefs, resolvers });
+const executableSchemaDefinition: IExecutableSchemaDefinition = {
+  typeDefs,
+  resolvers
+};
+export default makeExecutableSchema(executableSchemaDefinition);

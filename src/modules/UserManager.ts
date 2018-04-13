@@ -1,56 +1,119 @@
 import { getConnection } from "typeorm";
 import { User } from "../entity/User";
+import { UserEmail } from "../entity/UserEmail";
 import Auth from "./Auth";
+import { IErrorMessage, ValidationError } from "./ValidationError";
+
+export interface ICreateUserParams {
+  username: string;
+  email: string;
+  pw: string;
+  pwFunc: string;
+  pwDigest: string;
+  pwCost: number;
+  pwKeySize: number;
+  pwSalt: string;
+}
+
+export interface IUpdatePasswordParams {
+  newPw: string;
+  pw: string;
+  pwFunc: string;
+  pwDigest: string;
+  pwCost: number;
+  pwKeySize: number;
+  pwSalt: string;
+}
 
 export default class UserManager {
   /**
-   * Return the user given the user's uuid
+   * Get the user given the user's uuid
    * @param id uuid (typically from the jwt payload)
    */
-  public static async getUser(id: string) {
+  public static async getUserById(id: string) {
     return getConnection()
       .getRepository(User)
       .findOneById(id);
   }
 
   /**
-   * Add a new user to the database, return the user and JWT.
-   * @param username User supplied public facing handle
-   * @param email User supplied email address
-   * @param password Client side hashed password (for additional rehash)
-   * @param pwCost Password cost for client crypto derivation
-   * @param pwSalt Password salt for client crypto derivation
-   * @param pwFunc Password function for client crypto derivation (pbkdf2)
-   * @param pwDigest Password digest for client crypto derivation (sha512)
+   * Get the user given the user's username
+   * @param username string
    */
-  public static async createUser(
-    username: string,
-    email: string,
-    password: string,
-    pwCost: number,
-    pwSalt: string,
-    pwFunc: string,
-    pwDigest: string
-  ) {
+  public static async getUserByUsername(username: string) {
+    return getConnection()
+      .getRepository(User)
+      .findOne({ username });
+  }
+
+  /**
+   * Get the user given an email
+   * @param email string
+   */
+  public static async getUserByEmail(email: string) {
+    const userEmail = await getConnection()
+      .getRepository(UserEmail)
+      .findOne({ where: { email }, relations: ["user"] });
+    if (userEmail && userEmail.user) {
+      return userEmail.user;
+    }
+  }
+
+  /**
+   * Add a new user to the database, return the user and JWT.
+   */
+  public static async createUser({
+    username,
+    email,
+    pw,
+    pwFunc,
+    pwDigest,
+    pwCost,
+    pwKeySize,
+    pwSalt
+  }: ICreateUserParams) {
+    const errors: IErrorMessage[] = [];
+
     const userExists = await getConnection()
       .getRepository(User)
       .createQueryBuilder("user")
-      .where("email = :email", { email })
-      .orWhere("username = :username", { username })
+      .where("username = :username", { username: username.trim() })
       .getCount();
     if (userExists > 0) {
-      throw new Error("User already exists.");
+      errors.push({ key: "username", message: "Username is taken." });
     }
-    const pwHash = await Auth.hashPassword(password);
+
+    const emailExists = await getConnection()
+      .getRepository(UserEmail)
+      .createQueryBuilder("userEmail")
+      .where("email = :email", { email: email.trim() })
+      .getCount();
+    if (emailExists > 0) {
+      errors.push({ key: "email", message: "Email is taken." });
+    }
+
+    if (errors.length > 0) {
+      throw new ValidationError(errors);
+    }
+
+    const pwHash = await Auth.hashPassword(pw);
     let newUser = new User();
+    const newEmail = new UserEmail();
+    newEmail.email = email.trim();
+    newEmail.primary = true;
+    newEmail.verified = false;
     newUser.username = username;
-    newUser.email = email.toLowerCase().trim();
-    newUser.password = pwHash;
-    newUser.pwCost = pwCost;
-    newUser.pwSalt = pwSalt;
+    newUser.pwHash = pwHash;
     newUser.pwFunc = pwFunc;
     newUser.pwDigest = pwDigest;
-    newUser = await getConnection().manager.save(newUser);
+    newUser.pwCost = pwCost;
+    newUser.pwKeySize = pwKeySize;
+    newUser.pwSalt = pwSalt;
+    await getConnection().transaction(async transactionEntityManager => {
+      newUser = await transactionEntityManager.save(newUser);
+      newEmail.user = newUser;
+      await transactionEntityManager.save(newEmail);
+    });
     return {
       user: newUser,
       jwt: Auth.signUserJWT(newUser)
@@ -59,77 +122,118 @@ export default class UserManager {
 
   /**
    * Update a user's password. Return if successful (or throw an error)
-   * @param id user's UUID
+   * @param username user's username
    * @param newPw new password
    * @param pw existing password
    */
-  public static async updateUserPassword(
-    id: string,
-    newPw: string,
-    pw: string
+  public static async updatePassword(
+    username: string,
+    {
+      newPw,
+      pw,
+      pwFunc,
+      pwDigest,
+      pwCost,
+      pwKeySize,
+      pwSalt
+    }: IUpdatePasswordParams
   ) {
-    if (!id) {
-      throw new Error("Invalid of expired JWT.");
-    }
-    const user = await getConnection()
-      .getRepository(User)
-      .findOneById(id);
+    const user = await UserManager.getUserByUsername(username);
     if (!user) {
-      throw new Error("User does not exist.");
+      throw new ValidationError([{ key: "id", message: "Invalid JWT." }]);
     }
-    const passwordsMatch = await Auth.verifyPassword(user.password, pw);
-    if (passwordsMatch) {
-      const serverHashedPassword = await Auth.hashPassword(newPw);
-      user.password = serverHashedPassword;
-      return getConnection()
-        .getRepository(User)
-        .save(user);
+
+    const passwordsMatch = await Auth.verifyPassword(user.pwHash, pw);
+    if (!passwordsMatch) {
+      throw new ValidationError([{ key: "pw", message: "Invalid password." }]);
     }
-    throw new Error("Invalid password.");
+
+    const serverHashedPassword = await Auth.hashPassword(newPw);
+    user.pwHash = serverHashedPassword;
+    user.pwFunc = pwFunc;
+    user.pwDigest = pwDigest;
+    user.pwCost = pwCost;
+    user.pwKeySize = pwKeySize;
+    user.pwSalt = pwSalt;
+    return getConnection()
+      .getRepository(User)
+      .save(user);
   }
 
+  /**
+   * Sign in a user. Return the user and jwt (or throw an error)
+   * @param email one of the user's emails
+   * @param pw password
+   */
   public static async signInUser(email: string, pw: string) {
-    const user = await getConnection()
-      .getRepository(User)
-      .findOne({ email: email.toLowerCase().trim() });
-    if (!user) {
-      throw new Error("User does not exist.");
+    const userEmail = await getConnection()
+      .getRepository(UserEmail)
+      .findOne({
+        where: { email: email.trim() },
+        relations: ["user"]
+      });
+    if (!userEmail || !userEmail.user) {
+      throw new ValidationError([
+        {
+          key: "email",
+          message: "Email not found."
+        }
+      ]);
     }
-    const passwordsMatch = await Auth.verifyPassword(user.password, pw);
-    if (passwordsMatch) {
-      return { user, jwt: Auth.signUserJWT(user) };
+    const user = userEmail.user;
+    const passwordsMatch = await Auth.verifyPassword(user.pwHash, pw);
+    if (!passwordsMatch) {
+      throw new ValidationError([
+        {
+          key: "pw",
+          message: "Invalid password."
+        }
+      ]);
     }
-    throw new Error("Invalid password.");
+    return { user, jwt: Auth.signUserJWT(user) };
   }
 
+  /**
+   * Get a user's client side password derivation parameters
+   * @param email user's email
+   */
   public static async getUserAuthParams(email: string) {
-    const user = await getConnection()
-      .getRepository(User)
-      .findOne({ email: email.toLowerCase().trim() });
-    if (user) {
+    const userEmail = await getConnection()
+      .getRepository(UserEmail)
+      .findOne({
+        where: { email: email.trim() },
+        relations: ["user"]
+      });
+    if (userEmail && userEmail.user) {
+      const user = await userEmail.user;
       return {
         pwCost: user.pwCost,
         pwSalt: user.pwSalt,
         pwFunc: user.pwFunc,
-        pwDigest: user.pwDigest
+        pwDigest: user.pwDigest,
+        pwKeySize: user.pwKeySize
       };
     }
-    throw new Error("User not found for given email.");
+    throw new ValidationError([{ key: "email", message: "Email not found." }]);
   }
 
-  public static async deleteUser(id: string, pw: string) {
-    const user = await getConnection()
-      .getRepository(User)
-      .findOneById(id);
+  /**
+   * Delete a user, resolve with true or throw error.
+   * @param username user's username
+   * @param pw user's client generated password
+   */
+  public static async deleteUser(username: string, pw: string) {
+    const user = await UserManager.getUserByUsername(username);
     if (!user) {
-      throw new Error("User does not exist.");
+      throw new ValidationError([{ key: "id", message: "Invalid JWT." }]);
     }
-    const passwordsMatch = await Auth.verifyPassword(user.password, pw);
+    const passwordsMatch = await Auth.verifyPassword(user.pwHash, pw);
     if (passwordsMatch) {
-      return getConnection()
+      await getConnection()
         .getRepository(User)
-        .deleteById(id);
+        .deleteById(user.uuid);
+      return passwordsMatch;
     }
-    throw new Error("Invalid password.");
+    throw new ValidationError([{ key: "pw", message: "Invalid password." }]);
   }
 }

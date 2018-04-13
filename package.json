@@ -4,8 +4,9 @@
   "description": "Encrypted file and note storage, with collaboration",
   "main": "index.js",
   "scripts": {
+    "pretest": "NODE_ENV=test yarn runMigrations",
     "test": "NODE_ENV=test TYPEORM_LOGGING=false jest --verbose",
-    "prestart": "yarn run clean && yarn runMigrations && tsc",
+    "prestart": "yarn run clean && tsc && yarn runMigrations",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "watch-ts": "tsc --watch",
     "watch": "yarn run watch-ts & nodemon dist/index.js",
@@ -80,7 +81,6 @@
     "body-parser": "^1.18.2",
     "cors": "^2.8.4",
     "express": "^4.16.3",
-    "express-jwt": "^5.3.1",
     "graphql": "^0.13.2",
     "graphql-tag": "^2.8.0",
     "graphql-tools": "^2.23.1",

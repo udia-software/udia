@@ -1,59 +1,58 @@
 import { Kind } from "graphql";
+import { IResolvers } from "graphql-tools";
+import { IUser } from "../entity/User";
+import { IUserEmail } from "../entity/UserEmail";
+import { IJwtPayload } from "../modules/Auth";
 import UserManager from "../modules/UserManager";
 
-const resolvers = {
+export interface IContext {
+  jwtPayload: IJwtPayload;
+  originIp: string;
+  originIps: string[];
+}
+
+const resolvers: IResolvers = {
   Query: {
-    getUserAuthParams: async (root: any, parameters: any, context: any) => {
+    getUserAuthParams: async (
+      root: any,
+      parameters: any,
+      context: IContext
+    ) => {
       const email = parameters.email || "";
       return UserManager.getUserAuthParams(email);
     },
-    me: async (root: any, parameters: any, context: any) => {
-      const id = context.user.id;
-      return UserManager.getUser(id);
+    me: async (root: any, parameters: any, context: IContext) => {
+      const username = context.jwtPayload && context.jwtPayload.username || "";
+      return UserManager.getUserByUsername(username);
     }
   },
   Mutation: {
-    createUser: async (root: any, parameters: any, context: any) => {
-      const {
-        username,
-        email,
-        pw,
-        pwCost,
-        pwSalt,
-        pwFunc,
-        pwDigest
-      } = parameters || {
-        username: "",
-        email: "",
-        pw: "",
-        pwCost: 0,
-        pwSalt: "",
-        pwFunc: "",
-        pwDigest: ""
-      };
-      return UserManager.createUser(
-        username,
-        email,
-        pw,
-        pwCost,
-        pwSalt,
-        pwFunc,
-        pwDigest
-      );
+    createUser: async (root: any, parameters: any, context: IContext) => {
+      return UserManager.createUser(parameters);
     },
-    updateUserPassword: async (root: any, parameters: any, context: any) => {
-      const id = context.user.id;
-      const { newPw, pw } = parameters || { newPw: "", pw: "" };
-      return UserManager.updateUserPassword(id, newPw, pw);
+    updatePassword: async (root: any, parameters: any, context: IContext) => {
+      const username = context.jwtPayload && context.jwtPayload.username || "";
+      return UserManager.updatePassword(username, parameters);
     },
-    signInUser: async (root: any, parameters: any, context: any) => {
+    signInUser: async (root: any, parameters: any, context: IContext) => {
       const { email, pw } = parameters || { email: "", pw: "" };
       return UserManager.signInUser(email, pw);
     },
-    deleteUser: async (root: any, parameters: any, context: any) => {
-      const id = context.user.id;
+    deleteUser: async (root: any, parameters: any, context: IContext) => {
+      const username = context.jwtPayload && context.jwtPayload.username || "";
       const { pw } = parameters || { pw: "" };
-      return UserManager.deleteUser(id, pw);
+      return UserManager.deleteUser(username, pw);
+    }
+  },
+  FullUser: {
+    emails: async (root: IUser, parameters: any, context: IContext) => {
+      const user = await UserManager.getUserById(root.uuid);
+      return user && user.emails;
+    }
+  },
+  UserEmail: {
+    user: async (root: IUserEmail, parameters: any, context: IContext) => {
+      return UserManager.getUserByEmail(root.email);
     }
   },
   DateTime: {

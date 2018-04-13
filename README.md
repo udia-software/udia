@@ -15,8 +15,8 @@ Clone Repo: `git clone https://pi.alexander-wong.com/gogs/udia-software/udia && 
 
     Manual is reccommended for live reloading and development.
 
-1.  Ensure you have a sql database accessible and ready. (`postgres` supported, `cockroachdb` beta)
-    - Helper Docker files: `docker-compose -f postgres-compose.yml up` or `docker-compose -f roach-compose.yml up`
+1.  Ensure you have a sql database accessible and ready. (`postgres` supported)
+    - Helper Docker files: `docker-compose -f postgres-compose.yml up` & `psql -h 0.0.0.0 -p 5432 -U pguser -d udiadb`
 2.  Set your database connection string or values. (see [Environment Variables](#environment-variables))
 3.  Install dependencies: `yarn install`
 4.  Run application: `yarn start` or watch application `yarn run watch`

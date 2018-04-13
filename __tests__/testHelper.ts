@@ -4,7 +4,8 @@ import { createSecureContext } from "tls";
 export function generateUserCryptoParams(email: string, uip: string) {
   const pwFunc = "pbkdf2";
   const pwDigest = "sha512";
-  const pwCost = 3000; // Should be 100000 in production.
+  const pwCost = 3000; // Should be ~100000 in production.
+  const pwKeySize = 768;
   const pwNonce = crypto.randomBytes(256).toString("hex");
 
   const hash = crypto.createHash("sha1");
@@ -17,9 +18,10 @@ export function generateUserCryptoParams(email: string, uip: string) {
     pwCost,
     pwSalt,
     pwFunc,
-    pwDigest
+    pwDigest,
+    pwKeySize
   );
-  return { pw, mk, ak, pwSalt, pwCost, pwFunc: "pbkdf2", pwDigest };
+  return { pw, mk, ak, pwSalt, pwCost, pwFunc: "pbkdf2", pwDigest, pwKeySize };
 }
 
 export function loginUserCryptoParams(
@@ -27,12 +29,13 @@ export function loginUserCryptoParams(
   pwCost: number,
   pwSalt: string,
   pwFunc: string,
-  pwDigest: string
+  pwDigest: string,
+  pwKeySize: number
 ) {
   if (pwFunc !== "pbkdf2") {
     throw new Error(`Unsupported password function ${pwFunc}`);
   }
-  const key = crypto.pbkdf2Sync(uip, pwSalt, pwCost, 768, pwDigest);
+  const key = crypto.pbkdf2Sync(uip, pwSalt, pwCost, pwKeySize, pwDigest);
   const pw = key.slice(0, key.length / 3).toString("hex");
   const mk = key.slice(key.length / 3, key.length / 3 * 2).toString("hex");
   const ak = key.slice(key.length / 3 * 2, key.length).toString("hex");

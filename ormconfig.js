@@ -32,7 +32,7 @@ module.exports = {
   password: SQL_PASSWORD,
   database: SQL_DB,
   port: parseInt(SQL_PORT, 10),
-  synchronize: true,
+  synchronize: false,
   logging: TYPEORM_LOGGING === "true",
   entities: entitiesConfig,
   migrations: migrationsConfig,

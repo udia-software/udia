@@ -8,20 +8,20 @@ import express from "express";
 import { formatError } from "graphql";
 import { CORS_ORIGIN } from "./constants";
 import gqlSchema from "./gqlSchema";
+import { IContext } from "./gqlSchema/resolvers";
 import Auth from "./modules/Auth";
-import apiRouter from "./routers/apiRouter";
 import { middlewareLogger } from "./util/logger";
 import metric from "./util/metric";
 
 const app = express();
 
 const graphqlBuildOptions: ExpressGraphQLOptionsFunction = req => {
-  let context;
+  let context: IContext = { jwtPayload: {}, originIp: "", originIps: [] };
   if (req) {
     context = {
-      user: (req || {}).user || null,
-      originIp: req.ip || "",
-      originIps: req.ips || []
+      jwtPayload: req.user,
+      originIp: req.ip,
+      originIps: req.ips
     };
   }
   return {
@@ -41,11 +41,10 @@ app.use(cors({ origin: CORS_ORIGIN.split(" ") }));
 app.use(middlewareLogger);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(Auth.verifyUserJWTMiddleware());
-app.use("/graphql", bodyParser.json(), graphqlExpress(graphqlBuildOptions));
+app.use(Auth.jwtMiddleware());
+app.use("/graphql", graphqlExpress(graphqlBuildOptions));
 app.get("/health", (req, res) => res.json(metric()));
-app.use("/api", apiRouter);
 // TODO: GraphQL Server Side rendering with Hydrating client would be lit
-app.get("/", (req, res) => res.send("Hello world."));
+app.get("/", (req, res) => res.send("UDIA API Server"));
 
 export default app;
