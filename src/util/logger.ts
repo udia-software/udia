@@ -4,6 +4,7 @@ import onFinished from "on-finished";
 import { Logger, transports } from "winston";
 import { NODE_ENV } from "../constants";
 
+/* istanbul ignore next */
 const logLevel = NODE_ENV === "production" ? "info" : "debug";
 const logFileSize = 10 * 1024 * 1024; // 10MiB
 const logMaxFiles = 8;
@@ -39,6 +40,7 @@ const logger = new Logger({
   exitOnError: false
 });
 
+/* istanbul ignore next */
 if (NODE_ENV === "test") {
   logger.remove("console");
 }

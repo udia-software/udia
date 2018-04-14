@@ -138,9 +138,9 @@ beforeAll(async done => {
 });
 
 afterAll(async done => {
+  await deleteUsers();
   await subscriptionClient.close();
   await server.close();
-  await deleteUsers();
   done();
 });
 
@@ -150,6 +150,9 @@ describe("Users", () => {
       const username = "createMe";
       const email = "createMe@udia.ca";
       const userInputtedPassword = "My Super S3C$^T P~!۩s";
+      // const username = "dupeUser";
+      // const email = "dupeUser@udia.ca";
+      // const userInputtedPassword = "Dupe S3C$^T P~!۩s";
       const {
         pw,
         mk,
@@ -223,6 +226,7 @@ describe("Users", () => {
       const createUserData = createUserMutationRespData.createUser;
       expect(createUserData).toHaveProperty("__typename", "UserAuthPayload");
       expect(createUserData).toHaveProperty("jwt");
+      // expect(createUserData).toHaveProperty("jwt", "");
       expect(createUserData).toHaveProperty("user");
       const createdUser = createUserData.user;
       expect(createdUser).toHaveProperty("__typename", "FullUser");
@@ -278,14 +282,14 @@ describe("Users", () => {
       expect(getUserAuthParams).toHaveProperty("pwKeySize");
       expect(getUserAuthParams).toHaveProperty("pwSalt");
       const { pwFunc, pwDigest, pwCost, pwKeySize, pwSalt } = getUserAuthParams;
-      const { pw } = loginUserCryptoParams(
+      const { pw } = loginUserCryptoParams({
         uip,
         pwCost,
         pwSalt,
         pwFunc,
         pwDigest,
         pwKeySize
-      );
+      });
 
       const signInUserMutationResponse = await gqlClient.mutate({
         mutation: gql`
@@ -340,24 +344,24 @@ describe("Users", () => {
       let pwCost = 3000;
       const pwKeySize = 768;
       let pwSalt = "066c1fb06d3488df129bf476dfa6e58e6223293d";
-      const { pw } = loginUserCryptoParams(
+      const { pw } = loginUserCryptoParams({
         uip,
         pwCost,
         pwSalt,
         pwFunc,
         pwDigest,
         pwKeySize
-      );
+      });
       pwCost = 3001;
       pwSalt = "09b5f819982f9f2ef18ec3b4156dbbc802c79d11";
-      const { pw: newPw } = loginUserCryptoParams(
+      const { pw: newPw } = loginUserCryptoParams({
         uip,
         pwCost,
         pwSalt,
         pwFunc,
         pwDigest,
         pwKeySize
-      );
+      });
 
       const updatePasswordMutationResponse = await gqlClient.mutate({
         mutation: gql`

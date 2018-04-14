@@ -13,25 +13,34 @@ export function generateUserCryptoParams(email: string, uip: string) {
   const pwSalt = hash.digest("hex");
 
   // Generate the derived key
-  const { pw, mk, ak } = loginUserCryptoParams(
+  const { pw, mk, ak } = loginUserCryptoParams({
     uip,
     pwCost,
     pwSalt,
     pwFunc,
     pwDigest,
     pwKeySize
-  );
+  });
   return { pw, mk, ak, pwSalt, pwCost, pwFunc: "pbkdf2", pwDigest, pwKeySize };
 }
 
-export function loginUserCryptoParams(
-  uip: string,
-  pwCost: number,
-  pwSalt: string,
-  pwFunc: string,
-  pwDigest: string,
-  pwKeySize: number
-) {
+interface ILoginParams {
+  uip: string;
+  pwCost: number;
+  pwSalt: string;
+  pwFunc: string;
+  pwDigest: string;
+  pwKeySize: number;
+}
+
+export function loginUserCryptoParams({
+  uip,
+  pwCost,
+  pwSalt,
+  pwFunc,
+  pwDigest,
+  pwKeySize
+}: ILoginParams) {
   if (pwFunc !== "pbkdf2") {
     throw new Error(`Unsupported password function ${pwFunc}`);
   }

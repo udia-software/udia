@@ -19,14 +19,14 @@ describe("TestHelper", () => {
       pwDigest,
       pwKeySize
     } = generateUserCryptoParams(email, userInputtedPassword);
-    const { pw: lpw, mk: lmk, ak: lak } = loginUserCryptoParams(
-      userInputtedPassword,
+    const { pw: lpw, mk: lmk, ak: lak } = loginUserCryptoParams({
+      uip: userInputtedPassword,
       pwCost,
       pwSalt,
       pwFunc,
       pwDigest,
       pwKeySize
-    );
+    });
     expect(upw).toEqual(lpw);
     expect(umk).toEqual(lmk);
     expect(uak).toEqual(lak);
