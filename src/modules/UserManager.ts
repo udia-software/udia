@@ -43,7 +43,7 @@ export default class UserManager {
   public static async getUserByUsername(username: string) {
     return getConnection()
       .getRepository(User)
-      .findOne({ username });
+      .findOne({ lUsername: username.toLowerCase().trim() });
   }
 
   /**
@@ -53,7 +53,10 @@ export default class UserManager {
   public static async getUserByEmail(email: string) {
     const userEmail = await getConnection()
       .getRepository(UserEmail)
-      .findOne({ where: { email }, relations: ["user"] });
+      .findOne({
+        where: { lEmail: email.toLowerCase().trim() },
+        relations: ["user"]
+      });
     if (userEmail && userEmail.user) {
       return userEmail.user;
     }
@@ -77,7 +80,7 @@ export default class UserManager {
     const userExists = await getConnection()
       .getRepository(User)
       .createQueryBuilder("user")
-      .where("username = :username", { username: username.trim() })
+      .where({ lUsername: username.toLowerCase().trim() })
       .getCount();
     if (userExists > 0) {
       errors.push({ key: "username", message: "Username is taken." });
@@ -86,7 +89,7 @@ export default class UserManager {
     const emailExists = await getConnection()
       .getRepository(UserEmail)
       .createQueryBuilder("userEmail")
-      .where("email = :email", { email: email.trim() })
+      .where({ lEmail: email.toLowerCase().trim() })
       .getCount();
     if (emailExists > 0) {
       errors.push({ key: "email", message: "Email is taken." });
@@ -100,9 +103,11 @@ export default class UserManager {
     let newUser = new User();
     const newEmail = new UserEmail();
     newEmail.email = email.trim();
+    newEmail.lEmail = email.toLowerCase().trim();
     newEmail.primary = true;
     newEmail.verified = false;
-    newUser.username = username;
+    newUser.username = username.trim();
+    newUser.lUsername = username.toLowerCase().trim();
     newUser.pwHash = pwHash;
     newUser.pwFunc = pwFunc;
     newUser.pwDigest = pwDigest;
@@ -166,13 +171,8 @@ export default class UserManager {
    * @param pw password
    */
   public static async signInUser(email: string, pw: string) {
-    const userEmail = await getConnection()
-      .getRepository(UserEmail)
-      .findOne({
-        where: { email: email.trim() },
-        relations: ["user"]
-      });
-    if (!userEmail || !userEmail.user) {
+    const user = await UserManager.getUserByEmail(email);
+    if (!user) {
       throw new ValidationError([
         {
           key: "email",
@@ -180,7 +180,6 @@ export default class UserManager {
         }
       ]);
     }
-    const user = userEmail.user;
     const passwordsMatch = await Auth.verifyPassword(user.pwHash, pw);
     if (!passwordsMatch) {
       throw new ValidationError([
@@ -198,23 +197,19 @@ export default class UserManager {
    * @param email user's email
    */
   public static async getUserAuthParams(email: string) {
-    const userEmail = await getConnection()
-      .getRepository(UserEmail)
-      .findOne({
-        where: { email: email.trim() },
-        relations: ["user"]
-      });
-    if (userEmail && userEmail.user) {
-      const user = await userEmail.user;
-      return {
-        pwCost: user.pwCost,
-        pwSalt: user.pwSalt,
-        pwFunc: user.pwFunc,
-        pwDigest: user.pwDigest,
-        pwKeySize: user.pwKeySize
-      };
+    const user = await UserManager.getUserByEmail(email);
+    if (!user) {
+      throw new ValidationError([
+        { key: "email", message: "Email not found." }
+      ]);
     }
-    throw new ValidationError([{ key: "email", message: "Email not found." }]);
+    return {
+      pwCost: user.pwCost,
+      pwSalt: user.pwSalt,
+      pwFunc: user.pwFunc,
+      pwDigest: user.pwDigest,
+      pwKeySize: user.pwKeySize
+    };
   }
 
   /**

@@ -30,11 +30,20 @@ export class User {
   @Column({
     type: "varchar",
     length: 24,
-    nullable: false,
-    comment: "Public facing username."
+    nullable: false
+    //    comment: "Public facing username."
   })
   @Index({ unique: true })
   public username: string;
+
+  @Column({
+    type: "varchar",
+    length: 24,
+    nullable: false
+    //    comment: "Lower Case username."
+  })
+  @Index({ unique: true })
+  public lUsername: string;
 
   @OneToMany(type => UserEmail, email => email.user, {
     cascadeInsert: true,
@@ -46,8 +55,8 @@ export class User {
   @Column({
     type: "varchar",
     length: 512,
-    nullable: false,
-    comment: "Server side storage of password hash."
+    nullable: false
+    //    comment: "Server side storage of password hash."
   })
   public pwHash: string;
 
@@ -55,8 +64,8 @@ export class User {
     type: "varchar",
     length: 255,
     default: "pbkdf2",
-    nullable: false,
-    comment: "Client side password derivation function."
+    nullable: false
+    //    comment: "Client side password derivation function."
   })
   public pwFunc: string;
 
@@ -64,24 +73,24 @@ export class User {
     type: "varchar",
     length: 255,
     default: "sha512",
-    nullable: false,
-    comment: "Client side password derivation digest."
+    nullable: false
+    //    comment: "Client side password derivation digest."
   })
   public pwDigest: string;
 
   @Column({
     type: "integer",
     default: 5000,
-    nullable: false,
-    comment: "Client side password derivation cost."
+    nullable: false
+    //    comment: "Client side password derivation cost."
   })
   public pwCost: number;
 
   @Column({
     type: "integer",
     default: 768,
-    nullable: false,
-    comment: "Client side derived password key size."
+    nullable: false
+    //    comment: "Client side derived password key size."
   })
   public pwKeySize: number;
 
@@ -89,20 +98,20 @@ export class User {
     type: "varchar",
     length: 512,
     default: "",
-    nullable: false,
-    comment: "Client side derived password salt."
+    nullable: false
+    //    comment: "Client side derived password salt."
   })
   public pwSalt: string;
 
   @CreateDateColumn({
-    type: "timestamp with time zone",
-    comment: "User creation timestamp."
+    type: "timestamp with time zone"
+    //    comment: "User creation timestamp."
   })
   public createdAt: Date;
 
   @UpdateDateColumn({
-    type: "timestamp with time zone",
-    comment: "User updated timestamp."
+    type: "timestamp with time zone"
+    //    comment: "User updated timestamp."
   })
   public updatedAt: Date;
 }

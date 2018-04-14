@@ -33,9 +33,11 @@ async function createUsers() {
     let lmUser = new User();
     const lmEmail = new UserEmail();
     lmEmail.email = "loginMe@udia.ca";
+    lmEmail.lEmail = "loginme@udia.ca";
     lmEmail.primary = true;
     lmEmail.verified = true;
     lmUser.username = "loginMe";
+    lmUser.lUsername = "loginme";
     lmUser.pwHash =
       `$argon2i$v=19$m=4096,t=3,p=1$` +
       `oQsV2gDZcl3Qx2dfn+4hmg$2eeavsqCtG5zZRCQ/lVFSjrayzkmQGbdGYEi+p+Ny9w`;
@@ -50,9 +52,11 @@ async function createUsers() {
     let umUser = new User();
     const umEmail = new UserEmail();
     umEmail.email = "updateMe@udia.ca";
+    umEmail.lEmail = "updateme@udia.ca";
     umEmail.primary = true;
     umEmail.verified = false;
     umUser.username = "updateMe";
+    umUser.lUsername = "updateme";
     umUser.pwHash =
       `$argon2i$v=19$m=4096,t=3,p=1` +
       `$J80klk+fZ4DZvxParIpdPQ$3GxiZIpzlE7KYkYC9chP3/2VYUaJNHpqKTNrIM+LBUQ`;
@@ -141,111 +145,6 @@ afterAll(async done => {
 });
 
 describe("Users", () => {
-  // describe("REST API", () => {
-
-  //   it("should login a user.", async done => {
-  //     const email = "loginMe@udia.ca";
-  //     const userInputtedPassword = `Another secure p455word~`;
-  //     const getAuthParamsResp = await restClient.get("/auth/params", {
-  //       params: { email }
-  //     });
-  //     const { pwCost, pwSalt, pwFunc, pwDigest } = getAuthParamsResp.data;
-  //     expect(pwFunc).toEqual("pbkdf2");
-  //     expect(pwDigest).toEqual("sha512");
-  //     expect(pwCost).toEqual(3000);
-  //     const { pw } = loginUserCryptoParams(
-  //       userInputtedPassword,
-  //       pwCost,
-  //       pwSalt,
-  //       pwFunc,
-  //       pwDigest
-  //     );
-  //     const postAuthSigninResp = await restClient.post("/auth/sign_in", {
-  //       email,
-  //       pw
-  //     });
-  //     expect(postAuthSigninResp.data).toHaveProperty("jwt");
-  //     expect(postAuthSigninResp.data).toHaveProperty("user");
-  //     const user = postAuthSigninResp.data.user;
-  //     expect(user).toHaveProperty("uuid");
-  //     expect(user).toHaveProperty("username");
-  //     expect(user).toHaveProperty("email");
-  //     expect(user).toHaveProperty("password");
-  //     expect(user).toHaveProperty("pwFunc");
-  //     expect(user).toHaveProperty("pwDigest");
-  //     expect(user).toHaveProperty("pwCost");
-  //     expect(user).toHaveProperty("pwSalt");
-  //     expect(user).toHaveProperty("createdAt");
-  //     expect(user).toHaveProperty("updatedAt");
-  //     const createdAt = new Date(user.createdAt).getTime();
-  //     const updatedAt = new Date(user.updatedAt).getTime();
-  //     expect(updatedAt).toEqual(createdAt);
-  //     done();
-  //   });
-
-  //   it("should update a user's password.", async done => {
-  //     const email = "updateMe@udia.ca";
-  //     const uip = `Another secure p455word~`;
-  //     const newUip = `Changed secure p455w3rd;`;
-  //     const getAuthParamsResp = await restClient.get("/auth/params", {
-  //       params: { email }
-  //     });
-  //     const { pwCost, pwSalt, pwFunc, pwDigest } = getAuthParamsResp.data;
-  //     const old = loginUserCryptoParams(uip, pwCost, pwSalt, pwFunc, pwDigest);
-  //     const postAuthSigninResp = await restClient.post("/auth/sign_in", {
-  //       email,
-  //       pw: old.pw
-  //     });
-  //     const jwt: string = postAuthSigninResp.data.jwt;
-  //     const user = postAuthSigninResp.data.user;
-  //     const oldCreatedAt = new Date(user.createdAt).getTime();
-  //     const oldUpdatedAt = new Date(user.updatedAt).getTime();
-  //     // await new Promise(res => setTimeout(res, 10)); // not necessary?
-  //     const n = loginUserCryptoParams(newUip, pwCost, pwSalt, pwFunc, pwDigest);
-  //     const patchAuthResp = await restClient.patch(
-  //       "/auth",
-  //       { newPw: n.pw, pw: old.pw },
-  //       { headers: { Authorization: `Bearer ${jwt}` } }
-  //     );
-  //     expect(patchAuthResp.status).toEqual(204);
-  //     const changedPostAuthSigninResp = await restClient.post("/auth/sign_in", {
-  //       email,
-  //       pw: n.pw
-  //     });
-  //     expect(changedPostAuthSigninResp.data).toHaveProperty("jwt");
-  //     expect(changedPostAuthSigninResp.data).toHaveProperty("user");
-  //     const updatedUser: User = changedPostAuthSigninResp.data.user;
-  //     expect(updatedUser.updatedAt).toBeDefined();
-  //     const newCreatedAt = new Date(updatedUser.createdAt).getTime();
-  //     const newUpdatedAt = new Date(updatedUser.updatedAt).getTime();
-  //     expect(newUpdatedAt).toBeGreaterThan(newCreatedAt);
-  //     expect(newCreatedAt).toEqual(oldCreatedAt);
-  //     expect(oldUpdatedAt).toBeLessThan(newUpdatedAt);
-  //     done();
-  //   });
-
-  //   it("should delete a user.", async done => {
-  //     const email = "deleteMe@udia.ca";
-  //     const uip = `Another secure p455word~`;
-  //     const getAuthParamsResp = await restClient.get("/auth/params", {
-  //       params: { email }
-  //     });
-  //     const { pwCost, pwSalt, pwFunc, pwDigest } = getAuthParamsResp.data;
-  //     const keys = loginUserCryptoParams(uip, pwCost, pwSalt, pwFunc, pwDigest);
-  //     const postAuthSigninResp = await restClient.post("/auth/sign_in", {
-  //       email,
-  //       pw: keys.pw
-  //     });
-  //     const jwt: string = postAuthSigninResp.data.jwt;
-  //     const deleteAuthResp = await restClient.delete("/auth", {
-  //       headers: { Authorization: `Bearer ${jwt}` },
-  //       data: { pw: keys.pw }
-  //     });
-  //     expect(deleteAuthResp.status).toEqual(204);
-  //     done();
-  //   });
-  // });
-
   describe("GraphQL API", () => {
     it("should create a user.", async done => {
       const username = "createMe";
