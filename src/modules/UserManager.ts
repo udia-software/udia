@@ -84,11 +84,7 @@ export default class UserManager {
       errors.push({ key: "username", message: "Username is taken." });
     }
 
-    const emailExists = await getConnection()
-      .getRepository(UserEmail)
-      .createQueryBuilder("userEmail")
-      .where({ lEmail: email.toLowerCase().trim() })
-      .getCount();
+    const emailExists = await this.emailExists(email);
     if (emailExists > 0) {
       errors.push({ key: "email", message: "Email is taken." });
     }
@@ -233,7 +229,7 @@ export default class UserManager {
 
   /**
    * Send a email verification token.
-   * @param email user's email
+   * @param email user's email (should be tied to a UserEmail instance)
    */
   public static async sendEmailVerification(email: string) {
     const uEmail = await this.getUserEmailByEmail(email);
@@ -278,6 +274,44 @@ export default class UserManager {
       }
     }
     return false;
+  }
+
+  /**
+   * Add a new email to a given user.
+   * @param username user's username
+   * @param email new email that the user wants to add
+   */
+  public static async addEmail(username: string, email: string): Promise<User> {
+    const user = await this.getUserByUsername(username);
+    if (!user) {
+      throw new ValidationError([{ key: "id", message: "Invalid JWT." }]);
+    }
+    const emailExists = await this.emailExists(email);
+    if (emailExists > 0) {
+      throw new ValidationError([
+        { key: "email", message: "Email is taken." }
+      ]);
+    }
+
+    const newUserEmail = new UserEmail();
+    newUserEmail.lEmail = email.trim().toLowerCase();
+    newUserEmail.email = email.trim();
+    newUserEmail.primary = false;
+    newUserEmail.verified = false;
+    newUserEmail.user = user;
+    await getConnection()
+      .getRepository(UserEmail)
+      .save(newUserEmail);
+    this.sendEmailVerification(newUserEmail.email);
+    return user;
+  }
+
+  private static async emailExists(email: string) {
+    return getConnection()
+      .getRepository(UserEmail)
+      .createQueryBuilder("userEmail")
+      .where({ lEmail: email.toLowerCase().trim() })
+      .getCount();
   }
 
   /**

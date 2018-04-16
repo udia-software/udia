@@ -35,6 +35,7 @@ type Mutation {
   deleteUser(pw: String!): Boolean
   sendEmailVerification(email: String!): Boolean
   verifyEmailToken(emailToken: String!): Boolean
+  addEmail(email: String!): FullUser!
 }
 
 type FullUser {

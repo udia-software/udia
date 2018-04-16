@@ -57,6 +57,10 @@ const resolvers: IResolvers = {
     verifyEmailToken: async (root: any, parameters: any, context: IContext) => {
       const emailToken = parameters || { emailToken: "" };
       return UserManager.verifyEmailToken(emailToken);
+    },
+    addEmail: async (root: any, parameters: any, context: IContext) => {
+      const { email, username } = parameters || { email: "", username: "" };
+      return UserManager.addEmail(username, email);
     }
   },
   FullUser: {
