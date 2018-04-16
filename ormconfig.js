@@ -21,8 +21,8 @@ if (NODE_ENV === "test") {
   entitiesConfig[0] = "src/entity/**/*.ts";
   migrationsConfig[0] = "src/migration/**/*.ts";
   subscribersConfig[0] = "src/subscriber/**/*.ts";
-  SQL_DB = `${SQL_DB}test`;
-  SQL_PORT = "5433";
+  SQL_DB = process.env.SQL_TEST_DB || "udiadbtest";
+  SQL_PORT = process.env.SQL_TEST_PORT || "5433";
 }
 
 module.exports = {

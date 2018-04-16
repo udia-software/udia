@@ -6,13 +6,12 @@
   "scripts": {
     "pretest": "NODE_ENV=test yarn runMigrations",
     "test": "NODE_ENV=test TYPEORM_LOGGING=false jest --verbose",
-    "prestart": "yarn run clean && tsc && yarn runMigrations",
+    "prestart": "yarn clean && tsc && yarn runMigrations",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
-    "watch-ts": "tsc --watch",
-    "watch": "yarn run watch-ts & nodemon dist/index.js",
+    "watch": "tsc --watch & nodemon dist/index.js",
     "start": "node dist/index.js",
-    "posttest": "yarn run lint",
-    "prepublishOnly": "yarn run lint",
+    "posttest": "yarn lint",
+    "prepublishOnly": "yarn test",
     "makeMigrations": "ts-node node_modules/.bin/typeorm migrations:generate",
     "runMigrations": "ts-node node_modules/.bin/typeorm migrations:run",
     "revertMigrations": "ts-node node_modules/.bin/typeorm migrations:revert",
@@ -106,5 +105,8 @@
     "websocket": "^1.0.25",
     "winston": "^2.4.1",
     "ws": "^5.1.1"
+  },
+  "devDependencies": {
+    "coveralls": "^3.0.0"
   }
 }

@@ -29,9 +29,3 @@ services:
       POSTGRES_PASSWORD: mysecretpassword
       POSTGRES_USER: pguser
       POSTGRES_DB: udiadbtest
-# TYPEORM_TYPE: postgres
-# SQL_DB: udiadb
-# SQL_HOST: localhost
-# SQL_USER: pguser
-# SQL_PASSWORD: mysecretpassword
-# SQL_PORT: 5432
