@@ -29,16 +29,24 @@ Clone Repo: `git clone https://pi.alexander-wong.com/gogs/udia-software/udia && 
 | `PORT` | `3000` | Express port |
 | `TYPEORM_TYPE` | `postgres` | Database (`postgres` officially supported) |
 | `TYPEORM_LOGGING` | `true` | Log SQL queries to console |
-| `SQL_DB` | `udiadb` | SQL Database name |
 | `SQL_HOST` | `db` | SQL Hostname |
 | `SQL_USER` | `pguser` | SQL User |
 | `SQL_PASSWORD` | `mysecretpassword` | SQL Password |
-| `SQL_PORT` | `5432` | SQL Port Number |
-| `CORS_ORIGIN` | `*` | Cross Origin Resource Sharing allow |
+| `SQL_DB` | `udiadb` | SQL Database name (test: `udiadbtest`) |
+| `SQL_PORT` | `5432` | SQL Port Number (test: `5433`) |
+| `JWT_SECRET` | `DEVELOPMENT_SECRET` | Secret string to use for JWT encryption |
+| `CORS_ORIGIN` | `*` | Cross Origin Resource Sharing (space ` ` separated) |
+| `CLIENT_DOMAINNAME` | `localhost:3001` | Domain:port of client (`udia.ca`) |
+| `CLIENT_PROTOCOL` | `http` | Protocol of Client (`https`) |
+| `EMAIL_TOKEN_TIMEOUT` | `3600000` | How long should an email token last |
+| `SMTP_USERNAME` | `xxlvhieo2gqp352o@ethereal.email` | SMTP Username (ethereal default) |
+| `SMTP_PASSWORD` | `rCJTErmv6v2uacmdRt` | SMTP Password |
+| `SMTP_HOST` | `smtp.ethereal.email` | SMTP Host (ethereal default) |
+| `SMTP_PORT` | `587` | SMTP Port |
 
 ## License
 
-**GNU Affero General Public License v3 (AGPL-3.0)**
+This is [free software](https://www.gnu.org/philosophy/free-sw.en.html), licensed under **GNU Affero General Public License v3 (AGPL-3.0)**.
 
 ```text
 Copyright (C) 2018 Alexander Wong <alex@udia.ca>, Udia Software Incorporated
@@ -56,4 +64,3 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ```
-

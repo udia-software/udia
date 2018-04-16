@@ -22,7 +22,8 @@ const resolvers: IResolvers = {
       return UserManager.getUserAuthParams(email);
     },
     me: async (root: any, parameters: any, context: IContext) => {
-      const username = context.jwtPayload && context.jwtPayload.username || "";
+      const username =
+        (context.jwtPayload && context.jwtPayload.username) || "";
       return UserManager.getUserByUsername(username);
     }
   },
@@ -31,7 +32,8 @@ const resolvers: IResolvers = {
       return UserManager.createUser(parameters);
     },
     updatePassword: async (root: any, parameters: any, context: IContext) => {
-      const username = context.jwtPayload && context.jwtPayload.username || "";
+      const username =
+        (context.jwtPayload && context.jwtPayload.username) || "";
       return UserManager.updatePassword(username, parameters);
     },
     signInUser: async (root: any, parameters: any, context: IContext) => {
@@ -39,9 +41,22 @@ const resolvers: IResolvers = {
       return UserManager.signInUser(email, pw);
     },
     deleteUser: async (root: any, parameters: any, context: IContext) => {
-      const username = context.jwtPayload && context.jwtPayload.username || "";
+      const username =
+        (context.jwtPayload && context.jwtPayload.username) || "";
       const { pw } = parameters || { pw: "" };
       return UserManager.deleteUser(username, pw);
+    },
+    sendEmailVerification: async (
+      root: any,
+      parameters: any,
+      context: IContext
+    ) => {
+      const email = parameters || { email: "" };
+      return UserManager.sendEmailVerification(email);
+    },
+    verifyEmailToken: async (root: any, parameters: any, context: IContext) => {
+      const emailToken = parameters || { emailToken: "" };
+      return UserManager.verifyEmailToken(emailToken);
     }
   },
   FullUser: {

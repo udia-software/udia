@@ -1,6 +1,9 @@
+import { randomBytes } from "crypto";
 import { getConnection } from "typeorm";
+import { EMAIL_TOKEN_TIMEOUT } from "../constants";
 import { User } from "../entity/User";
 import { UserEmail } from "../entity/UserEmail";
+import Mailer from "../mailer";
 import Auth from "./Auth";
 import { IErrorMessage, ValidationError } from "./ValidationError";
 
@@ -51,12 +54,7 @@ export default class UserManager {
    * @param email string
    */
   public static async getUserByEmail(email: string) {
-    const userEmail = await getConnection()
-      .getRepository(UserEmail)
-      .findOne({
-        where: { lEmail: email.toLowerCase().trim() },
-        relations: ["user"]
-      });
+    const userEmail = await this.getUserEmailByEmail(email);
     if (userEmail && userEmail.user) {
       return userEmail.user;
     }
@@ -118,6 +116,7 @@ export default class UserManager {
       newUser = await transactionEntityManager.save(newUser);
       newEmail.user = newUser;
       await transactionEntityManager.save(newEmail);
+      this.sendEmailVerification(newEmail.email);
     });
     return {
       user: newUser,
@@ -143,7 +142,7 @@ export default class UserManager {
       pwSalt
     }: IUpdatePasswordParams
   ) {
-    const user = await UserManager.getUserByUsername(username);
+    const user = await this.getUserByUsername(username);
     if (!user) {
       throw new ValidationError([{ key: "id", message: "Invalid JWT." }]);
     }
@@ -171,7 +170,7 @@ export default class UserManager {
    * @param pw password
    */
   public static async signInUser(email: string, pw: string) {
-    const user = await UserManager.getUserByEmail(email);
+    const user = await this.getUserByEmail(email);
     if (!user) {
       throw new ValidationError([
         {
@@ -197,7 +196,7 @@ export default class UserManager {
    * @param email user's email
    */
   public static async getUserAuthParams(email: string) {
-    const user = await UserManager.getUserByEmail(email);
+    const user = await this.getUserByEmail(email);
     if (!user) {
       throw new ValidationError([
         { key: "email", message: "Email not found." }
@@ -218,7 +217,7 @@ export default class UserManager {
    * @param pw user's client generated password
    */
   public static async deleteUser(username: string, pw: string) {
-    const user = await UserManager.getUserByUsername(username);
+    const user = await this.getUserByUsername(username);
     if (!user) {
       throw new ValidationError([{ key: "id", message: "Invalid JWT." }]);
     }
@@ -230,5 +229,67 @@ export default class UserManager {
       return passwordsMatch;
     }
     throw new ValidationError([{ key: "pw", message: "Invalid password." }]);
+  }
+
+  /**
+   * Send a email verification token.
+   * @param email user's email
+   */
+  public static async sendEmailVerification(email: string) {
+    const uEmail = await this.getUserEmailByEmail(email);
+    if (uEmail) {
+      const emailToken = `${uEmail.lEmail}:${randomBytes(16).toString("hex")}`;
+      uEmail.verificationHash = await Auth.hashPassword(emailToken);
+      await getConnection()
+        .getRepository(UserEmail)
+        .updateById(uEmail.lEmail, uEmail);
+      Mailer.sendEmailVerification(uEmail.user.username, email, emailToken);
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Verify a given email token.
+   * @param emailToken user's email token `${email}:${token}`
+   */
+  public static async verifyEmailToken(emailToken: string) {
+    const [email] = emailToken.split(":");
+    if (email) {
+      const uEmail = await this.getUserEmailByEmail(email);
+      if (uEmail) {
+        if (
+          new Date(Date.now() - parseInt(EMAIL_TOKEN_TIMEOUT, 10)) <
+          uEmail.updatedAt
+        ) {
+          const isMatch = await Auth.verifyPassword(
+            uEmail.verificationHash,
+            emailToken
+          );
+          if (isMatch) {
+            uEmail.verified = true;
+            uEmail.verificationHash = "";
+            await getConnection()
+              .getRepository(UserEmail)
+              .updateById(uEmail.email, uEmail);
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Private helper method to get the UserEmail entity from an email
+   * @param email user's email
+   */
+  private static async getUserEmailByEmail(email: string) {
+    return getConnection()
+      .getRepository(UserEmail)
+      .findOne({
+        where: { lEmail: email.toLowerCase().trim() },
+        relations: ["user"]
+      });
   }
 }

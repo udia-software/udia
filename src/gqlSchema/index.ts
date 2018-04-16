@@ -33,6 +33,8 @@ type Mutation {
   ): FullUser!
   signInUser(email: String!, pw: String!): UserAuthPayload!
   deleteUser(pw: String!): Boolean
+  sendEmailVerification(email: String!): Boolean
+  verifyEmailToken(emailToken: String!): Boolean
 }
 
 type FullUser {

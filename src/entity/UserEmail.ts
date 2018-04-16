@@ -62,7 +62,7 @@ export class UserEmail {
   @Column({
     type: "varchar",
     length: 255,
-    nullable: true
+    default: ""
     //    comment: "Server stored hash of client sent verification code."
   })
   public verificationHash: string;
