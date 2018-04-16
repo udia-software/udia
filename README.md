@@ -1,6 +1,6 @@
 # Udia
 
-[![Travis](https://img.shields.io/travis/udia-software/udia.svg?style=flat-square)](https://travis-ci.org/udia-software/udia.svg?branch=master)
+[![Travis](https://img.shields.io/travis/udia-software/udia.svg?style=flat-square)](https://travis-ci.org/udia-software/udia)
 [![Coveralls github](https://img.shields.io/coveralls/github/udia-software/udia.svg?style=flat-square)](https://coveralls.io/github/udia-software/udia)
 [![David](https://img.shields.io/david/udia-software/udia.svg?style=flat-square)](https://david-dm.org/udia-software/udia)
 [![David](https://img.shields.io/david/dev/udia-software/udia.svg?style=flat-square)](https://david-dm.org/udia-software/udia?type=dev)

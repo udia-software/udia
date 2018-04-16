@@ -15,7 +15,7 @@ before_script:
   - psql -c 'CREATE DATABASE udiadbtest;' -U postgres
 after_script:
   - greenkeeper-lockfile-upload
-  - cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls
+  - cat ./coverage/lcov.info | ./node_modules/.bin/coveralls
 env:
   global:
     - NODE_ENV=test
