@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  db:
+    image: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_USER: pguser
+      POSTGRES_DB: udiadb
+  web:
+    build: .
+    depends_on:
+      - db
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      TYPEORM_TYPE: postgres
+      SQL_DB: udiadb
+      SQL_HOST: db
+      SQL_USER: pguser
+      SQL_PASSWORD: mysecretpassword
+      SQL_PORT: 5432
+    ports:
+      - "3000:3000"
