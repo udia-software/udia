@@ -28,10 +28,19 @@ export interface IUpdatePasswordParams {
   pwSalt: string;
 }
 
+export interface ISignInUserParams {
+  email: string;
+  pw: string;
+}
+
+export interface IDeleteUserParams {
+  pw: string;
+}
+
 export default class UserManager {
   /**
    * Get the user given the user's uuid
-   * @param id uuid (typically from the jwt payload)
+   * @param id uuid
    */
   public static async getUserById(id: string) {
     return getConnection()
@@ -43,7 +52,7 @@ export default class UserManager {
    * Get the user given the user's username
    * @param username string
    */
-  public static async getUserByUsername(username: string) {
+  public static async getUserByUsername(username: string = "") {
     return getConnection()
       .getRepository(User)
       .findOne({ lUsername: username.toLowerCase().trim() });
@@ -62,6 +71,7 @@ export default class UserManager {
 
   /**
    * Add a new user to the database, return the user and JWT.
+   * @param param0 GraphQL createUser parameters
    */
   public static async createUser({
     username,
@@ -75,13 +85,26 @@ export default class UserManager {
   }: ICreateUserParams) {
     const errors: IErrorMessage[] = [];
 
-    const userExists = await getConnection()
-      .getRepository(User)
-      .createQueryBuilder("user")
-      .where({ lUsername: username.toLowerCase().trim() })
-      .getCount();
-    if (userExists > 0) {
-      errors.push({ key: "username", message: "Username is taken." });
+    const lUsername = username.toLowerCase().trim();
+    if (lUsername.length > 24) {
+      errors.push({
+        key: "username",
+        message: "Username is too long (over 24 characters)."
+      });
+    } else if (lUsername.length < 3) {
+      errors.push({
+        key: "username",
+        message: "Username is too short (under 3 characters)."
+      });
+    } else {
+      const userExists = await getConnection()
+        .getRepository(User)
+        .createQueryBuilder("user")
+        .where({ lUsername })
+        .getCount();
+      if (userExists > 0) {
+        errors.push({ key: "username", message: "Username is taken." });
+      }
     }
 
     const emailExists = await this.emailExists(email);
@@ -101,7 +124,7 @@ export default class UserManager {
     newEmail.primary = true;
     newEmail.verified = false;
     newUser.username = username.trim();
-    newUser.lUsername = username.toLowerCase().trim();
+    newUser.lUsername = lUsername;
     newUser.pwHash = pwHash;
     newUser.pwFunc = pwFunc;
     newUser.pwDigest = pwDigest;
@@ -121,13 +144,12 @@ export default class UserManager {
   }
 
   /**
-   * Update a user's password. Return if successful (or throw an error)
-   * @param username user's username
-   * @param newPw new password
-   * @param pw existing password
+   * Update a given user's password.
+   * @param username username derived from signed JWT payload
+   * @param parameters new password parameters
    */
   public static async updatePassword(
-    username: string,
+    username: string = "",
     {
       newPw,
       pw,
@@ -165,7 +187,7 @@ export default class UserManager {
    * @param email one of the user's emails
    * @param pw password
    */
-  public static async signInUser(email: string, pw: string) {
+  public static async signInUser({ email, pw }: ISignInUserParams) {
     const user = await this.getUserByEmail(email);
     if (!user) {
       throw new ValidationError([
@@ -209,10 +231,13 @@ export default class UserManager {
 
   /**
    * Delete a user, resolve with true or throw error.
-   * @param username user's username
-   * @param pw user's client generated password
+   * @param username username derived from JWT payload
+   * @param param1 delete user GQL parameters
    */
-  public static async deleteUser(username: string, pw: string) {
+  public static async deleteUser(
+    username: string = "",
+    { pw }: IDeleteUserParams
+  ) {
     const user = await this.getUserByUsername(username);
     if (!user) {
       throw new ValidationError([{ key: "id", message: "Invalid JWT." }]);
@@ -228,10 +253,38 @@ export default class UserManager {
   }
 
   /**
+   * Add a new email to a given user.
+   * @param username user's username
+   * @param email new email that the user wants to add
+   */
+  public static async addEmail(username: string = "", email: string) {
+    const user = await this.getUserByUsername(username);
+    if (!user) {
+      throw new ValidationError([{ key: "id", message: "Invalid JWT." }]);
+    }
+    const emailExists = await this.emailExists(email);
+    if (emailExists > 0) {
+      throw new ValidationError([{ key: "email", message: "Email is taken." }]);
+    }
+
+    const newUserEmail = new UserEmail();
+    newUserEmail.lEmail = email.trim().toLowerCase();
+    newUserEmail.email = email.trim();
+    newUserEmail.primary = false;
+    newUserEmail.verified = false;
+    newUserEmail.user = user;
+    await getConnection()
+      .getRepository(UserEmail)
+      .save(newUserEmail);
+    this.sendEmailVerification(newUserEmail.email);
+    return user;
+  }
+
+  /**
    * Send a email verification token.
    * @param email user's email (should be tied to a UserEmail instance)
    */
-  public static async sendEmailVerification(email: string) {
+  public static async sendEmailVerification(email: string = "") {
     const uEmail = await this.getUserEmailByEmail(email);
     if (uEmail) {
       const emailToken = `${uEmail.lEmail}:${randomBytes(16).toString("hex")}`;
@@ -249,7 +302,7 @@ export default class UserManager {
    * Verify a given email token.
    * @param emailToken user's email token `${email}:${token}`
    */
-  public static async verifyEmailToken(emailToken: string) {
+  public static async verifyEmailToken(emailToken: string = "") {
     const [email] = emailToken.split(":");
     if (email) {
       const uEmail = await this.getUserEmailByEmail(email);
@@ -274,36 +327,6 @@ export default class UserManager {
       }
     }
     return false;
-  }
-
-  /**
-   * Add a new email to a given user.
-   * @param username user's username
-   * @param email new email that the user wants to add
-   */
-  public static async addEmail(username: string, email: string): Promise<User> {
-    const user = await this.getUserByUsername(username);
-    if (!user) {
-      throw new ValidationError([{ key: "id", message: "Invalid JWT." }]);
-    }
-    const emailExists = await this.emailExists(email);
-    if (emailExists > 0) {
-      throw new ValidationError([
-        { key: "email", message: "Email is taken." }
-      ]);
-    }
-
-    const newUserEmail = new UserEmail();
-    newUserEmail.lEmail = email.trim().toLowerCase();
-    newUserEmail.email = email.trim();
-    newUserEmail.primary = false;
-    newUserEmail.verified = false;
-    newUserEmail.user = user;
-    await getConnection()
-      .getRepository(UserEmail)
-      .save(newUserEmail);
-    this.sendEmailVerification(newUserEmail.email);
-    return user;
   }
 
   private static async emailExists(email: string) {
