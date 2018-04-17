@@ -25,7 +25,7 @@ export class ValidationError extends GraphQLError {
       } else {
         errorState[error.key] = [error.message];
       }
-      errorMessage.push("* " + error.key + ": " + error.message);
+      errorMessage.push(`* ${error.key}: ${error.message}`);
     });
     super(errorMessage.join("\n"));
     this.state = errorState;

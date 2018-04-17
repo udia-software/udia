@@ -13,64 +13,51 @@ export interface IContext {
 
 const resolvers: IResolvers = {
   Query: {
-    getUserAuthParams: async (
-      root: any,
-      parameters: any,
-      context: IContext
-    ) => {
-      const email = parameters.email || "";
+    getUserAuthParams: async (root: any, params: any, context: IContext) => {
+      const email = params.email;
       return UserManager.getUserAuthParams(email);
     },
-    me: async (root: any, parameters: any, context: IContext) => {
-      const username =
-        (context.jwtPayload && context.jwtPayload.username) || "";
+    me: async (root: any, params: any, context: IContext) => {
+      const username = context.jwtPayload && context.jwtPayload.username;
       return UserManager.getUserByUsername(username);
     }
   },
   Mutation: {
-    createUser: async (root: any, parameters: any, context: IContext) => {
-      return UserManager.createUser(parameters);
+    createUser: async (root: any, params: any, context: IContext) => {
+      return UserManager.createUser(params);
     },
-    updatePassword: async (root: any, parameters: any, context: IContext) => {
-      const username =
-        (context.jwtPayload && context.jwtPayload.username) || "";
-      return UserManager.updatePassword(username, parameters);
+    updatePassword: async (root: any, params: any, context: IContext) => {
+      const username = context.jwtPayload && context.jwtPayload.username;
+      return UserManager.updatePassword(username, params);
     },
-    signInUser: async (root: any, parameters: any, context: IContext) => {
-      const { email, pw } = parameters || { email: "", pw: "" };
-      return UserManager.signInUser(email, pw);
+    signInUser: async (root: any, params: any, context: IContext) => {
+      return UserManager.signInUser(params);
     },
-    deleteUser: async (root: any, parameters: any, context: IContext) => {
-      const username =
-        (context.jwtPayload && context.jwtPayload.username) || "";
-      const { pw } = parameters || { pw: "" };
-      return UserManager.deleteUser(username, pw);
+    deleteUser: async (root: any, params: any, context: IContext) => {
+      const username = context.jwtPayload && context.jwtPayload.username;
+      return UserManager.deleteUser(username, params);
     },
-    sendEmailVerification: async (
-      root: any,
-      parameters: any,
-      context: IContext
-    ) => {
-      const email = parameters || { email: "" };
+    sendEmailVerification: async (root: any, { email }, context: IContext) => {
       return UserManager.sendEmailVerification(email);
     },
-    verifyEmailToken: async (root: any, parameters: any, context: IContext) => {
-      const emailToken = parameters || { emailToken: "" };
+    verifyEmailToken: async (root: any, params: any, context: IContext) => {
+      const emailToken = params && params.emailToken;
       return UserManager.verifyEmailToken(emailToken);
     },
-    addEmail: async (root: any, parameters: any, context: IContext) => {
-      const { email, username } = parameters || { email: "", username: "" };
+    addEmail: async (root: any, params: any, context: IContext) => {
+      const username = context.jwtPayload && context.jwtPayload.username;
+      const email = params && params.email;
       return UserManager.addEmail(username, email);
     }
   },
   FullUser: {
-    emails: async (root: IUser, parameters: any, context: IContext) => {
+    emails: async (root: IUser, params: any, context: IContext) => {
       const user = await UserManager.getUserById(root.uuid);
       return user && user.emails;
     }
   },
   UserEmail: {
-    user: async (root: IUserEmail, parameters: any, context: IContext) => {
+    user: async (root: IUserEmail, params: any, context: IContext) => {
       return UserManager.getUserByEmail(root.email);
     }
   },

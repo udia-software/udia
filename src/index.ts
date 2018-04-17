@@ -14,7 +14,7 @@ import logger from "./util/logger";
  * Start the server. Initialize the Database Client and tables.
  * Throws an error if client initialization fails
  */
-const start = async (port: any = PORT) => {
+const start = async (port: string) => {
   // crypto module may not exist in node binary (will throw error)
   app.set("crypto", crypto);
 
@@ -39,7 +39,7 @@ const start = async (port: any = PORT) => {
     logger.info(`UDIA ${NODE_ENV} server running on port ${port}.`);
   });
 
-  Graceful.on("exit", (done, event, signal) => {
+  const shutdownListener = (done: () => void, event: any, signal: any) => {
     logger.warn(`3)\tGraceful ${signal} signal received.`);
     subscriptionServer.close();
     server.close(() => {
@@ -49,13 +49,15 @@ const start = async (port: any = PORT) => {
         done();
       });
     });
-  });
-
+  };
+  Graceful.on("exit", shutdownListener);
+  Graceful.on("shutdown", shutdownListener);
   return server;
 };
 
+/* istanbul ignore next */
 if (require.main === module) {
-  start();
+  start(PORT);
 }
 
 export default start;

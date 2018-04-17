@@ -75,9 +75,9 @@ async function deleteUsers() {
     .createQueryBuilder()
     .delete()
     .from(User)
-    .where("username = :createMe", { createMe: "createMe" })
-    .orWhere("username = :loginMe", { loginMe: "loginMe" })
-    .orWhere("username = :updateMe", { updateMe: "updateMe" })
+    .where("lUsername = :createMe", { createMe: "createme" })
+    .orWhere("lUsername = :loginMe", { loginMe: "loginme" })
+    .orWhere("lUsername = :updateMe", { updateMe: "updateme" })
     .execute();
 }
 
@@ -88,7 +88,7 @@ async function deleteUsers() {
  */
 beforeAll(async done => {
   // Ports are staggered to prevent multiple tests from clobbering
-  const userTestPort = parseInt(PORT, 10) + 1;
+  const userTestPort = `${parseInt(PORT, 10) + 1}`;
   server = await start(userTestPort);
   const GRAPHQL_HTTP_ENDPOINT = `http://0.0.0.0:${userTestPort}/graphql`;
   const GRAPHQL_SUBSCRIPTIONS_ENDPOINT = `ws://0.0.0.0:${userTestPort}/subscriptions`;
@@ -139,9 +139,8 @@ beforeAll(async done => {
 
 afterAll(async done => {
   await deleteUsers();
-  await subscriptionClient.close();
-  await server.close();
-  done();
+  subscriptionClient.close();
+  server.close(done);
 });
 
 describe("Users", () => {
@@ -419,6 +418,44 @@ describe("Users", () => {
         data: { deleteUser: true }
       });
       done();
+    });
+
+    it("should handle graphQL validation errors.", async done => {
+      const email = "badactor@udia.ca";
+      try {
+        await gqlClient.query({
+          query: gql`
+            query GetUserAuthParams($email: String!) {
+              getUserAuthParams(email: $email) {
+                pwFunc
+                pwDigest
+                pwCost
+                pwKeySize
+                pwSalt
+              }
+            }
+          `,
+          variables: { email }
+        });
+      } catch (err) {
+        expect(err).toHaveProperty("graphQLErrors", [
+          {
+            locations: [{ column: 3, line: 2 }],
+            message: "The request is invalid.\n* email: Email not found.",
+            path: ["getUserAuthParams"],
+            state: { email: ["Email not found."] }
+          }
+        ]);
+        expect(err).toHaveProperty("networkError", null);
+        expect(err).toHaveProperty(
+          "message",
+          "GraphQL error: The request is invalid.\n* email: Email not found."
+        );
+        expect(err).toHaveProperty("extraInfo", undefined);
+        done();
+        return;
+      }
+      done("Error not caught.");
     });
   });
 });

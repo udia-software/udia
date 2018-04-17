@@ -8,14 +8,14 @@ let restClient: AxiosInstance = null;
 
 beforeAll(async done => {
   // Ports are staggered to prevent multiple tests from clobbering
-  const healthTestPort = parseInt(PORT, 10) + 2;
+  const healthTestPort = `${parseInt(PORT, 10) + 2}`;
   server = await start(healthTestPort);
   restClient = axios.create({ baseURL: `http://0.0.0.0:${healthTestPort}` });
   done();
 });
 
 afterAll(async done => {
-  await server.close()
+  await server.close();
   done();
 });
 
@@ -40,4 +40,4 @@ describe("Health", () => {
     expect(respData).toHaveProperty("cpus");
     done();
   });
-})
+});
