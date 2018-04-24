@@ -40,7 +40,7 @@ export class UserEmail {
   public lEmail: string;
 
   @ManyToOne(type => User, user => user.emails, {
-    cascadeAll: true,
+    cascade: ["insert", "update", "remove"],
     onDelete: "CASCADE"
   })
   public user: User;
