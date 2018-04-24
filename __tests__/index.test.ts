@@ -26,7 +26,7 @@ describe("Index", () => {
   it("should query the `/` endpoint", async done => {
     const getIndexResp = await restClient.get("/");
     const indexRespData = getIndexResp.data || "";
-    expect(indexRespData).toEqual("UDIA API Server");
+    expect(indexRespData).toContain("UDIA API SERVER");
     done();
   });
 });
