@@ -1,15 +1,17 @@
-# Udia
+# UDIA
 
 [![Travis](https://img.shields.io/travis/udia-software/udia.svg?style=flat-square)](https://travis-ci.org/udia-software/udia)
 [![Coveralls github](https://img.shields.io/coveralls/github/udia-software/udia.svg?style=flat-square)](https://coveralls.io/github/udia-software/udia)
 [![David](https://img.shields.io/david/udia-software/udia.svg?style=flat-square)](https://david-dm.org/udia-software/udia)
 [![David](https://img.shields.io/david/dev/udia-software/udia.svg?style=flat-square)](https://david-dm.org/udia-software/udia?type=dev)
 
-Prototype, do not use for anything.
+**You are one with the universe.**
+
+![./logo.svg](./logo.svg)
 
 ## Quickstart
 
-Clone Repo: `git clone https://pi.alexander-wong.com/gogs/udia-software/udia && cd udia`
+Clone Repo: `git clone git@github.com:udia-software/udia.git && cd udia`
 
 **Docker**
 
@@ -22,13 +24,16 @@ Clone Repo: `git clone https://pi.alexander-wong.com/gogs/udia-software/udia && 
     Manual is reccommended for live reloading and development.
 
 1.  Ensure you have a sql database accessible and ready. (`postgres` supported)
-    * Helper Docker commands: `docker-compose -f postgres-compose.yml up` & `psql -h 0.0.0.0 -p 5432 -U pguser -d udiadb`
+    * You can use docker! `docker-compose -f postgres-compose.yml up` and the defaults env variables all work.
+    * To view raw database, connect to docker container with `psql -h 0.0.0.0 -p 5432 -U pguser -d udiadb`
 2.  Set your database connection values. (see [Environment Variables](#environment-variables))
 3.  Install dependencies: `yarn install`
 4.  Run database migrations `yarn runMigrations`
-5.  Watch application: `yarn watch` or run application `yarn start`
+5.  Watch application: `yarn watch` or run application `yarn start` or test application `yarn test`
 
 ## Environment Variables
+
+These environment variables can be set by modifying your `~/.*rc` or `~/.*profile` files. Alternatively, modify the environment variables in the `docker-compose` files.
 
 | Environment Variable Name | Default Value                     | Description                                        |
 | ------------------------- | --------------------------------- | -------------------------------------------------- |
@@ -44,7 +49,7 @@ Clone Repo: `git clone https://pi.alexander-wong.com/gogs/udia-software/udia && 
 | `SQL_TEST_PORT`           | `5433`                            | SQL Port number for testing                        |
 | `SQL_TEST_DB`             | `udiadbtest`                      | SQL Database name for testing                      |
 | `JWT_SECRET`              | `DEVELOPMENT_SECRET`              | Secret string to use for JWT encryption            |
-| `CORS_ORIGIN`             | `*`                               | Cross Origin Resource Sharing (space `` separated) |
+| `CORS_ORIGIN`             | `http://localhost:3001`           | OPTIONS Res Header for Access-Control-Allow-Origin |
 | `CLIENT_DOMAINNAME`       | `localhost:3001`                  | Domain:port of client (`udia.ca`)                  |
 | `CLIENT_PROTOCOL`         | `http`                            | Protocol of Client (`https`)                       |
 | `EMAIL_TOKEN_TIMEOUT`     | `3600000`                         | How long should an email token last                |
@@ -52,6 +57,8 @@ Clone Repo: `git clone https://pi.alexander-wong.com/gogs/udia-software/udia && 
 | `SMTP_PASSWORD`           | `rCJTErmv6v2uacmdRt`              | SMTP Password                                      |
 | `SMTP_HOST`               | `smtp.ethereal.email`             | SMTP Host (ethereal default)                       |
 | `SMTP_PORT`               | `587`                             | SMTP Port                                          |
+| `REDIS_URL`               | `redis://localhost:6379`          | Redis Connection String                            |
+| `HEALTH_METRIC_INTERVAL`  | `500`                             | How often to send health metric                    |
 
 ## License
 
