@@ -2,8 +2,6 @@ import { RedisPubSub } from "graphql-redis-subscriptions";
 import { parse } from "url";
 import { REDIS_URL } from "./constants";
 
-
-
 const parts = parse(REDIS_URL);
 const pubSub = new RedisPubSub({
   connection: {

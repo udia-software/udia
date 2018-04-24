@@ -2,7 +2,7 @@
   "name": "udia",
   "version": "0.0.6",
   "description": "Encrypted file and note storage, with collaboration",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "pretest": "NODE_ENV=test yarn runMigrations",
     "test": "NODE_ENV=test TYPEORM_LOGGING=false jest --verbose",
