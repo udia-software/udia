@@ -46,8 +46,7 @@ export class User {
   public lUsername: string;
 
   @OneToMany(type => UserEmail, email => email.user, {
-    cascadeInsert: true,
-    cascadeUpdate: true,
+    cascade: ["insert", "update"],
     eager: true
   })
   public emails: UserEmail[];

@@ -45,7 +45,7 @@ export default class UserManager {
   public static async getUserById(id: string) {
     return getConnection()
       .getRepository(User)
-      .findOneById(id);
+      .findOne(id);
   }
 
   /**
@@ -246,7 +246,7 @@ export default class UserManager {
     if (passwordsMatch) {
       await getConnection()
         .getRepository(User)
-        .deleteById(user.uuid);
+        .delete({ uuid: user.uuid });
       return passwordsMatch;
     }
     throw new ValidationError([{ key: "pw", message: "Invalid password." }]);
@@ -288,10 +288,11 @@ export default class UserManager {
     const uEmail = await this.getUserEmailByEmail(email);
     if (uEmail) {
       const emailToken = `${uEmail.lEmail}:${randomBytes(16).toString("hex")}`;
-      uEmail.verificationHash = await Auth.hashPassword(emailToken);
+      const partial = new UserEmail();
+      partial.verificationHash = await Auth.hashPassword(emailToken);
       await getConnection()
         .getRepository(UserEmail)
-        .updateById(uEmail.lEmail, uEmail);
+        .update(uEmail.lEmail, partial);
       Mailer.sendEmailVerification(uEmail.user.username, email, emailToken);
       return true;
     }
@@ -316,11 +317,12 @@ export default class UserManager {
             emailToken
           );
           if (isMatch) {
-            uEmail.verified = true;
-            uEmail.verificationHash = "";
+            const partial = new UserEmail();
+            partial.verified = true;
+            partial.verificationHash = "";
             await getConnection()
               .getRepository(UserEmail)
-              .updateById(uEmail.email, uEmail);
+              .update(uEmail.lEmail, partial);
             return true;
           }
         }
@@ -344,9 +346,6 @@ export default class UserManager {
   private static async getUserEmailByEmail(email: string) {
     return getConnection()
       .getRepository(UserEmail)
-      .findOne({
-        where: { lEmail: email.toLowerCase().trim() },
-        relations: ["user"]
-      });
+      .findOne(email.toLowerCase().trim(), { relations: ["user"] });
   }
 }
