@@ -25,7 +25,7 @@ export class UserEmail {
     type: "varchar",
     length: 255,
     nullable: false
-    //    comment: "User provided email."
+    // comment: "User provided email."
   })
   @Index({ unique: true })
   public email: string;
@@ -34,7 +34,7 @@ export class UserEmail {
     type: "varchar",
     length: 255,
     nullable: false
-    //    comment: "Lower case email."
+    // comment: "Lower case email. Used for internal uniqueness and primary key"
   })
   @Index({ unique: true })
   public lEmail: string;
@@ -48,14 +48,14 @@ export class UserEmail {
   @Column({
     type: "boolean",
     default: false
-    //    comment: "Is user email primary."
+    // comment: "Is user email primary."
   })
   public primary: boolean;
 
   @Column({
     type: "boolean",
     default: false
-    //    comment: "Is user email verified."
+    // comment: "Is user email verified."
   })
   public verified: boolean;
 
@@ -63,19 +63,19 @@ export class UserEmail {
     type: "varchar",
     length: 255,
     default: ""
-    //    comment: "Server stored hash of client sent verification code."
+    // comment: "Server stored hash of client sent verification code."
   })
   public verificationHash: string;
 
   @CreateDateColumn({
     type: "timestamp with time zone"
-    //    comment: "Email creation timestamp."
+    // comment: "Email creation timestamp."
   })
   public createdAt: Date;
 
   @UpdateDateColumn({
     type: "timestamp with time zone"
-    //    comment: "Email last updated timestamp."
+    // comment: "Email last updated timestamp."
   })
   public updatedAt: Date;
 }

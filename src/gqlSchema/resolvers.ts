@@ -7,8 +7,8 @@ import UserManager from "../modules/UserManager";
 
 export interface IContext {
   jwtPayload: IJwtPayload;
-  originIp: string;
-  originIps: string[];
+  originIp?: string;
+  originIps?: string[];
 }
 
 const resolvers: IResolvers = {

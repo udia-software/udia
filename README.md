@@ -24,7 +24,7 @@ Clone Repo: `git clone git@github.com:udia-software/udia.git && cd udia`
     Manual is reccommended for live reloading and development.
 
 1.  Ensure you have a sql database accessible and ready. (`postgres` supported)
-    * You can use docker! `docker-compose -f postgres-compose.yml up` and the defaults env variables all work.
+    * You can use docker! `docker-compose -f dev-compose.yml up` and the defaults env variables all work.
     * To view raw database, connect to docker container with `psql -h 0.0.0.0 -p 5432 -U pguser -d udiadb`
 2.  Set your database connection values. (see [Environment Variables](#environment-variables))
 3.  Install dependencies: `yarn install`

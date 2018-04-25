@@ -276,7 +276,7 @@ export default class UserManager {
     await getConnection()
       .getRepository(UserEmail)
       .save(newUserEmail);
-    this.sendEmailVerification(newUserEmail.email);
+    await this.sendEmailVerification(newUserEmail.email);
     return user;
   }
 
@@ -287,13 +287,14 @@ export default class UserManager {
   public static async sendEmailVerification(email: string = "") {
     const uEmail = await this.getUserEmailByEmail(email);
     if (uEmail) {
+      // Token is in the format `<email>:<password>`
       const emailToken = `${uEmail.lEmail}:${randomBytes(16).toString("hex")}`;
       const partial = new UserEmail();
       partial.verificationHash = await Auth.hashPassword(emailToken);
       await getConnection()
         .getRepository(UserEmail)
         .update(uEmail.lEmail, partial);
-      Mailer.sendEmailVerification(uEmail.user.username, email, emailToken);
+      await Mailer.sendEmailVerification(uEmail.user.username, email, emailToken);
       return true;
     }
     return false;

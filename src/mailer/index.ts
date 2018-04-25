@@ -102,7 +102,7 @@ export default class Mailer {
     username: string,
     email: string,
     validationToken: string
-  ) {
+  ): Promise<any> {
     const validityTime = duration(
       EMAIL_TOKEN_TIMEOUT,
       "milliseconds"
@@ -137,7 +137,7 @@ export default class Mailer {
       <p>to:
       <br/><a href="${urlNoToken}">${urlNoToken}</a></p>`
     };
-    transport
+    return transport
       .sendMail(payload)
       .then(info => {
         logger.info("sendForgotPasswordEmail sent", info);

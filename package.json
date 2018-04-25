@@ -51,19 +51,25 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://pi.alexander-wong.com/gogs/udia-software/udia.git"
+    "url": "https://github.com/udia-software/udia.git"
   },
-  "author": "Alexander Wong <alex@udia.ca>",
+  "homepage": "https://api.udia.ca",
+  "author": {
+    "name": "Alexander Wong",
+    "email": "alex@udia.ca",
+    "url": "https://udia.ca"
+  },
   "license": "AGPL-3.0",
   "dependencies": {
     "@types/cors": "^2.8.3",
     "@types/express": "^4.11.1",
     "@types/express-jwt": "^0.0.40",
-    "@types/graphql": "^0.12.7",
+    "@types/graphql": "~0.12.7",
     "@types/ioredis": "^3.2.7",
     "@types/jest": "^22.2.0",
     "@types/jsonwebtoken": "^7.2.6",
     "@types/node": "^9.4.7",
+    "@types/node-fetch": "^1.6.9",
     "@types/nodemailer": "^4.6.0",
     "@types/on-finished": "^2.3.1",
     "@types/pg": "^7.4.5",
@@ -111,5 +117,12 @@
   },
   "devDependencies": {
     "coveralls": "^3.0.0"
-  }
+  },
+  "engines": {
+    "node": ">=8.11.1 <10"
+  },
+  "os": [
+    "darwin",
+    "linux"
+  ]
 }

@@ -22,6 +22,7 @@ import {
   generateUserCryptoParams,
   loginUserCryptoParams
 } from "../testHelper";
+import Mailer from "../../src/mailer";
 
 let server: Server = null;
 let gqlClient: ApolloClient<any> = null;
@@ -54,7 +55,7 @@ async function createUsers() {
     umEmail.email = "updateMe@udia.ca";
     umEmail.lEmail = "updateme@udia.ca";
     umEmail.primary = true;
-    umEmail.verified = false;
+    umEmail.verified = true;
     umUser.username = "updateMe";
     umUser.lUsername = "updateme";
     umUser.pwHash =
@@ -105,7 +106,8 @@ beforeAll(async done => {
     return forward(operation);
   });
   const httpLinkWithAuthToken = middlewareAuthLink.concat(
-    new HttpLink({ uri: GRAPHQL_HTTP_ENDPOINT, fetch })
+    // https://github.com/apollographql/apollo-link/issues/513
+    new HttpLink({ uri: GRAPHQL_HTTP_ENDPOINT, fetch: fetch as any })
   );
 
   subscriptionClient = new SubscriptionClient(
@@ -335,6 +337,183 @@ describe("Users", () => {
       done();
     });
 
+    it("should get a logged in user.", async done => {
+      const meQueryResponse = await gqlClient.query({
+        query: gql`
+          query Me {
+            me {
+              uuid
+              username
+              emails {
+                email
+                user {
+                  uuid
+                }
+                primary
+                verified
+                verificationHash
+                createdAt
+                updatedAt
+              }
+              pwHash
+              pwFunc
+              pwDigest
+              pwCost
+              pwKeySize
+              pwSalt
+              createdAt
+              updatedAt
+            }
+          }
+        `
+      });
+      expect(meQueryResponse).toHaveProperty("data");
+      const meQueryResponseData: any = meQueryResponse.data;
+      expect(meQueryResponseData).toHaveProperty("me");
+      const meData = meQueryResponseData.me;
+      expect(meData).toHaveProperty("__typename", "FullUser");
+      expect(meData).toHaveProperty("uuid");
+      expect(meData).toHaveProperty("username", "updateMe");
+      expect(meData).toHaveProperty("emails");
+      const meEmails = meData.emails;
+      expect(meEmails).toHaveLength(1);
+      const meEmail = meEmails[0];
+      expect(meEmail).toHaveProperty("__typename", "UserEmail");
+      expect(meEmail).toHaveProperty("email", "updateMe@udia.ca");
+      expect(meEmail).toHaveProperty("user");
+      expect(meEmail.user).toHaveProperty("uuid", meData.uuid);
+      expect(meEmail.user).toHaveProperty("__typename", "FullUser");
+      expect(meEmail).toHaveProperty("primary", true);
+      expect(meEmail).toHaveProperty("verified", true);
+      expect(meEmail).toHaveProperty("verificationHash", "");
+      expect(meEmail).toHaveProperty("createdAt");
+      expect(meEmail).toHaveProperty("updatedAt");
+      expect(meData).toHaveProperty(
+        "pwHash",
+        `$argon2i$v=19$m=4096,t=3,p=1` +
+          `$J80klk+fZ4DZvxParIpdPQ$3GxiZIpzlE7KYkYC9chP3/2VYUaJNHpqKTNrIM+LBUQ`
+      );
+      expect(meData).toHaveProperty("pwFunc", "pbkdf2");
+      expect(meData).toHaveProperty("pwDigest", "sha512");
+      expect(meData).toHaveProperty("pwCost", 3000);
+      expect(meData).toHaveProperty("pwKeySize", 768);
+      expect(meData).toHaveProperty(
+        "pwSalt",
+        "066c1fb06d3488df129bf476dfa6e58e6223293d"
+      );
+      expect(meData).toHaveProperty("createdAt");
+      expect(meData).toHaveProperty("updatedAt");
+      done();
+    });
+
+    describe("Mailer", () => {
+      let sendEmailVerificationSpy: jest.SpyInstance;
+
+      beforeAll(() => {
+        sendEmailVerificationSpy = jest.spyOn(Mailer, "sendEmailVerification");
+      });
+
+      beforeEach(() => {
+        sendEmailVerificationSpy.mockReset();
+      })
+
+      afterAll(() => {
+        sendEmailVerificationSpy.mockClear();
+      });
+
+      it("should add a new email to the user", async done => {
+        const email = "updateMe2@udia.ca";
+        const addEmailMutationResponse = await gqlClient.mutate({
+          mutation: gql`
+            mutation AddEmail($email: String!) {
+              addEmail(email: $email) {
+                uuid
+                emails {
+                  email
+                  user {
+                    uuid
+                  }
+                  primary
+                  verified
+                  verificationHash
+                  createdAt
+                  updatedAt
+                }
+              }
+            }
+          `,
+          variables: { email }
+        });
+        expect(addEmailMutationResponse).toHaveProperty("data");
+        const addEmailResponseData = addEmailMutationResponse.data;
+        expect(addEmailResponseData).toHaveProperty("addEmail");
+        const addEmail = addEmailResponseData.addEmail;
+        expect(addEmail).toHaveProperty("__typename", "FullUser");
+        expect(addEmail).toHaveProperty("uuid");
+        expect(addEmail).toHaveProperty("emails");
+        const emails = addEmail.emails;
+        expect(emails).toHaveLength(2);
+        const originalEmail = emails.filter(e => e.primary)[0];
+        expect(originalEmail).toHaveProperty("__typename", "UserEmail");
+        expect(originalEmail).toHaveProperty("email", "updateMe@udia.ca");
+        expect(originalEmail).toHaveProperty("user");
+        expect(originalEmail.user).toHaveProperty("uuid", addEmail.uuid);
+        expect(originalEmail).toHaveProperty("primary", true);
+        expect(originalEmail).toHaveProperty("verified", true);
+        expect(originalEmail).toHaveProperty("verificationHash", "");
+        expect(originalEmail).toHaveProperty("createdAt");
+        expect(originalEmail).toHaveProperty("updatedAt");
+        const newEmail = emails.filter(e => !e.primary)[0];
+        expect(newEmail).toHaveProperty("__typename", "UserEmail");
+        expect(newEmail).toHaveProperty("email", "updateMe2@udia.ca");
+        expect(newEmail).toHaveProperty("user");
+        expect(newEmail.user).toHaveProperty("uuid", addEmail.uuid);
+        expect(newEmail).toHaveProperty("primary", false);
+        expect(newEmail).toHaveProperty("verified", false);
+        expect(newEmail).toHaveProperty("verificationHash");
+        expect(newEmail).toHaveProperty("createdAt");
+        expect(newEmail).toHaveProperty("updatedAt");
+        expect(sendEmailVerificationSpy).toHaveBeenCalledTimes(1);
+        done();
+      });
+
+      it("should send and verify an email verification.", async done => {
+        const email = "updateMe2@udia.ca";
+        const sendEmailVerificationResp = await gqlClient.mutate({
+          mutation: gql`
+            mutation SendEmailVerification($email: String!) {
+              sendEmailVerification(email: $email)
+            }
+          `,
+          variables: { email }
+        });
+        expect(sendEmailVerificationResp).toHaveProperty("data");
+        const sendEmailVerificationData = sendEmailVerificationResp.data;
+        expect(sendEmailVerificationData).toHaveProperty(
+          "sendEmailVerification",
+          true
+        );
+        expect(sendEmailVerificationSpy).toHaveBeenCalledTimes(1);
+        const sendEmailParams = sendEmailVerificationSpy.mock.calls[0];
+        expect(sendEmailParams[0]).toEqual("updateMe");
+        expect(sendEmailParams[1]).toEqual("updateMe2@udia.ca");
+        expect(sendEmailParams[2]).toMatch(/^updateme2@udia.ca:.*/);
+        const emailToken = sendEmailParams[2];
+        const verifyEmailTokenReponse = await gqlClient.mutate({
+          mutation: gql`
+            mutation VerifyEmailToken($emailToken: String!) {
+              verifyEmailToken(emailToken: $emailToken)
+            }
+          `,
+          variables: { emailToken }
+        });
+        expect(verifyEmailTokenReponse).toHaveProperty("data");
+        const verifyEmailTokenData = verifyEmailTokenReponse.data;
+        expect(verifyEmailTokenData).toHaveProperty("verifyEmailToken", true);
+        done();
+      });
+    });
+
     it("should update a user's password then delete a user.", async done => {
       const email = "updateMe@udia.ca";
       const uip = `Another secure p455word~`;
@@ -398,6 +577,7 @@ describe("Users", () => {
       expect(updatePasswordMutationData).toHaveProperty("updatePassword");
       const updatePassword = updatePasswordMutationData.updatePassword;
       expect(updatePassword).toHaveProperty("__typename", "FullUser");
+      expect(updatePassword).toHaveProperty("uuid");
       expect(updatePassword).toHaveProperty("username", "updateMe");
       expect(updatePassword).toHaveProperty("pwSalt", pwSalt);
       expect(updatePassword).toHaveProperty("pwCost", pwCost);
@@ -405,7 +585,6 @@ describe("Users", () => {
       expect(updatePassword).toHaveProperty("updatedAt");
       const { createdAt, updatedAt } = updatePassword;
       expect(updatedAt).toBeGreaterThan(createdAt);
-
       const deleteUserMutationResponse = await gqlClient.mutate({
         mutation: gql`
           mutation DeleteUser($pw: String!) {
