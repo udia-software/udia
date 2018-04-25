@@ -16,13 +16,13 @@ import { PORT } from "../../src/constants";
 import { User } from "../../src/entity/User";
 import { UserEmail } from "../../src/entity/UserEmail";
 import start from "../../src/index";
+import Mailer from "../../src/mailer";
 import Auth from "../../src/modules/Auth";
 import {
   generateKeyPairECDH,
   generateUserCryptoParams,
   loginUserCryptoParams
 } from "../testHelper";
-import Mailer from "../../src/mailer";
 
 let server: Server = null;
 let gqlClient: ApolloClient<any> = null;
@@ -147,6 +147,20 @@ afterAll(async done => {
 
 describe("Users", () => {
   describe("GraphQL API", () => {
+    let sendEmailVerificationSpy: jest.SpyInstance;
+
+    beforeAll(() => {
+      sendEmailVerificationSpy = jest.spyOn(Mailer, "sendEmailVerification");
+    });
+
+    beforeEach(() => {
+      sendEmailVerificationSpy.mockReset();
+    });
+
+    afterAll(() => {
+      sendEmailVerificationSpy.mockClear();
+    });
+
     it("should create a user.", async done => {
       const username = "createMe";
       const email = "createMe@udia.ca";
@@ -406,112 +420,140 @@ describe("Users", () => {
       done();
     });
 
-    describe("Mailer", () => {
-      let sendEmailVerificationSpy: jest.SpyInstance;
-
-      beforeAll(() => {
-        sendEmailVerificationSpy = jest.spyOn(Mailer, "sendEmailVerification");
-      });
-
-      beforeEach(() => {
-        sendEmailVerificationSpy.mockReset();
-      })
-
-      afterAll(() => {
-        sendEmailVerificationSpy.mockClear();
-      });
-
-      it("should add a new email to the user", async done => {
-        const email = "updateMe2@udia.ca";
-        const addEmailMutationResponse = await gqlClient.mutate({
-          mutation: gql`
-            mutation AddEmail($email: String!) {
-              addEmail(email: $email) {
-                uuid
-                emails {
-                  email
-                  user {
-                    uuid
-                  }
-                  primary
-                  verified
-                  verificationHash
-                  createdAt
-                  updatedAt
+    it("should add a new email to the user", async done => {
+      const email = "updateMe2@udia.ca";
+      const addEmailMutationResponse = await gqlClient.mutate({
+        mutation: gql`
+          mutation AddEmail($email: String!) {
+            addEmail(email: $email) {
+              uuid
+              emails {
+                email
+                user {
+                  uuid
                 }
+                primary
+                verified
+                verificationHash
+                createdAt
+                updatedAt
               }
             }
-          `,
-          variables: { email }
-        });
-        expect(addEmailMutationResponse).toHaveProperty("data");
-        const addEmailResponseData = addEmailMutationResponse.data;
-        expect(addEmailResponseData).toHaveProperty("addEmail");
-        const addEmail = addEmailResponseData.addEmail;
-        expect(addEmail).toHaveProperty("__typename", "FullUser");
-        expect(addEmail).toHaveProperty("uuid");
-        expect(addEmail).toHaveProperty("emails");
-        const emails = addEmail.emails;
-        expect(emails).toHaveLength(2);
-        const originalEmail = emails.filter(e => e.primary)[0];
-        expect(originalEmail).toHaveProperty("__typename", "UserEmail");
-        expect(originalEmail).toHaveProperty("email", "updateMe@udia.ca");
-        expect(originalEmail).toHaveProperty("user");
-        expect(originalEmail.user).toHaveProperty("uuid", addEmail.uuid);
-        expect(originalEmail).toHaveProperty("primary", true);
-        expect(originalEmail).toHaveProperty("verified", true);
-        expect(originalEmail).toHaveProperty("verificationHash", "");
-        expect(originalEmail).toHaveProperty("createdAt");
-        expect(originalEmail).toHaveProperty("updatedAt");
-        const newEmail = emails.filter(e => !e.primary)[0];
-        expect(newEmail).toHaveProperty("__typename", "UserEmail");
-        expect(newEmail).toHaveProperty("email", "updateMe2@udia.ca");
-        expect(newEmail).toHaveProperty("user");
-        expect(newEmail.user).toHaveProperty("uuid", addEmail.uuid);
-        expect(newEmail).toHaveProperty("primary", false);
-        expect(newEmail).toHaveProperty("verified", false);
-        expect(newEmail).toHaveProperty("verificationHash");
-        expect(newEmail).toHaveProperty("createdAt");
-        expect(newEmail).toHaveProperty("updatedAt");
-        expect(sendEmailVerificationSpy).toHaveBeenCalledTimes(1);
-        done();
+          }
+        `,
+        variables: { email }
       });
+      expect(addEmailMutationResponse).toHaveProperty("data");
+      const addEmailResponseData = addEmailMutationResponse.data;
+      expect(addEmailResponseData).toHaveProperty("addEmail");
+      const addEmail = addEmailResponseData.addEmail;
+      expect(addEmail).toHaveProperty("__typename", "FullUser");
+      expect(addEmail).toHaveProperty("uuid");
+      expect(addEmail).toHaveProperty("emails");
+      const emails = addEmail.emails;
+      expect(emails).toHaveLength(2);
+      const originalEmail = emails.filter(e => e.primary)[0];
+      expect(originalEmail).toHaveProperty("__typename", "UserEmail");
+      expect(originalEmail).toHaveProperty("email", "updateMe@udia.ca");
+      expect(originalEmail).toHaveProperty("user");
+      expect(originalEmail.user).toHaveProperty("uuid", addEmail.uuid);
+      expect(originalEmail).toHaveProperty("primary", true);
+      expect(originalEmail).toHaveProperty("verified", true);
+      expect(originalEmail).toHaveProperty("verificationHash", "");
+      expect(originalEmail).toHaveProperty("createdAt");
+      expect(originalEmail).toHaveProperty("updatedAt");
+      const newEmail = emails.filter(e => !e.primary)[0];
+      expect(newEmail).toHaveProperty("__typename", "UserEmail");
+      expect(newEmail).toHaveProperty("email", "updateMe2@udia.ca");
+      expect(newEmail).toHaveProperty("user");
+      expect(newEmail.user).toHaveProperty("uuid", addEmail.uuid);
+      expect(newEmail).toHaveProperty("primary", false);
+      expect(newEmail).toHaveProperty("verified", false);
+      expect(newEmail).toHaveProperty("verificationHash");
+      expect(newEmail).toHaveProperty("createdAt");
+      expect(newEmail).toHaveProperty("updatedAt");
+      expect(sendEmailVerificationSpy).toHaveBeenCalledTimes(1);
+      done();
+    });
 
-      it("should send and verify an email verification.", async done => {
-        const email = "updateMe2@udia.ca";
-        const sendEmailVerificationResp = await gqlClient.mutate({
-          mutation: gql`
-            mutation SendEmailVerification($email: String!) {
-              sendEmailVerification(email: $email)
-            }
-          `,
-          variables: { email }
-        });
-        expect(sendEmailVerificationResp).toHaveProperty("data");
-        const sendEmailVerificationData = sendEmailVerificationResp.data;
-        expect(sendEmailVerificationData).toHaveProperty(
-          "sendEmailVerification",
-          true
-        );
-        expect(sendEmailVerificationSpy).toHaveBeenCalledTimes(1);
-        const sendEmailParams = sendEmailVerificationSpy.mock.calls[0];
-        expect(sendEmailParams[0]).toEqual("updateMe");
-        expect(sendEmailParams[1]).toEqual("updateMe2@udia.ca");
-        expect(sendEmailParams[2]).toMatch(/^updateme2@udia.ca:.*/);
-        const emailToken = sendEmailParams[2];
-        const verifyEmailTokenReponse = await gqlClient.mutate({
-          mutation: gql`
-            mutation VerifyEmailToken($emailToken: String!) {
-              verifyEmailToken(emailToken: $emailToken)
-            }
-          `,
-          variables: { emailToken }
-        });
-        expect(verifyEmailTokenReponse).toHaveProperty("data");
-        const verifyEmailTokenData = verifyEmailTokenReponse.data;
-        expect(verifyEmailTokenData).toHaveProperty("verifyEmailToken", true);
-        done();
+    it("should send and verify an email verification.", async done => {
+      const email = "updateMe2@udia.ca";
+      const sendEmailVerificationResp = await gqlClient.mutate({
+        mutation: gql`
+          mutation SendEmailVerification($email: String!) {
+            sendEmailVerification(email: $email)
+          }
+        `,
+        variables: { email }
       });
+      expect(sendEmailVerificationResp).toHaveProperty("data");
+      const sendEmailVerificationData = sendEmailVerificationResp.data;
+      expect(sendEmailVerificationData).toHaveProperty(
+        "sendEmailVerification",
+        true
+      );
+      expect(sendEmailVerificationSpy).toHaveBeenCalledTimes(1);
+      const sendEmailParams = sendEmailVerificationSpy.mock.calls[0];
+      expect(sendEmailParams[0]).toEqual("updateMe");
+      expect(sendEmailParams[1]).toEqual("updateMe2@udia.ca");
+      expect(sendEmailParams[2]).toMatch(/^updateme2@udia.ca:.*/);
+      const emailToken = sendEmailParams[2];
+      const verifyEmailTokenReponse = await gqlClient.mutate({
+        mutation: gql`
+          mutation VerifyEmailToken($emailToken: String!) {
+            verifyEmailToken(emailToken: $emailToken)
+          }
+        `,
+        variables: { emailToken }
+      });
+      expect(verifyEmailTokenReponse).toHaveProperty("data");
+      const verifyEmailTokenData = verifyEmailTokenReponse.data;
+      expect(verifyEmailTokenData).toHaveProperty("verifyEmailToken", true);
+      done();
+    });
+
+    it("should delete a user email", async done => {
+      const email = "updateMe2@udia.ca";
+      const removeEmailResp = await gqlClient.mutate({
+        mutation: gql`
+          mutation RemoveEmail($email: String!) {
+            removeEmail(email: $email) {
+              uuid
+              emails {
+                email
+                user {
+                  uuid
+                }
+                primary
+                verified
+                verificationHash
+                createdAt
+                updatedAt
+              }
+            }
+          }
+        `,
+        variables: { email }
+      });
+      expect(removeEmailResp).toHaveProperty("data");
+      const removeEmailData = removeEmailResp.data;
+      expect(removeEmailData).toHaveProperty("removeEmail");
+      const removeEmail = removeEmailData.removeEmail;
+      expect(removeEmail).toHaveProperty("__typename", "FullUser");
+      expect(removeEmail).toHaveProperty("uuid");
+      expect(removeEmail).toHaveProperty("emails");
+      const userEmails = removeEmail.emails;
+      expect(userEmails).toHaveLength(1);
+      const userEmail = userEmails[0];
+      expect(userEmail).toHaveProperty("__typename", "UserEmail");
+      expect(userEmail).toHaveProperty("user");
+      expect(userEmail.user).toHaveProperty("uuid", removeEmail.uuid);
+      expect(userEmail).toHaveProperty("primary", true);
+      expect(userEmail).toHaveProperty("verified", true);
+      expect(userEmail).toHaveProperty("verificationHash", "");
+      expect(userEmail).toHaveProperty("createdAt");
+      expect(userEmail).toHaveProperty("updatedAt");
+      done();
     });
 
     it("should update a user's password then delete a user.", async done => {

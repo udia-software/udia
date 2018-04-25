@@ -33,8 +33,24 @@ export interface ISignInUserParams {
   pw: string;
 }
 
+export interface IAddEmailParams {
+  email: string;
+}
+
+export interface IRemoveEmailParams {
+  email: string;
+}
+
 export interface IDeleteUserParams {
   pw: string;
+}
+
+export interface ISendEmailVerificationParams {
+  email: string;
+}
+
+export interface IVerifyEmailTokenParams {
+  emailToken: string;
 }
 
 export default class UserManager {
@@ -71,7 +87,7 @@ export default class UserManager {
 
   /**
    * Add a new user to the database, return the user and JWT.
-   * @param param0 GraphQL createUser parameters
+   * @param parameters GraphQL createUser parameters
    */
   public static async createUser({
     username,
@@ -135,8 +151,8 @@ export default class UserManager {
       newUser = await transactionEntityManager.save(newUser);
       newEmail.user = newUser;
       await transactionEntityManager.save(newEmail);
-      this.sendEmailVerification(newEmail.email);
     });
+    await this.sendEmailVerification({ email: newEmail.email });
     return {
       user: newUser,
       jwt: Auth.signUserJWT(newUser)
@@ -184,8 +200,7 @@ export default class UserManager {
 
   /**
    * Sign in a user. Return the user and jwt (or throw an error)
-   * @param email one of the user's emails
-   * @param pw password
+   * @param parameters email and password
    */
   public static async signInUser({ email, pw }: ISignInUserParams) {
     const user = await this.getUserByEmail(email);
@@ -232,7 +247,7 @@ export default class UserManager {
   /**
    * Delete a user, resolve with true or throw error.
    * @param username username derived from JWT payload
-   * @param param1 delete user GQL parameters
+   * @param parameters delete user GQL parameters
    */
   public static async deleteUser(
     username: string = "",
@@ -243,13 +258,12 @@ export default class UserManager {
       throw new ValidationError([{ key: "id", message: "Invalid JWT." }]);
     }
     const passwordsMatch = await Auth.verifyPassword(user.pwHash, pw);
-    if (passwordsMatch) {
-      await getConnection()
-        .getRepository(User)
-        .delete({ uuid: user.uuid });
-      return passwordsMatch;
+    if (!passwordsMatch) {
+      throw new ValidationError([{ key: "pw", message: "Invalid password." }]);
     }
-    throw new ValidationError([{ key: "pw", message: "Invalid password." }]);
+    return getConnection()
+      .getRepository(User)
+      .delete({ uuid: user.uuid });
   }
 
   /**
@@ -257,7 +271,10 @@ export default class UserManager {
    * @param username user's username
    * @param email new email that the user wants to add
    */
-  public static async addEmail(username: string = "", email: string) {
+  public static async addEmail(
+    username: string = "",
+    { email }: IAddEmailParams
+  ) {
     const user = await this.getUserByUsername(username);
     if (!user) {
       throw new ValidationError([{ key: "id", message: "Invalid JWT." }]);
@@ -276,15 +293,70 @@ export default class UserManager {
     await getConnection()
       .getRepository(UserEmail)
       .save(newUserEmail);
-    await this.sendEmailVerification(newUserEmail.email);
+    await this.sendEmailVerification({ email: newUserEmail.email });
     return user;
+  }
+
+  /**
+   * Remove an email for a given user.
+   * @param username user's username
+   * @param email email that the user wants to remove
+   */
+  public static async removeEmail(
+    username: string = "",
+    { email }: IRemoveEmailParams
+  ) {
+    const user = await this.getUserByUsername(username);
+    if (!user) {
+      throw new ValidationError([{ key: "id", message: "Invalid JWT." }]);
+    }
+    const lEmail = email.toLowerCase().trim();
+    const emailExists = user.emails.filter(uEmail => uEmail.lEmail === lEmail);
+    if (emailExists.length === 0) {
+      throw new ValidationError([{ key: "email", message: "Invalid Email." }]);
+    }
+    // ensure that at least one primary email will remain
+    const otherEmails: {
+      [email: string]: { verified: boolean; primary: boolean };
+    } = {};
+    let nextEmail: string = "";
+    user.emails.forEach(uEmail => {
+      if (uEmail.lEmail !== lEmail) {
+        otherEmails[uEmail.lEmail] = {
+          verified: uEmail.verified,
+          primary: uEmail.primary
+        };
+        if (uEmail.primary) {
+          nextEmail = uEmail.lEmail;
+        }
+        if (uEmail.verified && !nextEmail) {
+          nextEmail = uEmail.lEmail;
+        }
+      }
+    });
+    if (!nextEmail) {
+      throw new ValidationError([
+        { key: "email", message: "Cannot orphan user." }
+      ]);
+    }
+
+    // Delete the email, ensure that the primary email still exists
+    await getConnection().transaction(async transactionEntityManager => {
+      await transactionEntityManager.delete(UserEmail, lEmail);
+      const partial = new UserEmail();
+      partial.primary = true;
+      await transactionEntityManager.update(UserEmail, nextEmail, partial);
+    });
+    return this.getUserById(user.uuid);
   }
 
   /**
    * Send a email verification token.
    * @param email user's email (should be tied to a UserEmail instance)
    */
-  public static async sendEmailVerification(email: string = "") {
+  public static async sendEmailVerification({
+    email
+  }: ISendEmailVerificationParams) {
     const uEmail = await this.getUserEmailByEmail(email);
     if (uEmail) {
       // Token is in the format `<email>:<password>`
@@ -294,7 +366,11 @@ export default class UserManager {
       await getConnection()
         .getRepository(UserEmail)
         .update(uEmail.lEmail, partial);
-      await Mailer.sendEmailVerification(uEmail.user.username, email, emailToken);
+      await Mailer.sendEmailVerification(
+        uEmail.user.username,
+        email,
+        emailToken
+      );
       return true;
     }
     return false;
@@ -304,7 +380,9 @@ export default class UserManager {
    * Verify a given email token.
    * @param emailToken user's email token `${email}:${token}`
    */
-  public static async verifyEmailToken(emailToken: string = "") {
+  public static async verifyEmailToken({
+    emailToken
+  }: IVerifyEmailTokenParams) {
     const [email] = emailToken.split(":");
     if (email) {
       const uEmail = await this.getUserEmailByEmail(email);

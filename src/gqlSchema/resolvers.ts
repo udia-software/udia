@@ -3,7 +3,16 @@ import { IResolvers } from "graphql-tools";
 import { IUser } from "../entity/User";
 import { IUserEmail } from "../entity/UserEmail";
 import { IJwtPayload } from "../modules/Auth";
-import UserManager from "../modules/UserManager";
+import UserManager, {
+  IAddEmailParams,
+  ICreateUserParams,
+  IDeleteUserParams,
+  IRemoveEmailParams,
+  ISendEmailVerificationParams,
+  ISignInUserParams,
+  IUpdatePasswordParams,
+  IVerifyEmailTokenParams
+} from "../modules/UserManager";
 
 export interface IContext {
   jwtPayload: IJwtPayload;
@@ -23,31 +32,65 @@ const resolvers: IResolvers = {
     }
   },
   Mutation: {
-    createUser: async (root: any, params: any, context: IContext) => {
+    createUser: async (
+      root: any,
+      params: ICreateUserParams | any,
+      context: IContext
+    ) => {
       return UserManager.createUser(params);
     },
-    updatePassword: async (root: any, params: any, context: IContext) => {
+    updatePassword: async (
+      root: any,
+      params: IUpdatePasswordParams | any,
+      context: IContext
+    ) => {
       const username = context.jwtPayload && context.jwtPayload.username;
       return UserManager.updatePassword(username, params);
     },
-    signInUser: async (root: any, params: any, context: IContext) => {
+    signInUser: async (
+      root: any,
+      params: ISignInUserParams | any,
+      context: IContext
+    ) => {
       return UserManager.signInUser(params);
     },
-    deleteUser: async (root: any, params: any, context: IContext) => {
+    addEmail: async (
+      root: any,
+      params: IAddEmailParams | any,
+      context: IContext
+    ) => {
+      const username = context.jwtPayload && context.jwtPayload.username;
+      return UserManager.addEmail(username, params);
+    },
+    removeEmail: async (
+      root: any,
+      params: IRemoveEmailParams | any,
+      context: IContext
+    ) => {
+      const username = context.jwtPayload && context.jwtPayload.username;
+      return UserManager.removeEmail(username, params);
+    },
+    deleteUser: async (
+      root: any,
+      params: IDeleteUserParams | any,
+      context: IContext
+    ) => {
       const username = context.jwtPayload && context.jwtPayload.username;
       return UserManager.deleteUser(username, params);
     },
-    sendEmailVerification: async (root: any, { email }, context: IContext) => {
-      return UserManager.sendEmailVerification(email);
+    sendEmailVerification: async (
+      root: any,
+      params: ISendEmailVerificationParams | any,
+      context: IContext
+    ) => {
+      return UserManager.sendEmailVerification(params);
     },
-    verifyEmailToken: async (root: any, params: any, context: IContext) => {
-      const emailToken = params && params.emailToken;
-      return UserManager.verifyEmailToken(emailToken);
-    },
-    addEmail: async (root: any, params: any, context: IContext) => {
-      const username = context.jwtPayload && context.jwtPayload.username;
-      const email = params && params.email;
-      return UserManager.addEmail(username, email);
+    verifyEmailToken: async (
+      root: any,
+      params: IVerifyEmailTokenParams | any,
+      context: IContext
+    ) => {
+      return UserManager.verifyEmailToken(params);
     }
   },
   FullUser: {
@@ -62,7 +105,7 @@ const resolvers: IResolvers = {
     }
   },
   DateTime: {
-    _parseValue(value: number) {
+    __parseValue(value: number) {
       return new Date(value);
     },
     __serialize(value: Date) {

@@ -32,10 +32,11 @@ type Mutation {
     pwSalt: String!
   ): FullUser!
   signInUser(email: String!, pw: String!): UserAuthPayload!
+  addEmail(email: String!): FullUser!
+  removeEmail(email: String!): FullUser!
   deleteUser(pw: String!): Boolean
   sendEmailVerification(email: String!): Boolean
   verifyEmailToken(emailToken: String!): Boolean
-  addEmail(email: String!): FullUser!
 }
 
 type FullUser {
