@@ -346,7 +346,7 @@ describe("UserManager", () => {
       expect(userEmail).toHaveProperty("lEmail", "dupeuser2@udia.ca");
       expect(userEmail).toHaveProperty("primary", true);
       expect(userEmail).toHaveProperty("verified", true);
-      expect(userEmail).toHaveProperty("verificationHash", "");
+      expect(userEmail).toHaveProperty("verificationHash", null);
       expect(userEmail).toHaveProperty("createdAt");
       expect(userEmail).toHaveProperty("updatedAt");
       done();

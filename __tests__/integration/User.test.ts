@@ -212,7 +212,6 @@ describe("Users", () => {
                   primary
                   verified
                 }
-                pwHash
                 pwFunc
                 pwDigest
                 pwCost
@@ -246,7 +245,6 @@ describe("Users", () => {
       const createdUser = createUserData.user;
       expect(createdUser).toHaveProperty("__typename", "FullUser");
       expect(createdUser).toHaveProperty("createdAt");
-      expect(createdUser).toHaveProperty("pwHash");
       expect(createdUser).toHaveProperty("pwCost", pwCost);
       expect(createdUser).toHaveProperty("pwSalt", pwSalt);
       expect(createdUser).toHaveProperty("pwDigest", pwDigest);
@@ -365,11 +363,9 @@ describe("Users", () => {
                 }
                 primary
                 verified
-                verificationHash
                 createdAt
                 updatedAt
               }
-              pwHash
               pwFunc
               pwDigest
               pwCost
@@ -399,14 +395,8 @@ describe("Users", () => {
       expect(meEmail.user).toHaveProperty("__typename", "FullUser");
       expect(meEmail).toHaveProperty("primary", true);
       expect(meEmail).toHaveProperty("verified", true);
-      expect(meEmail).toHaveProperty("verificationHash", "");
       expect(meEmail).toHaveProperty("createdAt");
       expect(meEmail).toHaveProperty("updatedAt");
-      expect(meData).toHaveProperty(
-        "pwHash",
-        `$argon2i$v=19$m=4096,t=3,p=1` +
-          `$J80klk+fZ4DZvxParIpdPQ$3GxiZIpzlE7KYkYC9chP3/2VYUaJNHpqKTNrIM+LBUQ`
-      );
       expect(meData).toHaveProperty("pwFunc", "pbkdf2");
       expect(meData).toHaveProperty("pwDigest", "sha512");
       expect(meData).toHaveProperty("pwCost", 3000);
@@ -434,7 +424,6 @@ describe("Users", () => {
                 }
                 primary
                 verified
-                verificationHash
                 createdAt
                 updatedAt
               }
@@ -459,7 +448,6 @@ describe("Users", () => {
       expect(originalEmail.user).toHaveProperty("uuid", addEmail.uuid);
       expect(originalEmail).toHaveProperty("primary", true);
       expect(originalEmail).toHaveProperty("verified", true);
-      expect(originalEmail).toHaveProperty("verificationHash", "");
       expect(originalEmail).toHaveProperty("createdAt");
       expect(originalEmail).toHaveProperty("updatedAt");
       const newEmail = emails.filter(e => !e.primary)[0];
@@ -469,7 +457,6 @@ describe("Users", () => {
       expect(newEmail.user).toHaveProperty("uuid", addEmail.uuid);
       expect(newEmail).toHaveProperty("primary", false);
       expect(newEmail).toHaveProperty("verified", false);
-      expect(newEmail).toHaveProperty("verificationHash");
       expect(newEmail).toHaveProperty("createdAt");
       expect(newEmail).toHaveProperty("updatedAt");
       expect(sendEmailVerificationSpy).toHaveBeenCalledTimes(1);
@@ -526,7 +513,6 @@ describe("Users", () => {
                 }
                 primary
                 verified
-                verificationHash
                 createdAt
                 updatedAt
               }
@@ -550,7 +536,6 @@ describe("Users", () => {
       expect(userEmail.user).toHaveProperty("uuid", removeEmail.uuid);
       expect(userEmail).toHaveProperty("primary", true);
       expect(userEmail).toHaveProperty("verified", true);
-      expect(userEmail).toHaveProperty("verificationHash", "");
       expect(userEmail).toHaveProperty("createdAt");
       expect(userEmail).toHaveProperty("updatedAt");
       done();

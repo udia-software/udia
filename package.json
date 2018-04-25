@@ -13,9 +13,9 @@
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "watch": "tsc --watch & nodemon dist/index.js",
     "prepublishOnly": "yarn test",
-    "makeMigrations": "ts-node node_modules/.bin/typeorm migration:generate",
+    "makeMigration": "ts-node node_modules/.bin/typeorm migration:generate",
     "runMigrations": "ts-node node_modules/.bin/typeorm migration:run",
-    "revertMigrations": "ts-node node_modules/.bin/typeorm migration:revert",
+    "revertMigration": "ts-node node_modules/.bin/typeorm migration:revert",
     "dropSchema": "ts-node node_modules/.bin/typeorm schema:drop",
     "clean": "rm -rf dist/*",
     "cleanLogs": "rm -rf log/*.log"

@@ -11,6 +11,7 @@ import { IUser, User } from "./User";
 
 export interface IUserEmail {
   email: string;
+  lEmail: string;
   user: IUser;
   primary: boolean;
   verified: boolean;
@@ -61,10 +62,17 @@ export class UserEmail {
   @Column({
     type: "varchar",
     length: 255,
-    default: ""
+    nullable: true
     // comment: "Server stored hash of client sent verification code."
   })
   public verificationHash: string;
+
+  @Column({
+    type: "timestamp with time zone",
+    nullable: true
+    // comment: "Verification hash valid until."
+  })
+  public verificationExpiry: Date;
 
   @CreateDateColumn({
     type: "timestamp with time zone"

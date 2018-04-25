@@ -414,8 +414,22 @@ export default class UserManager {
   public static async sendForgotPasswordEmail({
     email
   }: ISendForgotPasswordEmailParams) {
-    // const uEmail = this.getUserEmailByEmail(email);
-    return false;
+    const uEmail = await this.getUserEmailByEmail(email);
+    if (!uEmail) {
+      throw new ValidationError([
+        { key: "email", message: "Email not found." }
+      ]);
+    }
+    const forgotPasswordToken = `${uEmail.user.lUsername}:${randomBytes(
+      16
+    ).toString("hex")}`;
+    await getConnection()
+      .getRepository(User)
+      .update(uEmail.user.uuid, {
+        forgotPwHash: await Auth.hashPassword(forgotPasswordToken),
+        forgotPwExpiry: new Date(Date.now() + +EMAIL_TOKEN_TIMEOUT)
+      });
+    return true;
   }
 
   private static async emailExists(email: string) {

@@ -43,7 +43,6 @@ type FullUser {
   uuid: ID!
   username: String!
   emails: [UserEmail!]!
-  pwHash: String!
   pwFunc: String!
   pwDigest: String!
   pwCost: Int!
@@ -58,7 +57,6 @@ type UserEmail {
   user: FullUser!
   primary: Boolean!
   verified: Boolean!
-  verificationHash: String
   createdAt: DateTime!
   updatedAt: DateTime!
 }
