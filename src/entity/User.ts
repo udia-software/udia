@@ -37,10 +37,9 @@ export class User {
   public username: string;
 
   @Column({
-    type: "varchar",
-    length: 24,
+    type: "citext",
     nullable: false
-    // comment: "Lower Case username. Used for internal uniqueness"
+    // comment: "Lower Case username. Used for internal uniqueness."
   })
   @Index({ unique: true })
   public lUsername: string;
@@ -101,6 +100,21 @@ export class User {
     // comment: "Client side derived password salt."
   })
   public pwSalt: string;
+
+  @Column({
+    type: "varchar",
+    length: 512,
+    nullable: true
+    // comment: "Forgot Password, set temporary hash."
+  })
+  public forgotPwHash: string;
+
+  @Column({
+    type: "timestamp with time zone",
+    nullable: true
+    // comment: "Forgot Password, hash valid until."
+  })
+  public forgotPwExpiry: Date;
 
   @CreateDateColumn({
     type: "timestamp with time zone"

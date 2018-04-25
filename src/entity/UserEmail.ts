@@ -31,8 +31,7 @@ export class UserEmail {
   public email: string;
 
   @PrimaryColumn({
-    type: "varchar",
-    length: 255,
+    type: "citext",
     nullable: false
     // comment: "Lower case email. Used for internal uniqueness and primary key"
   })

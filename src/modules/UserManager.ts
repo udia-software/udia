@@ -53,6 +53,10 @@ export interface IVerifyEmailTokenParams {
   emailToken: string;
 }
 
+export interface ISendForgotPasswordEmailParams {
+  email: string;
+}
+
 export default class UserManager {
   /**
    * Get the user given the user's uuid
@@ -343,9 +347,9 @@ export default class UserManager {
     // Delete the email, ensure that the primary email still exists
     await getConnection().transaction(async transactionEntityManager => {
       await transactionEntityManager.delete(UserEmail, lEmail);
-      const partial = new UserEmail();
-      partial.primary = true;
-      await transactionEntityManager.update(UserEmail, nextEmail, partial);
+      await transactionEntityManager.update(UserEmail, nextEmail, {
+        primary: true
+      });
     });
     return this.getUserById(user.uuid);
   }
@@ -361,11 +365,11 @@ export default class UserManager {
     if (uEmail) {
       // Token is in the format `<email>:<password>`
       const emailToken = `${uEmail.lEmail}:${randomBytes(16).toString("hex")}`;
-      const partial = new UserEmail();
-      partial.verificationHash = await Auth.hashPassword(emailToken);
       await getConnection()
         .getRepository(UserEmail)
-        .update(uEmail.lEmail, partial);
+        .update(uEmail.lEmail, {
+          verificationHash: await Auth.hashPassword(emailToken)
+        });
       await Mailer.sendEmailVerification(
         uEmail.user.username,
         email,
@@ -396,17 +400,21 @@ export default class UserManager {
             emailToken
           );
           if (isMatch) {
-            const partial = new UserEmail();
-            partial.verified = true;
-            partial.verificationHash = "";
             await getConnection()
               .getRepository(UserEmail)
-              .update(uEmail.lEmail, partial);
+              .update(uEmail.lEmail, { verified: true, verificationHash: "" });
             return true;
           }
         }
       }
     }
+    return false;
+  }
+
+  public static async sendForgotPasswordEmail({
+    email
+  }: ISendForgotPasswordEmailParams) {
+    // const uEmail = this.getUserEmailByEmail(email);
     return false;
   }
 
