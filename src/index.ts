@@ -2,13 +2,23 @@ import crypto from "crypto";
 import { execute, subscribe } from "graphql";
 import { createServer } from "http";
 import Graceful from "node-graceful";
+import { Client } from "pg";
 import "reflect-metadata";
 import { SubscriptionServer } from "subscriptions-transport-ws";
 import { createConnection } from "typeorm";
 import app from "./app";
-import { HEALTH_METRIC_INTERVAL, NODE_ENV, PORT } from "./constants";
+import {
+  HEALTH_METRIC_INTERVAL,
+  NODE_ENV,
+  PORT,
+  SQL_DB,
+  SQL_HOST,
+  SQL_PASSWORD,
+  SQL_PORT,
+  SQL_USER
+} from "./constants";
 import gqlSchema from "./gqlSchema";
-import pubSub from "./pubSub";
+import PostgresPubSub from "./pubSub/PostgresPubSub";
 import logger from "./util/logger";
 import { metric } from "./util/metric";
 
@@ -19,10 +29,21 @@ import { metric } from "./util/metric";
 const start = async (port: string) => {
   // crypto module may not exist in node binary (will throw error)
   app.set("crypto", crypto);
-  // db not be available (will throw error)
+  // create db connection using /ormconfig.js
   const conn = await createConnection();
   logger.info(`Connected to ${conn.options.database} ${conn.options.type}.`);
   app.set("dbConnection", conn);
+  // instantiate native postgres client for PubSub
+  const pgClient = new Client({
+    user: SQL_USER,
+    database: SQL_DB,
+    password: SQL_PASSWORD,
+    port: +SQL_PORT,
+    host: SQL_HOST
+  });
+  await pgClient.connect();
+  const pubSub = new PostgresPubSub(pgClient);
+  app.set("pubSub", pubSub);
 
   const server = createServer(app);
   const subscriptionServer = SubscriptionServer.create(
@@ -57,8 +78,11 @@ const start = async (port: string) => {
       return server.close(resolve);
     })
       .then(() => {
-        logger.warn(`2)\tDatabase connection closing.`);
+        logger.warn(`2)\tDatabase connections closing.`);
         return conn.close();
+      })
+      .then(() => {
+        return pgClient.end();
       })
       .then(() => {
         logger.warn(`1)\tShutting down.`);

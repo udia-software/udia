@@ -6,6 +6,11 @@ const APP_VERSION = version;
 /* istanbul ignore next */ // This is always `test`
 const NODE_ENV = process.env.NODE_ENV || "development";
 const PORT = process.env.PORT || "3000";
+const SQL_USER = process.env.SQL_USER || "pguser";
+const SQL_HOST = process.env.SQL_HOST || "localhost";
+const SQL_PASSWORD = process.env.SQL_PASSWORD || "mysecretpassword";
+const SQL_DB = process.env.SQL_DB || "udiadb";
+const SQL_PORT = process.env.SQL_PORT || "5432";
 const JWT_SECRET = process.env.JWT_SECRET || "DEVELOPMENT_SECRET";
 const CORS_ORIGIN = process.env.CORS_ORIGIN || "http://localhost:3001";
 const CLIENT_DOMAINNAME = process.env.CLIENT_DOMAINNAME || "localhost:3001";
@@ -23,6 +28,11 @@ export {
   APP_VERSION,
   NODE_ENV,
   PORT,
+  SQL_USER,
+  SQL_HOST,
+  SQL_PASSWORD,
+  SQL_DB,
+  SQL_PORT,
   JWT_SECRET,
   CORS_ORIGIN,
   CLIENT_DOMAINNAME,
