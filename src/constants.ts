@@ -2,7 +2,8 @@ import { version } from "pjson";
 
 const APP_VERSION = version;
 
-// environment variables
+// Environment Variables (SEE README)
+/* istanbul ignore next */ // This is always `test`
 const NODE_ENV = process.env.NODE_ENV || "development";
 const PORT = process.env.PORT || "3000";
 const JWT_SECRET = process.env.JWT_SECRET || "DEVELOPMENT_SECRET";

@@ -7,18 +7,7 @@ import {
   PrimaryColumn,
   UpdateDateColumn
 } from "typeorm";
-import { IUser, User } from "./User";
-
-export interface IUserEmail {
-  email: string;
-  lEmail: string;
-  user: IUser;
-  primary: boolean;
-  verified: boolean;
-  verificationHash?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { User } from "./User";
 
 @Entity()
 export class UserEmail {
@@ -65,14 +54,14 @@ export class UserEmail {
     nullable: true
     // comment: "Server stored hash of client sent verification code."
   })
-  public verificationHash: string;
+  public verificationHash: string | null;
 
   @Column({
     type: "timestamp with time zone",
     nullable: true
     // comment: "Verification hash valid until."
   })
-  public verificationExpiry: Date;
+  public verificationExpiry: Date | null;
 
   @CreateDateColumn({
     type: "timestamp with time zone"

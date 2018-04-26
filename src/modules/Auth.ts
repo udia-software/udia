@@ -22,8 +22,16 @@ export default class Auth {
    * @param passwordHash server side stored password hash
    * @param password client side provided password
    */
-  public static async verifyPassword(passwordHash: string, password: string) {
-    return verify(passwordHash, password);
+  public static async verifyPassword(
+    passwordHash: string | any,
+    password: string
+  ) {
+    try {
+      const verified = await verify(passwordHash, password);
+      return verified;
+    } catch (err) {
+      return false;
+    }
   }
 
   /**

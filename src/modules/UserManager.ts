@@ -362,22 +362,21 @@ export default class UserManager {
     email
   }: ISendEmailVerificationParams) {
     const uEmail = await this.getUserEmailByEmail(email);
-    if (uEmail) {
-      // Token is in the format `<email>:<password>`
-      const emailToken = `${uEmail.lEmail}:${randomBytes(16).toString("hex")}`;
-      await getConnection()
-        .getRepository(UserEmail)
-        .update(uEmail.lEmail, {
-          verificationHash: await Auth.hashPassword(emailToken)
-        });
-      await Mailer.sendEmailVerification(
-        uEmail.user.username,
-        email,
-        emailToken
-      );
-      return true;
+    if (!uEmail) {
+      throw new ValidationError([
+        { key: "email", message: "Email not found." }
+      ]);
     }
-    return false;
+    // Token is in the format `<email>:<password>`
+    const emailToken = `${uEmail.lEmail}:${randomBytes(16).toString("hex")}`;
+    await getConnection()
+      .getRepository(UserEmail)
+      .update(uEmail.lEmail, {
+        verificationHash: await Auth.hashPassword(emailToken),
+        verificationExpiry: new Date(Date.now() + +EMAIL_TOKEN_TIMEOUT)
+      });
+    await Mailer.sendEmailVerification(uEmail.user.username, email, emailToken);
+    return true;
   }
 
   /**
@@ -388,29 +387,45 @@ export default class UserManager {
     emailToken
   }: IVerifyEmailTokenParams) {
     const [email] = emailToken.split(":");
-    if (email) {
-      const uEmail = await this.getUserEmailByEmail(email);
-      if (uEmail) {
-        if (
-          new Date(Date.now() - parseInt(EMAIL_TOKEN_TIMEOUT, 10)) <
-          uEmail.updatedAt
-        ) {
-          const isMatch = await Auth.verifyPassword(
-            uEmail.verificationHash,
-            emailToken
-          );
-          if (isMatch) {
-            await getConnection()
-              .getRepository(UserEmail)
-              .update(uEmail.lEmail, { verified: true, verificationHash: "" });
-            return true;
-          }
-        }
-      }
+    if (!email) {
+      throw new ValidationError([
+        { key: "emailToken", message: "Invalid token." }
+      ]);
     }
-    return false;
+    const uEmail = await this.getUserEmailByEmail(email);
+    if (!uEmail) {
+      throw new ValidationError([
+        { key: "emailToken", message: "Email not found." }
+      ]);
+    }
+    const errors: IErrorMessage[] = [];
+    if (!uEmail.verificationExpiry || uEmail.verificationExpiry < new Date()) {
+      errors.push({ key: "emailToken", message: "Token is expired." });
+    }
+    const isMatch = await Auth.verifyPassword(
+      uEmail.verificationHash,
+      emailToken
+    );
+    if (!isMatch) {
+      errors.push({ key: "emailToken", message: "Invalid secret." });
+    }
+    if (errors.length > 0) {
+      throw new ValidationError(errors);
+    }
+    await getConnection()
+      .getRepository(UserEmail)
+      .update(uEmail.lEmail, {
+        verified: true,
+        verificationHash: null,
+        verificationExpiry: null
+      });
+    return true;
   }
 
+  /**
+   * Send the forgot password reset instructions to the given email
+   * @param params email to send forgot password to
+   */
   public static async sendForgotPasswordEmail({
     email
   }: ISendForgotPasswordEmailParams) {

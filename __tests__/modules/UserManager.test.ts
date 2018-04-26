@@ -35,6 +35,25 @@ async function createUsers() {
     await transactionEntityManager.save(dpEmail);
     dp2Email.user = dpUser;
     await transactionEntityManager.save(dp2Email);
+
+    let veUser = new User();
+    const veEmail = new UserEmail();
+    veEmail.email = "verifyEmailUser@udia.ca";
+    veEmail.lEmail = "verifyemailuser@udia.ca";
+    veEmail.primary = true;
+    veEmail.verified = false;
+    veEmail.verificationExpiry = new Date();
+    veEmail.verificationHash = "$argon2i$v=1$m=1,t=1,p=1$101";
+    veUser.username = "verifyEmailUser";
+    veUser.lUsername = "verifyemailuser";
+    veUser.pwHash = "$argon2i$v=1$m=1,t=1,p=1$101";
+    veUser.pwFunc = "pbkdf2";
+    veUser.pwDigest = "sha512";
+    veUser.pwCost = 3000;
+    veUser.pwSalt = "101";
+    veUser = await transactionEntityManager.save(veUser);
+    veEmail.user = veUser;
+    await transactionEntityManager.save(veEmail);
   });
 }
 
@@ -45,6 +64,7 @@ async function deleteUsers() {
     .from(User)
     .where({ lUsername: "dupeuser" })
     .orWhere("lUsername = :shrugUsername", { shrugUsername: "¯\\_(ツ)_/¯" })
+    .orWhere("lUsername = :veUsername", { veUsername: "verifyemailuser" })
     .execute();
 }
 
@@ -391,25 +411,67 @@ describe("UserManager", () => {
 
   describe("sendEmailVerification", () => {
     it("should handle invalid email", async done => {
-      const emailSent = await UserManager.sendEmailVerification({
-        email: ""
-      });
-      expect(emailSent).toBeFalsy();
-      done();
+      try {
+        await UserManager.sendEmailVerification({
+          email: ""
+        });
+      } catch (err) {
+        expect(err).toHaveProperty(
+          "message",
+          "The request is invalid.\n* email: Email not found."
+        );
+        return done();
+      }
+      done("Should have thrown email not found error.");
     });
   });
 
   describe("verifyEmailToken", () => {
     it("should handle invalid token", async done => {
-      let emailVerified = await UserManager.verifyEmailToken({
-        emailToken: ""
-      });
-      expect(emailVerified).toBeFalsy();
-      emailVerified = await UserManager.verifyEmailToken({
-        emailToken: "a:b@c.ca:tok3n"
-      });
-      expect(emailVerified).toBeFalsy();
-      done();
+      try {
+        await UserManager.verifyEmailToken({
+          emailToken: ""
+        });
+      } catch (err) {
+        expect(err).toHaveProperty(
+          "message",
+          "The request is invalid.\n* emailToken: Invalid token."
+        );
+        return done();
+      }
+      done("Should have thrown invalid token error.");
+    });
+
+    it("should handle email not found", async done => {
+      try {
+        await UserManager.verifyEmailToken({
+          emailToken: "a:b@c.ca:tok3n"
+        });
+      } catch (err) {
+        expect(err).toHaveProperty(
+          "message",
+          "The request is invalid.\n* emailToken: Email not found."
+        );
+        return done();
+      }
+      done("Should have thrown email not found error.");
+    });
+
+    it("should handle invalid & expired secret", async done => {
+      try {
+        await UserManager.verifyEmailToken({
+          emailToken: "verifyemailuser@udia.ca:tok3n"
+        });
+      } catch (err) {
+        expect(err).toHaveProperty(
+          "message",
+          `The request is invalid.\n` +
+            `* emailToken: Token is expired.\n` +
+            `* emailToken: Invalid secret.`
+        );
+        return done();
+      }
+      done("Should have thrown invalid & expired secret error.");
     });
   });
 });

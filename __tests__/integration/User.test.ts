@@ -165,9 +165,6 @@ describe("Users", () => {
       const username = "createMe";
       const email = "createMe@udia.ca";
       const userInputtedPassword = "My Super S3C$^T P~!۩s";
-      // const username = "dupeUser";
-      // const email = "dupeUser@udia.ca";
-      // const userInputtedPassword = "Dupe S3C$^T P~!۩s";
       const {
         pw,
         mk,
@@ -240,7 +237,6 @@ describe("Users", () => {
       const createUserData = createUserMutationRespData.createUser;
       expect(createUserData).toHaveProperty("__typename", "UserAuthPayload");
       expect(createUserData).toHaveProperty("jwt");
-      // expect(createUserData).toHaveProperty("jwt", "");
       expect(createUserData).toHaveProperty("user");
       const createdUser = createUserData.user;
       expect(createdUser).toHaveProperty("__typename", "FullUser");

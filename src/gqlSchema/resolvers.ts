@@ -1,7 +1,7 @@
 import { Kind } from "graphql";
 import { IResolvers } from "graphql-tools";
-import { IUser } from "../entity/User";
-import { IUserEmail } from "../entity/UserEmail";
+import { User } from "../entity/User";
+import { UserEmail } from "../entity/UserEmail";
 import { IJwtPayload } from "../modules/Auth";
 import UserManager, {
   IAddEmailParams,
@@ -94,24 +94,24 @@ const resolvers: IResolvers = {
     }
   },
   FullUser: {
-    emails: async (root: IUser, params: any, context: IContext) => {
+    emails: async (root: User, params: any, context: IContext) => {
       const user = await UserManager.getUserById(root.uuid);
       return user && user.emails;
     }
   },
   UserEmail: {
-    user: async (root: IUserEmail, params: any, context: IContext) => {
+    user: async (root: UserEmail, params: any, context: IContext) => {
       return UserManager.getUserByEmail(root.email);
     }
   },
   DateTime: {
-    __parseValue(value: number) {
+    __parseValue(value: number): Date {
       return new Date(value);
     },
-    __serialize(value: Date) {
+    __serialize(value: Date): number {
       return value.getTime();
     },
-    parseLiteral(ast: any) {
+    parseLiteral(ast: any): Date {
       if (ast.kind === Kind.INT) {
         return new Date(parseInt(ast.value, 10));
       }

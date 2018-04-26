@@ -7,24 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from "typeorm";
-import { IUserEmail, UserEmail } from "./UserEmail";
-
-export interface IUser {
-  uuid: string;
-  username: string;
-  lUsername: string;
-  emails: IUserEmail[];
-  pwHash: string;
-  pwFunc: string;
-  pwDigest: string;
-  pwCost: number;
-  pwKeySize: number;
-  pwSalt: string;
-  forgotPwHash: string;
-  forgotPwExpiry: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { UserEmail } from "./UserEmail";
 
 @Entity()
 export class User {
@@ -110,14 +93,14 @@ export class User {
     nullable: true
     // comment: "Forgot Password, set temporary hash."
   })
-  public forgotPwHash: string;
+  public forgotPwHash: string | null;
 
   @Column({
     type: "timestamp with time zone",
     nullable: true
     // comment: "Forgot Password, hash valid until."
   })
-  public forgotPwExpiry: Date;
+  public forgotPwExpiry: Date | null;
 
   @CreateDateColumn({
     type: "timestamp with time zone"
