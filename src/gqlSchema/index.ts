@@ -8,6 +8,7 @@ import resolvers from "./resolvers";
 const typeDefs: ITypedef = `
 type Query {
   getUserAuthParams(email: String!): UserAuthParams!
+  checkResetToken(resetToken: String!): ResetTokenValidity!
   me: FullUser
 }
 
@@ -34,9 +35,19 @@ type Mutation {
   signInUser(email: String!, pw: String!): UserAuthPayload!
   addEmail(email: String!): FullUser!
   removeEmail(email: String!): FullUser!
-  deleteUser(pw: String!): Boolean
-  sendEmailVerification(email: String!): Boolean
-  verifyEmailToken(emailToken: String!): Boolean
+  deleteUser(pw: String!): Boolean!
+  sendEmailVerification(email: String!): Boolean!
+  verifyEmailToken(emailToken: String!): Boolean!
+  sendForgotPasswordEmail(email: String!): Boolean!
+  resetPassword(
+    resetToken: String!
+    newPw: String!,
+    pwFunc: String!,
+    pwDigest: String!,
+    pwCost: Int!,
+    pwKeySize: Int!,
+    pwSalt: String!
+  ): UserAuthPayload!
 }
 
 type FullUser {
@@ -59,6 +70,7 @@ type UserEmail {
   verified: Boolean!
   createdAt: DateTime!
   updatedAt: DateTime!
+  verificationExpiry: DateTime
 }
 
 type UserAuthParams {
@@ -72,6 +84,11 @@ type UserAuthParams {
 type UserAuthPayload {
   jwt: String!
   user: FullUser!
+}
+
+type ResetTokenValidity {
+  isValid: Boolean!
+  expiry: DateTime
 }
 
 scalar DateTime

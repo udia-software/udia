@@ -8,7 +8,9 @@ import UserManager, {
   ICreateUserParams,
   IDeleteUserParams,
   IRemoveEmailParams,
+  IResetPasswordParams,
   ISendEmailVerificationParams,
+  ISendForgotPasswordEmailParams,
   ISignInUserParams,
   IUpdatePasswordParams,
   IVerifyEmailTokenParams
@@ -25,6 +27,10 @@ const resolvers: IResolvers = {
     getUserAuthParams: async (root: any, params: any, context: IContext) => {
       const email = params.email;
       return UserManager.getUserAuthParams(email);
+    },
+    checkResetToken: async(root: any, params: any, context: IContext) => {
+      const resetToken = params.resetToken;
+      return UserManager.checkResetToken(resetToken);
     },
     me: async (root: any, params: any, context: IContext) => {
       const username = context.jwtPayload && context.jwtPayload.username;
@@ -91,6 +97,20 @@ const resolvers: IResolvers = {
       context: IContext
     ) => {
       return UserManager.verifyEmailToken(params);
+    },
+    sendForgotPasswordEmail: async (
+      root: any,
+      params: ISendForgotPasswordEmailParams | any,
+      context: IContext
+    ) => {
+      return UserManager.sendForgotPasswordEmail(params);
+    },
+    resetPassword: async (
+      root: any,
+      params: IResetPasswordParams | any,
+      context: IContext
+    ) => {
+      return UserManager.resetPassword(params);
     }
   },
   FullUser: {
@@ -101,7 +121,7 @@ const resolvers: IResolvers = {
   },
   UserEmail: {
     user: async (root: UserEmail, params: any, context: IContext) => {
-      return UserManager.getUserByEmail(root.email);
+      return UserManager.getUserByEmail(root.lEmail);
     }
   },
   DateTime: {

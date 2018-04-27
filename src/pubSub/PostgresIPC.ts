@@ -1,5 +1,6 @@
 import { EventEmitter } from "events";
 import { Client } from "pg";
+import logger from "../util/logger";
 
 const RESERVED_CHANNELS = {
   newListener: true,
@@ -37,17 +38,24 @@ export default class PostgresIPC extends EventEmitter {
       } catch (err) {
         // JSON may not always parse. This is OK.
       } finally {
+        logger.info(msg.channel, msg);
         this.emit(msg.channel, msg);
       }
     });
   }
 
+  /**
+   * Send a notification through Postgres Client IPC
+   * @param channel Notification channel name identifier
+   * @param payload some arbitrary object, should be <8000 bytes in size
+   */
   public notify(channel: string, payload: any) {
     const encodedPayload =
       typeof payload !== `string` ? JSON.stringify(payload) : payload;
     const statement =
       `NOTIFY ${this.pgClient.escapeIdentifier(channel)}, ` +
       `${this._quoteLiteral(encodedPayload)}`;
+    logger.verbose(statement);
     this.pgClient.query(statement, err => {
       if (err) {
         this.emit("error", err);
@@ -57,12 +65,79 @@ export default class PostgresIPC extends EventEmitter {
     });
   }
 
+  /**
+   * End the notification IPC listeners
+   */
   public end() {
     if (this.ending) {
       return;
     }
     this.ending = true;
     this.pgClient.query(`UNLISTEN *`, this._endCallback);
+  }
+
+  /**
+   * Given an ISO8601 date string, convert it to postgres compliant string
+   * @param date
+   */
+  protected _formatDate(date: string) {
+    date = date.replace("T", " ");
+    date = date.replace("Z", "+00");
+    return date;
+  }
+
+  /**
+   * Given an array of strings, return a single postgres compliant string
+   * @param array array of strings to format
+   * @param useSpace should the element begin with a space?
+   * @param formatter formatter function to use
+   */
+  protected _arrayToList(
+    array: [string],
+    formatter: (_: string) => string,
+    useSpace: boolean
+  ) {
+    let sql = "";
+    sql += useSpace ? " (" : "(";
+    for (let i = 0; i < array.length; i++) {
+      sql += (i === 0 ? "" : ", ") + formatter(array[i]);
+    }
+    sql += ")";
+    return sql;
+  }
+
+  /**
+   * Helper method for encoding raw objects. (currently only using strings)
+   * @param value any value
+   */
+  protected _quoteLiteral(value: any): string {
+    switch (true) {
+      case value === undefined || value === null:
+        return "NULL";
+      case value === false:
+        return "'f'";
+      case value === true:
+        return "'t'";
+      case value instanceof Date:
+        return "'" + this._formatDate(value.toISOString()) + "'";
+      case value instanceof Buffer:
+        return "E'\\\\x" + value.toString("hex") + "'";
+      case Array.isArray(value) === true:
+        const temp = [];
+        for (let i = 0; i < value.length; i++) {
+          if (Array.isArray(value[i]) === true) {
+            temp.push(this._arrayToList(value[i], this._quoteLiteral, i !== 0));
+          } else {
+            temp.push(this._quoteLiteral(value[i]));
+          }
+        }
+        return temp.toString();
+      case value === Object(value):
+        return this.pgClient.escapeLiteral(JSON.stringify(value)) + "::jsonb";
+      default:
+        const copy = JSON.parse(JSON.stringify(value)); // brute copy
+        return this.pgClient.escapeLiteral(copy);
+    }
   }
 
   private _dispatchListen(channel: string) {
@@ -99,85 +174,5 @@ export default class PostgresIPC extends EventEmitter {
       this.emit("end");
       this.removeAllListeners();
     }
-  }
-
-  private _formatDate(date: string) {
-    date = date.replace("T", " ");
-    date = date.replace("Z", "+00");
-    return date;
-  }
-
-  private _arrayToList(
-    useSpace: boolean,
-    array: [string],
-    formatter: (data: string) => string
-  ) {
-    let sql = "";
-
-    sql += useSpace ? " (" : "(";
-    for (let i = 0; i < array.length; i++) {
-      sql += (i === 0 ? "" : ", ") + formatter(array[i]);
-    }
-    sql += ")";
-
-    return sql;
-  }
-
-  private _quoteLiteral(value: any): string {
-    let literal = null;
-    let explicitCast = null;
-
-    if (value === undefined || value === null) {
-      return "NULL";
-    } else if (value === false) {
-      return "'f'";
-    } else if (value === true) {
-      return "'t'";
-    } else if (value instanceof Date) {
-      return "'" + this._formatDate(value.toISOString()) + "'";
-    } else if (value instanceof Buffer) {
-      return "E'\\\\x" + value.toString("hex") + "'";
-    } else if (Array.isArray(value) === true) {
-      const temp = [];
-      for (let i = 0; i < value.length; i++) {
-        if (Array.isArray(value[i]) === true) {
-          temp.push(this._arrayToList(i !== 0, value[i], this._quoteLiteral));
-        } else {
-          temp.push(this._quoteLiteral(value[i]));
-        }
-      }
-      return temp.toString();
-    } else if (value === Object(value)) {
-      explicitCast = "jsonb";
-      literal = JSON.stringify(value);
-    } else {
-      literal = value.toString().slice(0); // create copy
-    }
-
-    let hasBackslash = false;
-    let quoted = "'";
-
-    for (const c of literal) {
-      if (c === "'") {
-        quoted += c + c;
-      } else if (c === "\\") {
-        quoted += c + c;
-        hasBackslash = true;
-      } else {
-        quoted += c;
-      }
-    }
-
-    quoted += "'";
-
-    if (hasBackslash === true) {
-      quoted = "E" + quoted;
-    }
-
-    if (explicitCast) {
-      quoted += "::" + explicitCast;
-    }
-
-    return quoted;
   }
 }

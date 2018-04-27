@@ -1,5 +1,5 @@
 import { randomBytes } from "crypto";
-import { getConnection } from "typeorm";
+import { getConnection, getRepository } from "typeorm";
 import { EMAIL_TOKEN_TIMEOUT } from "../constants";
 import { User } from "../entity/User";
 import { UserEmail } from "../entity/UserEmail";
@@ -57,15 +57,28 @@ export interface ISendForgotPasswordEmailParams {
   email: string;
 }
 
+export interface IResetPasswordParams {
+  resetToken: string;
+  newPw: string;
+  pwFunc: string;
+  pwDigest: string;
+  pwCost: number;
+  pwKeySize: number;
+  pwSalt: string;
+}
+
+export interface IResetTokenValidity {
+  isValid: boolean;
+  expiry: Date | null;
+}
+
 export default class UserManager {
   /**
    * Get the user given the user's uuid
    * @param id uuid
    */
   public static async getUserById(id: string) {
-    return getConnection()
-      .getRepository(User)
-      .findOne(id);
+    return getRepository(User).findOne(id);
   }
 
   /**
@@ -73,9 +86,9 @@ export default class UserManager {
    * @param username string
    */
   public static async getUserByUsername(username: string = "") {
-    return getConnection()
-      .getRepository(User)
-      .findOne({ lUsername: username.toLowerCase().trim() });
+    return getRepository(User).findOne({
+      lUsername: username.toLowerCase().trim()
+    });
   }
 
   /**
@@ -116,15 +129,13 @@ export default class UserManager {
         key: "username",
         message: "Username is too short (under 3 characters)."
       });
-    } else {
-      const userExists = await getConnection()
-        .getRepository(User)
-        .createQueryBuilder("user")
-        .where({ lUsername })
-        .getCount();
-      if (userExists > 0) {
-        errors.push({ key: "username", message: "Username is taken." });
-      }
+    }
+    const userExists = await getRepository(User)
+      .createQueryBuilder("user")
+      .where({ lUsername })
+      .getCount();
+    if (userExists > 0) {
+      errors.push({ key: "username", message: "Username is taken." });
     }
 
     const emailExists = await this.emailExists(email);
@@ -164,9 +175,9 @@ export default class UserManager {
   }
 
   /**
-   * Update a given user's password.
+   * Update a given user's password and password generation params
    * @param username username derived from signed JWT payload
-   * @param parameters new password parameters
+   * @param params new password parameters
    */
   public static async updatePassword(
     username: string = "",
@@ -197,9 +208,7 @@ export default class UserManager {
     user.pwCost = pwCost;
     user.pwKeySize = pwKeySize;
     user.pwSalt = pwSalt;
-    return getConnection()
-      .getRepository(User)
-      .save(user);
+    return getRepository(User).save(user);
   }
 
   /**
@@ -265,9 +274,7 @@ export default class UserManager {
     if (!passwordsMatch) {
       throw new ValidationError([{ key: "pw", message: "Invalid password." }]);
     }
-    return getConnection()
-      .getRepository(User)
-      .delete({ uuid: user.uuid });
+    return getRepository(User).delete({ uuid: user.uuid });
   }
 
   /**
@@ -294,9 +301,7 @@ export default class UserManager {
     newUserEmail.primary = false;
     newUserEmail.verified = false;
     newUserEmail.user = user;
-    await getConnection()
-      .getRepository(UserEmail)
-      .save(newUserEmail);
+    await getRepository(UserEmail).save(newUserEmail);
     await this.sendEmailVerification({ email: newUserEmail.email });
     return user;
   }
@@ -315,8 +320,8 @@ export default class UserManager {
       throw new ValidationError([{ key: "id", message: "Invalid JWT." }]);
     }
     const lEmail = email.toLowerCase().trim();
-    const emailExists = user.emails.filter(uEmail => uEmail.lEmail === lEmail);
-    if (emailExists.length === 0) {
+    const uEmails = user.emails.filter(uEmail => uEmail.lEmail === lEmail);
+    if (uEmails.length === 0) {
       throw new ValidationError([{ key: "email", message: "Invalid Email." }]);
     }
     // ensure that at least one primary email will remain
@@ -369,12 +374,10 @@ export default class UserManager {
     }
     // Token is in the format `<email>:<password>`
     const emailToken = `${uEmail.lEmail}:${randomBytes(16).toString("hex")}`;
-    await getConnection()
-      .getRepository(UserEmail)
-      .update(uEmail.lEmail, {
-        verificationHash: await Auth.hashPassword(emailToken),
-        verificationExpiry: new Date(Date.now() + +EMAIL_TOKEN_TIMEOUT)
-      });
+    await getRepository(UserEmail).update(uEmail.lEmail, {
+      verificationHash: await Auth.hashPassword(emailToken),
+      verificationExpiry: new Date(Date.now() + +EMAIL_TOKEN_TIMEOUT)
+    });
     await Mailer.sendEmailVerification(uEmail.user.username, email, emailToken);
     return true;
   }
@@ -412,13 +415,11 @@ export default class UserManager {
     if (errors.length > 0) {
       throw new ValidationError(errors);
     }
-    await getConnection()
-      .getRepository(UserEmail)
-      .update(uEmail.lEmail, {
-        verified: true,
-        verificationHash: null,
-        verificationExpiry: null
-      });
+    await getRepository(UserEmail).update(uEmail.lEmail, {
+      verified: true,
+      verificationHash: null,
+      verificationExpiry: null
+    });
     return true;
   }
 
@@ -438,18 +439,94 @@ export default class UserManager {
     const forgotPasswordToken = `${uEmail.user.lUsername}:${randomBytes(
       16
     ).toString("hex")}`;
-    await getConnection()
-      .getRepository(User)
-      .update(uEmail.user.uuid, {
-        forgotPwHash: await Auth.hashPassword(forgotPasswordToken),
-        forgotPwExpiry: new Date(Date.now() + +EMAIL_TOKEN_TIMEOUT)
-      });
+    await getRepository(User).update(uEmail.user.uuid, {
+      forgotPwHash: await Auth.hashPassword(forgotPasswordToken),
+      forgotPwExpiry: new Date(Date.now() + +EMAIL_TOKEN_TIMEOUT)
+    });
     return true;
   }
 
+  /**
+   * Reset the user's password and password generation params
+   * @param params parameters for resetting user password
+   */
+  public static async resetPassword({
+    resetToken,
+    newPw,
+    pwFunc,
+    pwDigest,
+    pwCost,
+    pwKeySize,
+    pwSalt
+  }: IResetPasswordParams) {
+    const [username] = resetToken.split(":");
+    if (!username) {
+      throw new ValidationError([
+        { key: "resetToken", message: "Invalid token." }
+      ]);
+    }
+    let user = await this.getUserByUsername(username);
+    if (!user) {
+      throw new ValidationError([
+        { key: "resetToken", message: "User not found." }
+      ]);
+    }
+    const errors: IErrorMessage[] = [];
+    if (!user.forgotPwExpiry || user.forgotPwExpiry < new Date()) {
+      errors.push({ key: "resetToken", message: "Token is expired." });
+    }
+    const isMatch = await Auth.verifyPassword(user.forgotPwHash, resetToken);
+    if (!isMatch) {
+      errors.push({ key: "resetToken", message: "Invalid secret." });
+    }
+    if (errors.length > 0) {
+      throw new ValidationError(errors);
+    }
+    // Update the user with the new password parameters.
+    const serverHashedPassword = await Auth.hashPassword(newPw);
+    user.pwHash = serverHashedPassword;
+    user.pwFunc = pwFunc;
+    user.pwDigest = pwDigest;
+    user.pwCost = pwCost;
+    user.pwKeySize = pwKeySize;
+    user.pwSalt = pwSalt;
+    user.forgotPwExpiry = null;
+    user.forgotPwHash = null;
+    user = await getRepository(User).save(user);
+    return { user, jwt: Auth.signUserJWT(user) };
+  }
+
+  /**
+   * Check whether or not a password reset token is valid
+   * @param resetToken reset token provided to the user
+   */
+  public static async checkResetToken(resetToken: string) {
+    const validityPayload: IResetTokenValidity = {
+      isValid: false,
+      expiry: null
+    };
+    const [username] = resetToken.split(":");
+    if (!username) {
+      return validityPayload;
+    }
+    const user = await this.getUserByUsername(username);
+    if (!user) {
+      return validityPayload;
+    }
+    validityPayload.expiry = user.forgotPwExpiry;
+    validityPayload.isValid = await Auth.verifyPassword(
+      user.forgotPwHash,
+      resetToken
+    );
+    return validityPayload;
+  }
+
+  /**
+   * Check whether or not the email exists
+   * @param email does this email exist in the database
+   */
   private static async emailExists(email: string) {
-    return getConnection()
-      .getRepository(UserEmail)
+    return getRepository(UserEmail)
       .createQueryBuilder("userEmail")
       .where({ lEmail: email.toLowerCase().trim() })
       .getCount();
@@ -460,8 +537,8 @@ export default class UserManager {
    * @param email user's email
    */
   private static async getUserEmailByEmail(email: string) {
-    return getConnection()
-      .getRepository(UserEmail)
-      .findOne(email.toLowerCase().trim(), { relations: ["user"] });
+    return getRepository(UserEmail).findOne(email.toLowerCase().trim(), {
+      relations: ["user"]
+    });
   }
 }
