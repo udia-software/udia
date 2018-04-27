@@ -261,6 +261,7 @@ describe("UserManager", () => {
       }
       done("Should have thrown email not found error.");
     });
+
     it("should handle sign in invalid password", async done => {
       const { pw } = generateUserCryptoParams(
         "dupeuser@udia.ca",
@@ -424,6 +425,15 @@ describe("UserManager", () => {
       }
       done("Should have thrown email not found error.");
     });
+
+    it("should send an email verification email", async () => {
+      expect.assertions(1);
+      await expect(
+        UserManager.sendEmailVerification({
+          email: "dupeUser2@udia.ca"
+        })
+      ).resolves.toBe(true);
+    });
   });
 
   describe("verifyEmailToken", () => {
@@ -472,6 +482,113 @@ describe("UserManager", () => {
         return done();
       }
       done("Should have thrown invalid & expired secret error.");
+    });
+  });
+
+  describe("sendForgotPasswordEmail", () => {
+    it("should handle invalid email", async done => {
+      try {
+        await UserManager.sendForgotPasswordEmail({
+          email: ""
+        });
+      } catch (err) {
+        expect(err).toHaveProperty(
+          "message",
+          "The request is invalid.\n* email: Email not found."
+        );
+        return done();
+      }
+      done("Should have thrown email not found error.");
+    });
+
+    it("should send an password reset email", async () => {
+      expect.assertions(1);
+      await expect(
+        UserManager.sendForgotPasswordEmail({
+          email: "dupeUser2@udia.ca"
+        })
+      ).resolves.toBe(true);
+    });
+  });
+
+  describe("resetPassword", () => {
+    it("should handle invalid token", async done => {
+      try {
+        await UserManager.resetPassword({
+          resetToken: "",
+          newPw: "",
+          pwFunc: "",
+          pwDigest: "",
+          pwCost: 1,
+          pwKeySize: 1,
+          pwSalt: ""
+        });
+      } catch (err) {
+        expect(err).toHaveProperty(
+          "message",
+          "The request is invalid.\n* resetToken: Invalid token."
+        );
+        return done();
+      }
+      done("Should have thrown invalid token error.");
+    });
+
+    it("should handle user not found", async done => {
+      try {
+        await UserManager.resetPassword({
+          resetToken: "badActor:tok3n",
+          newPw: "",
+          pwFunc: "",
+          pwDigest: "",
+          pwCost: 1,
+          pwKeySize: 1,
+          pwSalt: ""
+        });
+      } catch (err) {
+        expect(err).toHaveProperty(
+          "message",
+          "The request is invalid.\n* resetToken: User not found."
+        );
+        return done();
+      }
+      done("Should have thrown user not found error.");
+    });
+
+    it("should handle invalid & expired secret", async done => {
+      try {
+        await UserManager.resetPassword({
+          resetToken: "verifyemailuser:tok3n",
+          newPw: "",
+          pwFunc: "",
+          pwDigest: "",
+          pwCost: 1,
+          pwKeySize: 1,
+          pwSalt: ""
+        });
+      } catch (err) {
+        expect(err).toHaveProperty(
+          "message",
+          `The request is invalid.\n` +
+            `* resetToken: Token is expired.\n` +
+            `* resetToken: Invalid secret.`
+        );
+        return done();
+      }
+      done("Should have thrown invalid & expired secret error.");
+    });
+  });
+
+  describe("checkResetToken", () => {
+    it("should handle invalid token", async () => {
+      expect.assertions(1);
+      const payload = await UserManager.checkResetToken("");
+      expect(payload).toEqual({ isValid: false, expiry: null });
+    });
+
+    it("should handle user not found", async () => {
+      expect.assertions(1);
+      const payload = await UserManager.checkResetToken("badActor:tok3n");
+      expect(payload).toEqual({ isValid: false, expiry: null });
     });
   });
 });

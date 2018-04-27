@@ -1,6 +1,5 @@
 import { EventEmitter } from "events";
 import { Client } from "pg";
-import logger from "../util/logger";
 
 const RESERVED_CHANNELS = {
   newListener: true,
@@ -38,7 +37,6 @@ export default class PostgresIPC extends EventEmitter {
       } catch (err) {
         // JSON may not always parse. This is OK.
       } finally {
-        logger.info(msg.channel, msg);
         this.emit(msg.channel, msg);
       }
     });
@@ -55,7 +53,6 @@ export default class PostgresIPC extends EventEmitter {
     const statement =
       `NOTIFY ${this.pgClient.escapeIdentifier(channel)}, ` +
       `${this._quoteLiteral(encodedPayload)}`;
-    logger.verbose(statement);
     this.pgClient.query(statement, err => {
       if (err) {
         this.emit("error", err);

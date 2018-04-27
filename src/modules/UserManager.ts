@@ -378,7 +378,11 @@ export default class UserManager {
       verificationHash: await Auth.hashPassword(emailToken),
       verificationExpiry: new Date(Date.now() + +EMAIL_TOKEN_TIMEOUT)
     });
-    await Mailer.sendEmailVerification(uEmail.user.username, email, emailToken);
+    await Mailer.sendEmailVerification(
+      uEmail.user.username,
+      uEmail.email,
+      emailToken
+    );
     return true;
   }
 
@@ -443,6 +447,11 @@ export default class UserManager {
       forgotPwHash: await Auth.hashPassword(forgotPasswordToken),
       forgotPwExpiry: new Date(Date.now() + +EMAIL_TOKEN_TIMEOUT)
     });
+    await Mailer.sendForgotPasswordEmail(
+      uEmail.user.username,
+      uEmail.email,
+      forgotPasswordToken
+    );
     return true;
   }
 

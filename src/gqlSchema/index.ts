@@ -8,7 +8,7 @@ import resolvers from "./resolvers";
 const typeDefs: ITypedef = `
 type Query {
   getUserAuthParams(email: String!): UserAuthParams!
-  checkResetToken(resetToken: String!): ResetTokenValidity!
+  checkResetToken(resetToken: String!): TokenValidity!
   me: FullUser
 }
 
@@ -86,7 +86,7 @@ type UserAuthPayload {
   user: FullUser!
 }
 
-type ResetTokenValidity {
+type TokenValidity {
   isValid: Boolean!
   expiry: DateTime
 }

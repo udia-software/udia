@@ -121,7 +121,7 @@ const resolvers: IResolvers = {
   },
   UserEmail: {
     user: async (root: UserEmail, params: any, context: IContext) => {
-      return UserManager.getUserByEmail(root.lEmail);
+      return root.user || UserManager.getUserByEmail(root.lEmail);
     }
   },
   DateTime: {
