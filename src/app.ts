@@ -8,7 +8,6 @@ import express from "express";
 import { formatError } from "graphql";
 import { APP_VERSION, CORS_ORIGIN } from "./constants";
 import gqlSchema from "./gqlSchema";
-import { IContext } from "./gqlSchema/resolvers";
 import Auth from "./modules/Auth";
 import { middlewareLogger } from "./util/logger";
 import metric from "./util/metric";
@@ -16,16 +15,13 @@ import metric from "./util/metric";
 const app = express();
 
 const graphqlBuildOptions: ExpressGraphQLOptionsFunction = req => {
-  let context: IContext = { jwtPayload: {}, originIp: "", originIps: [] };
-  if (req) {
-    context = {
-      jwtPayload: req.user,
-      originIp: req.ip,
-      originIps: req.ips
-    };
-  }
   return {
-    context,
+    context: {
+      jwtPayload: req && req.user,
+      originIp: req && req.ip,
+      originIps: req && req.ips,
+      pubSub: app.get("pubSub")
+    },
     formatError: (error: any) => {
       return {
         ...formatError(error),

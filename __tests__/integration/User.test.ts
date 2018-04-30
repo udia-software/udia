@@ -4,7 +4,6 @@ import { ApolloLink, split } from "apollo-link";
 import { HttpLink } from "apollo-link-http";
 import { WebSocketLink } from "apollo-link-ws";
 import { getOperationDefinition } from "apollo-utilities";
-import { OperationDefinitionNode } from "graphql";
 import gql from "graphql-tag";
 import { Server } from "http";
 import fetch from "node-fetch";
@@ -16,6 +15,7 @@ import { PORT } from "../../src/constants";
 import { User } from "../../src/entity/User";
 import { UserEmail } from "../../src/entity/UserEmail";
 import start from "../../src/index";
+import Mailer from "../../src/mailer";
 import Auth from "../../src/modules/Auth";
 import {
   generateKeyPairECDH,
@@ -54,7 +54,7 @@ async function createUsers() {
     umEmail.email = "updateMe@udia.ca";
     umEmail.lEmail = "updateme@udia.ca";
     umEmail.primary = true;
-    umEmail.verified = false;
+    umEmail.verified = true;
     umUser.username = "updateMe";
     umUser.lUsername = "updateme";
     umUser.pwHash =
@@ -105,7 +105,8 @@ beforeAll(async done => {
     return forward(operation);
   });
   const httpLinkWithAuthToken = middlewareAuthLink.concat(
-    new HttpLink({ uri: GRAPHQL_HTTP_ENDPOINT, fetch })
+    // https://github.com/apollographql/apollo-link/issues/513
+    new HttpLink({ uri: GRAPHQL_HTTP_ENDPOINT, fetch: fetch as any })
   );
 
   subscriptionClient = new SubscriptionClient(
@@ -145,13 +146,28 @@ afterAll(async done => {
 
 describe("Users", () => {
   describe("GraphQL API", () => {
+    let sendEmailVerificationSpy: jest.SpyInstance;
+    let sendForgotPassEmailSpy: jest.SpyInstance;
+
+    beforeAll(() => {
+      sendEmailVerificationSpy = jest.spyOn(Mailer, "sendEmailVerification");
+      sendForgotPassEmailSpy = jest.spyOn(Mailer, "sendForgotPasswordEmail");
+    });
+
+    beforeEach(() => {
+      sendEmailVerificationSpy.mockReset();
+      sendForgotPassEmailSpy.mockReset();
+    });
+
+    afterAll(() => {
+      sendEmailVerificationSpy.mockClear();
+      sendForgotPassEmailSpy.mockClear();
+    });
+
     it("should create a user.", async done => {
       const username = "createMe";
       const email = "createMe@udia.ca";
       const userInputtedPassword = "My Super S3C$^T P~!۩s";
-      // const username = "dupeUser";
-      // const email = "dupeUser@udia.ca";
-      // const userInputtedPassword = "Dupe S3C$^T P~!۩s";
       const {
         pw,
         mk,
@@ -196,7 +212,6 @@ describe("Users", () => {
                   primary
                   verified
                 }
-                pwHash
                 pwFunc
                 pwDigest
                 pwCost
@@ -225,12 +240,10 @@ describe("Users", () => {
       const createUserData = createUserMutationRespData.createUser;
       expect(createUserData).toHaveProperty("__typename", "UserAuthPayload");
       expect(createUserData).toHaveProperty("jwt");
-      // expect(createUserData).toHaveProperty("jwt", "");
       expect(createUserData).toHaveProperty("user");
       const createdUser = createUserData.user;
       expect(createdUser).toHaveProperty("__typename", "FullUser");
       expect(createdUser).toHaveProperty("createdAt");
-      expect(createdUser).toHaveProperty("pwHash");
       expect(createdUser).toHaveProperty("pwCost", pwCost);
       expect(createdUser).toHaveProperty("pwSalt", pwSalt);
       expect(createdUser).toHaveProperty("pwDigest", pwDigest);
@@ -335,32 +348,218 @@ describe("Users", () => {
       done();
     });
 
-    it("should update a user's password then delete a user.", async done => {
-      const email = "updateMe@udia.ca";
-      const uip = `Another secure p455word~`;
-      const pwFunc = "pbkdf2";
-      const pwDigest = "sha512";
-      let pwCost = 3000;
-      const pwKeySize = 768;
-      let pwSalt = "066c1fb06d3488df129bf476dfa6e58e6223293d";
-      const { pw } = loginUserCryptoParams({
-        uip,
-        pwCost,
-        pwSalt,
-        pwFunc,
-        pwDigest,
-        pwKeySize
+    it("should get a logged in user.", async done => {
+      const meQueryResponse = await gqlClient.query({
+        query: gql`
+          query Me {
+            me {
+              uuid
+              username
+              emails {
+                email
+                user {
+                  uuid
+                }
+                primary
+                verified
+                createdAt
+                updatedAt
+              }
+              pwFunc
+              pwDigest
+              pwCost
+              pwKeySize
+              pwSalt
+              createdAt
+              updatedAt
+            }
+          }
+        `
       });
-      pwCost = 3001;
-      pwSalt = "09b5f819982f9f2ef18ec3b4156dbbc802c79d11";
-      const { pw: newPw } = loginUserCryptoParams({
-        uip,
-        pwCost,
-        pwSalt,
-        pwFunc,
-        pwDigest,
-        pwKeySize
+      expect(meQueryResponse).toHaveProperty("data");
+      const meQueryResponseData: any = meQueryResponse.data;
+      expect(meQueryResponseData).toHaveProperty("me");
+      const meData = meQueryResponseData.me;
+      expect(meData).toHaveProperty("__typename", "FullUser");
+      expect(meData).toHaveProperty("uuid");
+      expect(meData).toHaveProperty("username", "updateMe");
+      expect(meData).toHaveProperty("emails");
+      const meEmails = meData.emails;
+      expect(meEmails).toHaveLength(1);
+      const meEmail = meEmails[0];
+      expect(meEmail).toHaveProperty("__typename", "UserEmail");
+      expect(meEmail).toHaveProperty("email", "updateMe@udia.ca");
+      expect(meEmail).toHaveProperty("user");
+      expect(meEmail.user).toHaveProperty("uuid", meData.uuid);
+      expect(meEmail.user).toHaveProperty("__typename", "FullUser");
+      expect(meEmail).toHaveProperty("primary", true);
+      expect(meEmail).toHaveProperty("verified", true);
+      expect(meEmail).toHaveProperty("createdAt");
+      expect(meEmail).toHaveProperty("updatedAt");
+      expect(meData).toHaveProperty("pwFunc", "pbkdf2");
+      expect(meData).toHaveProperty("pwDigest", "sha512");
+      expect(meData).toHaveProperty("pwCost", 3000);
+      expect(meData).toHaveProperty("pwKeySize", 768);
+      expect(meData).toHaveProperty(
+        "pwSalt",
+        "066c1fb06d3488df129bf476dfa6e58e6223293d"
+      );
+      expect(meData).toHaveProperty("createdAt");
+      expect(meData).toHaveProperty("updatedAt");
+      done();
+    });
+
+    it("should add a new email to the user", async done => {
+      const email = "updateMe2@udia.ca";
+      const addEmailMutationResponse = await gqlClient.mutate({
+        mutation: gql`
+          mutation AddEmail($email: String!) {
+            addEmail(email: $email) {
+              uuid
+              emails {
+                email
+                user {
+                  uuid
+                }
+                primary
+                verified
+                createdAt
+                updatedAt
+              }
+            }
+          }
+        `,
+        variables: { email }
       });
+      expect(addEmailMutationResponse).toHaveProperty("data");
+      const addEmailResponseData = addEmailMutationResponse.data;
+      expect(addEmailResponseData).toHaveProperty("addEmail");
+      const addEmail = addEmailResponseData.addEmail;
+      expect(addEmail).toHaveProperty("__typename", "FullUser");
+      expect(addEmail).toHaveProperty("uuid");
+      expect(addEmail).toHaveProperty("emails");
+      const emails = addEmail.emails;
+      expect(emails).toHaveLength(2);
+      const originalEmail = emails.filter(e => e.primary)[0];
+      expect(originalEmail).toHaveProperty("__typename", "UserEmail");
+      expect(originalEmail).toHaveProperty("email", "updateMe@udia.ca");
+      expect(originalEmail).toHaveProperty("user");
+      expect(originalEmail.user).toHaveProperty("uuid", addEmail.uuid);
+      expect(originalEmail).toHaveProperty("primary", true);
+      expect(originalEmail).toHaveProperty("verified", true);
+      expect(originalEmail).toHaveProperty("createdAt");
+      expect(originalEmail).toHaveProperty("updatedAt");
+      const newEmail = emails.filter(e => !e.primary)[0];
+      expect(newEmail).toHaveProperty("__typename", "UserEmail");
+      expect(newEmail).toHaveProperty("email", "updateMe2@udia.ca");
+      expect(newEmail).toHaveProperty("user");
+      expect(newEmail.user).toHaveProperty("uuid", addEmail.uuid);
+      expect(newEmail).toHaveProperty("primary", false);
+      expect(newEmail).toHaveProperty("verified", false);
+      expect(newEmail).toHaveProperty("createdAt");
+      expect(newEmail).toHaveProperty("updatedAt");
+      expect(sendEmailVerificationSpy).toHaveBeenCalledTimes(1);
+      done();
+    });
+
+    it("should send and verify an email verification.", async done => {
+      const email = "updateMe2@udia.ca";
+      const sendEmailVerificationResp = await gqlClient.mutate({
+        mutation: gql`
+          mutation SendEmailVerification($email: String!) {
+            sendEmailVerification(email: $email)
+          }
+        `,
+        variables: { email }
+      });
+      expect(sendEmailVerificationResp).toHaveProperty("data");
+      const sendEmailVerificationData = sendEmailVerificationResp.data;
+      expect(sendEmailVerificationData).toHaveProperty(
+        "sendEmailVerification",
+        true
+      );
+      expect(sendEmailVerificationSpy).toHaveBeenCalledTimes(1);
+      const sendEmailParams = sendEmailVerificationSpy.mock.calls[0];
+      expect(sendEmailParams[0]).toEqual("updateMe");
+      expect(sendEmailParams[1]).toEqual("updateMe2@udia.ca");
+      expect(sendEmailParams[2]).toMatch(/^updateme2@udia.ca:.*/);
+      const emailToken = sendEmailParams[2];
+      const verifyEmailTokenReponse = await gqlClient.mutate({
+        mutation: gql`
+          mutation VerifyEmailToken($emailToken: String!) {
+            verifyEmailToken(emailToken: $emailToken)
+          }
+        `,
+        variables: { emailToken }
+      });
+      expect(verifyEmailTokenReponse).toHaveProperty("data");
+      const verifyEmailTokenData = verifyEmailTokenReponse.data;
+      expect(verifyEmailTokenData).toHaveProperty("verifyEmailToken", true);
+      done();
+    });
+
+    it("should delete a user email", async done => {
+      const email = "updateMe2@udia.ca";
+      const removeEmailResp = await gqlClient.mutate({
+        mutation: gql`
+          mutation RemoveEmail($email: String!) {
+            removeEmail(email: $email) {
+              uuid
+              emails {
+                email
+                user {
+                  uuid
+                }
+                primary
+                verified
+                createdAt
+                updatedAt
+              }
+            }
+          }
+        `,
+        variables: { email }
+      });
+      expect(removeEmailResp).toHaveProperty("data");
+      const removeEmailData = removeEmailResp.data;
+      expect(removeEmailData).toHaveProperty("removeEmail");
+      const removeEmail = removeEmailData.removeEmail;
+      expect(removeEmail).toHaveProperty("__typename", "FullUser");
+      expect(removeEmail).toHaveProperty("uuid");
+      expect(removeEmail).toHaveProperty("emails");
+      const userEmails = removeEmail.emails;
+      expect(userEmails).toHaveLength(1);
+      const userEmail = userEmails[0];
+      expect(userEmail).toHaveProperty("__typename", "UserEmail");
+      expect(userEmail).toHaveProperty("user");
+      expect(userEmail.user).toHaveProperty("uuid", removeEmail.uuid);
+      expect(userEmail).toHaveProperty("primary", true);
+      expect(userEmail).toHaveProperty("verified", true);
+      expect(userEmail).toHaveProperty("createdAt");
+      expect(userEmail).toHaveProperty("updatedAt");
+      done();
+    });
+
+    it("should update a user's password (naive/email) then delete a user.", async done => {
+      // this should really be broken up into 5 tests, but gqlClient is hard
+      const updateUserAuthParams = {
+        uip: "Another secure p455word~",
+        pwCost: 3000,
+        pwSalt: "066c1fb06d3488df129bf476dfa6e58e6223293d",
+        pwFunc: "pbkdf2",
+        pwDigest: "sha512",
+        pwKeySize: 768
+      };
+
+      // PART A - UPDATE PASSWORD (logged in)
+
+      // get old password
+      const { pw } = loginUserCryptoParams(updateUserAuthParams);
+      // generate a new password
+      updateUserAuthParams.pwCost = 3001;
+      updateUserAuthParams.pwSalt = "09b5f819982f9f2ef18ec3b4156dbbc802c79d11";
+      updateUserAuthParams.uip = `My new รєςยгє p4$!w#rd.`;
+      const { pw: newerPw } = loginUserCryptoParams(updateUserAuthParams);
 
       const updatePasswordMutationResponse = await gqlClient.mutate({
         mutation: gql`
@@ -391,32 +590,181 @@ describe("Users", () => {
             }
           }
         `,
-        variables: { newPw, pw, pwFunc, pwDigest, pwCost, pwKeySize, pwSalt }
+        variables: {
+          newPw: newerPw,
+          pw,
+          pwFunc: updateUserAuthParams.pwFunc,
+          pwDigest: updateUserAuthParams.pwDigest,
+          pwCost: updateUserAuthParams.pwCost,
+          pwKeySize: updateUserAuthParams.pwKeySize,
+          pwSalt: updateUserAuthParams.pwSalt
+        }
       });
       expect(updatePasswordMutationResponse).toHaveProperty("data");
       const updatePasswordMutationData = updatePasswordMutationResponse.data;
       expect(updatePasswordMutationData).toHaveProperty("updatePassword");
       const updatePassword = updatePasswordMutationData.updatePassword;
       expect(updatePassword).toHaveProperty("__typename", "FullUser");
+      expect(updatePassword).toHaveProperty("uuid");
       expect(updatePassword).toHaveProperty("username", "updateMe");
-      expect(updatePassword).toHaveProperty("pwSalt", pwSalt);
-      expect(updatePassword).toHaveProperty("pwCost", pwCost);
+      expect(updatePassword).toHaveProperty(
+        "pwSalt",
+        updateUserAuthParams.pwSalt
+      );
+      expect(updatePassword).toHaveProperty(
+        "pwCost",
+        updateUserAuthParams.pwCost
+      );
       expect(updatePassword).toHaveProperty("createdAt");
       expect(updatePassword).toHaveProperty("updatedAt");
       const { createdAt, updatedAt } = updatePassword;
-      expect(updatedAt).toBeGreaterThan(createdAt);
+      expect(updatedAt).toBeGreaterThanOrEqual(createdAt);
 
+      // PART B - REQUEST PASSWORD RESET EMAIL
+
+      // reset the password using email/forgot password function
+      const sendForgotPasswordResponse = await gqlClient.mutate({
+        mutation: gql`
+          mutation SendForgotPasswordEmail($email: String!) {
+            sendForgotPasswordEmail(email: $email)
+          }
+        `,
+        variables: { email: "upDateme@udia.ca" }
+      });
+      expect(sendForgotPasswordResponse).toEqual({
+        data: { sendForgotPasswordEmail: true }
+      });
+      expect(sendForgotPassEmailSpy).toHaveBeenCalledTimes(1);
+      const sendEmailParams = sendForgotPassEmailSpy.mock.calls[0];
+      expect(sendEmailParams[0]).toEqual("updateMe");
+      expect(sendEmailParams[1]).toEqual("updateMe@udia.ca");
+      expect(sendEmailParams[2]).toMatch(/^updateme:.*/);
+      const resetToken = sendEmailParams[2];
+
+      // PART C - VERIFY RESET TOKEN
+      const checkResetTokenResponse = await gqlClient.query({
+        query: gql`
+          query CheckResetToken($resetToken: String!) {
+            checkResetToken(resetToken: $resetToken) {
+              isValid
+              expiry
+            }
+          }
+        `,
+        variables: { resetToken }
+      });
+      expect(checkResetTokenResponse).toHaveProperty("data");
+      const checkResetTokenData: any = checkResetTokenResponse.data;
+      expect(checkResetTokenData).toHaveProperty("checkResetToken");
+      const checkResetToken = checkResetTokenData.checkResetToken;
+      expect(checkResetToken).toHaveProperty("__typename", "TokenValidity");
+      expect(checkResetToken).toHaveProperty("isValid", true);
+      expect(checkResetToken).toHaveProperty("expiry");
+      expect(checkResetToken.expiry).toBeGreaterThan(Date.now());
+
+      // PART D - UPDATE PASSWORD (reset token)
+      // generate a newest password
+      updateUserAuthParams.pwCost = 4000;
+      updateUserAuthParams.pwSalt = "9ab5f819982f9f2ef10ec3b4156dbbc802c79c14";
+      updateUserAuthParams.uip = `Transcend newest รєςยгє p4$!w#rd.`;
+      const { pw: newestPw } = loginUserCryptoParams(updateUserAuthParams);
+
+      const resetPasswordResponse = await gqlClient.mutate({
+        mutation: gql`
+          mutation ResetPassword(
+            $resetToken: String!
+            $newPw: String!
+            $pwFunc: String!
+            $pwDigest: String!
+            $pwCost: Int!
+            $pwKeySize: Int!
+            $pwSalt: String!
+          ) {
+            resetPassword(
+              resetToken: $resetToken
+              newPw: $newPw
+              pwFunc: $pwFunc
+              pwDigest: $pwDigest
+              pwCost: $pwCost
+              pwKeySize: $pwKeySize
+              pwSalt: $pwSalt
+            ) {
+              jwt
+              user {
+                uuid
+                username
+                pwSalt
+                pwCost
+                createdAt
+                updatedAt
+              }
+            }
+          }
+        `,
+        variables: {
+          resetToken,
+          newPw: newestPw,
+          pwFunc: updateUserAuthParams.pwFunc,
+          pwDigest: updateUserAuthParams.pwDigest,
+          pwCost: updateUserAuthParams.pwCost,
+          pwKeySize: updateUserAuthParams.pwKeySize,
+          pwSalt: updateUserAuthParams.pwSalt
+        }
+      });
+
+      expect(resetPasswordResponse).toHaveProperty("data");
+      const resetPasswordData = resetPasswordResponse.data;
+      expect(resetPasswordData).toHaveProperty("resetPassword");
+      const resetPassword = resetPasswordData.resetPassword;
+      expect(resetPassword).toHaveProperty("__typename", "UserAuthPayload");
+      expect(resetPassword).toHaveProperty("jwt");
+      expect(resetPassword).toHaveProperty("user");
+      const resetPasswordUser = resetPassword.user;
+      expect(resetPasswordUser).toHaveProperty("uuid", updatePassword.uuid);
+      expect(resetPasswordUser).toHaveProperty("username", "updateMe");
+      expect(resetPasswordUser).toHaveProperty(
+        "pwSalt",
+        updateUserAuthParams.pwSalt
+      );
+      expect(resetPasswordUser).toHaveProperty(
+        "pwCost",
+        updateUserAuthParams.pwCost
+      );
+      expect(resetPasswordUser).toHaveProperty("createdAt");
+      expect(resetPasswordUser).toHaveProperty("updatedAt");
+      expect(resetPasswordUser.updatedAt).toBeGreaterThan(
+        resetPasswordUser.createdAt
+      );
+
+      // PART E - DELETE USER
+      // because JWT is stateless, the old one still works. don't update client
       const deleteUserMutationResponse = await gqlClient.mutate({
         mutation: gql`
           mutation DeleteUser($pw: String!) {
             deleteUser(pw: $pw)
           }
         `,
-        variables: { pw: newPw }
+        variables: { pw: newestPw }
       });
       expect(deleteUserMutationResponse).toEqual({
         data: { deleteUser: true }
       });
+
+      // PART F - VERIFY UNDEFINED/NULL ME
+      const meQueryResponse = await gqlClient.query({
+        query: gql`
+          query Me {
+            me {
+              uuid
+              username
+            }
+          }
+        `,
+        fetchPolicy: "no-cache" // required or old user is returned
+      });
+      expect(meQueryResponse).toHaveProperty("data");
+      const meQueryResponseData: any = meQueryResponse.data;
+      expect(meQueryResponseData).toEqual({ me: null });
       done();
     });
 

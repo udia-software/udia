@@ -21,17 +21,9 @@ const logger = new Logger({
       timestamp: true
     }),
     new transports.File({
-      name: `${NODE_ENV}-info`,
-      filename: `log/${NODE_ENV}-info.log`,
-      level: "info",
-      maxsize: logFileSize,
-      maxFiles: logMaxFiles,
-      tailable: true
-    }),
-    new transports.File({
-      name: `${NODE_ENV}-error`,
-      filename: `log/${NODE_ENV}-error.log`,
-      level: "error",
+      name: `${NODE_ENV}-${logLevel}`,
+      filename: `log/${NODE_ENV}-${logLevel}.log`,
+      level: logLevel,
       maxsize: logFileSize,
       maxFiles: logMaxFiles,
       tailable: true

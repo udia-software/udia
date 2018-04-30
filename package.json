@@ -2,19 +2,20 @@
   "name": "udia",
   "version": "0.0.6",
   "description": "Encrypted file and note storage, with collaboration",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "pretest": "NODE_ENV=test yarn runMigrations",
     "test": "NODE_ENV=test TYPEORM_LOGGING=false jest --verbose",
-    "prestart": "yarn clean && tsc && yarn runMigrations",
+    "posttest": "yarn lint",
+    "prestart": "yarn clean && yarn build && yarn runMigrations",
+    "start": "node dist/index.js",
+    "build": "tsc",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "watch": "tsc --watch & nodemon dist/index.js",
-    "start": "node dist/index.js",
-    "posttest": "yarn lint",
     "prepublishOnly": "yarn test",
-    "makeMigrations": "ts-node node_modules/.bin/typeorm migration:generate",
+    "makeMigration": "ts-node node_modules/.bin/typeorm migration:generate",
     "runMigrations": "ts-node node_modules/.bin/typeorm migration:run",
-    "revertMigrations": "ts-node node_modules/.bin/typeorm migration:revert",
+    "revertMigration": "ts-node node_modules/.bin/typeorm migration:revert",
     "dropSchema": "ts-node node_modules/.bin/typeorm schema:drop",
     "clean": "rm -rf dist/*",
     "cleanLogs": "rm -rf log/*.log"
@@ -51,19 +52,25 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://pi.alexander-wong.com/gogs/udia-software/udia.git"
+    "url": "https://github.com/udia-software/udia.git"
   },
-  "author": "Alexander Wong <alex@udia.ca>",
+  "homepage": "https://api.udia.ca",
+  "author": {
+    "name": "Alexander Wong",
+    "email": "alex@udia.ca",
+    "url": "https://udia.ca"
+  },
   "license": "AGPL-3.0",
   "dependencies": {
     "@types/cors": "^2.8.3",
     "@types/express": "^4.11.1",
     "@types/express-jwt": "^0.0.40",
-    "@types/graphql": "^0.12.7",
+    "@types/graphql": "~0.12.7",
     "@types/ioredis": "^3.2.7",
     "@types/jest": "^22.2.0",
     "@types/jsonwebtoken": "^7.2.6",
     "@types/node": "^9.4.7",
+    "@types/node-fetch": "^1.6.9",
     "@types/nodemailer": "^4.6.0",
     "@types/on-finished": "^2.3.1",
     "@types/pg": "^7.4.5",
@@ -87,6 +94,7 @@
     "graphql-subscriptions": "^0.5.8",
     "graphql-tag": "^2.8.0",
     "graphql-tools": "^2.23.1",
+    "iterall": "^1.2.2",
     "jest": "^22.4.3",
     "jsonwebtoken": "^8.2.0",
     "moment": "^2.21.0",
@@ -96,6 +104,7 @@
     "nodemon": "^1.17.2",
     "on-finished": "^2.3.0",
     "pg": "^7.4.1",
+    "pg-native": "^2.2.0",
     "pjson": "^1.0.9",
     "reflect-metadata": "^0.1.12",
     "subscriptions-transport-ws": "^0.9.7",
@@ -111,5 +120,12 @@
   },
   "devDependencies": {
     "coveralls": "^3.0.0"
-  }
+  },
+  "engines": {
+    "node": ">=8.11.1 <10"
+  },
+  "os": [
+    "darwin",
+    "linux"
+  ]
 }

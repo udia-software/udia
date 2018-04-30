@@ -16,7 +16,7 @@ interface IErrorState {
 export class ValidationError extends GraphQLError {
   public state: IErrorState;
 
-  constructor(errors: IErrorMessage[] = []) {
+  constructor(errors: IErrorMessage[]) {
     const errorState: IErrorState = {};
     const errorMessage = ["The request is invalid."];
     errors.forEach(error => {

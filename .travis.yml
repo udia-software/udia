@@ -1,7 +1,8 @@
 language: node_js
 node_js:
-  - node
-  - lts/*
+  # - node # 10.X is currently broken due to deprecated Buffer in Yarn
+  - "9"
+  - "lts/*" # 8.X
 cache:
   yarn: true
   directories:

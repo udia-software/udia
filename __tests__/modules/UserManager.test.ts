@@ -17,6 +17,11 @@ async function createUsers() {
     dpEmail.lEmail = "dupeuser@udia.ca";
     dpEmail.primary = true;
     dpEmail.verified = true;
+    const dp2Email = new UserEmail();
+    dp2Email.email = "dupeUser2@udia.ca";
+    dp2Email.lEmail = "dupeuser2@udia.ca";
+    dp2Email.primary = false;
+    dp2Email.verified = false;
     dpUser.username = "dupeUser";
     dpUser.lUsername = "dupeuser";
     dpUser.pwHash =
@@ -28,6 +33,27 @@ async function createUsers() {
     dpUser = await transactionEntityManager.save(dpUser);
     dpEmail.user = dpUser;
     await transactionEntityManager.save(dpEmail);
+    dp2Email.user = dpUser;
+    await transactionEntityManager.save(dp2Email);
+
+    let veUser = new User();
+    const veEmail = new UserEmail();
+    veEmail.email = "verifyEmailUser@udia.ca";
+    veEmail.lEmail = "verifyemailuser@udia.ca";
+    veEmail.primary = true;
+    veEmail.verified = false;
+    veEmail.verificationExpiry = new Date();
+    veEmail.verificationHash = "$argon2i$v=1$m=1,t=1,p=1$101";
+    veUser.username = "verifyEmailUser";
+    veUser.lUsername = "verifyemailuser";
+    veUser.pwHash = "$argon2i$v=1$m=1,t=1,p=1$101";
+    veUser.pwFunc = "pbkdf2";
+    veUser.pwDigest = "sha512";
+    veUser.pwCost = 3000;
+    veUser.pwSalt = "101";
+    veUser = await transactionEntityManager.save(veUser);
+    veEmail.user = veUser;
+    await transactionEntityManager.save(veEmail);
   });
 }
 
@@ -38,6 +64,7 @@ async function deleteUsers() {
     .from(User)
     .where({ lUsername: "dupeuser" })
     .orWhere("lUsername = :shrugUsername", { shrugUsername: "¯\\_(ツ)_/¯" })
+    .orWhere("lUsername = :veUsername", { veUsername: "verifyemailuser" })
     .execute();
 }
 
@@ -84,8 +111,7 @@ describe("UserManager", () => {
             "* username: Username is taken.\n" +
             "* email: Email is taken."
         );
-        done();
-        return;
+        return done();
       }
       done("Should have thrown username and email taken error.");
     });
@@ -108,8 +134,7 @@ describe("UserManager", () => {
           "The request is invalid.\n" +
             "* username: Username is too long (over 24 characters)."
         );
-        done();
-        return;
+        return done();
       }
       done("Should have thrown username too long error.");
     });
@@ -132,8 +157,7 @@ describe("UserManager", () => {
           "The request is invalid.\n" +
             "* username: Username is too short (under 3 characters)."
         );
-        done();
-        return;
+        return done();
       }
       done("Should have thrown username too short error.");
     });
@@ -184,8 +208,7 @@ describe("UserManager", () => {
           "message",
           "The request is invalid.\n* id: Invalid JWT."
         );
-        done();
-        return;
+        return done();
       }
       done("Should have thrown invalid JWT error.");
     });
@@ -215,8 +238,7 @@ describe("UserManager", () => {
           "message",
           "The request is invalid.\n* pw: Invalid password."
         );
-        done();
-        return;
+        return done();
       }
       done("Should have thrown invalid password error.");
     });
@@ -235,11 +257,11 @@ describe("UserManager", () => {
           "message",
           "The request is invalid.\n* email: Email not found."
         );
-        done();
-        return;
+        return done();
       }
       done("Should have thrown email not found error.");
     });
+
     it("should handle sign in invalid password", async done => {
       const { pw } = generateUserCryptoParams(
         "dupeuser@udia.ca",
@@ -255,10 +277,100 @@ describe("UserManager", () => {
           "message",
           "The request is invalid.\n* pw: Invalid password."
         );
-        done();
-        return;
+        return done();
       }
       done("Should have thrown invalid password error.");
+    });
+  });
+
+  describe("addEmail", () => {
+    it("should handle add email invalid jwt", async done => {
+      try {
+        await UserManager.addEmail(undefined, { email: "badActor@udia.ca" });
+      } catch (err) {
+        expect(err).toHaveProperty(
+          "message",
+          "The request is invalid.\n* id: Invalid JWT."
+        );
+        return done();
+      }
+      done("Should have thrown invalid jwt error.");
+    });
+
+    it("should handle add email email exists", async done => {
+      try {
+        await UserManager.addEmail("dupeuser", { email: "dupeuser@udia.ca" });
+      } catch (err) {
+        expect(err).toHaveProperty(
+          "message",
+          "The request is invalid.\n* email: Email is taken."
+        );
+        return done();
+      }
+      done("Should have thrown email exists error.");
+    });
+  });
+
+  describe("removeEmail", () => {
+    it("should handle remove email invalid jwt", async done => {
+      try {
+        await UserManager.removeEmail(undefined, { email: "badActor@udia.ca" });
+      } catch (err) {
+        expect(err).toHaveProperty(
+          "message",
+          "The request is invalid.\n* id: Invalid JWT."
+        );
+        return done();
+      }
+      done("Should have thrown invalid jwt error.");
+    });
+
+    it("should handle remove invalid email", async done => {
+      try {
+        await UserManager.removeEmail("dupeuser", { email: "" });
+      } catch (err) {
+        expect(err).toHaveProperty(
+          "message",
+          "The request is invalid.\n* email: Invalid Email."
+        );
+        return done();
+      }
+      done("Should have thrown invalid email error.");
+    });
+
+    it("should handle orphan user attempt", async done => {
+      try {
+        await UserManager.removeEmail("dupeuser", {
+          email: "dupeUser@udia.ca"
+        });
+      } catch (err) {
+        expect(err).toHaveProperty(
+          "message",
+          "The request is invalid.\n* email: Cannot orphan user."
+        );
+        return done();
+      }
+      done("Should have thrown orphan user error.");
+    });
+
+    it("should handle switch primary email", async done => {
+      await getConnection()
+        .getRepository(UserEmail)
+        .update("dupeuser2@udia.ca", { verified: true });
+      const user = await UserManager.removeEmail("dupeuser", {
+        email: "dupeUser@udia.ca"
+      });
+      expect(user).toHaveProperty("emails");
+      expect(user.emails).toHaveLength(1);
+      const userEmail = user.emails[0];
+      expect(userEmail).toHaveProperty("email", "dupeUser2@udia.ca");
+      expect(userEmail).toHaveProperty("lEmail", "dupeuser2@udia.ca");
+      expect(userEmail).toHaveProperty("primary", true);
+      expect(userEmail).toHaveProperty("verified", true);
+      expect(userEmail).toHaveProperty("verificationHash", null);
+      expect(userEmail).toHaveProperty("createdAt");
+      expect(userEmail).toHaveProperty("updatedAt");
+      done();
     });
   });
 
@@ -275,8 +387,7 @@ describe("UserManager", () => {
           "message",
           "The request is invalid.\n* id: Invalid JWT."
         );
-        done();
-        return;
+        return done();
       }
       done("Should have thrown invalid jwt error.");
     });
@@ -293,58 +404,191 @@ describe("UserManager", () => {
           "message",
           "The request is invalid.\n* pw: Invalid password."
         );
-        done();
-        return;
+        return done();
       }
       done("Should have thrown invalid password error.");
     });
   });
 
-  describe("addEmail", () => {
-    it("should handle add email invalid jwt", async done => {
-      try {
-        await UserManager.addEmail(undefined, "badActor@udia.ca");
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          "The request is invalid.\n* id: Invalid JWT."
-        );
-        done();
-        return;
-      }
-      done("Should have thrown invalid jwt error.");
-    });
-
-    it("should handle add email email exists", async done => {
-      try {
-        await UserManager.addEmail("dupeuser", "dupeuser@udia.ca");
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          "The request is invalid.\n* email: Email is taken."
-        );
-        done();
-        return;
-      }
-      done("Should have thrown email exists error.");
-    });
-  })
-
   describe("sendEmailVerification", () => {
     it("should handle invalid email", async done => {
-      const emailSent = await UserManager.sendEmailVerification(undefined);
-      expect(emailSent).toBeFalsy();
-      done();
+      try {
+        await UserManager.sendEmailVerification({
+          email: ""
+        });
+      } catch (err) {
+        expect(err).toHaveProperty(
+          "message",
+          "The request is invalid.\n* email: Email not found."
+        );
+        return done();
+      }
+      done("Should have thrown email not found error.");
+    });
+
+    it("should send an email verification email", async () => {
+      expect.assertions(1);
+      await expect(
+        UserManager.sendEmailVerification({
+          email: "dupeUser2@udia.ca"
+        })
+      ).resolves.toBe(true);
     });
   });
 
   describe("verifyEmailToken", () => {
     it("should handle invalid token", async done => {
-      let emailVerified = await UserManager.verifyEmailToken(undefined);
-      expect(emailVerified).toBeFalsy();
-      emailVerified = await UserManager.verifyEmailToken("a:b@c.ca:tok3n")
-      expect(emailVerified).toBeFalsy();
-      done();
+      try {
+        await UserManager.verifyEmailToken({
+          emailToken: ""
+        });
+      } catch (err) {
+        expect(err).toHaveProperty(
+          "message",
+          "The request is invalid.\n* emailToken: Invalid token."
+        );
+        return done();
+      }
+      done("Should have thrown invalid token error.");
+    });
+
+    it("should handle email not found", async done => {
+      try {
+        await UserManager.verifyEmailToken({
+          emailToken: "a:b@c.ca:tok3n"
+        });
+      } catch (err) {
+        expect(err).toHaveProperty(
+          "message",
+          "The request is invalid.\n* emailToken: Email not found."
+        );
+        return done();
+      }
+      done("Should have thrown email not found error.");
+    });
+
+    it("should handle invalid & expired secret", async done => {
+      try {
+        await UserManager.verifyEmailToken({
+          emailToken: "verifyemailuser@udia.ca:tok3n"
+        });
+      } catch (err) {
+        expect(err).toHaveProperty(
+          "message",
+          `The request is invalid.\n` +
+            `* emailToken: Token is expired.\n` +
+            `* emailToken: Invalid secret.`
+        );
+        return done();
+      }
+      done("Should have thrown invalid & expired secret error.");
+    });
+  });
+
+  describe("sendForgotPasswordEmail", () => {
+    it("should handle invalid email", async done => {
+      try {
+        await UserManager.sendForgotPasswordEmail({
+          email: ""
+        });
+      } catch (err) {
+        expect(err).toHaveProperty(
+          "message",
+          "The request is invalid.\n* email: Email not found."
+        );
+        return done();
+      }
+      done("Should have thrown email not found error.");
+    });
+
+    it("should send an password reset email", async () => {
+      expect.assertions(1);
+      await expect(
+        UserManager.sendForgotPasswordEmail({
+          email: "dupeUser2@udia.ca"
+        })
+      ).resolves.toBe(true);
+    });
+  });
+
+  describe("resetPassword", () => {
+    it("should handle invalid token", async done => {
+      try {
+        await UserManager.resetPassword({
+          resetToken: "",
+          newPw: "",
+          pwFunc: "",
+          pwDigest: "",
+          pwCost: 1,
+          pwKeySize: 1,
+          pwSalt: ""
+        });
+      } catch (err) {
+        expect(err).toHaveProperty(
+          "message",
+          "The request is invalid.\n* resetToken: Invalid token."
+        );
+        return done();
+      }
+      done("Should have thrown invalid token error.");
+    });
+
+    it("should handle user not found", async done => {
+      try {
+        await UserManager.resetPassword({
+          resetToken: "badActor:tok3n",
+          newPw: "",
+          pwFunc: "",
+          pwDigest: "",
+          pwCost: 1,
+          pwKeySize: 1,
+          pwSalt: ""
+        });
+      } catch (err) {
+        expect(err).toHaveProperty(
+          "message",
+          "The request is invalid.\n* resetToken: User not found."
+        );
+        return done();
+      }
+      done("Should have thrown user not found error.");
+    });
+
+    it("should handle invalid & expired secret", async done => {
+      try {
+        await UserManager.resetPassword({
+          resetToken: "verifyemailuser:tok3n",
+          newPw: "",
+          pwFunc: "",
+          pwDigest: "",
+          pwCost: 1,
+          pwKeySize: 1,
+          pwSalt: ""
+        });
+      } catch (err) {
+        expect(err).toHaveProperty(
+          "message",
+          `The request is invalid.\n` +
+            `* resetToken: Token is expired.\n` +
+            `* resetToken: Invalid secret.`
+        );
+        return done();
+      }
+      done("Should have thrown invalid & expired secret error.");
+    });
+  });
+
+  describe("checkResetToken", () => {
+    it("should handle invalid token", async () => {
+      expect.assertions(1);
+      const payload = await UserManager.checkResetToken("");
+      expect(payload).toEqual({ isValid: false, expiry: null });
+    });
+
+    it("should handle user not found", async () => {
+      expect.assertions(1);
+      const payload = await UserManager.checkResetToken("badActor:tok3n");
+      expect(payload).toEqual({ isValid: false, expiry: null });
     });
   });
 });

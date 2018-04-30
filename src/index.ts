@@ -1,16 +1,29 @@
 import crypto from "crypto";
 import { execute, subscribe } from "graphql";
+import { PubSubEngine } from "graphql-subscriptions";
 import { createServer } from "http";
 import Graceful from "node-graceful";
-import "reflect-metadata";
+import { Client } from "pg";
+import "reflect-metadata"; // required for typeorm
 import { SubscriptionServer } from "subscriptions-transport-ws";
 import { createConnection } from "typeorm";
 import app from "./app";
-import { HEALTH_METRIC_INTERVAL, NODE_ENV, PORT } from "./constants";
+import {
+  HEALTH_METRIC_INTERVAL,
+  NODE_ENV,
+  PORT,
+  SQL_DB,
+  SQL_HOST,
+  SQL_PASSWORD,
+  SQL_PORT,
+  SQL_USER
+} from "./constants";
 import gqlSchema from "./gqlSchema";
-import pubSub from "./pubSub";
+import PostgresPubSub from "./pubSub/PostgresPubSub";
 import logger from "./util/logger";
-import { metric } from "./util/metric";
+import metric from "./util/metric";
+
+let pubSub: PubSubEngine;
 
 /**
  * Start the server. Initialize the Database Client and tables.
@@ -19,11 +32,21 @@ import { metric } from "./util/metric";
 const start = async (port: string) => {
   // crypto module may not exist in node binary (will throw error)
   app.set("crypto", crypto);
-
-  // db not be available (will throw error)
+  // create db connection using /ormconfig.js
   const conn = await createConnection();
   logger.info(`Connected to ${conn.options.database} ${conn.options.type}.`);
   app.set("dbConnection", conn);
+  // instantiate native postgres client for PubSub
+  const pgClient = new Client({
+    user: SQL_USER,
+    database: SQL_DB,
+    password: SQL_PASSWORD,
+    port: +SQL_PORT,
+    host: SQL_HOST
+  });
+  await pgClient.connect();
+  pubSub = new PostgresPubSub(pgClient);
+  app.set("pubSub", pubSub);
 
   const server = createServer(app);
   const subscriptionServer = SubscriptionServer.create(
@@ -39,31 +62,47 @@ const start = async (port: string) => {
   );
 
   let metricSubscriptionInterval: NodeJS.Timer;
-
   server.listen(port, async () => {
     logger.info(`UDIA ${NODE_ENV} server running on port ${port}.`);
     metricSubscriptionInterval = setInterval(() => {
-      const healthMetric = metric();
-      pubSub.publish("HealthMetric", {
-        HealthMetricSubscription: { ...healthMetric }
-      });
+      pubSub.publish("health", { health: metric() });
     }, +HEALTH_METRIC_INTERVAL);
   });
 
   const shutdownListener = (done: () => void, event: any, signal: any) => {
-    logger.warn(`3)\tGraceful ${signal} signal received.`);
-    clearInterval(metricSubscriptionInterval);
-    subscriptionServer.close();
-    server.close(() => {
-      logger.warn(`2)\tHTTP & WebSocket servers closed.`);
-      conn.close().then(() => {
-        logger.warn(`1)\tDatabase connection closed.`);
-        done();
-      });
-    });
+    logger.warn(`!)\tGraceful ${signal} signal received.`);
+    return new Promise(resolve => {
+      logger.warn(`3)\tHTTP & WebSocket servers closing.`);
+      clearInterval(metricSubscriptionInterval);
+      subscriptionServer.close();
+      return server.close(resolve);
+    })
+      .then(() => {
+        logger.warn(`2)\tDatabase connections closing.`);
+        return conn.close();
+      })
+      .then(() => {
+        return pgClient.end();
+      })
+      .then(() => {
+        logger.warn(`1)\tShutting down.`);
+        return done();
+      })
+      .catch(
+        /* istanbul ignore next */
+        err => {
+          logger.error("!)\tTERMERR\n", err);
+          process.exit(1);
+        }
+      );
   };
-  Graceful.on("exit", shutdownListener);
-  Graceful.on("shutdown", shutdownListener);
+  // Graceful.on("exit", shutdownListener, true); // broken. use SIG* instead
+  Graceful.on("SIGTERM", shutdownListener, true);
+  Graceful.on("SIGINT", shutdownListener, true);
+  Graceful.on("SIGBREAK", shutdownListener, true);
+  Graceful.on("SIGHUP", shutdownListener, true);
+  Graceful.on("SIGUSR2", shutdownListener, true); // nodemon
+  Graceful.on("shutdown", shutdownListener, false); // tests
   return server;
 };
 
@@ -72,4 +111,5 @@ if (require.main === module) {
   start(PORT);
 }
 
+export { pubSub };
 export default start;

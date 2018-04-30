@@ -22,6 +22,9 @@ services:
     depends_on:
       - db
       - redis
+    links:
+      - db:db
+      - redis:redis
     environment:
       NODE_ENV: production
       PORT: 3000
