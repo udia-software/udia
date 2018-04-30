@@ -19,7 +19,8 @@ const graphqlBuildOptions: ExpressGraphQLOptionsFunction = req => {
     context: {
       jwtPayload: req && req.user,
       originIp: req && req.ip,
-      originIps: req && req.ips
+      originIps: req && req.ips,
+      pubSub: app.get("pubSub")
     },
     formatError: (error: any) => {
       return {

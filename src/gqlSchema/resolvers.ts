@@ -2,6 +2,7 @@ import { Kind } from "graphql";
 import { IResolvers } from "graphql-tools";
 import { User } from "../entity/User";
 import { UserEmail } from "../entity/UserEmail";
+import { pubSub } from "../index";
 import { IJwtPayload } from "../modules/Auth";
 import UserManager, {
   IAddEmailParams,
@@ -15,6 +16,7 @@ import UserManager, {
   IUpdatePasswordParams,
   IVerifyEmailTokenParams
 } from "../modules/UserManager";
+import metric from "../util/metric";
 
 export interface IContext {
   jwtPayload: IJwtPayload;
@@ -28,13 +30,16 @@ const resolvers: IResolvers = {
       const email = params.email;
       return UserManager.getUserAuthParams(email);
     },
-    checkResetToken: async(root: any, params: any, context: IContext) => {
+    checkResetToken: async (root: any, params: any, context: IContext) => {
       const resetToken = params.resetToken;
       return UserManager.checkResetToken(resetToken);
     },
     me: async (root: any, params: any, context: IContext) => {
       const username = context.jwtPayload && context.jwtPayload.username;
       return UserManager.getUserByUsername(username);
+    },
+    health: async (root: any, params: any, context: IContext) => {
+      return metric();
     }
   },
   Mutation: {
@@ -111,6 +116,11 @@ const resolvers: IResolvers = {
       context: IContext
     ) => {
       return UserManager.resetPassword(params);
+    }
+  },
+  Subscription: {
+    health: {
+      subscribe: () => pubSub.asyncIterator("health")
     }
   },
   FullUser: {

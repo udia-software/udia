@@ -1,9 +1,10 @@
 import crypto from "crypto";
 import { execute, subscribe } from "graphql";
+import { PubSubEngine } from "graphql-subscriptions";
 import { createServer } from "http";
 import Graceful from "node-graceful";
 import { Client } from "pg";
-import "reflect-metadata";
+import "reflect-metadata"; // required for typeorm
 import { SubscriptionServer } from "subscriptions-transport-ws";
 import { createConnection } from "typeorm";
 import app from "./app";
@@ -20,7 +21,9 @@ import {
 import gqlSchema from "./gqlSchema";
 import PostgresPubSub from "./pubSub/PostgresPubSub";
 import logger from "./util/logger";
-import { metric } from "./util/metric";
+import metric from "./util/metric";
+
+let pubSub: PubSubEngine;
 
 /**
  * Start the server. Initialize the Database Client and tables.
@@ -42,7 +45,7 @@ const start = async (port: string) => {
     host: SQL_HOST
   });
   await pgClient.connect();
-  const pubSub = new PostgresPubSub(pgClient);
+  pubSub = new PostgresPubSub(pgClient);
   app.set("pubSub", pubSub);
 
   const server = createServer(app);
@@ -62,10 +65,7 @@ const start = async (port: string) => {
   server.listen(port, async () => {
     logger.info(`UDIA ${NODE_ENV} server running on port ${port}.`);
     metricSubscriptionInterval = setInterval(() => {
-      const healthMetric = metric();
-      pubSub.publish("HealthMetric", {
-        HealthMetricSubscription: { ...healthMetric }
-      });
+      pubSub.publish("health", { health: metric() });
     }, +HEALTH_METRIC_INTERVAL);
   });
 
@@ -111,4 +111,5 @@ if (require.main === module) {
   start(PORT);
 }
 
+export { pubSub };
 export default start;

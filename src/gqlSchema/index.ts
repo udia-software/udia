@@ -10,6 +10,7 @@ type Query {
   getUserAuthParams(email: String!): UserAuthParams!
   checkResetToken(resetToken: String!): TokenValidity!
   me: FullUser
+  health: HealthMetric!
 }
 
 type Mutation {
@@ -48,6 +49,10 @@ type Mutation {
     pwKeySize: Int!,
     pwSalt: String!
   ): UserAuthPayload!
+}
+
+type Subscription {
+  health: HealthMetric!
 }
 
 type FullUser {
@@ -89,6 +94,38 @@ type UserAuthPayload {
 type TokenValidity {
   isValid: Boolean!
   expiry: DateTime
+}
+
+type HealthMetric {
+  version: String!
+  nodeVersion: String!
+  arch: String!
+  hostname: String!
+  platform: String!
+  release: String!
+  freememGiB: Float!
+  totalmemGiB: Float!
+  freememGB: Float!
+  totalmemGB: Float!
+  osUptime: Int!
+  pUptime: Int!
+  now: DateTime!
+  loadavg: [Float]!
+  cpus: [Cpu]!
+}
+
+type Cpu {
+  model: String!
+  speed: Int!
+  times: CpuTime!
+}
+
+type CpuTime {
+  user: Int!
+  nice: Int!
+  sys: Int!
+  idle: Int!
+  irq: Int!
 }
 
 scalar DateTime

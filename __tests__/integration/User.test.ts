@@ -4,7 +4,6 @@ import { ApolloLink, split } from "apollo-link";
 import { HttpLink } from "apollo-link-http";
 import { WebSocketLink } from "apollo-link-ws";
 import { getOperationDefinition } from "apollo-utilities";
-import { OperationDefinitionNode } from "graphql";
 import gql from "graphql-tag";
 import { Server } from "http";
 import fetch from "node-fetch";

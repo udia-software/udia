@@ -440,9 +440,8 @@ export default class UserManager {
         { key: "email", message: "Email not found." }
       ]);
     }
-    const forgotPasswordToken = `${uEmail.user.lUsername}:${randomBytes(
-      16
-    ).toString("hex")}`;
+    const id = uEmail.user.lUsername;
+    const forgotPasswordToken = `${id}:${randomBytes(16).toString("hex")}`;
     await getRepository(User).update(uEmail.user.uuid, {
       forgotPwHash: await Auth.hashPassword(forgotPasswordToken),
       forgotPwExpiry: new Date(Date.now() + +EMAIL_TOKEN_TIMEOUT)

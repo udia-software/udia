@@ -48,11 +48,10 @@ function metric() {
     totalmemGB: totalmemBytes / 1000 / 1000 / 1000, // 1 GB = 10^9 bytes
     osUptime: Math.floor(osUptime()), // operating system uptime (seconds)
     pUptime: Math.floor(pUptime()), // app process uptime (seconds)
-    now: Date.now(), // system reported current time
+    now: new Date(), // system reported current time
     loadavg: loadavg(), // 1, 5, 15 min CPU load averages
     cpus: cpusSeconds
   };
 }
 
-export { metric };
 export default metric;
