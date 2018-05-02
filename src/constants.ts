@@ -3,7 +3,9 @@ import { version } from "pjson";
 const APP_VERSION = version;
 
 // Environment Variables (SEE README)
-/* istanbul ignore next */ // This is always `test`
+
+// This is always test for coverage
+/* istanbul ignore next */
 const NODE_ENV = process.env.NODE_ENV || "development";
 const PORT = process.env.PORT || "3000";
 const SQL_USER = process.env.SQL_USER || "pguser";
@@ -23,6 +25,7 @@ const SMTP_HOST = process.env.SMTP_HOST || "smtp.ethereal.email";
 const SMTP_PORT = process.env.SMTP_PORT || "587";
 const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
 const HEALTH_METRIC_INTERVAL = process.env.HEALTH_METRIC_INTERVAL || "500";
+const DEV_JWT = process.env.DEV_JWT || "";
 
 export {
   APP_VERSION,
@@ -43,5 +46,6 @@ export {
   SMTP_HOST,
   SMTP_PORT,
   REDIS_URL,
-  HEALTH_METRIC_INTERVAL
+  HEALTH_METRIC_INTERVAL,
+  DEV_JWT
 };

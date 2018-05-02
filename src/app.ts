@@ -1,12 +1,13 @@
 import {
   ExpressGraphQLOptionsFunction,
+  graphiqlExpress,
   graphqlExpress
 } from "apollo-server-express";
 import bodyParser from "body-parser";
 import cors, { CorsOptions } from "cors";
 import express from "express";
 import { formatError } from "graphql";
-import { APP_VERSION, CORS_ORIGIN } from "./constants";
+import { APP_VERSION, CORS_ORIGIN, DEV_JWT, NODE_ENV, PORT } from "./constants";
 import gqlSchema from "./gqlSchema";
 import Auth from "./modules/Auth";
 import { middlewareLogger } from "./util/logger";
@@ -51,6 +52,21 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(Auth.jwtMiddleware());
 app.use("/graphql", graphqlExpress(graphqlBuildOptions));
+
+// coverage don't care about vetting developer graphiql route
+/* istanbul ignore next */
+if (NODE_ENV !== "production") {
+  const jwt = DEV_JWT;
+  app.use(
+    "/graphiql",
+    graphiqlExpress({
+      endpointURL: "/graphql",
+      passHeader: jwt && `Authorization: Bearer ${jwt}`,
+      subscriptionsEndpoint: `ws://localhost:${PORT}/subscriptions`
+    })
+  );
+}
+
 app.get("/health", (req, res) => res.json(metric()));
 // TODO: GraphQL Server Side rendering with Hydrating client would be lit
 app.get("/", (req, res) => {

@@ -11,7 +11,7 @@
     "start": "node dist/index.js",
     "build": "tsc",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
-    "watch": "tsc --watch & nodemon dist/index.js",
+    "watch": "nodemon --watch src --verbose --ext ts --exec yarn start",
     "prepublishOnly": "yarn test",
     "makeMigration": "ts-node node_modules/.bin/typeorm migration:generate",
     "runMigrations": "ts-node node_modules/.bin/typeorm migration:run",

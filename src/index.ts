@@ -85,10 +85,11 @@ const start = async (port: string) => {
         return pgClient.end();
       })
       .then(() => {
-        logger.warn(`1)\tShutting down.`);
+        logger.warn(`1)\tShutting down. Goodbye!`);
         return done();
       })
       .catch(
+        // coverage don't care about nongraceful shutdowns in test
         /* istanbul ignore next */
         err => {
           logger.error("!)\tTERMERR\n", err);
@@ -106,6 +107,7 @@ const start = async (port: string) => {
   return server;
 };
 
+// test coverage will never run `node index`
 /* istanbul ignore next */
 if (require.main === module) {
   start(PORT);

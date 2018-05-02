@@ -59,6 +59,7 @@ These environment variables can be set by modifying your `~/.*rc` or `~/.*profil
 | `SMTP_PORT`               | `587`                             | SMTP Port                                          |
 | `REDIS_URL`               | `redis://localhost:6379`          | Redis Connection String                            |
 | `HEALTH_METRIC_INTERVAL`  | `500`                             | How often to send health metric                    |
+| `DEV_JWT`                 | ""                                | `Test/Dev`/graphiql` passHeader jwt                |
 
 ## License
 

@@ -4,6 +4,7 @@ import onFinished from "on-finished";
 import { Logger, transports } from "winston";
 import { NODE_ENV } from "../constants";
 
+// this is always debug in test
 /* istanbul ignore next */
 const logLevel = NODE_ENV === "production" ? "info" : "debug";
 const logFileSize = 10 * 1024 * 1024; // 10MiB
@@ -32,7 +33,9 @@ const logger = new Logger({
   exitOnError: false
 });
 
+// we don't want to see console output in test
 /* istanbul ignore next */
+
 if (NODE_ENV === "test") {
   logger.remove("console");
 }

@@ -1,15 +1,15 @@
 import { EventEmitter } from "events";
 import { Client } from "pg";
 
-const RESERVED_CHANNELS = {
-  newListener: true,
-  removeListener: true,
-  notify: true,
-  unlisten: true,
-  listen: true,
-  error: true,
-  end: true
-};
+const RESERVED_CHANNELS = [
+  "newListener",
+  "removeListener",
+  "notify",
+  "unlisten",
+  "listen",
+  "error",
+  "end"
+];
 
 export default class PostgresIPC extends EventEmitter {
   private pgClient: Client;
@@ -20,13 +20,19 @@ export default class PostgresIPC extends EventEmitter {
     this.pgClient = client;
 
     this.on("newListener", (channel: string, fn) => {
-      if (channel in RESERVED_CHANNELS && this.listenerCount(channel) === 0) {
+      if (
+        RESERVED_CHANNELS.indexOf(channel) < 0 &&
+        this.listenerCount(channel) === 0
+      ) {
         this._dispatchListen(channel);
       }
     });
 
     this.on("removeListener", (channel: string, fn) => {
-      if (channel in RESERVED_CHANNELS && this.listenerCount(channel) > 0) {
+      if (
+        RESERVED_CHANNELS.indexOf(channel) < 0 &&
+        this.listenerCount(channel) === 0
+      ) {
         this._dispatchUnlisten(channel);
       }
     });
@@ -37,7 +43,7 @@ export default class PostgresIPC extends EventEmitter {
       } catch (err) {
         // JSON may not always parse. This is OK.
       } finally {
-        this.emit(msg.channel, msg);
+        this.emit(msg.channel, msg.payload);
       }
     });
   }
@@ -53,7 +59,7 @@ export default class PostgresIPC extends EventEmitter {
     const statement =
       `NOTIFY ${this.pgClient.escapeIdentifier(channel)}, ` +
       `${this._quoteLiteral(encodedPayload)}`;
-    this.pgClient.query(statement, err => {
+    this.pgClient.query(statement, (err, res) => {
       if (err) {
         this.emit("error", err);
       } else {

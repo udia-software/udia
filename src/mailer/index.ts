@@ -90,7 +90,7 @@ export default class Mailer {
         logger.info("sendEmailVerification sent", info);
       })
       .catch(
-        // coverage don't care about send mail failure, tests never fails
+        // coverage don't care about send mail failure, test mail never fails
         /* istanbul ignore next */
         err => {
           logger.error("sendEmailVerification failed", err);
@@ -143,7 +143,7 @@ export default class Mailer {
         logger.info("sendForgotPasswordEmail sent", info);
       })
       .catch(
-        // coverage don't care about send mail failure, tests never fails
+        // coverage don't care about send mail failure, test mail never fails
         /* istanbul ignore next */
         err => {
           logger.error("sendForgotPasswordEmail failed", err);

@@ -20,10 +20,10 @@ export default class PostgresPubSub implements PubSubEngine {
   }
 
   public subscribe(triggerName: string, onMessage: (...args: any[]) => void) {
-    const callback = (payload: any) => onMessage(payload);
-    this.ee.on(triggerName, callback);
+    const cb = (payload: any) => onMessage(payload);
+    this.ee.on(triggerName, cb);
     this.subIdCounter += 1;
-    this.subscriptions[this.subIdCounter] = [triggerName, callback];
+    this.subscriptions[this.subIdCounter] = [triggerName, cb];
     return Promise.resolve(this.subIdCounter);
   }
 
