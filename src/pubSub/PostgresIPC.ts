@@ -15,7 +15,7 @@ export default class PostgresIPC extends EventEmitter {
   private pgClient: Client;
   private ending: boolean = false;
 
-  constructor(client: Client) {
+  constructor(client: Client, reviver?: any) {
     super();
     this.pgClient = client;
 
@@ -39,7 +39,9 @@ export default class PostgresIPC extends EventEmitter {
 
     this.pgClient.on("notification", msg => {
       try {
-        msg.payload = msg.payload ? JSON.parse(msg.payload) : msg.payload;
+        msg.payload = msg.payload
+          ? JSON.parse(msg.payload, reviver)
+          : msg.payload;
       } catch (err) {
         // JSON may not always parse. This is OK.
       } finally {

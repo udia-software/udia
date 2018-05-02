@@ -32,10 +32,12 @@ let pubSub: PubSubEngine;
 const start = async (port: string) => {
   // crypto module may not exist in node binary (will throw error)
   app.set("crypto", crypto);
+
   // create db connection using /ormconfig.js
   const conn = await createConnection();
   logger.info(`Connected to ${conn.options.database} ${conn.options.type}.`);
   app.set("dbConnection", conn);
+
   // instantiate native postgres client for PubSub
   const pgClient = new Client({
     user: SQL_USER,
@@ -45,7 +47,17 @@ const start = async (port: string) => {
     host: SQL_HOST
   });
   await pgClient.connect();
-  pubSub = new PostgresPubSub(pgClient);
+  const dateReviver = (key: any, value: any) => {
+    const isISO8601Z = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/;
+    if (typeof value === "string" && isISO8601Z.test(value)) {
+      const tempDateNumber = Date.parse(value);
+      if (!isNaN(tempDateNumber)) {
+        return new Date(tempDateNumber);
+      }
+    }
+    return value;
+  };
+  pubSub = new PostgresPubSub(pgClient, dateReviver);
   app.set("pubSub", pubSub);
 
   const server = createServer(app);

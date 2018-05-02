@@ -8,8 +8,8 @@ export default class PostgresPubSub implements PubSubEngine {
   private subscriptions: any;
   private subIdCounter: any;
 
-  constructor(pgClient: Client) {
-    this.ee = new PostgresIPC(pgClient);
+  constructor(pgClient: Client, reviver?: any) {
+    this.ee = new PostgresIPC(pgClient, reviver);
     this.subscriptions = {};
     this.subIdCounter = 0;
   }
