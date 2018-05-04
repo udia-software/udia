@@ -1,9 +1,9 @@
 # UDIA
 
-[![Travis](https://img.shields.io/travis/udia-software/udia.svg?style=flat-square)](https://travis-ci.org/udia-software/udia)
-[![Coveralls github](https://img.shields.io/coveralls/github/udia-software/udia.svg?style=flat-square)](https://coveralls.io/github/udia-software/udia)
-[![David](https://img.shields.io/david/udia-software/udia.svg?style=flat-square)](https://david-dm.org/udia-software/udia)
-[![David](https://img.shields.io/david/dev/udia-software/udia.svg?style=flat-square)](https://david-dm.org/udia-software/udia?type=dev)
+[![Build Status](https://travis-ci.org/udia-software/udia.svg?branch=master)](https://travis-ci.org/udia-software/udia)
+[![codecov](https://codecov.io/gh/udia-software/udia/branch/master/graph/badge.svg)](https://codecov.io/gh/udia-software/udia)
+[![dependencies Status](https://david-dm.org/udia-software/udia/status.svg)](https://david-dm.org/udia-software/udia)
+
 
 **You are one with the universe.**
 

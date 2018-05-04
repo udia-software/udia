@@ -1,8 +1,8 @@
 version: '3'
 
 services:
-  redis:
-    image: "redis:alpine"
+  # redis:
+  #   image: "redis:alpine"
   db:
     image: postgres
     healthcheck:
@@ -21,7 +21,7 @@ services:
     build: .
     depends_on:
       - db
-      - redis
+      # - redis
     links:
       - db:db
       - redis:redis
