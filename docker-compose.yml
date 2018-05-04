@@ -24,11 +24,11 @@ services:
       # - redis
     links:
       - db:db
-      - redis:redis
+      # - redis:redis
     environment:
       NODE_ENV: production
       PORT: 3000
-      REDIS_URL: redis://redis:6379
+      # REDIS_URL: redis://redis:6379
       TYPEORM_TYPE: postgres
       SQL_DB: udiadb
       SQL_HOST: db

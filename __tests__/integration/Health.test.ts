@@ -32,7 +32,7 @@ beforeAll(async done => {
     return forward(operation);
   });
   const httpLinkWithAuthToken = middlewareAuthLink.concat(
-    // https://github.com/apollographql/apollo-link/issues/513
+    // TODO https://github.com/apollographql/apollo-link/issues/513
     new HttpLink({ uri: GRAPHQL_HTTP_ENDPOINT, fetch: fetch as any })
   );
 
@@ -47,7 +47,8 @@ beforeAll(async done => {
   const wsLinkWithAuthToken = new WebSocketLink(subscriptionClient);
   const link = split(
     ({ query }) => {
-      const { kind, operation } = getOperationDefinition(query) || {
+      // TODO https://github.com/apollographql/apollo-link/issues/601
+      const { kind, operation } = getOperationDefinition((query as any)) || {
         kind: null,
         operation: null
       };
