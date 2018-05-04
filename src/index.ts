@@ -1,3 +1,4 @@
+import PostgresPubSub from "@udia/graphql-postgres-subscriptions";
 import crypto from "crypto";
 import { execute, subscribe } from "graphql";
 import { PubSubEngine } from "graphql-subscriptions";
@@ -19,7 +20,6 @@ import {
   SQL_USER
 } from "./constants";
 import gqlSchema from "./gqlSchema";
-import PostgresPubSub from "./pubSub/PostgresPubSub";
 import logger from "./util/logger";
 import metric from "./util/metric";
 
