@@ -1,9 +1,9 @@
 # UDIA
 
-[![Travis](https://img.shields.io/travis/udia-software/udia.svg?style=flat-square)](https://travis-ci.org/udia-software/udia)
-[![Coveralls github](https://img.shields.io/coveralls/github/udia-software/udia.svg?style=flat-square)](https://coveralls.io/github/udia-software/udia)
-[![David](https://img.shields.io/david/udia-software/udia.svg?style=flat-square)](https://david-dm.org/udia-software/udia)
-[![David](https://img.shields.io/david/dev/udia-software/udia.svg?style=flat-square)](https://david-dm.org/udia-software/udia?type=dev)
+[![Travis](https://shields.alexander-wong.com/travis/udia-software/udia.svg?style=flat-square)](https://travis-ci.org/udia-software/udia)
+[![Codecov](https://shields.alexander-wong.com/codecov/c/github/udia-software/udia.svg?style=flat-square)](https://codecov.io/gh/udia-software/udia)
+[![David](https://shields.alexander-wong.com/david/udia-software/udia.svg?style=flat-square)](https://david-dm.org/udia-software/udia)
+
 
 **You are one with the universe.**
 
@@ -57,7 +57,6 @@ These environment variables can be set by modifying your `~/.*rc` or `~/.*profil
 | `SMTP_PASSWORD`           | `rCJTErmv6v2uacmdRt`              | SMTP Password                                      |
 | `SMTP_HOST`               | `smtp.ethereal.email`             | SMTP Host (ethereal default)                       |
 | `SMTP_PORT`               | `587`                             | SMTP Port                                          |
-| `REDIS_URL`               | `redis://localhost:6379`          | Redis Connection String                            |
 | `HEALTH_METRIC_INTERVAL`  | `500`                             | How often to send health metric                    |
 | `DEV_JWT`                 | ""                                | `Test/Dev`/graphiql` passHeader jwt                |
 

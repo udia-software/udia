@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from "axios";
 import { Server } from "http";
 import Graceful from "node-graceful";
 import { PORT } from "../src/constants";
-import start from "../src/index";
+import start, { dateReviver } from "../src/index";
 
 let restClient: AxiosInstance = null;
 
@@ -28,5 +28,16 @@ describe("Index", () => {
     const indexRespData = getIndexResp.data || "";
     expect(indexRespData).toContain("UDIA API SERVER");
     done();
+  });
+
+  it("should revive JSON.stringify dates", () => {
+    const validTime = new Date();
+    const invalidTime = "2018-13-04T21:12:40.913Z"; // 13th month does not exist
+    const stringify = JSON.stringify({ validTime, invalidTime });
+    const revive = JSON.parse(stringify, dateReviver);
+    expect(revive).toHaveProperty("validTime");
+    expect(revive).toHaveProperty("invalidTime");
+    expect(typeof revive.invalidTime).toBe("string");
+    expect(revive.validTime).toBeInstanceOf(Date);
   });
 });

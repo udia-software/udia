@@ -9,7 +9,6 @@ cache:
     - node_modules
 services:
   - postgresql
-  - redis
 before_install:
   - yarn global add greenkeeper-lockfile@1
 before_script:
@@ -17,7 +16,8 @@ before_script:
   - psql -c 'CREATE DATABASE udiadbtest;' -U postgres
 after_script:
   - greenkeeper-lockfile-upload
-  - cat ./coverage/lcov.info | ./node_modules/.bin/coveralls
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
 env:
   global:
     - NODE_ENV=test

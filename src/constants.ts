@@ -23,7 +23,6 @@ const SMTP_USERNAME =
 const SMTP_PASSWORD = process.env.SMTP_PASSWORD || "rCJTErmv6v2uacmdRt";
 const SMTP_HOST = process.env.SMTP_HOST || "smtp.ethereal.email";
 const SMTP_PORT = process.env.SMTP_PORT || "587";
-const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
 const HEALTH_METRIC_INTERVAL = process.env.HEALTH_METRIC_INTERVAL || "500";
 const DEV_JWT = process.env.DEV_JWT || "";
 
@@ -45,7 +44,6 @@ export {
   SMTP_PASSWORD,
   SMTP_HOST,
   SMTP_PORT,
-  REDIS_URL,
   HEALTH_METRIC_INTERVAL,
   DEV_JWT
 };

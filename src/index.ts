@@ -1,3 +1,4 @@
+import PostgresPubSub from "@udia/graphql-postgres-subscriptions";
 import crypto from "crypto";
 import { execute, subscribe } from "graphql";
 import { PubSubEngine } from "graphql-subscriptions";
@@ -5,7 +6,7 @@ import { createServer } from "http";
 import Graceful from "node-graceful";
 import { Client } from "pg";
 import "reflect-metadata"; // required for typeorm
-import { SubscriptionServer } from "subscriptions-transport-ws";
+import { ExecuteFunction, SubscriptionServer } from "subscriptions-transport-ws";
 import { createConnection } from "typeorm";
 import app from "./app";
 import {
@@ -19,11 +20,20 @@ import {
   SQL_USER
 } from "./constants";
 import gqlSchema from "./gqlSchema";
-import PostgresPubSub from "./pubSub/PostgresPubSub";
 import logger from "./util/logger";
 import metric from "./util/metric";
 
 let pubSub: PubSubEngine;
+const dateReviver = (key: any, value: any) => {
+  const isISO8601Z = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/;
+  if (typeof value === "string" && isISO8601Z.test(value)) {
+    const tempDateNumber = Date.parse(value);
+    if (!isNaN(tempDateNumber)) {
+      return new Date(tempDateNumber);
+    }
+  }
+  return value;
+};
 
 /**
  * Start the server. Initialize the Database Client and tables.
@@ -47,23 +57,13 @@ const start = async (port: string) => {
     host: SQL_HOST
   });
   await pgClient.connect();
-  const dateReviver = (key: any, value: any) => {
-    const isISO8601Z = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/;
-    if (typeof value === "string" && isISO8601Z.test(value)) {
-      const tempDateNumber = Date.parse(value);
-      if (!isNaN(tempDateNumber)) {
-        return new Date(tempDateNumber);
-      }
-    }
-    return value;
-  };
   pubSub = new PostgresPubSub(pgClient, dateReviver);
   app.set("pubSub", pubSub);
 
   const server = createServer(app);
   const subscriptionServer = SubscriptionServer.create(
     {
-      execute,
+      execute: (execute as ExecuteFunction), // TODO: https://github.com/udia-software/udia/issues/84
       subscribe,
       schema: gqlSchema
     },
@@ -125,5 +125,5 @@ if (require.main === module) {
   start(PORT);
 }
 
-export { pubSub };
+export { pubSub, dateReviver };
 export default start;

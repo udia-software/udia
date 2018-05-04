@@ -4,6 +4,7 @@ import { ApolloLink, split } from "apollo-link";
 import { HttpLink } from "apollo-link-http";
 import { WebSocketLink } from "apollo-link-ws";
 import { getOperationDefinition } from "apollo-utilities";
+import { DocumentNode } from "graphql";
 import gql from "graphql-tag";
 import { Server } from "http";
 import fetch from "node-fetch";
@@ -120,7 +121,8 @@ beforeAll(async done => {
   const wsLinkWithAuthToken = new WebSocketLink(subscriptionClient);
   const link = split(
     ({ query }) => {
-      const { kind, operation } = getOperationDefinition(query) || {
+      // TODO https://github.com/apollographql/apollo-link/issues/601
+      const { kind, operation } = getOperationDefinition((query as any)) || {
         kind: null,
         operation: null
       };
