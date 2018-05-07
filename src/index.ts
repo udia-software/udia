@@ -6,7 +6,7 @@ import { createServer } from "http";
 import Graceful from "node-graceful";
 import { Client } from "pg";
 import "reflect-metadata"; // required for typeorm
-import { ExecuteFunction, SubscriptionServer } from "subscriptions-transport-ws";
+import { SubscriptionServer } from "subscriptions-transport-ws";
 import { createConnection } from "typeorm";
 import app from "./app";
 import {
@@ -63,7 +63,7 @@ const start = async (port: string) => {
   const server = createServer(app);
   const subscriptionServer = SubscriptionServer.create(
     {
-      execute: (execute as ExecuteFunction), // TODO: https://github.com/udia-software/udia/issues/84
+      execute,
       subscribe,
       schema: gqlSchema
     },
