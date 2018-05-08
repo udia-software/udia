@@ -1,6 +1,6 @@
 {
   "name": "@udia/udia",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Encrypted file and note storage, with collaboration",
   "main": "dist/index.js",
   "scripts": {
