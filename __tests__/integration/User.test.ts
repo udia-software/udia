@@ -84,7 +84,6 @@ async function deleteUsers() {
 
 /**
  * Integration tests for User logic.
- * - Test REST API
  * - Test GraphQL API
  */
 beforeAll(async done => {
@@ -122,7 +121,7 @@ beforeAll(async done => {
   const link = split(
     ({ query }) => {
       // TODO https://github.com/apollographql/apollo-link/issues/601
-      const { kind, operation } = getOperationDefinition((query as any)) || {
+      const { kind, operation } = getOperationDefinition(query as any) || {
         kind: null,
         operation: null
       };
@@ -164,6 +163,94 @@ describe("Users", () => {
     afterAll(() => {
       sendEmailVerificationSpy.mockClear();
       sendForgotPassEmailSpy.mockClear();
+    });
+
+    it("should check for existing emails.", async done => {
+      const unknownEmail = "unknown@udia.ca";
+      const checkUnknownEmailExistsQuery = await gqlClient.query({
+        query: gql`
+          query CheckEmailExists($email: String!) {
+            checkEmailExists(email: $email)
+          }
+        `,
+        variables: {
+          email: unknownEmail
+        }
+      });
+      expect(checkUnknownEmailExistsQuery).toHaveProperty("data");
+      const checkUnknownEmailExistsQueryData: any =
+        checkUnknownEmailExistsQuery.data;
+      expect(checkUnknownEmailExistsQueryData).toHaveProperty(
+        "checkEmailExists"
+      );
+      const checkUnknownEmailExists =
+        checkUnknownEmailExistsQueryData.checkEmailExists;
+      expect(checkUnknownEmailExists).toEqual(0);
+
+      const knownEmail = "updateMe@udia.ca";
+      const checkKnownEmailExistsQuery = await gqlClient.query({
+        query: gql`
+          query CheckEmailExists($email: String!) {
+            checkEmailExists(email: $email)
+          }
+        `,
+        variables: {
+          email: knownEmail
+        }
+      });
+      expect(checkKnownEmailExistsQuery).toHaveProperty("data");
+      const checkKnownEmailExistsQueryData: any =
+        checkKnownEmailExistsQuery.data;
+      expect(checkKnownEmailExistsQueryData).toHaveProperty("checkEmailExists");
+      const checkKnownEmailExists =
+        checkKnownEmailExistsQueryData.checkEmailExists;
+      expect(checkKnownEmailExists).toEqual(1);
+      done();
+    });
+
+    it("should check for existing usernames.", async done => {
+      const unknownUsername = "unknown";
+      const checkUnknownUsernameExistsQuery = await gqlClient.query({
+        query: gql`
+          query CheckUsernameExists($username: String!) {
+            checkUsernameExists(username: $username)
+          }
+        `,
+        variables: {
+          username: unknownUsername
+        }
+      });
+      expect(checkUnknownUsernameExistsQuery).toHaveProperty("data");
+      const checkUnknownUsernameExistsQueryData: any =
+        checkUnknownUsernameExistsQuery.data;
+      expect(checkUnknownUsernameExistsQueryData).toHaveProperty(
+        "checkUsernameExists"
+      );
+      const checkUnknownUsernameExists =
+        checkUnknownUsernameExistsQueryData.checkUsernameExists;
+      expect(checkUnknownUsernameExists).toEqual(0);
+
+      const knownUsername = "updateme";
+      const checkKnownUsernameExistsQuery = await gqlClient.query({
+        query: gql`
+          query CheckUsernameExists($username: String!) {
+            checkUsernameExists(username: $username)
+          }
+        `,
+        variables: {
+          username: knownUsername
+        }
+      });
+      expect(checkKnownUsernameExistsQuery).toHaveProperty("data");
+      const checkKnownUsernameExistsQueryData: any =
+        checkKnownUsernameExistsQuery.data;
+      expect(checkKnownUsernameExistsQueryData).toHaveProperty(
+        "checkUsernameExists"
+      );
+      const checkKnownUsernameExists =
+        checkKnownUsernameExistsQueryData.checkUsernameExists;
+      expect(checkKnownUsernameExists).toEqual(1);
+      done();
     });
 
     it("should create a user.", async done => {

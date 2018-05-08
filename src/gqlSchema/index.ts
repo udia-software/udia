@@ -9,6 +9,8 @@ const typeDefs: ITypedef = `
 type Query {
   getUserAuthParams(email: String!): UserAuthParams!
   checkResetToken(resetToken: String!): TokenValidity!
+  checkEmailExists(email: String!): Int!
+  checkUsernameExists(username: String!): Int!
   me: FullUser
   health: HealthMetric!
 }

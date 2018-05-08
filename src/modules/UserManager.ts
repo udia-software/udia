@@ -530,13 +530,28 @@ export default class UserManager {
   }
 
   /**
-   * Check whether or not the email exists
-   * @param email does this email exist in the database
+   * Get number of emails matching the provided email string
+   * @param email - email to check existance in the database
+   * @returns Promise<number> - should be 0 or 1
    */
-  private static async emailExists(email: string) {
+  public static async emailExists(email: string = "") {
+    const lEmail = (email || "").toLowerCase().trim();
     return getRepository(UserEmail)
       .createQueryBuilder("userEmail")
-      .where({ lEmail: email.toLowerCase().trim() })
+      .where({ lEmail })
+      .getCount();
+  }
+
+  /**
+   * Get number of usernames matching the provided username string
+   * @param username - username to check existance in database
+   * @returns Promise<number> - should be 0 or 1
+   */
+  public static async usernameExists(username: string = "") {
+    const lUsername = (username || "").toLowerCase().trim();
+    return getRepository(User)
+      .createQueryBuilder("user")
+      .where({ lUsername })
       .getCount();
   }
 
@@ -545,7 +560,8 @@ export default class UserManager {
    * @param email user's email
    */
   private static async getUserEmailByEmail(email: string) {
-    return getRepository(UserEmail).findOne(email.toLowerCase().trim(), {
+    const lEmail = (email || "").toLowerCase().trim();
+    return getRepository(UserEmail).findOne(lEmail, {
       relations: ["user"]
     });
   }

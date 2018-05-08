@@ -34,6 +34,14 @@ const resolvers: IResolvers = {
       const resetToken = params.resetToken;
       return UserManager.checkResetToken(resetToken);
     },
+    checkEmailExists: async (root: any, params: any, context: IContext) => {
+      const email = params.email;
+      return UserManager.emailExists(email);
+    },
+    checkUsernameExists: async (root: any, params: any, context: IContext) => {
+      const username = params.username;
+      return UserManager.usernameExists(username);
+    },
     me: async (root: any, params: any, context: IContext) => {
       const username = context.jwtPayload && context.jwtPayload.username;
       return UserManager.getUserByUsername(username);
