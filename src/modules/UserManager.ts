@@ -87,7 +87,7 @@ export default class UserManager {
    */
   public static async getUserByUsername(username: string = "") {
     return getRepository(User).findOne({
-      lUsername: username.toLowerCase().trim()
+      lUsername: (username || "").toLowerCase().trim()
     });
   }
 
