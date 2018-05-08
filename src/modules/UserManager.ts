@@ -117,32 +117,8 @@ export default class UserManager {
     pwSalt
   }: ICreateUserParams) {
     const errors: IErrorMessage[] = [];
-
-    const lUsername = username.toLowerCase().trim();
-    if (lUsername.length > 24) {
-      errors.push({
-        key: "username",
-        message: "Username is too long (over 24 characters)."
-      });
-    } else if (lUsername.length < 3) {
-      errors.push({
-        key: "username",
-        message: "Username is too short (under 3 characters)."
-      });
-    }
-    const userExists = await getRepository(User)
-      .createQueryBuilder("user")
-      .where({ lUsername })
-      .getCount();
-    if (userExists > 0) {
-      errors.push({ key: "username", message: "Username is taken." });
-    }
-
-    const emailExists = await this.emailExists(email);
-    if (emailExists > 0) {
-      errors.push({ key: "email", message: "Email is taken." });
-    }
-
+    await UserManager.handleValidateUsername(username, errors);
+    await UserManager.handleValidateEmail(email, errors);
     if (errors.length > 0) {
       throw new ValidationError(errors);
     }
@@ -155,7 +131,7 @@ export default class UserManager {
     newEmail.primary = true;
     newEmail.verified = false;
     newUser.username = username.trim();
-    newUser.lUsername = lUsername;
+    newUser.lUsername = username.toLowerCase().trim();
     newUser.pwHash = pwHash;
     newUser.pwFunc = pwFunc;
     newUser.pwDigest = pwDigest;
@@ -286,13 +262,14 @@ export default class UserManager {
     username: string = "",
     { email }: IAddEmailParams
   ) {
+    const errors: IErrorMessage[] = [];
     const user = await this.getUserByUsername(username);
     if (!user) {
-      throw new ValidationError([{ key: "id", message: "Invalid JWT." }]);
+      errors.push({ key: "id", message: "Invalid JWT." });
     }
-    const emailExists = await this.emailExists(email);
-    if (emailExists > 0) {
-      throw new ValidationError([{ key: "email", message: "Email is taken." }]);
+    await this.handleValidateEmail(email, errors);
+    if (errors.length > 0) {
+      throw new ValidationError(errors);
     }
 
     const newUserEmail = new UserEmail();
@@ -300,7 +277,7 @@ export default class UserManager {
     newUserEmail.email = email.trim();
     newUserEmail.primary = false;
     newUserEmail.verified = false;
-    newUserEmail.user = user;
+    newUserEmail.user = user!;
     await getRepository(UserEmail).save(newUserEmail);
     await this.sendEmailVerification({ email: newUserEmail.email });
     return user;
@@ -535,11 +512,12 @@ export default class UserManager {
    * @returns Promise<number> - should be 0 or 1
    */
   public static async emailExists(email: string = "") {
-    const lEmail = (email || "").toLowerCase().trim();
-    return getRepository(UserEmail)
-      .createQueryBuilder("userEmail")
-      .where({ lEmail })
-      .getCount();
+    const errors: IErrorMessage[] = [];
+    const count = await this.handleValidateEmail(email, errors);
+    if (errors.length > 0) {
+      throw new ValidationError(errors);
+    }
+    return count;
   }
 
   /**
@@ -548,11 +526,58 @@ export default class UserManager {
    * @returns Promise<number> - should be 0 or 1
    */
   public static async usernameExists(username: string = "") {
+    const errors: IErrorMessage[] = [];
+    const count = await this.handleValidateUsername(username, errors);
+    if (errors.length > 0) {
+      throw new ValidationError(errors);
+    }
+    return count;
+  }
+
+  private static async handleValidateUsername(
+    username: string,
+    errors: IErrorMessage[]
+  ) {
     const lUsername = (username || "").toLowerCase().trim();
-    return getRepository(User)
+    if (lUsername.length > 24) {
+      errors.push({
+        key: "username",
+        message: "Username is too long (over 24 characters)."
+      });
+    } else if (lUsername.length < 3) {
+      errors.push({
+        key: "username",
+        message: "Username is too short (under 3 characters)."
+      });
+    }
+    const userExists = await getRepository(User)
       .createQueryBuilder("user")
       .where({ lUsername })
       .getCount();
+    if (userExists > 0) {
+      errors.push({ key: "username", message: "Username is taken." });
+    }
+    return userExists;
+  }
+
+  private static async handleValidateEmail(
+    email: string,
+    errors: IErrorMessage[]
+  ) {
+    // Regular Expression for catching 99% of all emails taken from https://emailregex.com/
+    const EMAIL_REGEX = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    const lEmail = (email || "").toLowerCase().trim();
+    if (!EMAIL_REGEX.test(lEmail)) {
+      errors.push({ key: "email", message: "Email is invalid." });
+    }
+    const emailExists = await getRepository(UserEmail)
+      .createQueryBuilder("userEmail")
+      .where({ lEmail })
+      .getCount();
+    if (emailExists > 0) {
+      errors.push({ key: "email", message: "Email is taken." });
+    }
+    return emailExists;
   }
 
   /**

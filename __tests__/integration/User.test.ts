@@ -166,6 +166,7 @@ describe("Users", () => {
     });
 
     it("should check for existing emails.", async done => {
+      expect.assertions(4);
       const unknownEmail = "unknown@udia.ca";
       const checkUnknownEmailExistsQuery = await gqlClient.query({
         query: gql`
@@ -188,27 +189,26 @@ describe("Users", () => {
       expect(checkUnknownEmailExists).toEqual(0);
 
       const knownEmail = "updateMe@udia.ca";
-      const checkKnownEmailExistsQuery = await gqlClient.query({
-        query: gql`
-          query CheckEmailExists($email: String!) {
-            checkEmailExists(email: $email)
+      const checkKnownEmailExistsQuery = await expect(
+        gqlClient.query({
+          query: gql`
+            query CheckEmailExists($email: String!) {
+              checkEmailExists(email: $email)
+            }
+          `,
+          variables: {
+            email: knownEmail
           }
-        `,
-        variables: {
-          email: knownEmail
-        }
-      });
-      expect(checkKnownEmailExistsQuery).toHaveProperty("data");
-      const checkKnownEmailExistsQueryData: any =
-        checkKnownEmailExistsQuery.data;
-      expect(checkKnownEmailExistsQueryData).toHaveProperty("checkEmailExists");
-      const checkKnownEmailExists =
-        checkKnownEmailExistsQueryData.checkEmailExists;
-      expect(checkKnownEmailExists).toEqual(1);
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        `GraphQL error: The request is invalid.\n` + `* email: Email is taken.`
+      );
       done();
     });
 
     it("should check for existing usernames.", async done => {
+      expect.assertions(4);
       const unknownUsername = "unknown";
       const checkUnknownUsernameExistsQuery = await gqlClient.query({
         query: gql`
@@ -231,25 +231,22 @@ describe("Users", () => {
       expect(checkUnknownUsernameExists).toEqual(0);
 
       const knownUsername = "updateme";
-      const checkKnownUsernameExistsQuery = await gqlClient.query({
-        query: gql`
-          query CheckUsernameExists($username: String!) {
-            checkUsernameExists(username: $username)
+      await expect(
+        gqlClient.query({
+          query: gql`
+            query CheckUsernameExists($username: String!) {
+              checkUsernameExists(username: $username)
+            }
+          `,
+          variables: {
+            username: knownUsername
           }
-        `,
-        variables: {
-          username: knownUsername
-        }
-      });
-      expect(checkKnownUsernameExistsQuery).toHaveProperty("data");
-      const checkKnownUsernameExistsQueryData: any =
-        checkKnownUsernameExistsQuery.data;
-      expect(checkKnownUsernameExistsQueryData).toHaveProperty(
-        "checkUsernameExists"
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        `GraphQL error: The request is invalid.\n` +
+          `* username: Username is taken.`
       );
-      const checkKnownUsernameExists =
-        checkKnownUsernameExistsQueryData.checkUsernameExists;
-      expect(checkKnownUsernameExists).toEqual(1);
       done();
     });
 
@@ -875,6 +872,7 @@ describe("Users", () => {
           variables: { email }
         });
       } catch (err) {
+        expect(err).toHaveProperty("networkError", null);
         expect(err).toHaveProperty("graphQLErrors", [
           {
             locations: [{ column: 3, line: 2 }],
@@ -883,7 +881,6 @@ describe("Users", () => {
             state: { email: ["Email not found."] }
           }
         ]);
-        expect(err).toHaveProperty("networkError", null);
         expect(err).toHaveProperty(
           "message",
           "GraphQL error: The request is invalid.\n* email: Email not found."

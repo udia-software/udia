@@ -594,21 +594,62 @@ describe("UserManager", () => {
 
   describe("emailExists", () => {
     it("should handle invalid email", async () => {
-      expect.assertions(4);
-      expect(await UserManager.emailExists()).toEqual(0);
-      expect(await UserManager.emailExists("")).toEqual(0);
-      expect(await UserManager.emailExists(null)).toEqual(0);
-      expect(await UserManager.emailExists(undefined)).toEqual(0);
+      expect.assertions(5);
+      await expect(UserManager.emailExists()).rejects.toHaveProperty(
+        "message",
+        `The request is invalid.\n* email: Email is invalid.`
+      );
+      await expect(UserManager.emailExists("")).rejects.toHaveProperty(
+        "message",
+        `The request is invalid.\n* email: Email is invalid.`
+      );
+      await expect(UserManager.emailExists(null)).rejects.toHaveProperty(
+        "message",
+        `The request is invalid.\n* email: Email is invalid.`
+      );
+      await expect(UserManager.emailExists(undefined)).rejects.toHaveProperty(
+        "message",
+        `The request is invalid.\n* email: Email is invalid.`
+      );
+      await expect(UserManager.emailExists("badstring")).rejects.toHaveProperty(
+        "message",
+        `The request is invalid.\n* email: Email is invalid.`
+      );
     });
-  })
+  });
 
-  describe("usernameExists", () => {
-    it("should handle invalid username", async () => {
-      expect.assertions(4);
-      expect(await UserManager.usernameExists()).toEqual(0);
-      expect(await UserManager.usernameExists("")).toEqual(0);
-      expect(await UserManager.usernameExists(null)).toEqual(0);
-      expect(await UserManager.usernameExists(undefined)).toEqual(0);
+  describe("usernameExists", async () => {
+    it("should handle invalid usernames", async () => {
+      expect.assertions(5);
+      await expect(UserManager.usernameExists()).rejects.toHaveProperty(
+        "message",
+        `The request is invalid.\n` +
+          `* username: Username is too short (under 3 characters).`
+      );
+      await expect(UserManager.usernameExists("")).rejects.toHaveProperty(
+        "message",
+        `The request is invalid.\n` +
+          `* username: Username is too short (under 3 characters).`
+      );
+      await expect(UserManager.usernameExists(null)).rejects.toHaveProperty(
+        "message",
+        `The request is invalid.\n` +
+          `* username: Username is too short (under 3 characters).`
+      );
+      await expect(
+        UserManager.usernameExists(undefined)
+      ).rejects.toHaveProperty(
+        "message",
+        `The request is invalid.\n` +
+          `* username: Username is too short (under 3 characters).`
+      );
+      await expect(
+        UserManager.usernameExists("somereallylongusernameisgoinghere")
+      ).rejects.toHaveProperty(
+        "message",
+        `The request is invalid.\n` +
+          `* username: Username is too long (over 24 characters).`
+      );
     });
-  })
+  });
 });
