@@ -467,6 +467,21 @@ describe("UserManager", () => {
       done("Should have thrown email not found error.");
     });
 
+    it("should handle email already validated", async done => {
+      try {
+        await UserManager.verifyEmailToken({
+          emailToken: "dupeuser2@udia.ca:test"
+        });
+      } catch (err) {
+        expect(err).toHaveProperty(
+          "message",
+          "The request is invalid.\n* emailToken: Email already verified."
+        );
+        return done();
+      }
+      done("Should have thrown email already verified error.");
+    })
+
     it("should handle invalid & expired secret", async done => {
       try {
         await UserManager.verifyEmailToken({
