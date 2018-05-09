@@ -382,6 +382,11 @@ export default class UserManager {
         { key: "emailToken", message: "Email not found." }
       ]);
     }
+    if (uEmail.verified) {
+      throw new ValidationError([
+        { key: "emailToken", message: "Email already verified." }
+      ]);
+    }
     const errors: IErrorMessage[] = [];
     if (!uEmail.verificationExpiry || uEmail.verificationExpiry < new Date()) {
       errors.push({ key: "emailToken", message: "Token is expired." });

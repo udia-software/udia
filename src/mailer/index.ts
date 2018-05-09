@@ -1,11 +1,16 @@
 "use strict";
 
+import { config as AWSConfig, SES } from "aws-sdk";
 import { duration } from "moment";
 import { createTransport } from "nodemailer";
 import {
+  AWS_ACCESS_KEY_ID,
+  AWS_SECRET_ACCESS_KEY,
+  AWS_SES_REGION,
   CLIENT_DOMAINNAME,
   CLIENT_PROTOCOL,
   EMAIL_TOKEN_TIMEOUT,
+  FROM_EMAIL,
   NODE_ENV,
   SMTP_HOST,
   SMTP_PASSWORD,
@@ -40,6 +45,19 @@ if (NODE_ENV === "development") {
   };
 }
 
+// coverage should not be using AWS
+/* istanbul ignore next */
+if (!!AWS_ACCESS_KEY_ID && !!AWS_SECRET_ACCESS_KEY) {
+  logger.info("Using AWS SDK for Mailer");
+  AWSConfig.accessKeyId = AWS_ACCESS_KEY_ID;
+  AWSConfig.secretAccessKey = AWS_SECRET_ACCESS_KEY;
+  AWSConfig.region = AWS_SES_REGION;
+  config = {
+    SES: new SES({ apiVersion: "2010-12-01" }),
+    sendingRate: 10 // max 10 messages per second
+  };
+}
+
 const transport = createTransport(config);
 
 export default class Mailer {
@@ -57,7 +75,7 @@ export default class Mailer {
     const payload = {
       from: {
         name: "UDIA",
-        address: "do-not-reply@udia.ca"
+        address: FROM_EMAIL
       },
       to: {
         name: username,
@@ -112,7 +130,7 @@ export default class Mailer {
     const payload = {
       from: {
         name: "UDIA",
-        address: "do-not-reply@udia.ca"
+        address: FROM_EMAIL
       },
       to: {
         name: username,
@@ -136,8 +154,8 @@ export default class Mailer {
         `</p>` +
         `<p>You may also verify your email by manually copying and pasting your token:</p>` +
         `<pre><code><a href="#" style="text-decoration:none;">${validationToken}</a></code></pre>` +
-        `<p>to:` +
-        `<br/><a href="${urlNoToken}">${urlNoToken}</a></p>`
+        `<p>to:<br/>` +
+        `<a href="${urlNoToken}">${urlNoToken}</a></p>`
     };
     return transport
       .sendMail(payload)
