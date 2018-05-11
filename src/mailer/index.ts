@@ -47,7 +47,7 @@ if (NODE_ENV === "development") {
 
 // coverage should not be using AWS
 /* istanbul ignore next */
-if (!!AWS_ACCESS_KEY_ID && !!AWS_SECRET_ACCESS_KEY) {
+if (NODE_ENV !== 'test' && !!AWS_ACCESS_KEY_ID && !!AWS_SECRET_ACCESS_KEY) {
   logger.info("Using AWS SDK for Mailer");
   AWSConfig.accessKeyId = AWS_ACCESS_KEY_ID;
   AWSConfig.secretAccessKey = AWS_SECRET_ACCESS_KEY;
