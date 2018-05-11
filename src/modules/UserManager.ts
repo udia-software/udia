@@ -504,10 +504,9 @@ export default class UserManager {
       return validityPayload;
     }
     validityPayload.expiry = user.forgotPwExpiry;
-    validityPayload.isValid = await Auth.verifyPassword(
-      user.forgotPwHash,
-      resetToken
-    );
+    const isSecretValid = await Auth.verifyPassword(user.forgotPwHash, resetToken);
+    const isDateValid = !!user.forgotPwExpiry && user.forgotPwExpiry > new Date();
+    validityPayload.isValid = isSecretValid && isDateValid;
     return validityPayload;
   }
 

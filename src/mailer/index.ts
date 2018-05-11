@@ -126,7 +126,7 @@ export default class Mailer {
       +EMAIL_TOKEN_TIMEOUT,
       "milliseconds"
     ).humanize();
-    const urlNoToken = `${CLIENT_PROTOCOL}://${CLIENT_DOMAINNAME}/password-reset`;
+    const urlNoToken = `${CLIENT_PROTOCOL}://${CLIENT_DOMAINNAME}/reset-password`;
     const urlWithToken = `${urlNoToken}/${validationToken}`;
     const payload = {
       from: {
