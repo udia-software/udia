@@ -1,4 +1,6 @@
+import dotenv from 'dotenv';
 import { version } from "pjson";
+dotenv.config(); // can also set environment variables using .env file
 
 const APP_VERSION = version;
 

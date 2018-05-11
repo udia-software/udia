@@ -63,6 +63,7 @@
   "license": "AGPL-3.0",
   "dependencies": {
     "@types/cors": "^2.8.3",
+    "@types/dotenv": "^4.0.3",
     "@types/express": "^4.11.1",
     "@types/express-jwt": "^0.0.40",
     "@types/graphql": "~0.13.0",
@@ -90,6 +91,7 @@
     "axios": "^0.18.0",
     "body-parser": "^1.18.2",
     "cors": "^2.8.4",
+    "dotenv": "^5.0.1",
     "express": "^4.16.3",
     "graphql": "^0.13.2",
     "graphql-subscriptions": "^0.5.8",
