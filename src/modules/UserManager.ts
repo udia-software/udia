@@ -503,10 +503,12 @@ export default class UserManager {
     if (!user) {
       return validityPayload;
     }
-    validityPayload.expiry = user.forgotPwExpiry;
     const isSecretValid = await Auth.verifyPassword(user.forgotPwHash, resetToken);
     const isDateValid = !!user.forgotPwExpiry && user.forgotPwExpiry > new Date();
-    validityPayload.isValid = isSecretValid && isDateValid;
+    if (isSecretValid && isDateValid) {
+      validityPayload.isValid = true;
+      validityPayload.expiry = user.forgotPwExpiry;
+    }
     return validityPayload;
   }
 
