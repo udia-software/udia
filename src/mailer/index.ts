@@ -81,8 +81,8 @@ export default class Mailer {
         name: username,
         address: email
       },
-      subject: `[UDIA${NODE_ENV !== "production" &&
-        ` ${NODE_ENV}`}] Validate Your Email`,
+      subject: `[UDIA${NODE_ENV !== "production" ?
+        ` ${NODE_ENV}` : ''}] Validate Your Email`,
       text:
         "This is your email validation token.\n" +
         `It is valid for ${validityTime}.\n` +
@@ -137,8 +137,8 @@ export default class Mailer {
         name: username,
         address: email
       },
-      subject: `[UDIA${NODE_ENV !== "production" &&
-      ` ${NODE_ENV}`}] Reset Your Password`,
+      subject: `[UDIA${NODE_ENV !== "production" ?
+      ` ${NODE_ENV}` : ''}] Reset Your Password`,
       text:
         `This is your password reset token.\n` +
         `It is valid for ${validityTime}.\n` +
