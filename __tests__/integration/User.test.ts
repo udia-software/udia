@@ -584,6 +584,58 @@ describe("Users", () => {
       done();
     });
 
+    it("should set a user email as primary", async done => {
+      const email = "updateMe2@udia.ca";
+      const setPrimaryEmailResp = await gqlClient.mutate({
+        mutation: gql`
+          mutation SetPrimaryEmail($email: String!) {
+            setPrimaryEmail(email: $email) {
+              uuid
+              emails {
+                email
+                user {
+                  uuid
+                }
+                primary
+                verified
+              }
+            }
+          }
+        `,
+        variables: { email }
+      });
+      expect(setPrimaryEmailResp).toHaveProperty("data");
+      const setPrimaryEmailData = setPrimaryEmailResp.data;
+      expect(setPrimaryEmailData).toHaveProperty("setPrimaryEmail");
+      const setPrimaryEmail = setPrimaryEmailData.setPrimaryEmail;
+      expect(setPrimaryEmail).toHaveProperty("__typename", "FullUser");
+      expect(setPrimaryEmail).toHaveProperty("uuid");
+      expect(setPrimaryEmail).toHaveProperty("emails");
+      const userEmails = setPrimaryEmail.emails;
+      expect(userEmails).toHaveLength(2);
+      expect(userEmails).toContainEqual({
+        __typename: "UserEmail",
+        email: 'updateMe2@udia.ca',
+        user: {
+          uuid: setPrimaryEmail.uuid,
+          __typename: "FullUser"
+        },
+        primary: true,
+        verified: true
+      });
+      expect(userEmails).toContainEqual({
+        __typename: "UserEmail",
+        email: 'updateMe@udia.ca',
+        user: {
+          uuid: setPrimaryEmail.uuid,
+          __typename: "FullUser"
+        },
+        primary: false,
+        verified: true
+      });
+      done();
+    });
+
     it("should delete a user email", async done => {
       const email = "updateMe2@udia.ca";
       const removeEmailResp = await gqlClient.mutate({

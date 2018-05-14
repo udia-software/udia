@@ -374,6 +374,54 @@ describe("UserManager", () => {
     });
   });
 
+  describe("setPrimaryEmail", () => {
+    it("should handle set primary email invalid JWT", async done => {
+      try {
+        await UserManager.setPrimaryEmail(undefined, {
+          email: "badActor@udia.ca"
+        });
+      } catch (err) {
+        expect(err).toHaveProperty(
+          "message",
+          "The request is invalid.\n* id: Invalid JWT."
+        );
+        return done();
+      }
+      done("Should have thrown invalid jwt error.");
+    });
+
+    it("should handle set primary invalid email", async done => {
+      try {
+        await UserManager.setPrimaryEmail("dupeuser", { email: "" });
+      } catch (err) {
+        expect(err).toHaveProperty(
+          "message",
+          "The request is invalid.\n* email: Invalid Email."
+        );
+        return done();
+      }
+      done("Should have thrown invalid email error.");
+    });
+
+    it("should handle set primary email non verified", async done => {
+      await getConnection()
+        .getRepository(UserEmail)
+        .update("dupeuser2@udia.ca", { verified: false });
+      try {
+        await UserManager.setPrimaryEmail("dupeuser", {
+          email: "dupeUser2@udia.ca"
+        });
+      } catch (err) {
+        expect(err).toHaveProperty(
+          "message",
+          "The request is invalid.\n* email: Email must be verified."
+        );
+        return done();
+      }
+      done("Should have thrown email must be verified error.");
+    });
+  });
+
   describe("deleteUser", () => {
     it("should handle delete user invalid jwt", async done => {
       const { pw } = generateUserCryptoParams(
@@ -468,6 +516,9 @@ describe("UserManager", () => {
     });
 
     it("should handle email already validated", async done => {
+      await getConnection()
+        .getRepository(UserEmail)
+        .update("dupeuser2@udia.ca", { verified: true });
       try {
         await UserManager.verifyEmailToken({
           emailToken: "dupeuser2@udia.ca:test"
@@ -480,7 +531,7 @@ describe("UserManager", () => {
         return done();
       }
       done("Should have thrown email already verified error.");
-    })
+    });
 
     it("should handle invalid & expired secret", async done => {
       try {

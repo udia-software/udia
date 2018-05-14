@@ -1,5 +1,5 @@
 import { randomBytes } from "crypto";
-import { getConnection, getRepository } from "typeorm";
+import { getConnection, getRepository, Not } from "typeorm";
 import { EMAIL_TOKEN_TIMEOUT } from "../constants";
 import { User } from "../entity/User";
 import { UserEmail } from "../entity/UserEmail";
@@ -70,6 +70,10 @@ export interface IResetPasswordParams {
 export interface IResetTokenValidity {
   isValid: boolean;
   expiry: Date | null;
+}
+
+export interface ISetPrimaryEmailParams {
+  email: string;
 }
 
 export default class UserManager {
@@ -312,10 +316,7 @@ export default class UserManager {
           verified: uEmail.verified,
           primary: uEmail.primary
         };
-        if (uEmail.primary) {
-          nextEmail = uEmail.lEmail;
-        }
-        if (uEmail.verified && !nextEmail) {
+        if (uEmail.primary || (uEmail.verified && !nextEmail)) {
           nextEmail = uEmail.lEmail;
         }
       }
@@ -332,6 +333,42 @@ export default class UserManager {
       await transactionEntityManager.update(UserEmail, nextEmail, {
         primary: true
       });
+    });
+    return this.getUserById(user.uuid);
+  }
+
+  public static async setPrimaryEmail(
+    username: string = "",
+    { email }: ISetPrimaryEmailParams
+  ) {
+    const user = await this.getUserByUsername(username);
+    if (!user) {
+      throw new ValidationError([{ key: "id", message: "Invalid JWT." }]);
+    }
+    const lEmail = email.toLowerCase().trim();
+    const uEmails = user.emails.filter(uEmail => uEmail.lEmail === lEmail);
+    if (uEmails.length === 0) {
+      throw new ValidationError([{ key: "email", message: "Invalid Email." }]);
+    }
+    if (!uEmails[0].verified) {
+      throw new ValidationError([
+        { key: "email", message: "Email must be verified." }
+      ]);
+    }
+
+    // ensure that only one verified, primary email exists
+    await getConnection().transaction(async transactionEntityManager => {
+      await transactionEntityManager.update(UserEmail, lEmail, {
+        primary: true
+      });
+      await transactionEntityManager.update(
+        UserEmail,
+        {
+          user,
+          lEmail: Not(lEmail)
+        },
+        { primary: false }
+      );
     });
     return this.getUserById(user.uuid);
   }
@@ -503,8 +540,12 @@ export default class UserManager {
     if (!user) {
       return validityPayload;
     }
-    const isSecretValid = await Auth.verifyPassword(user.forgotPwHash, resetToken);
-    const isDateValid = !!user.forgotPwExpiry && user.forgotPwExpiry > new Date();
+    const isSecretValid = await Auth.verifyPassword(
+      user.forgotPwHash,
+      resetToken
+    );
+    const isDateValid =
+      !!user.forgotPwExpiry && user.forgotPwExpiry > new Date();
     if (isSecretValid && isDateValid) {
       validityPayload.isValid = true;
       validityPayload.expiry = user.forgotPwExpiry;

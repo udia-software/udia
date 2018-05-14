@@ -12,9 +12,10 @@ import UserManager, {
   IResetPasswordParams,
   ISendEmailVerificationParams,
   ISendForgotPasswordEmailParams,
+  ISetPrimaryEmailParams,
   ISignInUserParams,
   IUpdatePasswordParams,
-  IVerifyEmailTokenParams
+  IVerifyEmailTokenParams,
 } from "../modules/UserManager";
 import metric from "../util/metric";
 
@@ -88,6 +89,14 @@ const resolvers: IResolvers = {
     ) => {
       const username = context.jwtPayload && context.jwtPayload.username;
       return UserManager.removeEmail(username, params);
+    },
+    setPrimaryEmail: async (
+      root: any,
+      params: ISetPrimaryEmailParams | any,
+      context: IContext
+    ) => {
+      const username = context.jwtPayload && context.jwtPayload.username;
+      return UserManager.setPrimaryEmail(username, params);
     },
     deleteUser: async (
       root: any,

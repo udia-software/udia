@@ -38,6 +38,7 @@ type Mutation {
   signInUser(email: String!, pw: String!): UserAuthPayload!
   addEmail(email: String!): FullUser!
   removeEmail(email: String!): FullUser!
+  setPrimaryEmail(email: String!): FullUser!
   deleteUser(pw: String!): Boolean!
   sendEmailVerification(email: String!): Boolean!
   verifyEmailToken(emailToken: String!): Boolean!
