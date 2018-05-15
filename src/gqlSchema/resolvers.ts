@@ -86,8 +86,6 @@ const resolvers: IResolvers = {
       const user = await UserManager.addEmail(username, params);
       if (user) {
         pubSub.publish(`me:${user.lUsername}`, { me: user });
-      } else {
-        pubSub.publish("me", { me: user });
       }
       return user;
     },
@@ -100,8 +98,6 @@ const resolvers: IResolvers = {
       const user = await UserManager.removeEmail(username, params);
       if (user) {
         pubSub.publish(`me:${user.lUsername}`, { me: user });
-      } else {
-        pubSub.publish("me", { me: user });
       }
       return user;
     },
@@ -114,8 +110,6 @@ const resolvers: IResolvers = {
       const user = await UserManager.setPrimaryEmail(username, params);
       if (user) {
         pubSub.publish(`me:${user.lUsername}`, { me: user });
-      } else {
-        pubSub.publish("me", { me: user });
       }
       return user;
     },
@@ -143,8 +137,6 @@ const resolvers: IResolvers = {
       const user = await UserManager.getUserByEmail(lEmail);
       if (user) {
         pubSub.publish(`me:${user.lUsername}`, { me: user });
-      } else {
-        pubSub.publish("me", { me: user });
       }
       return true;
     },
@@ -177,6 +169,7 @@ const resolvers: IResolvers = {
           if (user && user.username) {
             return pubSub.asyncIterator(`me:${user.username}`);
           }
+          // nothing publishes to `me`, unauthenticated
           return pubSub.asyncIterator("me");
         },
         (payload, variables, context) => {
