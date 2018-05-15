@@ -39,7 +39,7 @@ export default class Auth {
    * @param userInstance instance of the user
    */
   public static signUserJWT(userInstance: User) {
-    const jwtPayload: IJwtPayload = { username: userInstance.username };
+    const jwtPayload: IJwtPayload = { username: userInstance.lUsername };
     return sign(jwtPayload, JWT_SECRET, {
       algorithm: Auth.ALGORITHM,
       expiresIn: Auth.EXPIRES_IN,
