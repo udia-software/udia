@@ -68,7 +68,7 @@ const resolvers: IResolvers = {
     ) => {
       const username = context.jwtPayload && context.jwtPayload.username;
       const user = await UserManager.updatePassword(username, params);
-      pubSub.publish("me", user);
+      pubSub.publish("me", { me: user });
       return user;
     },
     signInUser: async (
@@ -84,7 +84,9 @@ const resolvers: IResolvers = {
       context: IContext
     ) => {
       const username = context.jwtPayload && context.jwtPayload.username;
-      return UserManager.addEmail(username, params);
+      const user = await UserManager.addEmail(username, params);
+      pubSub.publish("me", { me: user });
+      return user;
     },
     removeEmail: async (
       root: any,
@@ -93,7 +95,7 @@ const resolvers: IResolvers = {
     ) => {
       const username = context.jwtPayload && context.jwtPayload.username;
       const user = await UserManager.removeEmail(username, params);
-      pubSub.publish("me", user);
+      pubSub.publish("me", { me: user });
       return user;
     },
     setPrimaryEmail: async (
@@ -103,7 +105,7 @@ const resolvers: IResolvers = {
     ) => {
       const username = context.jwtPayload && context.jwtPayload.username;
       const user = await UserManager.setPrimaryEmail(username, params);
-      pubSub.publish("me", user);
+      logger.info('publish setPrimaryEmail', pubSub.publish("me", { me: user }));
       return user;
     },
     deleteUser: async (
@@ -128,7 +130,7 @@ const resolvers: IResolvers = {
     ) => {
       const lEmail = await UserManager.verifyEmailToken(params);
       const user = await UserManager.getUserByEmail(lEmail);
-      pubSub.publish("me", user);
+      pubSub.publish("me", { me: user });
       return true;
     },
     sendForgotPasswordEmail: async (
@@ -144,7 +146,7 @@ const resolvers: IResolvers = {
       context: IContext
     ) => {
       const { user, jwt } = await UserManager.resetPassword(params);
-      pubSub.publish("me", user);
+      pubSub.publish("me", { me: user });
       return { user, jwt };
     }
   },
@@ -156,10 +158,10 @@ const resolvers: IResolvers = {
       subscribe: withFilter(
         () => pubSub.asyncIterator("me"),
         (payload, variables, context) => {
-          const { user } = context; // derived from JWT on ws connection
-          logger.info(`Subscribed to me.`, user, payload, variables);
+          const { user } = context; // derived from JWT (payload) on ws conn
           if (user) {
-            return payload.uuid === user.uuid;
+            const { me } = payload;
+            return user.username === me.username;
           }
           return false;
         }
