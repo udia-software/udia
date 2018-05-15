@@ -55,7 +55,8 @@ type Mutation {
 }
 
 type Subscription {
-  health: HealthMetric!
+  health: HealthMetric!,
+  me: FullUser
 }
 
 type FullUser {

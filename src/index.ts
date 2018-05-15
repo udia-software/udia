@@ -6,8 +6,9 @@ import { createServer } from "http";
 import Graceful from "node-graceful";
 import { Client } from "pg";
 import "reflect-metadata"; // required for typeorm
-import { SubscriptionServer } from "subscriptions-transport-ws";
+import { ServerOptions, SubscriptionServer } from "subscriptions-transport-ws";
 import { createConnection } from "typeorm";
+
 import app from "./app";
 import {
   HEALTH_METRIC_INTERVAL,
@@ -20,6 +21,7 @@ import {
   SQL_USER
 } from "./constants";
 import gqlSchema from "./gqlSchema";
+import Auth from './modules/Auth';
 import logger from "./util/logger";
 import metric from "./util/metric";
 
@@ -65,7 +67,14 @@ const start = async (port: string) => {
     {
       execute,
       subscribe,
-      schema: gqlSchema
+      schema: gqlSchema,
+      onConnect: (connectionParams: ServerOptions | any) => {
+        const { authorization: jwt } = connectionParams;
+        if (jwt) {
+          const payload = Auth.verifyUserJWT(jwt);
+          return { user: payload };
+        }
+      }
     },
     {
       server,

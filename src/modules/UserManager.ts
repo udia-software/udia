@@ -443,7 +443,7 @@ export default class UserManager {
       verificationHash: null,
       verificationExpiry: null
     });
-    return true;
+    return uEmail.lEmail;
   }
 
   /**

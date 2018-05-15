@@ -1,4 +1,5 @@
 import { Kind } from "graphql";
+import { withFilter } from "graphql-subscriptions";
 import { IResolvers } from "graphql-tools";
 import { User } from "../entity/User";
 import { UserEmail } from "../entity/UserEmail";
@@ -17,6 +18,7 @@ import UserManager, {
   IUpdatePasswordParams,
   IVerifyEmailTokenParams,
 } from "../modules/UserManager";
+import logger from "../util/logger";
 import metric from "../util/metric";
 
 export interface IContext {
@@ -65,7 +67,9 @@ const resolvers: IResolvers = {
       context: IContext
     ) => {
       const username = context.jwtPayload && context.jwtPayload.username;
-      return UserManager.updatePassword(username, params);
+      const user = await UserManager.updatePassword(username, params);
+      pubSub.publish('me', user);
+      return user;
     },
     signInUser: async (
       root: any,
@@ -88,7 +92,9 @@ const resolvers: IResolvers = {
       context: IContext
     ) => {
       const username = context.jwtPayload && context.jwtPayload.username;
-      return UserManager.removeEmail(username, params);
+      const user = await UserManager.removeEmail(username, params);
+      pubSub.publish('me', user);
+      return user;
     },
     setPrimaryEmail: async (
       root: any,
@@ -96,7 +102,9 @@ const resolvers: IResolvers = {
       context: IContext
     ) => {
       const username = context.jwtPayload && context.jwtPayload.username;
-      return UserManager.setPrimaryEmail(username, params);
+      const user = await UserManager.setPrimaryEmail(username, params);
+      pubSub.publish('me', user);
+      return user;
     },
     deleteUser: async (
       root: any,
@@ -118,7 +126,10 @@ const resolvers: IResolvers = {
       params: IVerifyEmailTokenParams | any,
       context: IContext
     ) => {
-      return UserManager.verifyEmailToken(params);
+      const lEmail = await UserManager.verifyEmailToken(params);
+      const user = await UserManager.getUserByEmail(lEmail);
+      pubSub.publish('me', user);
+      return true;
     },
     sendForgotPasswordEmail: async (
       root: any,
@@ -132,13 +143,28 @@ const resolvers: IResolvers = {
       params: IResetPasswordParams | any,
       context: IContext
     ) => {
-      return UserManager.resetPassword(params);
+      const { user } = await UserManager.resetPassword(params);
+      pubSub.publish('me', user);
+      return user;
     }
   },
   Subscription: {
     health: {
       subscribe: () => pubSub.asyncIterator("health")
-    }
+    },
+    me: {
+      subscribe: withFilter(
+        () => pubSub.asyncIterator("me"),
+        (payload, variables, context) => {
+          const { user } = context; // derived from JWT on ws connection
+          logger.info(`Subscribed to me.`,user, payload, variables);
+          if (user) {
+            return payload.uuid === user.uuid;
+          }
+          return false;
+        }
+      )
+    },
   },
   FullUser: {
     emails: async (root: User, params: any, context: IContext) => {
