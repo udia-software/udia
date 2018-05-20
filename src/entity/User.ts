@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from "typeorm";
+import { Item } from "./Item";
 import { UserEmail } from "./UserEmail";
 
 @Entity()
@@ -35,6 +36,12 @@ export class User {
     eager: true
   })
   public emails: UserEmail[];
+
+  @OneToMany(type => Item, item => item.user, {
+    cascade: ["insert", "update"],
+    eager: false
+  })
+  public items: Item[];
 
   @Column({
     type: "varchar",
