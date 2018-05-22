@@ -56,12 +56,11 @@ async function deleteValues() {
   });
 }
 
-beforeAll(async done => {
+beforeAll(async () => {
   const itemTestPort = `${parseInt(PORT, 10) + 5}`;
   server = await start(itemTestPort);
   await deleteValues();
   await createUser();
-  done();
 });
 
 afterAll(async done => {
@@ -71,7 +70,8 @@ afterAll(async done => {
 
 describe("ItemManager", () => {
   describe("createItem", () => {
-    it("should create an item", async done => {
+    it("should create an item", async () => {
+      expect.assertions(10);
       const item = await ItemManager.createItem("itemtester", {
         content: "testPayload",
         contentType: "plaintext",
@@ -94,10 +94,10 @@ describe("ItemManager", () => {
         depth: 0
       });
       expect(closureData).toHaveLength(1);
-      done();
     });
 
-    it("should create an item with a parent", async done => {
+    it("should create an item with a parent", async () => {
+      expect.assertions(13);
       const ancestorItem = await ItemManager.createItem("itemtester", {
         content: "ancestor item",
         contentType: "plaintext",
@@ -141,10 +141,10 @@ describe("ItemManager", () => {
         depth: 0
       });
       expect(descendantClosureData).toHaveLength(1);
-      done();
     });
 
     it("should handle invalid username", async () => {
+      expect.assertions(3);
       await expect(
         ItemManager.createItem(undefined, {
           content: "testPayload",
@@ -178,6 +178,7 @@ describe("ItemManager", () => {
     });
 
     it("should handle invalid parentId", async () => {
+      expect.assertions(2);
       await expect(
         ItemManager.createItem("itemtester", {
           content: "invalid uuid",
@@ -203,6 +204,7 @@ describe("ItemManager", () => {
     });
 
     it("should handle parent not belonging to user", async () => {
+      expect.assertions(1);
       const stepParent = await ItemManager.createItem("itemtester2", {
         content: "step parent value",
         contentType: "plaintext",
@@ -223,7 +225,8 @@ describe("ItemManager", () => {
   });
 
   describe("updateItem", () => {
-    it("should update an item", async done => {
+    it("should update an item", async () => {
+      expect.assertions(4);
       const item = await ItemManager.createItem("itemtester", {
         content: "testPayload",
         contentType: "plaintext",
@@ -238,10 +241,10 @@ describe("ItemManager", () => {
       expect(item.content).not.toEqual(newItem.content);
       expect(item.createdAt).toEqual(newItem.createdAt);
       expect(item.updatedAt).not.toEqual(newItem.updatedAt);
-      done();
     });
-    it("should update an item with a parent", async done => {
-      expect.assertions(8);
+
+    it("should update an item with a parent", async () => {
+      expect.assertions(11);
       const momItem = await ItemManager.createItem("itemtester", {
         content: "mom item",
         contentType: "plaintext",
@@ -304,7 +307,22 @@ describe("ItemManager", () => {
         descendant: childItem.uuid,
         depth: 1
       });
-      done();
+
+      // check kid has one ancestor
+      const kidPostTransferClosure = await getConnection()
+        .getRepository(ItemClosure)
+        .find({ descendant: childItem });
+      expect(kidPostTransferClosure).toHaveLength(2);
+      expect(kidPostTransferClosure).toContainEqual({
+        ancestor: childItem.uuid,
+        descendant: childItem.uuid,
+        depth: 0
+      });
+      expect(kidPostTransferClosure).toContainEqual({
+        ancestor: dadItem.uuid,
+        descendant: childItem.uuid,
+        depth: 1
+      });
     });
   });
 });

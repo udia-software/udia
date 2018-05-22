@@ -73,6 +73,7 @@ export default class ItemManager {
       );
     }
     await queryRunner.commitTransaction();
+    await queryRunner.release();
     return newItem;
   }
 
@@ -138,6 +139,7 @@ export default class ItemManager {
       );
     }
     await queryRunner.commitTransaction();
+    await queryRunner.release();
     return item;
   }
 
