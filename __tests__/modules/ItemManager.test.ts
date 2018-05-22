@@ -28,12 +28,29 @@ async function createUser() {
     imUser = await transactionEntityManager.save(imUser);
     imEmail.user = imUser;
     await transactionEntityManager.save(imEmail);
+    let imUser2 = new User();
+    const imEmail2 = new UserEmail();
+    imEmail2.email = "itemTester2@udia.ca";
+    imEmail2.lEmail = "itemtester2@udia.ca";
+    imEmail2.primary = true;
+    imEmail2.verified = true;
+    imUser2.username = "itemTester2";
+    imUser2.lUsername = "itemtester2";
+    imUser2.pwHash = "$argon2i$v=1$m=1,t=1,p=1$101";
+    imUser2.pwFunc = "pbkdf2";
+    imUser2.pwDigest = "sha512";
+    imUser2.pwCost = 3000;
+    imUser2.pwSalt = "101";
+    imUser2 = await transactionEntityManager.save(imUser2);
+    imEmail2.user = imUser2;
+    await transactionEntityManager.save(imEmail2);
   });
 }
 
 async function deleteValues() {
   await getConnection().transaction(async transactionEntityManager => {
     await transactionEntityManager.delete(User, { lUsername: "itemtester" });
+    await transactionEntityManager.delete(User, { lUsername: "itemtester2" });
     await transactionEntityManager.query("DELETE FROM item_closure");
     await transactionEntityManager.query("DELETE FROM item;");
   });
@@ -159,6 +176,7 @@ describe("ItemManager", () => {
         "The request is invalid.\n* id: Invalid JWT."
       );
     });
+
     it("should handle invalid parentId", async () => {
       await expect(
         ItemManager.createItem("itemtester", {
@@ -182,6 +200,111 @@ describe("ItemManager", () => {
         "message",
         "The request is invalid.\n* parentId: Invalid parentId."
       );
+    });
+
+    it("should handle parent not belonging to user", async () => {
+      const stepParent = await ItemManager.createItem("itemtester2", {
+        content: "step parent value",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
+      await expect(
+        ItemManager.createItem("itemtester", {
+          content: "not mapped uuid",
+          contentType: "plaintext",
+          encItemKey: "unencrypted",
+          parentId: stepParent.uuid
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* parentId: Parent does not belong to user."
+      );
+    });
+  });
+
+  describe("updateItem", () => {
+    it("should update an item", async done => {
+      const item = await ItemManager.createItem("itemtester", {
+        content: "testPayload",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
+
+      const newItem = await ItemManager.updateItem("itemtester", {
+        id: item.uuid,
+        content: "updated item content"
+      });
+      expect(item.uuid).toEqual(newItem.uuid);
+      expect(item.content).not.toEqual(newItem.content);
+      expect(item.createdAt).toEqual(newItem.createdAt);
+      expect(item.updatedAt).not.toEqual(newItem.updatedAt);
+      done();
+    });
+    it("should update an item with a parent", async done => {
+      expect.assertions(8);
+      const momItem = await ItemManager.createItem("itemtester", {
+        content: "mom item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
+
+      const dadItem = await ItemManager.createItem("itemtester", {
+        content: "dad item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
+
+      let childItem = await ItemManager.createItem("itemtester", {
+        content: "with mom",
+        contentType: "plaintext",
+        encItemKey: "unencrypted",
+        parentId: momItem.uuid
+      });
+
+      // check mom has one kid
+      const momPreTransferClosure = await getConnection()
+        .getRepository(ItemClosure)
+        .find({ ancestor: momItem, descendant: childItem });
+      expect(momPreTransferClosure).toHaveLength(1);
+      expect(momPreTransferClosure).toContainEqual({
+        ancestor: momItem.uuid,
+        descendant: childItem.uuid,
+        depth: 1
+      });
+
+      // check dad has no kid
+      const dadPreTransferClosure = await getConnection()
+        .getRepository(ItemClosure)
+        .find({ ancestor: dadItem, descendant: childItem });
+      expect(dadPreTransferClosure).toHaveLength(0);
+
+      // send kid to dad
+      childItem = await ItemManager.updateItem("itemtester", {
+        id: childItem.uuid,
+        content: "with dad",
+        parentId: dadItem.uuid
+      });
+
+      expect(childItem).toHaveProperty("content", "with dad");
+      expect(childItem).toHaveProperty("parent", dadItem);
+
+      // check mom has no kid
+      const momPostTransferClosure = await getConnection()
+        .getRepository(ItemClosure)
+        .find({ ancestor: momItem, descendant: childItem });
+      expect(momPostTransferClosure).toHaveLength(0);
+
+      // check dad has one kid
+      const dadPostTransferClosure = await getConnection()
+        .getRepository(ItemClosure)
+        .find({ ancestor: dadItem, descendant: childItem });
+      expect(dadPostTransferClosure).toHaveLength(1);
+      expect(dadPostTransferClosure).toContainEqual({
+        ancestor: dadItem.uuid,
+        descendant: childItem.uuid,
+        depth: 1
+      });
+      done();
     });
   });
 });

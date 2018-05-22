@@ -1,7 +1,7 @@
 {
   "name": "@udia/udia",
   "version": "0.2.14",
-  "description": "Encrypted file and note storage, with collaboration",
+  "description": "Encrypted item storage.",
   "main": "dist/index.js",
   "scripts": {
     "pretest": "NODE_ENV=test yarn runMigrations",

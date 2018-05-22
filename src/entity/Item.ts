@@ -14,24 +14,24 @@ export class Item {
 
   @Column({
     type: "varchar",
-    nullable: false
+    nullable: true
     // comment: "JSON string encoded structure of the note, encrypted."
   })
-  public content: string;
+  public content?: string;
 
   @Column({
     type: "citext",
-    nullable: false
+    nullable: true
     // comment: "content type of the structure contained in the content field."
   })
-  public contentType: string;
+  public contentType?: string;
 
   @Column({
     type: "varchar",
-    nullable: false
+    nullable: true
     // comment: "locally encrypted encryption key for this item."
   })
-  public encItemKey: string;
+  public encItemKey?: string;
 
   @Column({
     type: "boolean",
@@ -43,9 +43,20 @@ export class Item {
 
   @ManyToOne(type => User, user => user.items, {
     cascade: ["insert", "update", "remove"],
-    onDelete: "CASCADE"
+    onDelete: "SET NULL",
+    nullable: true,
+    eager: true
+    // comment: "User that owns this item."
   })
-  public user: User;
+  public user?: User;
+
+  @ManyToOne(type => Item, {
+    cascade: ["insert", "update", "remove"],
+    onDelete: "SET NULL",
+    nullable: true
+    // comment: "Parent that encompasses this item."
+  })
+  public parent?: Item;
 
   @CreateDateColumn({
     type: "timestamp with time zone"
