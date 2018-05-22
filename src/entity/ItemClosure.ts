@@ -1,16 +1,29 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn
+} from "typeorm";
 import { Item } from "./Item";
 
 @Entity()
 @Index(["ancestor", "descendant"], { unique: true })
 export class ItemClosure {
   @PrimaryColumn()
-  @ManyToOne(type => Item)
+  @ManyToOne(type => Item, {
+    cascade: ["insert", "update", "remove"],
+    onDelete: "CASCADE"
+  })
   @JoinColumn({ name: "ancestor", referencedColumnName: "uuid" })
   public ancestor: Item;
 
   @PrimaryColumn()
-  @ManyToOne(type => Item)
+  @ManyToOne(type => Item, {
+    cascade: ["insert", "update", "remove"],
+    onDelete: "CASCADE"
+  })
   @JoinColumn({ name: "descendant", referencedColumnName: "uuid" })
   public descendant: Item;
 
