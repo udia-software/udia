@@ -192,6 +192,21 @@ describe("ItemManager", () => {
       );
       await expect(
         ItemManager.createItem("itemtester", {
+          content: "invalid uuid",
+          contentType: "plaintext",
+          encItemKey: "unencrypted",
+          parentId: "00000000-0000-0000-0000-000000000000"
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* parentId: Invalid parentId."
+      );
+    });
+
+    it("should handle parent not found", async () => {
+      expect.assertions(1);
+      await expect(
+        ItemManager.createItem("itemtester", {
           content: "not mapped uuid",
           contentType: "plaintext",
           encItemKey: "unencrypted",
@@ -199,7 +214,7 @@ describe("ItemManager", () => {
         })
       ).rejects.toHaveProperty(
         "message",
-        "The request is invalid.\n* parentId: Invalid parentId."
+        "The request is invalid.\n* parentId: Parent not found."
       );
     });
 
@@ -226,21 +241,46 @@ describe("ItemManager", () => {
 
   describe("updateItem", () => {
     it("should update an item", async () => {
-      expect.assertions(4);
+      expect.assertions(18);
       const item = await ItemManager.createItem("itemtester", {
         content: "testPayload",
         contentType: "plaintext",
         encItemKey: "unencrypted"
       });
 
-      const newItem = await ItemManager.updateItem("itemtester", {
+      let updatedItem = await ItemManager.updateItem("itemtester", {
         id: item.uuid,
         content: "updated item content"
       });
-      expect(item.uuid).toEqual(newItem.uuid);
-      expect(item.content).not.toEqual(newItem.content);
-      expect(item.createdAt).toEqual(newItem.createdAt);
-      expect(item.updatedAt).not.toEqual(newItem.updatedAt);
+      expect(updatedItem.uuid).toEqual(item.uuid);
+      expect(updatedItem.content).not.toEqual(item.content);
+      expect(updatedItem.contentType).toEqual(item.contentType);
+      expect(updatedItem.encItemKey).toEqual(item.encItemKey);
+      expect(updatedItem.createdAt).toEqual(item.createdAt);
+      expect(updatedItem.updatedAt).not.toEqual(item.updatedAt);
+
+      updatedItem = await ItemManager.updateItem("itemtester", {
+        id: item.uuid,
+        content: "# this is markdown",
+        contentType: "markdown"
+      });
+      expect(updatedItem.uuid).toEqual(item.uuid);
+      expect(updatedItem.content).not.toEqual(item.content);
+      expect(updatedItem.contentType).not.toEqual(item.contentType);
+      expect(updatedItem.encItemKey).toEqual(item.encItemKey);
+      expect(updatedItem.createdAt).toEqual(item.createdAt);
+      expect(updatedItem.updatedAt).not.toEqual(item.updatedAt);
+
+      updatedItem = await ItemManager.updateItem("itemtester", {
+        id: item.uuid,
+        encItemKey: "123"
+      });
+      expect(updatedItem.uuid).toEqual(item.uuid);
+      expect(updatedItem.content).not.toEqual(item.content);
+      expect(updatedItem.contentType).not.toEqual(item.contentType);
+      expect(updatedItem.encItemKey).not.toEqual(item.encItemKey);
+      expect(updatedItem.createdAt).toEqual(item.createdAt);
+      expect(updatedItem.updatedAt).not.toEqual(item.updatedAt);
     });
 
     it("should update an item with a parent", async () => {
@@ -323,6 +363,273 @@ describe("ItemManager", () => {
         descendant: childItem.uuid,
         depth: 1
       });
+    });
+
+    it("should handle invalid username", async () => {
+      expect.assertions(3);
+      const testInvalidUsername = await ItemManager.createItem("itemtester", {
+        content: "test invalid username",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
+      await expect(
+        ItemManager.updateItem(undefined, {
+          id: testInvalidUsername.uuid,
+          content: "undefined username"
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* id: Invalid JWT."
+      );
+      await expect(
+        ItemManager.updateItem(null, {
+          id: testInvalidUsername.uuid,
+          content: "null username"
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* id: Invalid JWT."
+      );
+      await expect(
+        ItemManager.updateItem("", {
+          id: testInvalidUsername.uuid,
+          content: "empty string username"
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* id: Invalid JWT."
+      );
+    });
+
+    it("should handle invalid id", async () => {
+      expect.assertions(2);
+      await expect(
+        ItemManager.updateItem("itemtester", {
+          id: "baduuid",
+          content: "invalid uuid",
+          contentType: "plaintext",
+          encItemKey: "unencrypted"
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* id: Invalid id."
+      );
+      await expect(
+        ItemManager.updateItem("itemtester", {
+          id: "00000000-0000-0000-0000-000000000000",
+          content: "invalid uuid",
+          contentType: "plaintext",
+          encItemKey: "unencrypted"
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* id: Invalid id."
+      );
+    });
+
+    it("should handle item not found", async () => {
+      expect.assertions(1);
+      await expect(
+        ItemManager.updateItem("itemtester", {
+          id: "123e4567-e89b-12d3-a456-426655440000",
+          content: "not mapped uuid",
+          contentType: "plaintext",
+          encItemKey: "unencrypted"
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* id: Item not found."
+      );
+    });
+
+    it("should handle item not belonging to user", async () => {
+      expect.assertions(1);
+      const stepParent = await ItemManager.createItem("itemtester2", {
+        content: "step parent value",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
+      await expect(
+        ItemManager.updateItem("itemtester", {
+          id: stepParent.uuid,
+          content: "not owned item"
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* id: Item does not belong to user."
+      );
+    });
+
+    it("should handle item update with no parameters", async () => {
+      expect.assertions(1);
+      const unchangedItem = await ItemManager.createItem("itemtester", {
+        content: "unchanged item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
+      await expect(
+        ItemManager.updateItem("itemtester", { id: unchangedItem.uuid })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* id: Cannot update with no changes."
+      );
+    });
+  });
+
+  describe("deleteItem", () => {
+    it("should delete an item", async () => {
+      expect.assertions(7);
+      const item = await ItemManager.createItem("itemtester", {
+        content: "testPayload",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
+
+      const deletedItem = await ItemManager.deleteItem("itemtester", {
+        id: item.uuid
+      });
+      expect(deletedItem.uuid).toEqual(item.uuid);
+      expect(deletedItem.content).toBeNull();
+      expect(deletedItem.contentType).toBeNull();
+      expect(deletedItem.encItemKey).toBeNull();
+      expect(deletedItem.deleted).toEqual(true);
+      expect(deletedItem.createdAt).toEqual(item.createdAt);
+      expect(deletedItem.updatedAt).not.toEqual(item.updatedAt);
+    });
+
+    it("should delete an item with subtree", async () => {
+      expect.assertions(21);
+      const parentItem = await ItemManager.createItem("itemtester", {
+        content: "parent item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
+
+      const childItem = await ItemManager.createItem("itemtester", {
+        content: "child item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted",
+        parentId: parentItem.uuid
+      });
+
+      const grandchildItem = await ItemManager.createItem("itemtester", {
+        content: "grandchild item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted",
+        parentId: childItem.uuid
+      });
+
+      await ItemManager.deleteItem("itemtester", {
+        id: parentItem.uuid,
+        deleteDescendants: true
+      });
+
+      const deletedParent = await ItemManager.getItemById(parentItem.uuid);
+      expect(deletedParent.uuid).toEqual(parentItem.uuid);
+      expect(deletedParent.content).toBeNull();
+      expect(deletedParent.contentType).toBeNull();
+      expect(deletedParent.encItemKey).toBeNull();
+      expect(deletedParent.deleted).toEqual(true);
+      expect(deletedParent.createdAt).toEqual(parentItem.createdAt);
+      expect(deletedParent.updatedAt).not.toEqual(parentItem.updatedAt);
+
+      const deletedChild = await ItemManager.getItemById(childItem.uuid);
+      expect(deletedChild.uuid).toEqual(childItem.uuid);
+      expect(deletedChild.content).toBeNull();
+      expect(deletedChild.contentType).toBeNull();
+      expect(deletedChild.encItemKey).toBeNull();
+      expect(deletedChild.deleted).toEqual(true);
+      expect(deletedChild.createdAt).toEqual(childItem.createdAt);
+      expect(deletedChild.updatedAt).not.toEqual(childItem.updatedAt);
+
+      const deletedGrandChild = await ItemManager.getItemById(
+        grandchildItem.uuid
+      );
+      expect(deletedGrandChild.uuid).toEqual(grandchildItem.uuid);
+      expect(deletedGrandChild.content).toBeNull();
+      expect(deletedGrandChild.contentType).toBeNull();
+      expect(deletedGrandChild.encItemKey).toBeNull();
+      expect(deletedGrandChild.deleted).toEqual(true);
+      expect(deletedGrandChild.createdAt).toEqual(grandchildItem.createdAt);
+      expect(deletedGrandChild.updatedAt).not.toEqual(grandchildItem.updatedAt);
+    });
+
+    it("should delete a nested item without effecting tree", async () => {
+      expect.assertions(9);
+      const parentItem = await ItemManager.createItem("itemtester", {
+        content: "parent item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
+
+      const childItem = await ItemManager.createItem("itemtester", {
+        content: "child item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted",
+        parentId: parentItem.uuid
+      });
+
+      const grandchildItem = await ItemManager.createItem("itemtester", {
+        content: "grandchild item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted",
+        parentId: childItem.uuid
+      });
+
+      await ItemManager.deleteItem("itemtester", {
+        id: childItem.uuid,
+        deleteDescendants: false
+      });
+
+      const untouchedParent = await ItemManager.getItemById(parentItem.uuid);
+      expect(untouchedParent).toEqual(parentItem);
+
+      const deletedChild = await ItemManager.getItemById(childItem.uuid);
+      expect(deletedChild.uuid).toEqual(childItem.uuid);
+      expect(deletedChild.content).toBeNull();
+      expect(deletedChild.contentType).toBeNull();
+      expect(deletedChild.encItemKey).toBeNull();
+      expect(deletedChild.deleted).toEqual(true);
+      expect(deletedChild.createdAt).toEqual(childItem.createdAt);
+      expect(deletedChild.updatedAt).not.toEqual(childItem.updatedAt);
+
+      const untouchedGChild = await ItemManager.getItemById(
+        grandchildItem.uuid
+      );
+      expect(untouchedGChild).toEqual({ ...grandchildItem, parent: undefined });
+    });
+
+    it("should handle invalid username", async () => {
+      expect.assertions(3);
+      const testInvalidUsername = await ItemManager.createItem("itemtester", {
+        content: "test invalid username",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
+      await expect(
+        ItemManager.deleteItem(undefined, {
+          id: testInvalidUsername.uuid
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* id: Invalid JWT."
+      );
+      await expect(
+        ItemManager.deleteItem(null, {
+          id: testInvalidUsername.uuid
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* id: Invalid JWT."
+      );
+      await expect(
+        ItemManager.deleteItem("", {
+          id: testInvalidUsername.uuid
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* id: Invalid JWT."
+      );
     });
   });
 });

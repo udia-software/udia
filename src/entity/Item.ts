@@ -17,21 +17,21 @@ export class Item {
     nullable: true
     // comment: "JSON string encoded structure of the note, encrypted."
   })
-  public content?: string;
+  public content: string | null;
 
   @Column({
     type: "citext",
     nullable: true
     // comment: "content type of the structure contained in the content field."
   })
-  public contentType?: string;
+  public contentType: string | null;
 
   @Column({
     type: "varchar",
     nullable: true
     // comment: "locally encrypted encryption key for this item."
   })
-  public encItemKey?: string;
+  public encItemKey: string | null;
 
   @Column({
     type: "boolean",
@@ -48,7 +48,7 @@ export class Item {
     eager: true
     // comment: "User that owns this item."
   })
-  public user?: User;
+  public user: User | null;
 
   @ManyToOne(type => Item, {
     cascade: ["insert", "update", "remove"],
@@ -56,7 +56,7 @@ export class Item {
     nullable: true
     // comment: "Parent that encompasses this item."
   })
-  public parent?: Item;
+  public parent: Item | null;
 
   @CreateDateColumn({
     type: "timestamp with time zone"
