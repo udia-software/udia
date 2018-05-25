@@ -1,10 +1,21 @@
 import { getConnection, getRepository } from "typeorm";
 import { Item } from "../entity/Item";
+import { ItemClosure } from "../entity/ItemClosure";
 import { User } from "../entity/User";
 import UserManager from "./UserManager";
 import { IErrorMessage, ValidationError } from "./ValidationError";
 
 const UUID_TEST = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+export interface IGetItemsParams {
+  username?: string;
+  parentId?: string | null;
+  depth?: number;
+  limit?: number;
+  datetime?: Date;
+  sort?: "createdAt" | "updatedAt";
+  order?: "ASC" | "DESC";
+}
 
 export interface ICreateItemParams {
   content: string;
@@ -37,8 +48,8 @@ export default class ItemManager {
 
   /**
    * Add a new item to the database. Return the created item.
-   * @param username username derived from signed JWT payload
-   * @param parameters GraphQL createItem parameters
+   * @param {string} username username derived from signed JWT payload
+   * @param {ICreateItemParams} parameters GraphQL createItem parameters
    */
   public static async createItem(
     username: string = "",
@@ -87,9 +98,84 @@ export default class ItemManager {
   }
 
   /**
+   * Get an array of items matching the given critera, with an additional
+   * count of all items for pagination. Uses Keyset pagination over createdAt
+   * @param {IGetItemsParams} parameters GraphQL getItems parameters
+   */
+  public static async getItems({
+    username, // Get items that belong to the given user (username) or undefined
+    parentId, // Get items from ancestor (null for root, undefined for all)
+    depth = 0, // Get items at a specific depth from ancestor
+    limit = 14, // Limit number of items returned
+    datetime, // Keyset pagination on date (unindexed for updatedAt)
+    sort = "createdAt", // Sort by createdAt field
+    order = "DESC" // Order by descending value (show newest first)
+  }: IGetItemsParams) {
+    // Initialize the query builder
+    const itemQueryBuilder = getRepository(Item).createQueryBuilder("item");
+
+    // Perform depth/parent id closure table subquery
+    itemQueryBuilder.where(qb => {
+      const closureQueryBuilder = qb
+        .subQuery()
+        .select("closure.descendant")
+        .from(ItemClosure, "closure")
+        .where("closure.depth = :depth", { depth });
+      // if the parent id is set, do the mapping here
+      if (typeof parentId === "string") {
+        closureQueryBuilder.andWhere("closure.ancestor = :parentId", {
+          parentId
+        });
+      }
+      const closureSubQuery = closureQueryBuilder.getQuery();
+      return `"item"."uuid" IN ${closureSubQuery}`;
+    });
+
+    // If username is set, perform username mapping
+    if (username !== undefined) {
+      itemQueryBuilder.andWhere(qb => {
+        const userSubQuery = qb
+          .subQuery()
+          .select("user.uuid")
+          .from(User, "user")
+          .where("user.lUsername = :lUsername", {
+            lUsername: username.trim().toLowerCase()
+          })
+          .limit(1)
+          .getQuery();
+        return `"item"."userUuid" IN ${userSubQuery}`;
+      });
+    }
+
+    // if parentId is null, enforce only root items.
+    // depth should be 0 otherwise the returned array will always be empty
+    if (parentId === null) {
+      itemQueryBuilder.andWhere("item.parentUuid = NULL")
+    }
+
+    // Datetime is used for pagination over items
+    if (datetime !== undefined) {
+      // operator depends on ASC or DESC
+      const datetimeOp = {
+        DESC: "<",
+        ASC: ">"
+      };
+      itemQueryBuilder.andWhere(`item.${sort} ${datetimeOp[order]} :datetime`, {
+        datetime
+      });
+    }
+
+    const [items, count] = await itemQueryBuilder
+      .orderBy(`item.${sort}`, order)
+      .limit(limit)
+      .getManyAndCount();
+    return { items, count };
+  }
+
+  /**
    * Update an item in the database. Return the updated item.
-   * @param username username derived from signed JWT payload
-   * @param parameters GraphQL updateItem parameters
+   * @param {string} username username derived from signed JWT payload
+   * @param {IUpdateItemParams} parameters GraphQL updateItem parameters
    */
   public static async updateItem(
     username: string = "",
@@ -154,8 +240,8 @@ export default class ItemManager {
   /**
    * Clear all content fields from the item, set deleted to be true.
    * Do not run SQL DELETE. Tree structure must always be enforced.
-   * @param username username derived from JWT payload
-   * @param parameters GraphQL deleteItem parameters
+   * @param {string} username username derived from JWT payload
+   * @param {IDeleteItemParams} parameters GraphQL deleteItem parameters
    */
   public static async deleteItem(
     username: string = "",

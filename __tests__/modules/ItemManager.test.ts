@@ -3,14 +3,16 @@ import { Server } from "http";
 import { getConnection } from "typeorm";
 import start from "../../src";
 import { PORT } from "../../src/constants";
+import { Item } from "../../src/entity/Item";
 import { ItemClosure } from "../../src/entity/ItemClosure";
 import { User } from "../../src/entity/User";
 import { UserEmail } from "../../src/entity/UserEmail";
 import ItemManager from "../../src/modules/ItemManager";
 
 let server: Server = null;
+let itemPaginationUser: User = null;
 
-async function createUser() {
+async function createUsers() {
   await getConnection().transaction(async transactionEntityManager => {
     let imUser = new User();
     const imEmail = new UserEmail();
@@ -44,6 +46,24 @@ async function createUser() {
     imUser2 = await transactionEntityManager.save(imUser2);
     imEmail2.user = imUser2;
     await transactionEntityManager.save(imEmail2);
+    itemPaginationUser = new User();
+    const itemPaginationUserEmail = new UserEmail();
+    itemPaginationUserEmail.email = "itemsTester@udia.ca";
+    itemPaginationUserEmail.lEmail = "itemstester@udia.ca";
+    itemPaginationUserEmail.primary = true;
+    itemPaginationUserEmail.verified = true;
+    itemPaginationUser.username = "itemsTester";
+    itemPaginationUser.lUsername = "itemstester";
+    itemPaginationUser.pwHash = "$argon2i$v=1$m=1,t=1,p=1$101";
+    itemPaginationUser.pwFunc = "pbkdf2";
+    itemPaginationUser.pwDigest = "sha512";
+    itemPaginationUser.pwCost = 3000;
+    itemPaginationUser.pwSalt = "101";
+    itemPaginationUser = await transactionEntityManager.save(
+      itemPaginationUser
+    );
+    itemPaginationUserEmail.user = itemPaginationUser;
+    await transactionEntityManager.save(itemPaginationUserEmail);
   });
 }
 
@@ -51,6 +71,7 @@ async function deleteValues() {
   await getConnection().transaction(async transactionEntityManager => {
     await transactionEntityManager.delete(User, { lUsername: "itemtester" });
     await transactionEntityManager.delete(User, { lUsername: "itemtester2" });
+    await transactionEntityManager.delete(User, { lUsername: "itemstester" });
     await transactionEntityManager.query("DELETE FROM item_closure");
     await transactionEntityManager.query("DELETE FROM item;");
   });
@@ -60,7 +81,7 @@ beforeAll(async () => {
   const itemTestPort = `${parseInt(PORT, 10) + 5}`;
   server = await start(itemTestPort);
   await deleteValues();
-  await createUser();
+  await createUsers();
 });
 
 afterAll(async done => {
@@ -236,6 +257,127 @@ describe("ItemManager", () => {
         "message",
         "The request is invalid.\n* parentId: Parent does not belong to user."
       );
+    });
+  });
+
+  describe("getItems", () => {
+    afterEach(async () => {
+      await getConnection()
+        .getRepository(Item)
+        .createQueryBuilder()
+        .delete()
+        .where({ user: itemPaginationUser });
+    });
+
+    it("should get root items created by a user", async () => {
+      expect.assertions(1);
+      const getItemsTestReferences = [];
+      for (let i = 1; i <= 8; i++) {
+        const item = await ItemManager.createItem("itemstester", {
+          content: `Flat Test Item ${i}`,
+          contentType: "plaintext",
+          encItemKey: "unencrypted"
+        });
+        getItemsTestReferences.unshift(item);
+      }
+      const allUserItems = await ItemManager.getItems({
+        username: "itemstester"
+      });
+      expect(allUserItems).toEqual({
+        items: getItemsTestReferences.map((itemRef: Item) => ({
+          uuid: itemRef.uuid,
+          content: itemRef.content,
+          contentType: itemRef.contentType,
+          encItemKey: itemRef.encItemKey,
+          createdAt: itemRef.createdAt,
+          updatedAt: itemRef.updatedAt,
+          deleted: itemRef.deleted
+        })),
+        count: 8
+      });
+    });
+
+    it("should get nested items specified by depth", async () => {
+      expect.assertions(2);
+      const rootItem = await ItemManager.createItem("itemstester", {
+        content: "Root Item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
+      const child1 = await ItemManager.createItem("itemstester", {
+        content: "Child 1",
+        contentType: "plaintext",
+        encItemKey: "unencrypted",
+        parentId: rootItem.uuid
+      });
+      const child2 = await ItemManager.createItem("itemstester", {
+        content: "Child 2",
+        contentType: "plaintext",
+        encItemKey: "unencrypted",
+        parentId: rootItem.uuid
+      });
+
+      const childrenOfRoot = await ItemManager.getItems({
+        username: "itemstester",
+        parentId: rootItem.uuid,
+        depth: 1
+      });
+      expect(childrenOfRoot).toEqual({
+        items: [child2, child1].map((itemRef: Item) => ({
+          uuid: itemRef.uuid,
+          content: itemRef.content,
+          contentType: itemRef.contentType,
+          encItemKey: itemRef.encItemKey,
+          createdAt: itemRef.createdAt,
+          updatedAt: itemRef.updatedAt,
+          deleted: itemRef.deleted
+        })),
+        count: 2
+      });
+
+      const gc11 = await ItemManager.createItem("itemstester", {
+        content: "Grandchild 1-1 (Child of 1)",
+        contentType: "plaintext",
+        encItemKey: "unencrypted",
+        parentId: child1.uuid
+      });
+      const gc12 = await ItemManager.createItem("itemstester", {
+        content: "Grandchild 1-2 (Child of 1)",
+        contentType: "plaintext",
+        encItemKey: "unencrypted",
+        parentId: child1.uuid
+      });
+      const gc13 = await ItemManager.createItem("itemstester", {
+        content: "Grandchild 1-3 (Child of 1)",
+        contentType: "plaintext",
+        encItemKey: "unencrypted",
+        parentId: child1.uuid
+      });
+      const gc21 = await ItemManager.createItem("itemstester", {
+        content: "Grandchild 2-1 (Child of 2)",
+        contentType: "plaintext",
+        encItemKey: "unencrypted",
+        parentId: child2.uuid
+      });
+
+      const grandchildrenOfRoot = await ItemManager.getItems({
+        username: "itemstester",
+        parentId: rootItem.uuid,
+        depth: 2,
+        order: "ASC"
+      });
+      expect(grandchildrenOfRoot).toEqual({
+        items: [gc11, gc12, gc13, gc21].map((itemRef: Item) => ({
+          uuid: itemRef.uuid,
+          content: itemRef.content,
+          contentType: itemRef.contentType,
+          encItemKey: itemRef.encItemKey,
+          createdAt: itemRef.createdAt,
+          updatedAt: itemRef.updatedAt,
+          deleted: itemRef.deleted
+        })),
+        count: 4
+      });
     });
   });
 
