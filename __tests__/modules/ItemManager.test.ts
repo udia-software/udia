@@ -262,17 +262,19 @@ describe("ItemManager", () => {
 
   describe("getItems", () => {
     afterEach(async () => {
+      // delete all of the itemPaginationUser's items after each getItems test
       await getConnection()
         .getRepository(Item)
         .createQueryBuilder()
         .delete()
-        .where({ user: itemPaginationUser });
+        .where({ user: itemPaginationUser })
+        .execute();
     });
 
-    it("should get root items created by a user", async () => {
-      expect.assertions(1);
+    it("should get many items with keyset pagination on date", async () => {
+      expect.assertions(3);
       const getItemsTestReferences = [];
-      for (let i = 1; i <= 8; i++) {
+      for (let i = 1; i <= 20; i++) {
         const item = await ItemManager.createItem("itemstester", {
           content: `Flat Test Item ${i}`,
           contentType: "plaintext",
@@ -281,10 +283,11 @@ describe("ItemManager", () => {
         getItemsTestReferences.unshift(item);
       }
       const allUserItems = await ItemManager.getItems({
-        username: "itemstester"
+        username: "itemstester",
+        limit: 16
       });
       expect(allUserItems).toEqual({
-        items: getItemsTestReferences.map((itemRef: Item) => ({
+        items: getItemsTestReferences.slice(0, 16).map((itemRef: Item) => ({
           uuid: itemRef.uuid,
           content: itemRef.content,
           contentType: itemRef.contentType,
@@ -293,12 +296,31 @@ describe("ItemManager", () => {
           updatedAt: itemRef.updatedAt,
           deleted: itemRef.deleted
         })),
-        count: 8
+        count: 20 // total number of items matching query, despite limit 16
+      });
+      const lastCreatedAtDate =
+        allUserItems.items[allUserItems.items.length - 1].createdAt;
+      expect(lastCreatedAtDate).toBeInstanceOf(Date);
+      const nextAllUserItems = await ItemManager.getItems({
+        username: "itemstester",
+        datetime: lastCreatedAtDate // pass in the last datetime! EZ-PZ
+      });
+      expect(nextAllUserItems).toEqual({
+        items: getItemsTestReferences.slice(16, 20).map((itemRef: Item) => ({
+          uuid: itemRef.uuid,
+          content: itemRef.content,
+          contentType: itemRef.contentType,
+          encItemKey: itemRef.encItemKey,
+          createdAt: itemRef.createdAt,
+          updatedAt: itemRef.updatedAt,
+          deleted: itemRef.deleted
+        })),
+        count: 4
       });
     });
 
-    it("should get nested items specified by depth", async () => {
-      expect.assertions(2);
+    it("should get items specified by depth and parentId", async () => {
+      expect.assertions(3);
       const rootItem = await ItemManager.createItem("itemstester", {
         content: "Root Item",
         contentType: "plaintext",
@@ -377,6 +399,58 @@ describe("ItemManager", () => {
           deleted: itemRef.deleted
         })),
         count: 4
+      });
+
+      const rootItemsOnly = await ItemManager.getItems({
+        username: "itemstester",
+        parentId: null
+      });
+      expect(rootItemsOnly).toEqual({
+        items: [rootItem].map((itemRef: Item) => ({
+          uuid: itemRef.uuid,
+          content: itemRef.content,
+          contentType: itemRef.contentType,
+          encItemKey: itemRef.encItemKey,
+          createdAt: itemRef.createdAt,
+          updatedAt: itemRef.updatedAt,
+          deleted: itemRef.deleted
+        })),
+        count: 1
+      });
+    });
+
+    it("should get items with undefined username (any)", async () => {
+      expect.assertions(3);
+      const itemstesterItem = await ItemManager.createItem("itemstester", {
+        content: "My Items Tester item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
+      const itemtester2Item = await ItemManager.createItem("itemtester2", {
+        content: "My Item Tester 2 item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
+
+      const { items, count } = await ItemManager.getItems({});
+      expect(count).toBeGreaterThanOrEqual(2);
+      expect(items).toContainEqual({
+        uuid: itemstesterItem.uuid,
+        content: itemstesterItem.content,
+        contentType: itemstesterItem.contentType,
+        encItemKey: itemstesterItem.encItemKey,
+        createdAt: itemstesterItem.createdAt,
+        updatedAt: itemstesterItem.updatedAt,
+        deleted: itemstesterItem.deleted
+      });
+      expect(items).toContainEqual({
+        uuid: itemtester2Item.uuid,
+        content: itemtester2Item.content,
+        contentType: itemtester2Item.contentType,
+        encItemKey: itemtester2Item.encItemKey,
+        createdAt: itemtester2Item.createdAt,
+        updatedAt: itemtester2Item.updatedAt,
+        deleted: itemtester2Item.deleted
       });
     });
   });

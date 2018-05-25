@@ -146,13 +146,11 @@ export default class ItemManager {
         return `"item"."userUuid" IN ${userSubQuery}`;
       });
     }
-
     // if parentId is null, enforce only root items.
     // depth should be 0 otherwise the returned array will always be empty
     if (parentId === null) {
-      itemQueryBuilder.andWhere("item.parentUuid = NULL")
+      itemQueryBuilder.andWhere(`"item"."parentUuid" IS NULL`);
     }
-
     // Datetime is used for pagination over items
     if (datetime !== undefined) {
       // operator depends on ASC or DESC
