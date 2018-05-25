@@ -7,7 +7,7 @@ import Graceful from "node-graceful";
 import { Client } from "pg";
 import "reflect-metadata"; // required for typeorm
 import { ServerOptions, SubscriptionServer } from "subscriptions-transport-ws";
-import { createConnection } from "typeorm";
+import { createConnection, getConnectionOptions } from "typeorm";
 
 import app from "./app";
 import {
@@ -21,8 +21,8 @@ import {
   SQL_USER
 } from "./constants";
 import gqlSchema from "./gqlSchema";
-import Auth from './modules/Auth';
-import logger from "./util/logger";
+import Auth from "./modules/Auth";
+import logger, { TypeORMLogger } from "./util/logger";
 import metric from "./util/metric";
 
 let pubSub: PubSubEngine;
@@ -46,7 +46,9 @@ const start = async (port: string) => {
   app.set("crypto", crypto);
 
   // create db connection using /ormconfig.js
-  const conn = await createConnection();
+  const connectionOptions = await getConnectionOptions();
+  Object.assign(connectionOptions, { logger: new TypeORMLogger() });
+  const conn = await createConnection(connectionOptions);
   logger.info(`Connected to ${conn.options.database} ${conn.options.type}.`);
   app.set("dbConnection", conn);
 
@@ -93,7 +95,7 @@ const start = async (port: string) => {
   const shutdownListener = (done: () => void, event: any, signal: any) => {
     logger.warn(`!)\tGraceful ${signal} signal received.`);
     return new Promise(resolve => {
-      logger.warn(`3)\tHTTP & WebSocket servers closing.`);
+      logger.warn(`3)\tHTTP & WebSocket servers on port ${port} closing.`);
       clearInterval(metricSubscriptionInterval);
       subscriptionServer.close();
       return server.close(resolve);

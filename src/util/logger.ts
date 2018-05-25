@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import moment from "moment";
 import onFinished from "on-finished";
+import { Logger as ITypeORMLogger } from "typeorm";
 import { Logger, transports } from "winston";
 import { NODE_ENV } from "../constants";
 
@@ -62,5 +63,34 @@ const middlewareLogger = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
+class TypeORMLogger implements ITypeORMLogger {
+  public logQuery(query: string, parameters?: any[] | undefined) {
+    logger.verbose(`[TypeORM] Query`, query, parameters);
+  }
+  public logQueryError(
+    error: string,
+    query: string,
+    parameters?: any[] | undefined
+  ) {
+    logger.warn(`[TypeORM] Query Error`, error, query, parameters);
+  }
+  public logQuerySlow(
+    time: number,
+    query: string,
+    parameters?: any[] | undefined
+  ) {
+    logger.warn(`[TypeORM] Query Slow ${time}`, query, parameters);
+  }
+  public logSchemaBuild(message: string) {
+    logger.verbose(`[TypeORM] Schema Build`, message);
+  }
+  public logMigration(message: string) {
+    logger.verbose(`[TypeORM] Migration`, message);
+  }
+  public log(level: "log" | "info" | "warn", message: any) {
+    logger.verbose(`[TypeORM] ${level}`, message);
+  }
+}
+
 export default logger;
-export { middlewareLogger };
+export { middlewareLogger, TypeORMLogger };

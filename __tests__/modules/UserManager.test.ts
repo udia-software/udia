@@ -68,13 +68,12 @@ async function deleteUsers() {
     .execute();
 }
 
-beforeAll(async done => {
+beforeAll(async () => {
   // Ports are staggered to prevent multiple tests from clobbering
   const userTestPort = `${parseInt(PORT, 10) + 3}`;
   server = await start(userTestPort);
   await deleteUsers();
   await createUsers();
-  done();
 });
 
 afterAll(async done => {
