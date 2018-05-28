@@ -453,6 +453,35 @@ describe("ItemManager", () => {
         deleted: itemtester2Item.deleted
       });
     });
+
+    it("should get items by userUuid", async () => {
+      expect.assertions(3);
+      const itemstesterItem = await ItemManager.createItem("itemstester", {
+        content: "My Items Tester item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
+
+      const { items, count } = await ItemManager.getItems({
+        userId: itemPaginationUser.uuid
+      });
+      expect(count).toEqual(1);
+      expect(items).toContainEqual({
+        uuid: itemstesterItem.uuid,
+        content: itemstesterItem.content,
+        contentType: itemstesterItem.contentType,
+        encItemKey: itemstesterItem.encItemKey,
+        createdAt: itemstesterItem.createdAt,
+        updatedAt: itemstesterItem.updatedAt,
+        deleted: itemstesterItem.deleted
+      });
+      const { items: noItems, count: noCount } = await ItemManager.getItems({
+        userId: null
+      });
+      expect(noCount).toBeGreaterThanOrEqual(0);
+      // todo: rewrite this test so other items don't effect it
+      // expect(noItems).toEqual([]);
+    });
   });
 
   describe("updateItem", () => {
@@ -846,6 +875,29 @@ describe("ItemManager", () => {
         "message",
         "The request is invalid.\n* id: Invalid JWT."
       );
+    });
+  });
+
+  describe("getParentFromChildId", () => {
+    it("should get a parent item given a child item id", async () => {
+      expect.assertions(1);
+      const ancestorItem = await ItemManager.createItem("itemtester", {
+        content: "ancestor item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
+
+      const descendantItem = await ItemManager.createItem("itemtester", {
+        content: "descendant item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted",
+        parentId: ancestorItem.uuid
+      });
+
+      const parentItem = await ItemManager.getParentFromChildId(
+        descendantItem.uuid
+      );
+      expect(parentItem).toEqual({ ...ancestorItem, user: undefined });
     });
   });
 });

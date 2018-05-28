@@ -250,7 +250,7 @@ const resolvers: IResolvers = {
   },
   Item: {
     user: async (root: Item, params: any, context: IContext) => {
-      return UserManager.getUserFromItem(root.uuid);
+      return UserManager.getUserFromItemId(root.uuid);
     },
     parent: async (root: Item, params: any, context: IContext) => {
       return ItemManager.getParentFromChildId(root.uuid);
@@ -260,7 +260,7 @@ const resolvers: IResolvers = {
       params: IGetItemsParams | any,
       context: IContext
     ) => {
-      return ItemManager.getItems({ parentId: root.uuid, ...params });
+      return ItemManager.getItems({ parentId: root.uuid, depth: 1, ...params });
     }
   },
   UserEmail: {

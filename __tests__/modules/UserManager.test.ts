@@ -2,8 +2,10 @@ import { Server } from "http";
 import { getConnection } from "typeorm";
 import start from "../../src";
 import { PORT } from "../../src/constants";
+import { Item } from "../../src/entity/Item";
 import { User } from "../../src/entity/User";
 import { UserEmail } from "../../src/entity/UserEmail";
+import ItemManager from "../../src/modules/ItemManager";
 import UserManager from "../../src/modules/UserManager";
 import { generateUserCryptoParams } from "../testHelper";
 
@@ -65,6 +67,7 @@ async function deleteUsers() {
     .where({ lUsername: "dupeuser" })
     .orWhere("lUsername = :shrugUsername", { shrugUsername: "¯\\_(ツ)_/¯" })
     .orWhere("lUsername = :veUsername", { veUsername: "verifyemailuser" })
+    .orWhere("lUsername = :itemUsername", { itemUsername: "itemusertest" })
     .execute();
 }
 
@@ -683,7 +686,7 @@ describe("UserManager", () => {
     });
   });
 
-  describe("usernameExists", async () => {
+  describe("usernameExists", () => {
     it("should handle invalid usernames", async () => {
       expect.assertions(5);
       await expect(UserManager.usernameExists()).rejects.toHaveProperty(
@@ -715,6 +718,50 @@ describe("UserManager", () => {
         `The request is invalid.\n` +
           `* username: Username is too long (over 24 characters).`
       );
+    });
+  });
+
+  describe("getUserFromItem", () => {
+    let itemUser: User = null;
+    let item: Item = null;
+    beforeAll(async () => {
+      await getConnection().transaction(async transactionEntityManager => {
+        itemUser = new User();
+        const itemEmail = new UserEmail();
+        itemEmail.email = "itemUserTest@udia.ca";
+        itemEmail.lEmail = "itemusertest@udia.ca";
+        itemEmail.primary = true;
+        itemEmail.verified = false;
+        itemEmail.verificationExpiry = new Date();
+        itemEmail.verificationHash = "$argon2i$v=1$m=1,t=1,p=1$101";
+        itemUser.username = "itemUserTest";
+        itemUser.lUsername = "itemusertest";
+        itemUser.pwHash = "$argon2i$v=1$m=1,t=1,p=1$101";
+        itemUser.pwFunc = "pbkdf2";
+        itemUser.pwDigest = "sha512";
+        itemUser.pwCost = 3000;
+        itemUser.pwSalt = "101";
+        itemUser = await transactionEntityManager.save(itemUser);
+        itemEmail.user = itemUser;
+        await transactionEntityManager.save(itemEmail);
+      });
+    });
+
+    afterAll(async () => {
+      await getConnection()
+        .getRepository(Item)
+        .delete(item);
+    });
+
+    it("should get a user from an item", async () => {
+      expect.assertions(1);
+      item = await ItemManager.createItem("itemusertest", {
+        content: "Item User Test",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
+      const verifyUser = await UserManager.getUserFromItemId(item.uuid);
+      expect(verifyUser).toEqual(itemUser);
     });
   });
 });

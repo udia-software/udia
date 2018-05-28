@@ -63,32 +63,34 @@ const middlewareLogger = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
+// don't cover TypeORM logger methods
+/* istanbul ignore next */
 class TypeORMLogger implements ITypeORMLogger {
   public logQuery(query: string, parameters?: any[] | undefined) {
-    logger.verbose(`[TypeORM] Query`, query, parameters);
+    logger.verbose(`[TypeORM] Query`, { query, parameters });
   }
   public logQueryError(
     error: string,
     query: string,
     parameters?: any[] | undefined
   ) {
-    logger.warn(`[TypeORM] Query Error`, error, query, parameters);
+    logger.warn(`[TypeORM] Query Error`, { error, query, parameters });
   }
   public logQuerySlow(
     time: number,
     query: string,
     parameters?: any[] | undefined
   ) {
-    logger.warn(`[TypeORM] Query Slow ${time}`, query, parameters);
+    logger.warn(`[TypeORM] Query Slow ${time}`, { query, parameters });
   }
   public logSchemaBuild(message: string) {
-    logger.verbose(`[TypeORM] Schema Build`, message);
+    logger.verbose(`[TypeORM] Schema Build`, { message });
   }
   public logMigration(message: string) {
-    logger.verbose(`[TypeORM] Migration`, message);
+    logger.verbose(`[TypeORM] Migration`, { message });
   }
   public log(level: "log" | "info" | "warn", message: any) {
-    logger.verbose(`[TypeORM] ${level}`, message);
+    logger.verbose(`[TypeORM] ${level}`, { message });
   }
 }
 

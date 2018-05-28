@@ -582,13 +582,13 @@ export default class UserManager {
     return count;
   }
 
-  public static async getUserFromItem(itemId: string) {
+  public static async getUserFromItemId(itemId: string) {
     return getRepository(User)
       .createQueryBuilder("user")
       .where(qb => {
         const itemSubQuery = qb
           .subQuery()
-          .select("item.userUuid")
+          .select(`"item"."userUuid"`)
           .from(Item, "item")
           .where("item.uuid = :itemId", { itemId })
           .limit(1)

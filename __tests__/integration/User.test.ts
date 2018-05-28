@@ -113,7 +113,7 @@ beforeAll(async done => {
     GRAPHQL_SUBSCRIPTIONS_ENDPOINT,
     {
       reconnect: true,
-      connectionParams: { authorization: authorizationHeader }
+      connectionParams: { authorization: jwt }
     },
     WebSocket
   );

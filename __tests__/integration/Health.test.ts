@@ -48,7 +48,7 @@ beforeAll(async done => {
   const link = split(
     ({ query }) => {
       // TODO https://github.com/apollographql/apollo-link/issues/601
-      const { kind, operation } = getOperationDefinition((query as any)) || {
+      const { kind, operation } = getOperationDefinition(query as any) || {
         kind: null,
         operation: null
       };
@@ -92,62 +92,58 @@ describe("Health", () => {
   });
 
   it("should query the `/graphql` endpoint", async done => {
-    try {
-      const getHealthQueryResp = await gqlClient.query({
-        query: gql`
-          query Health {
-            health {
-              version
-              nodeVersion
-              arch
-              hostname
-              platform
-              release
-              freememGiB
-              totalmemGiB
-              freememGB
-              totalmemGB
-              osUptime
-              pUptime
-              now
-              loadavg
-              cpus {
-                model
-                speed
-                times {
-                  user
-                  nice
-                  sys
-                  idle
-                  irq
-                }
+    const getHealthQueryResp = await gqlClient.query({
+      query: gql`
+        query Health {
+          health {
+            version
+            nodeVersion
+            arch
+            hostname
+            platform
+            release
+            freememGiB
+            totalmemGiB
+            freememGB
+            totalmemGB
+            osUptime
+            pUptime
+            now
+            loadavg
+            cpus {
+              model
+              speed
+              times {
+                user
+                nice
+                sys
+                idle
+                irq
               }
             }
           }
-        `
-      });
-      expect(getHealthQueryResp).toHaveProperty("data");
-      const getHealthData: any = getHealthQueryResp.data;
-      expect(getHealthData).toHaveProperty("health");
-      const getHealth = getHealthData.health;
-      expect(getHealth).toHaveProperty("version");
-      expect(getHealth).toHaveProperty("nodeVersion");
-      expect(getHealth).toHaveProperty("arch");
-      expect(getHealth).toHaveProperty("hostname");
-      expect(getHealth).toHaveProperty("platform");
-      expect(getHealth).toHaveProperty("release");
-      expect(getHealth).toHaveProperty("freememGiB");
-      expect(getHealth).toHaveProperty("totalmemGiB");
-      expect(getHealth).toHaveProperty("freememGB");
-      expect(getHealth).toHaveProperty("totalmemGB");
-      expect(getHealth).toHaveProperty("osUptime");
-      expect(getHealth).toHaveProperty("pUptime");
-      expect(getHealth).toHaveProperty("now");
-      expect(getHealth).toHaveProperty("loadavg");
-      expect(getHealth).toHaveProperty("cpus");
-      done();
-    } catch (err) {
-      expect(err).toEqual({});
-    }
+        }
+      `
+    });
+    expect(getHealthQueryResp).toHaveProperty("data");
+    const getHealthData: any = getHealthQueryResp.data;
+    expect(getHealthData).toHaveProperty("health");
+    const getHealth = getHealthData.health;
+    expect(getHealth).toHaveProperty("version");
+    expect(getHealth).toHaveProperty("nodeVersion");
+    expect(getHealth).toHaveProperty("arch");
+    expect(getHealth).toHaveProperty("hostname");
+    expect(getHealth).toHaveProperty("platform");
+    expect(getHealth).toHaveProperty("release");
+    expect(getHealth).toHaveProperty("freememGiB");
+    expect(getHealth).toHaveProperty("totalmemGiB");
+    expect(getHealth).toHaveProperty("freememGB");
+    expect(getHealth).toHaveProperty("totalmemGB");
+    expect(getHealth).toHaveProperty("osUptime");
+    expect(getHealth).toHaveProperty("pUptime");
+    expect(getHealth).toHaveProperty("now");
+    expect(getHealth).toHaveProperty("loadavg");
+    expect(getHealth).toHaveProperty("cpus");
+    done();
   });
 });
