@@ -68,12 +68,27 @@ async function createUsers() {
 }
 
 async function deleteValues() {
+  const userSubQuery = getConnection()
+    .getRepository(User)
+    .createQueryBuilder()
+    .select(`"user"."uuid"`)
+    .from(User, "user")
+    .where(`"user"."lUsername" = 'itemtester'`)
+    .orWhere(`"user"."lUsername" = 'itemtester2'`)
+    .orWhere(`"user"."lUsername" = 'itemstester'`)
+    .getQuery();
   await getConnection().transaction(async transactionEntityManager => {
+    await transactionEntityManager
+      .createQueryBuilder()
+      .delete()
+      .from(Item, "item")
+      .where(qb => {
+        return `"item"."userUuid" IN (${userSubQuery})`;
+      })
+      .execute();
     await transactionEntityManager.delete(User, { lUsername: "itemtester" });
     await transactionEntityManager.delete(User, { lUsername: "itemtester2" });
     await transactionEntityManager.delete(User, { lUsername: "itemstester" });
-    await transactionEntityManager.query("DELETE FROM item_closure");
-    await transactionEntityManager.query("DELETE FROM item;");
   });
 }
 
