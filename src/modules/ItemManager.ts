@@ -8,6 +8,7 @@ import { IErrorMessage, ValidationError } from "./ValidationError";
 const UUID_TEST = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export interface IGetItemsParams {
+  userId?: string | null;
   username?: string;
   parentId?: string | null;
   depth?: number;
@@ -103,6 +104,7 @@ export default class ItemManager {
    * @param {IGetItemsParams} parameters GraphQL getItems parameters
    */
   public static async getItems({
+    userId, // Get items that belong to the given user (prioritized higher than username)
     username, // Get items that belong to the given user (username) or undefined
     parentId, // Get items from ancestor (null for root, undefined for all)
     depth = 0, // Get items at a specific depth from ancestor
@@ -132,7 +134,15 @@ export default class ItemManager {
     });
 
     // If username is set, perform username mapping
-    if (username !== undefined) {
+    if (userId !== undefined) {
+      if (typeof userId === "string") {
+        // Get items with the given userId
+        itemQueryBuilder.andWhere(`"item"."userUuid" = :userId`, { userId });
+      } else {
+        // Get items where the user is deleted.
+        itemQueryBuilder.andWhere(`"item"."userUuid" IS NULL`);
+      }
+    } else if (username !== undefined) {
       itemQueryBuilder.andWhere(qb => {
         const userSubQuery = qb
           .subQuery()
@@ -151,6 +161,10 @@ export default class ItemManager {
     if (parentId === null) {
       itemQueryBuilder.andWhere(`"item"."parentUuid" IS NULL`);
     }
+
+    // Don't show deleted items.
+    itemQueryBuilder.andWhere(`"item"."deleted" = FALSE`);
+
     // Datetime is used for pagination over items
     if (datetime !== undefined) {
       // operator depends on ASC or DESC
@@ -281,6 +295,23 @@ export default class ItemManager {
     await queryRunner.commitTransaction();
     await queryRunner.release();
     return item;
+  }
+
+  public static async getParentFromChildId(id: string) {
+    return getRepository(Item)
+      .createQueryBuilder("item")
+      .where(qb => {
+        const subItemQuery = qb
+          .subQuery()
+          .select("closure.ancestor")
+          .from(ItemClosure, "closure")
+          .where("closure.depth = :depth", { depth: 1 })
+          .andWhere("closure.descendant = :id", { id })
+          .getQuery();
+        return `"item"."uuid" IN ${subItemQuery}`;
+      })
+      .limit(1)
+      .getOne();
   }
 
   /**

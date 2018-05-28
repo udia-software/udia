@@ -14,6 +14,16 @@ const typeDefs: ITypedef[] = [
     checkUsernameExists(username: String!): Int!
     me: FullUser
     health: HealthMetric!
+    getItem(id: ID!): Item
+    getItems(
+      username: String,
+      parentId: ID,
+      depth: Int,
+      limit: Int,
+      datetime: DateTime,
+      sort: ItemSortValues,
+      order: ItemOrderValues
+    ): ItemPagination!
   }`,
   // GraphQL Mutation methods
   `type Mutation {
@@ -53,6 +63,22 @@ const typeDefs: ITypedef[] = [
       pwKeySize: Int!,
       pwSalt: String!
     ): UserAuthPayload!
+    createItem(
+      content: String!,
+      contentType: String!,
+      encItemKey: String!
+      parentId: ID
+    ): Item!
+    updateItem(
+      id: ID!,
+      content: String,
+      contentType: String,
+      encItemKey: String,
+      parentId: ID
+    ): Item!
+    deleteItem(
+      id: ID!
+    ): Item!
   }`,
   // GraphQL Subscriptions
   `type Subscription {
@@ -64,6 +90,14 @@ const typeDefs: ITypedef[] = [
     uuid: ID!
     username: String!
     createdAt: DateTime!
+    items(
+      parentId: ID,
+      depth: Int,
+      limit: Int,
+      datetime: DateTime,
+      sort: ItemSortValues,
+      order: ItemOrderValues
+    ): ItemPagination!
   }`,
   // Protected Facing Full User
   `type FullUser {
@@ -75,6 +109,14 @@ const typeDefs: ITypedef[] = [
     pwCost: Int!
     pwKeySize: Int!
     pwSalt: String!
+    items(
+      parentId: ID,
+      depth: Int,
+      limit: Int,
+      datetime: DateTime,
+      sort: ItemSortValues,
+      order: ItemOrderValues
+    ): ItemPagination!
     createdAt: DateTime!
     updatedAt: DateTime!
   }`,
@@ -105,6 +147,37 @@ const typeDefs: ITypedef[] = [
   `type TokenValidity {
     isValid: Boolean!
     expiry: DateTime
+  }`,
+  // Public Facing Item
+  `type Item {
+    uuid: ID!
+    content: String
+    contentType: String
+    encItemKey: String
+    user: User
+    deleted: Boolean!
+    parent: Item
+    children(
+      username: String,
+      limit: Int,
+      datetime: DateTime,
+      sort: ItemSortValues,
+      order: ItemOrderValues
+    ): ItemPagination!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+  }`,
+  `enum ItemSortValues {
+    createdAt
+    updatedAt
+  }`,
+  `enum ItemOrderValues {
+    ASC
+    DESC
+  }`,
+  `type ItemPagination {
+    items: [Item]!,
+    count: Int!,
   }`,
   // Public Facing Health Metric Object
   `type HealthMetric {

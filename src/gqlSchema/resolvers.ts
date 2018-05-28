@@ -1,10 +1,17 @@
 import { Kind } from "graphql";
 import { withFilter } from "graphql-subscriptions";
 import { IResolvers } from "graphql-tools";
+import { Item } from "../entity/Item";
 import { User } from "../entity/User";
 import { UserEmail } from "../entity/UserEmail";
 import { pubSub } from "../index";
 import { IJwtPayload } from "../modules/Auth";
+import ItemManager, {
+  ICreateItemParams,
+  IDeleteItemParams,
+  IGetItemsParams,
+  IUpdateItemParams
+} from "../modules/ItemManager";
 import UserManager, {
   IAddEmailParams,
   ICreateUserParams,
@@ -50,6 +57,17 @@ const resolvers: IResolvers = {
     },
     health: async (root: any, params: any, context: IContext) => {
       return metric();
+    },
+    getItem: async (root: any, params: any, context: IContext) => {
+      const id = params.id;
+      return ItemManager.getItemById(id);
+    },
+    getItems: async (
+      root: any,
+      params: IGetItemsParams | any,
+      context: IContext
+    ) => {
+      return ItemManager.getItems(params);
     }
   },
   Mutation: {
@@ -155,6 +173,30 @@ const resolvers: IResolvers = {
       const { user, jwt } = await UserManager.resetPassword(params);
       pubSub.publish(`me:${user.lUsername}`, { me: user });
       return { user, jwt };
+    },
+    createItem: async (
+      root: any,
+      params: ICreateItemParams | any,
+      context: IContext
+    ) => {
+      const username = context.jwtPayload && context.jwtPayload.username;
+      return ItemManager.createItem(username, params);
+    },
+    updateItem: async (
+      root: any,
+      params: IUpdateItemParams | any,
+      context: IContext
+    ) => {
+      const username = context.jwtPayload && context.jwtPayload.username;
+      return ItemManager.updateItem(username, params);
+    },
+    deleteItem: async (
+      root: any,
+      params: IDeleteItemParams | any,
+      context: IContext
+    ) => {
+      const username = context.jwtPayload && context.jwtPayload.username;
+      return ItemManager.deleteItem(username, params);
     }
   },
   Subscription: {
@@ -187,7 +229,38 @@ const resolvers: IResolvers = {
   FullUser: {
     emails: async (root: User, params: any, context: IContext) => {
       const user = await UserManager.getUserById(root.uuid);
-      return user && user.emails;
+      return user ? user.emails : [];
+    },
+    items: async (
+      root: User,
+      params: IGetItemsParams | any,
+      context: IContext
+    ) => {
+      return ItemManager.getItems({ userId: root.uuid, ...params });
+    }
+  },
+  User: {
+    items: async (
+      root: User,
+      params: IGetItemsParams | any,
+      context: IContext
+    ) => {
+      return ItemManager.getItems({ userId: root.uuid, ...params });
+    }
+  },
+  Item: {
+    user: async (root: Item, params: any, context: IContext) => {
+      return UserManager.getUserFromItem(root.uuid);
+    },
+    parent: async (root: Item, params: any, context: IContext) => {
+      return ItemManager.getParentFromChildId(root.uuid);
+    },
+    children: async (
+      root: Item,
+      params: IGetItemsParams | any,
+      context: IContext
+    ) => {
+      return ItemManager.getItems({ parentId: root.uuid, ...params });
     }
   },
   UserEmail: {
