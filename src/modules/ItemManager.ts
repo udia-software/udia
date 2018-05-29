@@ -205,6 +205,9 @@ export default class ItemManager {
     if (updateParams.size === 1 && updateParams.has(undefined)) {
       errors.push({ key: "id", message: "Cannot update with no changes." });
     }
+    if (item && item.deleted) {
+      errors.push({ key: "id", message: "Cannot update a deleted item." });
+    }
     if (errors.length > 0) {
       throw new ValidationError(errors);
     }

@@ -734,6 +734,24 @@ describe("ItemManager", () => {
         "The request is invalid.\n* id: Cannot update with no changes."
       );
     });
+
+    it("should handle update deleted item", async () => {
+      const deletedItem = await ItemManager.createItem("itemtester", {
+        content: "deleted item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
+      await ItemManager.deleteItem("itemtester", { id: deletedItem.uuid });
+      await expect(
+        ItemManager.updateItem("itemtester", {
+          id: deletedItem.uuid,
+          content: "trying to update"
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* id: Cannot update a deleted item."
+      );
+    });
   });
 
   describe("deleteItem", () => {
