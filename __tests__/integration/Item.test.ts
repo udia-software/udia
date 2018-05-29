@@ -8,7 +8,7 @@ import gql from "graphql-tag";
 import { Server } from "http";
 import fetch from "node-fetch";
 import { SubscriptionClient } from "subscriptions-transport-ws";
-import { getConnection } from "typeorm";
+import { getConnection, getRepository } from "typeorm";
 import WebSocket from "ws";
 import { PORT } from "../../src/constants";
 import { Item } from "../../src/entity/Item";
@@ -366,8 +366,63 @@ describe("Item", () => {
       }
     });
   });
-  // it.skip("should create an item", null);
-  // it.skip("should create an item");
+
+  describe("createItem", () => {
+    let itemUuid: string = null;
+
+    afterAll(async () => {
+      await getConnection()
+        .getRepository(Item)
+        .delete({ uuid: itemUuid });
+    });
+
+    it("should create an item", async () => {
+      expect.assertions(10);
+      const createItemMutation = gql`
+        mutation CreateItem(
+          $content: String!
+          $contentType: String!
+          $encItemKey: String!
+        ) {
+          createItem(
+            content: $content
+            contentType: $contentType
+            encItemKey: $encItemKey
+          ) {
+            uuid
+            content
+            contentType
+            encItemKey
+            user {
+              username
+            }
+          }
+        }
+      `;
+      const createItemMutationResponse = await gqlClient.mutate({
+        mutation: createItemMutation,
+        variables: {
+          content: "createItemTest content",
+          contentType: "plaintext",
+          encItemKey: "unencrypted"
+        }
+      });
+      expect(createItemMutationResponse).toHaveProperty("data");
+      const createItemData = createItemMutationResponse.data;
+      expect(createItemData).toHaveProperty("createItem");
+      const createItem = createItemData.createItem;
+      expect(createItem).toHaveProperty("uuid");
+      itemUuid = createItem.uuid;
+      expect(createItem).toHaveProperty("__typename", "Item");
+      expect(createItem).toHaveProperty("content", "createItemTest content");
+      expect(createItem).toHaveProperty("contentType", "plaintext");
+      expect(createItem).toHaveProperty("encItemKey", "unencrypted");
+      expect(createItem).toHaveProperty("user");
+      const createItemUser = createItem.user;
+      expect(createItemUser).toHaveProperty("__typename", "User");
+      expect(createItemUser).toHaveProperty("username", "itemtestuser");
+    });
+  });
   // it.skip("should update an item");
   // it.skip("should delete an item");
 });
