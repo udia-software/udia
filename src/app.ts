@@ -7,6 +7,8 @@ import bodyParser from "body-parser";
 import cors, { CorsOptions } from "cors";
 import express from "express";
 import { formatError } from "graphql";
+import path from "path";
+import serveIndex from "serve-index";
 import { APP_VERSION, CORS_ORIGIN, DEV_JWT, NODE_ENV, PORT } from "./constants";
 import gqlSchema from "./gqlSchema";
 import Auth from "./modules/Auth";
@@ -14,6 +16,18 @@ import { middlewareLogger } from "./util/logger";
 import metric from "./util/metric";
 
 const app = express();
+
+// serve static files with index
+app.use(
+  "/static",
+  express.static(path.join(__dirname, "..", "static")),
+  serveIndex(path.join(__dirname, "..", "static"), {
+    icons: true,
+    view: "details"
+  })
+);
+// serve favicons at the root level
+app.use("/", express.static(path.join(__dirname, "..", "static", "favicons")));
 
 const graphqlBuildOptions: ExpressGraphQLOptionsFunction = req => {
   return {
@@ -66,7 +80,6 @@ if (NODE_ENV !== "production") {
     })
   );
 }
-
 app.get("/health", (req, res) => res.json(metric()));
 // TODO: GraphQL Server Side rendering with Hydrating client would be lit
 app.get("/", (req, res) => {
@@ -77,6 +90,10 @@ app.get("/", (req, res) => {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <title>UDIA API SERVER</title>
     <style>
       html{background-color:#000000;color:#ffffff;width:100%;height:100%;}

@@ -6,7 +6,7 @@
 
 **You are one with the universe.**
 
-![./logo.svg](./logo.svg)
+![UDIA](./static/logo/logo-256x256.png)
 
 ## Quickstart
 
