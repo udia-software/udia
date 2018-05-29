@@ -1,6 +1,7 @@
 import { randomBytes } from "crypto";
 import { getConnection, getRepository, Not } from "typeorm";
 import { EMAIL_TOKEN_TIMEOUT } from "../constants";
+import { Item } from "../entity/Item";
 import { User } from "../entity/User";
 import { UserEmail } from "../entity/UserEmail";
 import Mailer from "../mailer";
@@ -579,6 +580,23 @@ export default class UserManager {
       throw new ValidationError(errors);
     }
     return count;
+  }
+
+  public static async getUserFromItemId(itemId: string) {
+    return getRepository(User)
+      .createQueryBuilder("user")
+      .where(qb => {
+        const itemSubQuery = qb
+          .subQuery()
+          .select(`"item"."userUuid"`)
+          .from(Item, "item")
+          .where("item.uuid = :itemId", { itemId })
+          .limit(1)
+          .getQuery();
+        return `"user"."uuid" IN ${itemSubQuery}`;
+      })
+      .limit(1)
+      .getOne();
   }
 
   private static async handleValidateUsername(

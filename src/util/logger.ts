@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import moment from "moment";
 import onFinished from "on-finished";
+import { Logger as ITypeORMLogger } from "typeorm";
 import { Logger, transports } from "winston";
 import { NODE_ENV } from "../constants";
 
@@ -62,5 +63,70 @@ const middlewareLogger = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
+// don't cover TypeORM logger methods
+/* istanbul ignore next */
+class TypeORMLogger implements ITypeORMLogger {
+  /**
+   * Winston logger instance. Transports change based on node environment.
+   */
+  private static winstonTypeORMlogger = new Logger({
+    level: "verbose",
+    transports: [
+      new transports.File({
+        name: `${NODE_ENV}-typeorm`,
+        filename: `log/${NODE_ENV}-typeorm.log`,
+        level: "verbose",
+        maxsize: logFileSize,
+        maxFiles: logMaxFiles,
+        tailable: true
+      })
+    ],
+    exitOnError: false
+  });
+
+  public logQuery(query: string, parameters?: any[] | undefined) {
+    TypeORMLogger.winstonTypeORMlogger.verbose(`[TypeORM] Query`, {
+      query,
+      parameters
+    });
+  }
+  public logQueryError(
+    error: string,
+    query: string,
+    parameters?: any[] | undefined
+  ) {
+    TypeORMLogger.winstonTypeORMlogger.warn(`[TypeORM] Query Error`, {
+      error,
+      query,
+      parameters
+    });
+  }
+  public logQuerySlow(
+    time: number,
+    query: string,
+    parameters?: any[] | undefined
+  ) {
+    TypeORMLogger.winstonTypeORMlogger.warn(`[TypeORM] Query Slow ${time}`, {
+      query,
+      parameters
+    });
+  }
+  public logSchemaBuild(message: string) {
+    TypeORMLogger.winstonTypeORMlogger.verbose(`[TypeORM] Schema Build`, {
+      message
+    });
+  }
+  public logMigration(message: string) {
+    TypeORMLogger.winstonTypeORMlogger.verbose(`[TypeORM] Migration`, {
+      message
+    });
+  }
+  public log(level: "log" | "info" | "warn", message: any) {
+    TypeORMLogger.winstonTypeORMlogger.verbose(`[TypeORM] ${level}`, {
+      message
+    });
+  }
+}
+
 export default logger;
-export { middlewareLogger };
+export { middlewareLogger, TypeORMLogger };

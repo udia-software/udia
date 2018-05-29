@@ -42,7 +42,9 @@ export class InitUsers1524542144506 implements MigrationInterface {
       `CREATE UNIQUE INDEX "IDX_af74e87477556de1853a2eb8e8" ON "user"("lUsername") `
     );
     await queryRunner.query(
-      `ALTER TABLE "user_email" ADD CONSTRAINT "FK_bc909352f2f15b2f065fce1064b" FOREIGN KEY ("userUuid") REFERENCES "user"("uuid") ON DELETE CASCADE`
+      `ALTER TABLE "user_email" ` +
+        `ADD CONSTRAINT "FK_bc909352f2f15b2f065fce1064b" ` +
+        `FOREIGN KEY ("userUuid") REFERENCES "user"("uuid") ON DELETE CASCADE`
     );
   }
 
