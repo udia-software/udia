@@ -232,7 +232,140 @@ describe("Item", () => {
       done();
     });
   });
-  // it.skip("should get items by pagination parameters");
+
+  describe("getItems", () => {
+    let parentItem: Item = null;
+    const items: Item[] = [];
+    beforeAll(async () => {
+      parentItem = await ItemManager.createItem("itemtestuser", {
+        content: `gql items test root item`,
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
+      for (let i = 1; i <= 20; i++) {
+        const item = await ItemManager.createItem("itemtestuser", {
+          content: `gql items test ${i}`,
+          contentType: "plaintext",
+          encItemKey: "unencrypted",
+          parentId: parentItem.uuid
+        });
+        items.push(item);
+      }
+    });
+
+    afterAll(async () => {
+      await getConnection()
+        .getRepository(Item)
+        .delete(parentItem);
+      for (const item of items) {
+        await getConnection()
+          .getRepository(Item)
+          .delete(item);
+      }
+    });
+
+    it("should get items by pagination parameters", async () => {
+      expect.assertions(117);
+      const getItemsQuery = gql`
+        query GetItems(
+          $username: String
+          $parentId: ID
+          $depth: Int
+          $limit: Int
+          $datetime: DateTime
+          $sort: ItemSortValue
+          $order: ItemOrderValue
+        ) {
+          getItems(
+            username: $username
+            parentId: $parentId
+            depth: $depth
+            limit: $limit
+            datetime: $datetime
+            sort: $sort
+            order: $order
+          ) {
+            items {
+              uuid
+              content
+              contentType
+              encItemKey
+            }
+            count
+          }
+        }
+      `;
+      let getItemsQueryResponse = await gqlClient.query({
+        query: getItemsQuery,
+        variables: {
+          username: "itemtestuser",
+          parentId: parentItem.uuid,
+          depth: 1,
+          limit: 13,
+          order: "ASC"
+        }
+      });
+      expect(getItemsQueryResponse).toHaveProperty("data");
+      let getItemsQueryData: any = getItemsQueryResponse.data;
+      expect(getItemsQueryData).toHaveProperty("getItems");
+      let getItems = getItemsQueryData.getItems;
+      expect(getItems).toHaveProperty("__typename", "ItemPagination");
+      expect(getItems).toHaveProperty("count", 20);
+      expect(getItems).toHaveProperty("items");
+      const firstQueryItems = getItems.items;
+      expect(firstQueryItems).toHaveLength(13);
+      for (let i = 0; i < firstQueryItems.length; i++) {
+        expect(firstQueryItems[i]).toHaveProperty("__typename", "Item");
+        expect(firstQueryItems[i]).toHaveProperty("content", items[i].content);
+        expect(firstQueryItems[i]).toHaveProperty(
+          "contentType",
+          items[i].contentType
+        );
+        expect(firstQueryItems[i]).toHaveProperty(
+          "encItemKey",
+          items[i].encItemKey
+        );
+        expect(firstQueryItems[i]).toHaveProperty("uuid", items[i].uuid);
+      }
+      // get second pass
+      getItemsQueryResponse = await gqlClient.query({
+        query: getItemsQuery,
+        variables: {
+          username: "itemtestuser",
+          parentId: parentItem.uuid,
+          depth: 1,
+          limit: 13,
+          datetime: items[12].createdAt,
+          order: "ASC"
+        }
+      });
+      expect(getItemsQueryResponse).toHaveProperty("data");
+      getItemsQueryData = getItemsQueryResponse.data;
+      expect(getItemsQueryData).toHaveProperty("getItems");
+      getItems = getItemsQueryData.getItems;
+      expect(getItems).toHaveProperty("__typename", "ItemPagination");
+      expect(getItems).toHaveProperty("count", 8);
+      expect(getItems).toHaveProperty("items");
+      const secondQueryItems = getItems.items;
+      expect(secondQueryItems).toHaveLength(8);
+      for (let i = 0; i < secondQueryItems.length; i++) {
+        expect(secondQueryItems[i]).toHaveProperty("__typename", "Item");
+        expect(secondQueryItems[i]).toHaveProperty(
+          "content",
+          items[12 + i].content
+        );
+        expect(secondQueryItems[i]).toHaveProperty(
+          "contentType",
+          items[12 + i].contentType
+        );
+        expect(secondQueryItems[i]).toHaveProperty(
+          "encItemKey",
+          items[12 + i].encItemKey
+        );
+        expect(secondQueryItems[i]).toHaveProperty("uuid", items[12 + i].uuid);
+      }
+    });
+  });
   // it.skip("should create an item", null);
   // it.skip("should create an item");
   // it.skip("should update an item");

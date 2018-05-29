@@ -434,7 +434,7 @@ describe("ItemManager", () => {
       });
     });
 
-    it("should get items with undefined username (any)", async () => {
+    it("should get items with undefined username, any user", async () => {
       expect.assertions(3);
       const itemstesterItem = await ItemManager.createItem("itemstester", {
         content: "My Items Tester item",

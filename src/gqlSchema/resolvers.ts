@@ -229,7 +229,7 @@ const resolvers: IResolvers = {
   FullUser: {
     emails: async (root: User, params: any, context: IContext) => {
       const user = await UserManager.getUserById(root.uuid);
-      return user ? user.emails : [];
+      return user!.emails;
     },
     items: async (
       root: User,

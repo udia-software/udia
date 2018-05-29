@@ -21,8 +21,8 @@ const typeDefs: ITypedef[] = [
       depth: Int,
       limit: Int,
       datetime: DateTime,
-      sort: ItemSortValues,
-      order: ItemOrderValues
+      sort: ItemSortValue,
+      order: ItemOrderValue
     ): ItemPagination!
   }`,
   // GraphQL Mutation methods
@@ -95,8 +95,8 @@ const typeDefs: ITypedef[] = [
       depth: Int,
       limit: Int,
       datetime: DateTime,
-      sort: ItemSortValues,
-      order: ItemOrderValues
+      sort: ItemSortValue,
+      order: ItemOrderValue
     ): ItemPagination!
   }`,
   // Protected Facing Full User
@@ -114,8 +114,8 @@ const typeDefs: ITypedef[] = [
       depth: Int,
       limit: Int,
       datetime: DateTime,
-      sort: ItemSortValues,
-      order: ItemOrderValues
+      sort: ItemSortValue,
+      order: ItemOrderValue
     ): ItemPagination!
     createdAt: DateTime!
     updatedAt: DateTime!
@@ -161,17 +161,17 @@ const typeDefs: ITypedef[] = [
       username: String,
       limit: Int,
       datetime: DateTime,
-      sort: ItemSortValues,
-      order: ItemOrderValues
+      sort: ItemSortValue,
+      order: ItemOrderValue
     ): ItemPagination!
     createdAt: DateTime!
     updatedAt: DateTime!
   }`,
-  `enum ItemSortValues {
+  `enum ItemSortValue {
     createdAt
     updatedAt
   }`,
-  `enum ItemOrderValues {
+  `enum ItemOrderValue {
     ASC
     DESC
   }`,
