@@ -5,7 +5,7 @@ All `logo*.png` files were generated from [logo.svg]().
 ## Original License
 
 The original source vector graphic `Image: “code Icon #75686”` was purchased
-through [The Noun Project](https://thenounproject.com/) on February 2, 2016.
+through [The Noun Project](https://thenounproject.com/) on September 4, 2016.
 
 The Original License can be viewed at [nounproject_royalty-free_license_76662274.pdf](https://api.udia.ca/static/logo/nounproject_royalty-free_license_76662274.pdf).
 

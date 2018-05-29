@@ -10,13 +10,12 @@ The original source vector graphic:
 
   Image: “code Icon #75686”
 
-was purchased on February 2, 2016 through:
+was purchased on September 4, 2016 through:
 
   The Noun Project https://thenounproject.com/
 
 The Original License can be viewed at 
-
-  https://api.udia.ca/static/logo/nounproject_royalty-free_license_76662274.pdf
+https://api.udia.ca/static/logo/nounproject_royalty-free_license_76662274.pdf
 
   LICENSEE
   Alexander Wong
