@@ -66,31 +66,65 @@ const middlewareLogger = (req: Request, res: Response, next: NextFunction) => {
 // don't cover TypeORM logger methods
 /* istanbul ignore next */
 class TypeORMLogger implements ITypeORMLogger {
+  /**
+   * Winston logger instance. Transports change based on node environment.
+   */
+  private static winstonTypeORMlogger = new Logger({
+    level: "verbose",
+    transports: [
+      new transports.File({
+        name: `${NODE_ENV}-typeorm`,
+        filename: `log/${NODE_ENV}-typeorm.log`,
+        level: "verbose",
+        maxsize: logFileSize,
+        maxFiles: logMaxFiles,
+        tailable: true
+      })
+    ],
+    exitOnError: false
+  });
+
   public logQuery(query: string, parameters?: any[] | undefined) {
-    logger.verbose(`[TypeORM] Query`, { query, parameters });
+    TypeORMLogger.winstonTypeORMlogger.verbose(`[TypeORM] Query`, {
+      query,
+      parameters
+    });
   }
   public logQueryError(
     error: string,
     query: string,
     parameters?: any[] | undefined
   ) {
-    logger.warn(`[TypeORM] Query Error`, { error, query, parameters });
+    TypeORMLogger.winstonTypeORMlogger.warn(`[TypeORM] Query Error`, {
+      error,
+      query,
+      parameters
+    });
   }
   public logQuerySlow(
     time: number,
     query: string,
     parameters?: any[] | undefined
   ) {
-    logger.warn(`[TypeORM] Query Slow ${time}`, { query, parameters });
+    TypeORMLogger.winstonTypeORMlogger.warn(`[TypeORM] Query Slow ${time}`, {
+      query,
+      parameters
+    });
   }
   public logSchemaBuild(message: string) {
-    logger.verbose(`[TypeORM] Schema Build`, { message });
+    TypeORMLogger.winstonTypeORMlogger.verbose(`[TypeORM] Schema Build`, {
+      message
+    });
   }
   public logMigration(message: string) {
-    logger.verbose(`[TypeORM] Migration`, { message });
+    TypeORMLogger.winstonTypeORMlogger.verbose(`[TypeORM] Migration`, {
+      message
+    });
   }
   public log(level: "log" | "info" | "warn", message: any) {
-    logger.verbose(`[TypeORM] ${level}`, { message });
+    TypeORMLogger.winstonTypeORMlogger.verbose(`[TypeORM] ${level}`, {
+      message
+    });
   }
 }
 

@@ -53,7 +53,6 @@ async function deleteUsers() {
     .delete()
     .from(User)
     .where({ lUsername: "itemtestuser" })
-    // .orWhere("lUsername = :shrugUsername", { shrugUsername: "¯\\_(ツ)_/¯" })
     .execute();
 }
 
@@ -121,6 +120,7 @@ describe("Item", () => {
   describe("getItem", () => {
     let item: Item = null;
     let childItem: Item = null;
+
     beforeAll(async () => {
       item = await ItemManager.createItem("itemtestuser", {
         content: "gql parent item test",
@@ -236,6 +236,7 @@ describe("Item", () => {
   describe("getItems", () => {
     let parentItem: Item = null;
     const items: Item[] = [];
+
     beforeAll(async () => {
       parentItem = await ItemManager.createItem("itemtestuser", {
         content: `gql items test root item`,
@@ -423,6 +424,121 @@ describe("Item", () => {
       expect(createItemUser).toHaveProperty("username", "itemtestuser");
     });
   });
-  // it.skip("should update an item");
-  // it.skip("should delete an item");
+
+  describe("updateItem", () => {
+    let item: Item = null;
+
+    beforeAll(async () => {
+      item = await ItemManager.createItem("itemtestuser", {
+        content: `gql items test update item`,
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
+    });
+
+    afterAll(async () => {
+      await getConnection()
+        .getRepository(Item)
+        .delete(item);
+    });
+
+    it("should update an item", async () => {
+      expect.assertions(13);
+      const updateItemMutation = gql`
+        mutation UpdateItem($id: ID!, $content: String) {
+          updateItem(id: $id, content: $content) {
+            uuid
+            content
+            contentType
+            encItemKey
+            user {
+              username
+            }
+            createdAt
+            updatedAt
+          }
+        }
+      `;
+      const updateItemMutationResponse = await gqlClient.mutate({
+        mutation: updateItemMutation,
+        variables: {
+          id: item.uuid,
+          content: "item has been updated"
+        }
+      });
+      expect(updateItemMutationResponse).toHaveProperty("data");
+      const updateItemData = updateItemMutationResponse.data;
+      expect(updateItemData).toHaveProperty("updateItem");
+      const updateItem = updateItemData.updateItem;
+      expect(updateItem).toHaveProperty("__typename", "Item");
+      expect(updateItem).toHaveProperty("content", "item has been updated");
+      expect(updateItem).toHaveProperty("contentType", "plaintext");
+      expect(updateItem).toHaveProperty("encItemKey", "unencrypted");
+      expect(updateItem).toHaveProperty("uuid", item.uuid);
+      expect(updateItem).toHaveProperty("user");
+      const updateItemUser = updateItem.user;
+      expect(updateItemUser).toHaveProperty("__typename", "User");
+      expect(updateItemUser).toHaveProperty("username", "itemtestuser");
+      expect(updateItem).toHaveProperty("createdAt");
+      expect(updateItem).toHaveProperty("updatedAt");
+      expect(updateItem.createdAt).toBeLessThan(updateItem.updatedAt);
+    });
+  });
+
+  describe("deleteItem", () => {
+    let item: Item = null;
+
+    beforeAll(async () => {
+      item = await ItemManager.createItem("itemtestuser", {
+        content: `gql items test delete item`,
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
+    });
+
+    afterAll(async () => {
+      await getConnection()
+        .getRepository(Item)
+        .delete(item);
+    });
+
+    it("should delete an item", async () => {
+      const deleteItemMutation = gql`
+        mutation DeleteItem($id: ID!) {
+          deleteItem(id: $id) {
+            uuid
+            content
+            contentType
+            encItemKey
+            user {
+              username
+            }
+            createdAt
+            updatedAt
+            deleted
+          }
+        }
+      `;
+      const deleteItemMutationResponse = await gqlClient.mutate({
+        mutation: deleteItemMutation,
+        variables: { id: item.uuid }
+      });
+      expect(deleteItemMutationResponse).toHaveProperty("data");
+      const deleteItemData = deleteItemMutationResponse.data;
+      expect(deleteItemData).toHaveProperty("deleteItem");
+      const deleteItem = deleteItemData.deleteItem;
+      expect(deleteItem).toHaveProperty("__typename", "Item");
+      expect(deleteItem).toHaveProperty("content", null);
+      expect(deleteItem).toHaveProperty("contentType", null);
+      expect(deleteItem).toHaveProperty("encItemKey", null);
+      expect(deleteItem).toHaveProperty("deleted", true);
+      expect(deleteItem).toHaveProperty("user");
+      const deleteItemUser = deleteItem.user;
+      expect(deleteItemUser).toHaveProperty("__typename", "User");
+      expect(deleteItemUser).toHaveProperty("username", "itemtestuser");
+      expect(deleteItem).toHaveProperty("uuid", item.uuid);
+      expect(deleteItem).toHaveProperty("createdAt");
+      expect(deleteItem).toHaveProperty("updatedAt");
+    });
+  });
 });
