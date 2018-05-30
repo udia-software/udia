@@ -46,22 +46,7 @@ const typeDefs: ITypedef[] = [
 
     # Given the item pagination parameters,
     # return the count of items and subset of items in an array.
-    getItems(
-      # Filter items by username (or null for orphaned by deleted user)
-      username: String,
-      # Filter items by parentID (or null for root)
-      parentId: ID,
-      # Filter items by depth in relation to parentId
-      depth: Int,
-      # Maximum number of items returned from query
-      limit: Int,
-      # Datetime for keyset pagination
-      datetime: DateTime,
-      # Sort items by? (Defaults to CreatedAt)
-      sort: ItemSortValue,
-      # Order items by? (Defaults to DESC)
-      order: ItemOrderValue
-    ): ItemPagination!
+    getItems(params: ItemPaginationInput): ItemPagination!
   }`,
   `# UDIA Server GraphQL Mutations
   type Mutation {
@@ -168,29 +153,14 @@ const typeDefs: ITypedef[] = [
     refreshJWT: String
 
     # Create an item.
-    createItem(
-      # Content of the item. If encrypted, ensure base64 encoding.
-      content: String!,
-      # Type of the item content.
-      contentType: String!,
-      # Encrypted item key, according to Udia Encryption API specification.
-      encItemKey: String!
-      # Optional parent item UUID.
-      parentId: ID
-    ): Item!
+    createItem(params: CreateItemInput!): Item!
 
     # Update an item.
     updateItem(
       # Server generated item UUID.
-      id: ID!,
-      # Content of the item. If encrypted, ensure base64 encoding.
-      content: String,
-      # Type of the item content.
-      contentType: String,
-      # Encrypted item key, according to Udia Encryption API specification.
-      encItemKey: String,
-      # Parent item UUID.
-      parentId: ID
+      id: ID!
+      # Parameters of the item field to update.
+      params: UpdateItemInput!
     ): Item!
 
     # Delete an item.
@@ -215,14 +185,8 @@ const typeDefs: ITypedef[] = [
     # When this user was created.
     createdAt: DateTime!
     # Items belonging to the user.
-    items(
-      parentId: ID,
-      depth: Int,
-      limit: Int,
-      datetime: DateTime,
-      sort: ItemSortValue,
-      order: ItemOrderValue
-    ): ItemPagination!
+    # Parameter 'username' is overridden.
+    items(params: ItemPaginationInput): ItemPagination!
   }`,
   `# Protected FullUser type
   type FullUser {
@@ -234,14 +198,9 @@ const typeDefs: ITypedef[] = [
     pwCost: Int!
     pwKeySize: Int!
     pwSalt: String!
-    items(
-      parentId: ID,
-      depth: Int,
-      limit: Int,
-      datetime: DateTime,
-      sort: ItemSortValue,
-      order: ItemOrderValue
-    ): ItemPagination!
+    # Items belonging to the user.
+    # Parameter 'username' is overridden.
+    items(params: ItemPaginationInput): ItemPagination!
     createdAt: DateTime!
     updatedAt: DateTime!
   }`,
@@ -282,13 +241,9 @@ const typeDefs: ITypedef[] = [
     user: User
     deleted: Boolean!
     parent: Item
-    children(
-      username: String,
-      limit: Int,
-      datetime: DateTime,
-      sort: ItemSortValue,
-      order: ItemOrderValue
-    ): ItemPagination!
+    # Immediate children of the item.
+    # Parameters 'parentId' and 'depth' are overridden.
+    children(params: ItemPaginationInput): ItemPagination!
     createdAt: DateTime!
     updatedAt: DateTime!
   }`,
@@ -359,6 +314,45 @@ const typeDefs: ITypedef[] = [
     idle: Int!
     # Interrupt Request mode in seconds
     irq: Int!
+  }`,
+  `# Items Pagination Parameters
+  input ItemPaginationInput {
+    # Filter items by username (or null for orphaned by deleted user)
+    username: String
+    # Filter items by parentID (or null for root)
+    parentId: ID
+    # Filter items by depth in relation to parentId
+    depth: Int
+    # Maximum number of items returned from query
+    limit: Int
+    # Datetime for keyset pagination
+    datetime: DateTime
+    # Sort items by? (Defaults to CreatedAt)
+    sort: ItemSortValue
+    # Order items by? (Defaults to DESC)
+    order: ItemOrderValue
+  }`,
+  `# Create Item Parameters
+  input CreateItemInput {
+    # Content of the item. If encrypted, ensure base64 encoding.
+    content: String!
+    # Type of the item content.
+    contentType: String!
+    # Encrypted item key, according to Udia Encryption API specification.
+    encItemKey: String
+    # Optional parent item UUID.
+    parentId: ID
+  }`,
+  `# Update Item Parameters
+  input UpdateItemInput {
+    # Content of the item. If encrypted, ensure base64 encoding.
+    content: String
+    # Type of the item content.
+    contentType: String
+    # Encrypted item key, according to Udia Encryption API specification.
+    encItemKey: String
+    # Parent item UUID.
+    parentId: ID
   }`,
   `# Custom scalar for supporting Javascript Date
   scalar DateTime`

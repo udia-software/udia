@@ -21,7 +21,7 @@ export interface IGetItemsParams {
 export interface ICreateItemParams {
   content: string;
   contentType: string;
-  encItemKey: string;
+  encItemKey?: string;
   parentId?: string;
 }
 
@@ -70,7 +70,9 @@ export default class ItemManager {
     let newItem = new Item();
     newItem.content = content;
     newItem.contentType = contentType;
-    newItem.encItemKey = encItemKey;
+    if (encItemKey) {
+      newItem.encItemKey = encItemKey;
+    }
     newItem.user = user!;
     if (parentItem) {
       newItem.parent = parentItem;

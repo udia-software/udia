@@ -265,27 +265,31 @@ describe("Item", () => {
       }
     });
 
+    it("should get items by pagination with no parameters", async () => {
+      expect.assertions(4);
+      const getItemsQuery = gql`
+        query GetItems {
+          getItems {
+            count
+          }
+        }
+      `;
+      const getItemsQueryResponse = await gqlClient.query({
+        query: getItemsQuery
+      });
+      expect(getItemsQueryResponse).toHaveProperty("data");
+      const getItemsData: any = getItemsQueryResponse.data;
+      expect(getItemsData).toHaveProperty("getItems");
+      const getItems = getItemsData.getItems;
+      expect(getItems).toHaveProperty("count");
+      expect(getItems.count).toBeGreaterThanOrEqual(0);
+    });
+
     it("should get items by pagination parameters", async () => {
       expect.assertions(117);
       const getItemsQuery = gql`
-        query GetItems(
-          $username: String
-          $parentId: ID
-          $depth: Int
-          $limit: Int
-          $datetime: DateTime
-          $sort: ItemSortValue
-          $order: ItemOrderValue
-        ) {
-          getItems(
-            username: $username
-            parentId: $parentId
-            depth: $depth
-            limit: $limit
-            datetime: $datetime
-            sort: $sort
-            order: $order
-          ) {
+        query GetItems($params: ItemPaginationInput) {
+          getItems(params: $params) {
             items {
               uuid
               content
@@ -299,11 +303,14 @@ describe("Item", () => {
       let getItemsQueryResponse = await gqlClient.query({
         query: getItemsQuery,
         variables: {
-          username: "itemtestuser",
-          parentId: parentItem.uuid,
-          depth: 1,
-          limit: 13,
-          order: "ASC"
+          params: {
+            username: "itemtestuser",
+            parentId: parentItem.uuid,
+            depth: 1,
+            limit: 13,
+            datetime: new Date(1),
+            order: "ASC"
+          }
         }
       });
       expect(getItemsQueryResponse).toHaveProperty("data");
@@ -328,17 +335,32 @@ describe("Item", () => {
         );
         expect(firstQueryItems[i]).toHaveProperty("uuid", items[i].uuid);
       }
-      // get second pass
-      getItemsQueryResponse = await gqlClient.query({
-        query: getItemsQuery,
-        variables: {
-          username: "itemtestuser",
-          parentId: parentItem.uuid,
-          depth: 1,
-          limit: 13,
-          datetime: items[12].createdAt,
-          order: "ASC"
+
+      // get second pass using an inline query parameters
+      const getItemsWithInlineQuery = gql`
+        query GetItems {
+          getItems(
+            params: {
+              username: "itemtestuser"
+              parentId: "${parentItem.uuid}"
+              depth: 1
+              limit: 13
+              datetime: ${items[12].createdAt.getTime()}
+              order: ASC
+            }
+          ) {
+            items {
+              uuid
+              content
+              contentType
+              encItemKey
+            }
+            count
+          }
         }
+      `;
+      getItemsQueryResponse = await gqlClient.query({
+        query: getItemsWithInlineQuery
       });
       expect(getItemsQueryResponse).toHaveProperty("data");
       getItemsQueryData = getItemsQueryResponse.data;
@@ -380,16 +402,8 @@ describe("Item", () => {
     it("should create an item", async () => {
       expect.assertions(10);
       const createItemMutation = gql`
-        mutation CreateItem(
-          $content: String!
-          $contentType: String!
-          $encItemKey: String!
-        ) {
-          createItem(
-            content: $content
-            contentType: $contentType
-            encItemKey: $encItemKey
-          ) {
+        mutation CreateItem($params: CreateItemInput!) {
+          createItem(params: $params) {
             uuid
             content
             contentType
@@ -403,9 +417,11 @@ describe("Item", () => {
       const createItemMutationResponse = await gqlClient.mutate({
         mutation: createItemMutation,
         variables: {
-          content: "createItemTest content",
-          contentType: "plaintext",
-          encItemKey: "unencrypted"
+          params: {
+            content: "createItemTest content",
+            contentType: "plaintext",
+            encItemKey: "unencrypted"
+          }
         }
       });
       expect(createItemMutationResponse).toHaveProperty("data");
@@ -423,6 +439,47 @@ describe("Item", () => {
       expect(createItemUser).toHaveProperty("__typename", "User");
       expect(createItemUser).toHaveProperty("username", "itemtestuser");
     });
+
+    it("should create an item with no encItemKey", async () => {
+      expect.assertions(10);
+      const createItemMutation = gql`
+        mutation CreateItem($params: CreateItemInput!) {
+          createItem(params: $params) {
+            uuid
+            content
+            contentType
+            encItemKey
+            user {
+              username
+            }
+          }
+        }
+      `;
+      const createItemMutationResponse = await gqlClient.mutate({
+        mutation: createItemMutation,
+        variables: {
+          params: {
+            content: "createItemTest content2",
+            contentType: "plaintext"
+          }
+        }
+      });
+      expect(createItemMutationResponse).toHaveProperty("data");
+      const createItemData = createItemMutationResponse.data;
+      expect(createItemData).toHaveProperty("createItem");
+      const createItem = createItemData.createItem;
+      expect(createItem).toHaveProperty("uuid");
+      itemUuid = createItem.uuid;
+      expect(createItem).toHaveProperty("__typename", "Item");
+      expect(createItem).toHaveProperty("content", "createItemTest content2");
+      expect(createItem).toHaveProperty("contentType", "plaintext");
+      expect(createItem).toHaveProperty("encItemKey", null);
+      expect(createItem).toHaveProperty("user");
+      const createItemUser = createItem.user;
+      expect(createItemUser).toHaveProperty("__typename", "User");
+      expect(createItemUser).toHaveProperty("username", "itemtestuser");
+    });
+
   });
 
   describe("updateItem", () => {
@@ -445,8 +502,8 @@ describe("Item", () => {
     it("should update an item", async () => {
       expect.assertions(13);
       const updateItemMutation = gql`
-        mutation UpdateItem($id: ID!, $content: String) {
-          updateItem(id: $id, content: $content) {
+        mutation UpdateItem($id: ID!, $params: UpdateItemInput!) {
+          updateItem(id: $id, params: $params) {
             uuid
             content
             contentType
@@ -463,7 +520,9 @@ describe("Item", () => {
         mutation: updateItemMutation,
         variables: {
           id: item.uuid,
-          content: "item has been updated"
+          params: {
+            content: "item has been updated"
+          }
         }
       });
       expect(updateItemMutationResponse).toHaveProperty("data");
