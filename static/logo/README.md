@@ -1,6 +1,6 @@
 # UDIA Logo Readme
 
-All `logo*.png` files were generated from [logo.svg]().
+All `logo*.png` and `logo*.tiff` files were generated from [logo.svg]().
 
 ## Original License
 
