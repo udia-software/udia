@@ -15,18 +15,18 @@ export class User {
   @PrimaryGeneratedColumn("uuid") public uuid: string;
 
   @Column({
+    comment: "Public facing username.",
     type: "varchar",
     length: 24,
     nullable: false
-    // comment: "Public facing username."
   })
   @Index({ unique: true })
   public username: string;
 
   @Column({
+    comment: "Lower case username. Used for internal uniqueness.",
     type: "citext",
     nullable: false
-    // comment: "Lower Case username. Used for internal uniqueness."
   })
   @Index({ unique: true })
   public lUsername: string;
@@ -44,80 +44,115 @@ export class User {
   public items: Item[];
 
   @Column({
+    comment: "Unencrypted jwk-pub signing key for verification.",
+    type: "jsonb",
+    nullable: true
+  })
+  public pubSignKey: any;
+
+  @Column({
+    comment: "Encrypted private jwk-priv signing key for verification.",
+    type: "varchar",
+    nullable: true
+  })
+  public encPrivSignKey: string | null;
+
+  @Column({
+    comment: "Encrypted symmetric jwk-key for user secrets.",
+    type: "varchar",
+    nullable: true
+  })
+  public encSecretKey: string | null;
+
+  @Column({
+    comment: "Unencrypted asymetric jwk-pub encryption key for P2P.",
+    type: "jsonb",
+    nullable: true
+  })
+  public pubEncKey: any;
+
+  @Column({
+    comment: "Encrypted asymetric jwk-priv encryption key for P2P.",
+    type: "varchar",
+    nullable: true
+  })
+  public encPrivEncKey: string | null;
+
+  @Column({
+    comment: "Server side storage of password hash used for Auth and JWT.",
     type: "varchar",
     length: 512,
     nullable: false
-    // comment: "Server side storage of password hash."
   })
   public pwHash: string;
 
   @Column({
+    comment: "Client side password derivation function.",
     type: "varchar",
     length: 255,
-    default: "pbkdf2",
+    default: "PBKDF2",
     nullable: false
-    // comment: "Client side password derivation function."
   })
   public pwFunc: string;
 
   @Column({
+    comment: "Client side password derivation digest.",
     type: "varchar",
     length: 255,
-    default: "sha512",
+    default: "SHA-512",
     nullable: false
-    // comment: "Client side password derivation digest."
   })
   public pwDigest: string;
 
   @Column({
+    comment: "Client side password derivation cost or iterations.",
     type: "integer",
-    default: 5000,
+    default: 100000,
     nullable: false
-    // comment: "Client side password derivation cost."
   })
   public pwCost: number;
 
   @Column({
+    comment: "Client side derived password key size in bytes.",
     type: "integer",
     default: 768,
     nullable: false
-    // comment: "Client side derived password key size."
   })
   public pwKeySize: number;
 
   @Column({
+    comment: "Client side derived password salt.",
     type: "varchar",
     length: 512,
     default: "",
     nullable: false
-    // comment: "Client side derived password salt."
   })
   public pwSalt: string;
 
   @Column({
+    comment: "If user forgot password, set temporary token hash.",
     type: "varchar",
     length: 512,
     nullable: true
-    // comment: "Forgot Password, set temporary hash."
   })
   public forgotPwHash: string | null;
 
   @Column({
+    comment: "If user forgot password, hash valid until.",
     type: "timestamp with time zone",
     nullable: true
-    // comment: "Forgot Password, hash valid until."
   })
   public forgotPwExpiry: Date | null;
 
   @CreateDateColumn({
+    comment: "User creation timestamp.",
     type: "timestamp with time zone"
-    // comment: "User creation timestamp."
   })
   public createdAt: Date;
 
   @UpdateDateColumn({
+    comment: "User updated timestamp.",
     type: "timestamp with time zone"
-    // comment: "User updated timestamp."
   })
   public updatedAt: Date;
 }

@@ -1,5 +1,8 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
+/**
+ * Initialized all Item related entities
+ */
 export class InitItems1527203351639 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<any> {
     await queryRunner.query(

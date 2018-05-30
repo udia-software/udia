@@ -28,6 +28,7 @@ export class ItemClosure {
   public descendant: Item;
 
   @Column({
+    comment: "Depth of relation between descendant and ancestor.",
     type: "integer",
     nullable: false,
     default: 0
