@@ -1,12 +1,18 @@
 language: node_js
 node_js:
-  # - node # 10.X is currently broken due to deprecated Buffer in Yarn
+  - node
   - "9"
   - "lts/*" # 8.X
 cache:
   yarn: true
   directories:
     - node_modules
+addons:
+  postgresql: "10"
+  apt:
+    packages:
+    - postgresql-10
+    - postgresql-client-10
 services:
   - postgresql
 before_script:
