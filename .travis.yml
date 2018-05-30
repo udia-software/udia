@@ -1,18 +1,14 @@
 language: node_js
 node_js:
-  - node
   - "9"
   - "lts/*" # 8.X
+# - "stable" # still broken with yarn
 cache:
   yarn: true
   directories:
     - node_modules
 addons:
-  postgresql: "10"
-  apt:
-    packages:
-    - postgresql-10
-    - postgresql-client-10
+  postgresql: "9.6"
 services:
   - postgresql
 before_script:
