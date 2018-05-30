@@ -5,7 +5,7 @@ import { Item } from "../entity/Item";
 import { User } from "../entity/User";
 import { UserEmail } from "../entity/UserEmail";
 import { pubSub } from "../index";
-import { IJwtPayload } from "../modules/Auth";
+import Auth, { IJwtPayload } from "../modules/Auth";
 import ItemManager, {
   ICreateItemParams,
   IDeleteItemParams,
@@ -173,6 +173,11 @@ const resolvers: IResolvers = {
       const { user, jwt } = await UserManager.resetPassword(params);
       pubSub.publish(`me:${user.lUsername}`, { me: user });
       return { user, jwt };
+    },
+    refreshJWT: async (root: any, params: any, context: IContext) => {
+      const username = context.jwtPayload && context.jwtPayload.username;
+      const user = await UserManager.getUserByUsername(username);
+      return user && Auth.signUserJWT(user);
     },
     createItem: async (
       root: any,
