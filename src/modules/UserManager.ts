@@ -17,6 +17,11 @@ export interface ICreateUserParams {
   pwCost: number;
   pwKeySize: number;
   pwSalt: string;
+  pubSignKey: object; // jwk-pub signing key stored as jsonb
+  encPrivSignKey: string; // encrypted jwk-priv signing key
+  encSecretKey: string; // encrypted jwk-key for user secrets
+  pubEncKey: object; // jwk-pub encryption key stored as jsonb
+  encPrivEncKey: string; // jwk-priv encryption key
 }
 
 export interface IUpdatePasswordParams {
@@ -119,11 +124,17 @@ export default class UserManager {
     pwDigest,
     pwCost,
     pwKeySize,
-    pwSalt
+    pwSalt,
+    pubSignKey,
+    encPrivSignKey,
+    encSecretKey,
+    pubEncKey,
+    encPrivEncKey
   }: ICreateUserParams) {
     const errors: IErrorMessage[] = [];
     await UserManager.handleValidateUsername(username, errors);
     await UserManager.handleValidateEmail(email, errors);
+    UserManager.handleValidateProofOfSecret(pw, errors);
     if (errors.length > 0) {
       throw new ValidationError(errors);
     }
@@ -143,6 +154,11 @@ export default class UserManager {
     newUser.pwCost = pwCost;
     newUser.pwKeySize = pwKeySize;
     newUser.pwSalt = pwSalt;
+    newUser.pubSignKey = pubSignKey;
+    newUser.encPrivSignKey = encPrivSignKey;
+    newUser.encSecretKey = encSecretKey;
+    newUser.pubEncKey = pubEncKey;
+    newUser.encPrivEncKey = encPrivEncKey;
     await getConnection().transaction(async transactionEntityManager => {
       newUser = await transactionEntityManager.save(newUser);
       newEmail.user = newUser;
@@ -643,6 +659,17 @@ export default class UserManager {
       errors.push({ key: "email", message: "Email is taken." });
     }
     return emailExists;
+  }
+
+  private static async handleValidateProofOfSecret(
+    pw: string,
+    errors: IErrorMessage[]
+  ) {
+    // This is really a sanity check, as proof of secret generation should
+    // give us strong passwords of 256 bytes entropy base64 encoded
+    if (pw.length < 8) {
+      errors.push({ key: "pw", message: "Password is invalid." });
+    }
   }
 
   /**

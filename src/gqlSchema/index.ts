@@ -53,19 +53,19 @@ const typeDefs: ITypedef[] = [
     # Create a user and corresponding public and private encryption keys.
     createUser(
       # User provided username.
-      username: String!,
+      username: String!
       # User provided email.
-      email: String!,
+      email: String!
       # Client generated proof of secret. (Not user inputted password!)
-      pw: String!,
+      pw: String!
       # Client chosen password function. (Defaults to PBKDF2)
-      pwFunc: String!,
+      pwFunc: String!
       # Client chosen password digest. (Defaults to SHA-512)
-      pwDigest: String!,
+      pwDigest: String!
       # Client chosen derivation cost/iterations. (Defaults to 100000)
-      pwCost: Int!,
+      pwCost: Int!
       # Client chosen derivation key byte size. (Defaults to 768)
-      pwKeySize: Int!,
+      pwKeySize: Int!
       # Client generated password salt. (Not server password salt!)
       pwSalt: String!
     ): UserAuthPayload!
@@ -73,17 +73,17 @@ const typeDefs: ITypedef[] = [
     # Update user's password and corresponding private encryption keys.
     updatePassword(
       # Client generated new/updated proof of secret.
-      newPw: String!,
+      newPw: String!
       # Client generated existing proof of secret.
-      pw: String!,
+      pw: String!
       # Client chosen password function.
-      pwFunc: String!,
+      pwFunc: String!
       # Client chosen password digest.
-      pwDigest: String!,
+      pwDigest: String!
       # Client chosen derivation cost/iterations.
-      pwCost: Int!,
+      pwCost: Int!
       # Client chosen derivation key byte size.
-      pwKeySize: Int!,
+      pwKeySize: Int!
       # Client generated password salt.
       pwSalt: String!
     ): FullUser!
@@ -91,7 +91,7 @@ const typeDefs: ITypedef[] = [
     # Sign in a user.
     signInUser(
       # User provided email.
-      email: String!,
+      email: String!
       # Client generated proof of secret.
       pw: String!
     ): UserAuthPayload!
@@ -141,11 +141,11 @@ const typeDefs: ITypedef[] = [
     # Reset a user password and corresponding public and private encryption keys.
     resetPassword(
       resetToken: String!
-      newPw: String!,
-      pwFunc: String!,
-      pwDigest: String!,
-      pwCost: Int!,
-      pwKeySize: Int!,
+      newPw: String!
+      pwFunc: String!
+      pwDigest: String!
+      pwCost: Int!
+      pwKeySize: Int!
       pwSalt: String!
     ): UserAuthPayload!
 
@@ -172,7 +172,7 @@ const typeDefs: ITypedef[] = [
   `# UDIA Server GraphQL Subscriptions
   type Subscription {
     # Subscribe to server health metric.
-    health: HealthMetric!,
+    health: HealthMetric!
     # Subscribe to user changes based on JWT.
     me: FullUser
   }`,
@@ -216,35 +216,53 @@ const typeDefs: ITypedef[] = [
   }`,
   `# Public facing User Authentication Parameters
   type UserAuthParams {
+    # Client chosen password function.
     pwFunc: String!
+    # Client chosen password digest.
     pwDigest: String!
+    # Client chosen derivation cost/iterations.
     pwCost: Int!
+    # Client chosen derivation key byte size.
     pwKeySize: Int!
+    # Client generated password salt.
     pwSalt: String!
   }`,
   `# Protected Authentication Payload
   type UserAuthPayload {
+    # JSON Web Token for specifing authenticated user to the server.
     jwt: String!
+    # Full User object.
     user: FullUser!
   }`,
   `# Protected Password Reset Token Validity
   type TokenValidity {
+    # Is the provided token valid.
     isValid: Boolean!
+    # When does the provided token expire.
     expiry: DateTime
   }`,
   `# Public facing Item
   type Item {
+    # Server generated UUID.
     uuid: ID!
+    # Content of the item. If encrypted, ensure base64 encoding.
     content: String
+    # Type of the item content.
     contentType: String
+    # Encrypted item key, according to Udia Encryption API specification.
     encItemKey: String
+    # User that owns the item.
     user: User
+    # Is this item deleted.
     deleted: Boolean!
+    # Immediate parent of the item.
     parent: Item
     # Immediate children of the item.
     # Parameters 'parentId' and 'depth' are overridden.
     children(params: ItemPaginationInput): ItemPagination!
+    # When the item was created.
     createdAt: DateTime!
+    # When the item was last updated.
     updatedAt: DateTime!
   }`,
   `enum ItemSortValue {
@@ -257,8 +275,10 @@ const typeDefs: ITypedef[] = [
   }`,
   `# Public facing Item Pagination structure
   type ItemPagination {
-    items: [Item]!,
-    count: Int!,
+    # Array of item objects
+    items: [Item]!
+    # Total number of items matching pagination query parameters
+    count: Int!
   }`,
   `# Public Facing Health Metric Object
   type HealthMetric {
@@ -355,7 +375,9 @@ const typeDefs: ITypedef[] = [
     parentId: ID
   }`,
   `# Custom scalar for supporting Javascript Date
-  scalar DateTime`
+  scalar DateTime`,
+  `# Custom scalar for supporting arbitrary JS Objects
+  scalar Object`
 ];
 
 const executableSchemaDefinition: IExecutableSchemaDefinition = {

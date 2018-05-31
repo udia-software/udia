@@ -99,12 +99,17 @@ describe("UserManager", () => {
         await UserManager.createUser({
           username: " dUpEuSeR",
           email: "DupeUser@udia.ca ",
-          pw: "temp",
+          pw: "tempbadpass",
           pwFunc: "pbkdf2",
           pwDigest: "sha512",
           pwCost: 3000,
           pwKeySize: 768,
-          pwSalt: "salt"
+          pwSalt: "salt",
+          pubSignKey: { dummy: "key" },
+          encPrivSignKey: "dummykey",
+          encSecretKey: "dummykey",
+          pubEncKey: { dummy: "key" },
+          encPrivEncKey: "dummykey"
         });
       } catch (err) {
         expect(err).toHaveProperty(
@@ -123,12 +128,17 @@ describe("UserManager", () => {
         await UserManager.createUser({
           username: "somelongusernamehere12345",
           email: "somelongusernamehere12345@udia.ca",
-          pw: "temp",
+          pw: "tempbadpass",
           pwFunc: "pbkdf2",
           pwDigest: "sha512",
           pwCost: 3000,
           pwKeySize: 768,
-          pwSalt: "salt"
+          pwSalt: "salt",
+          pubSignKey: { dummy: "key" },
+          encPrivSignKey: "dummykey",
+          encSecretKey: "dummykey",
+          pubEncKey: { dummy: "key" },
+          encPrivEncKey: "dummykey"
         });
       } catch (err) {
         expect(err).toHaveProperty(
@@ -146,12 +156,17 @@ describe("UserManager", () => {
         await UserManager.createUser({
           username: "na",
           email: "na@udia.ca",
-          pw: "temp",
+          pw: "tempbadpass",
           pwFunc: "pbkdf2",
           pwDigest: "sha512",
           pwCost: 3000,
           pwKeySize: 768,
-          pwSalt: "salt"
+          pwSalt: "salt",
+          pubSignKey: { dummy: "key" },
+          encPrivSignKey: "dummykey",
+          encSecretKey: "dummykey",
+          pubEncKey: { dummy: "key" },
+          encPrivEncKey: "dummykey"
         });
       } catch (err) {
         expect(err).toHaveProperty(
@@ -168,12 +183,17 @@ describe("UserManager", () => {
       const shrugUser = await UserManager.createUser({
         username: "¯\\_(ツ)_/¯",
         email: "shrug@udia.ca",
-        pw: "temp",
+        pw: "tempbadpass",
         pwFunc: "pbkdf2",
         pwDigest: "sha512",
         pwCost: 3000,
         pwKeySize: 768,
-        pwSalt: "salt"
+        pwSalt: "salt",
+        pubSignKey: { dummy: "key" },
+        encPrivSignKey: "dummykey",
+        encSecretKey: "dummykey",
+        pubEncKey: { dummy: "key" },
+        encPrivEncKey: "dummykey"
       });
       expect(shrugUser).toHaveProperty("jwt");
       expect(shrugUser).toHaveProperty("user");

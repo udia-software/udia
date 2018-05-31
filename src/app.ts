@@ -49,14 +49,7 @@ const graphqlBuildOptions: ExpressGraphQLOptionsFunction = req => {
 };
 const CORS_OPTIONS: CorsOptions = {
   origin: CORS_ORIGIN,
-  allowedHeaders: [
-    "Origin",
-    "X-Requested-With",
-    "Content-Type",
-    "Accept",
-    "X-Access-Token",
-    "Authorization"
-  ],
+  allowedHeaders: ["Origin", "Content-Type", "Accept", "Authorization"],
   methods: ["GET", "HEAD", "OPTIONS", "PUT", "PATCH", "POST", "DELETE"]
 };
 app.set("trust proxy", ["loopback", "linklocal", "uniquelocal"]);
@@ -70,12 +63,11 @@ app.use("/graphql", graphqlExpress(graphqlBuildOptions));
 // coverage don't care about vetting developer graphiql route
 /* istanbul ignore next */
 if (NODE_ENV !== "production") {
-  const jwt = DEV_JWT;
   app.use(
     "/graphiql",
     graphiqlExpress({
       endpointURL: "/graphql",
-      passHeader: jwt && `Authorization: Bearer ${jwt}`,
+      passHeader: DEV_JWT ? `Authorization: Bearer ${DEV_JWT}` : undefined,
       subscriptionsEndpoint: `ws://localhost:${PORT}/subscriptions`
     })
   );
