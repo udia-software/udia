@@ -24,11 +24,15 @@ import {
   generateUserCryptoParams
 } from "../testHelper";
 
+/**
+ * Integration tests for all user related GraphQL API calls
+ */
 describe("Users", () => {
   // Ports are staggered to prevent multiple tests from clobbering
   const userTestPort = `${parseInt(PORT, 10) + 1}`;
   let server: Server = null;
 
+  // Sanity function to ensure test state is clean.
   async function deleteUsers() {
     await getConnection()
       .createQueryBuilder()
@@ -45,19 +49,20 @@ describe("Users", () => {
       .orWhere("lUsername = :verifyEmail", { verifyEmail: "verifyemail" })
       .orWhere("lUsername = :primaryEmail", { primaryEmail: "primaryemail" })
       .orWhere("lUsername = :removeEmail", { removeEmail: "removeemail" })
+      .orWhere("lUsername = :updatePass", { updatePass: "updatepass" })
+      .orWhere("lUsername = :resetPass", { resetPass: "resetpass" })
+      .orWhere("lUsername = :deleteUser", { deleteUser: "deleteusertest" })
+      .orWhere("lUsername = :refreshJWT", { refreshJWT: "refreshjwt" })
       .execute();
   }
 
-  /**
-   * Integration tests for User logic.
-   * - Test GraphQL API
-   */
-  beforeAll(async done => {
+  // Start the webserver
+  beforeAll(async () => {
     server = await start(userTestPort);
     await deleteUsers();
-    done();
   });
 
+  // Stop the webserver
   afterAll(async done => {
     await deleteUsers();
     server.close(done);
@@ -113,7 +118,7 @@ describe("Users", () => {
       expect(checkUnknownEmailExists).toEqual(0);
     });
 
-    it("should reject with graphql error when email is taken", async () => {
+    it("should throw graphql error when email is taken", async () => {
       expect.assertions(1);
       return expect(
         gqlClient.query({
@@ -179,7 +184,7 @@ describe("Users", () => {
       expect(checkUnknownUsernameExists).toEqual(0);
     });
 
-    it("should reject with graphql error when username is taken", async () => {
+    it("should throw graphql error when username is taken", async () => {
       expect.assertions(1);
       return expect(
         gqlClient.query({
@@ -193,6 +198,180 @@ describe("Users", () => {
         `GraphQL error: The request is invalid.\n` +
           `* username: Username is taken.`
       );
+    });
+  });
+
+  describe("getUserAuthParams", () => {
+    let authParamsUser: User = null;
+    let authParamsEmail: UserEmail = null;
+    let gqlClient: ApolloClient<NormalizedCacheObject> = null;
+    let subscriptionClient: SubscriptionClient = null;
+    const query = gql`
+      query GetUserAuthParams($email: String!) {
+        getUserAuthParams(email: $email) {
+          pwFunc
+          pwDigest
+          pwCost
+          pwKeySize
+          pwSalt
+        }
+      }
+    `;
+
+    beforeAll(async () => {
+      await getConnection().transaction(async transactionEntityManager => {
+        const { u, e } = generateGenericUser("authParams");
+        authParamsUser = await transactionEntityManager.save(u);
+        e.user = authParamsUser;
+        authParamsEmail = await transactionEntityManager.save(e);
+      });
+      const { s, g } = generateGraphQLClients(userTestPort);
+      gqlClient = g;
+      subscriptionClient = s;
+    });
+
+    afterAll(async () => {
+      await getConnection()
+        .getRepository(User)
+        .delete(authParamsUser);
+      subscriptionClient.close();
+    });
+
+    it("should get a user's authentication parameters", async () => {
+      expect.assertions(7);
+      const getAuthParamsQueryResponse = await gqlClient.query({
+        query,
+        variables: { email: authParamsEmail.email }
+      });
+      const { pwFunc, pwDigest, pwCost, pwKeySize, pwSalt } = authParamsUser;
+
+      expect(getAuthParamsQueryResponse).toHaveProperty("data");
+      const getAuthParamsData: any = getAuthParamsQueryResponse.data;
+      expect(getAuthParamsData).toHaveProperty("getUserAuthParams");
+      const getUserAuthParams = getAuthParamsData.getUserAuthParams;
+      expect(getUserAuthParams).toHaveProperty("pwFunc", pwFunc);
+      expect(getUserAuthParams).toHaveProperty("pwDigest", pwDigest);
+      expect(getUserAuthParams).toHaveProperty("pwCost", pwCost);
+      expect(getUserAuthParams).toHaveProperty("pwKeySize", pwKeySize);
+      expect(getUserAuthParams).toHaveProperty("pwSalt", pwSalt);
+    });
+
+    it("should reject with graphql error when email not found", async () => {
+      expect.assertions(1);
+      return expect(
+        gqlClient.query({
+          query,
+          variables: {
+            email: "unknown@udia.ca"
+          }
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        `GraphQL error: The request is invalid.\n* email: Email not found.`
+      );
+    });
+  });
+
+  describe("me", () => {
+    let meTestUser: User = null;
+    let meTestEmail: UserEmail = null;
+    let gqlClient: ApolloClient<NormalizedCacheObject> = null;
+    let subscriptionClient: SubscriptionClient = null;
+    const query = gql`
+      query Me {
+        me {
+          uuid
+          username
+          emails {
+            email
+            user {
+              uuid
+            }
+            primary
+            verified
+            createdAt
+            updatedAt
+          }
+          pwFunc
+          pwDigest
+          pwCost
+          pwKeySize
+          pwSalt
+          pubSignKey
+          encPrivSignKey
+          encSecretKey
+          pubEncKey
+          encPrivEncKey
+          createdAt
+          updatedAt
+        }
+      }
+    `;
+
+    beforeAll(async () => {
+      await getConnection().transaction(async transactionEntityManager => {
+        const { u, e } = generateGenericUser("meTest");
+        meTestUser = await transactionEntityManager.save(u);
+        e.user = meTestUser;
+        meTestEmail = await transactionEntityManager.save(e);
+      });
+      const jwt = Auth.signUserJWT(meTestUser);
+      const { s, g } = generateGraphQLClients(userTestPort, jwt);
+      gqlClient = g;
+      subscriptionClient = s;
+    });
+
+    afterAll(async () => {
+      await getConnection()
+        .getRepository(User)
+        .delete(meTestUser);
+      subscriptionClient.close();
+    });
+
+    it("should get a logged in user.", async () => {
+      expect.assertions(28);
+      const meQueryResponse = await gqlClient.query({ query });
+      expect(meQueryResponse).toHaveProperty("data");
+      const meQueryResponseData: any = meQueryResponse.data;
+      expect(meQueryResponseData).toHaveProperty("me");
+      const meData = meQueryResponseData.me;
+      expect(meData).toHaveProperty("__typename", "FullUser");
+      expect(meData).toHaveProperty("uuid", meTestUser.uuid);
+      expect(meData).toHaveProperty("username", meTestUser.username);
+      expect(meData).toHaveProperty("pwFunc", meTestUser.pwFunc);
+      expect(meData).toHaveProperty("pwDigest", meTestUser.pwDigest);
+      expect(meData).toHaveProperty("pwCost", meTestUser.pwCost);
+      expect(meData).toHaveProperty("pwKeySize", meTestUser.pwKeySize);
+      expect(meData).toHaveProperty("pwSalt", meTestUser.pwSalt);
+      expect(meData).toHaveProperty(
+        "createdAt",
+        meTestUser.createdAt.getTime()
+      );
+      expect(meData).toHaveProperty(
+        "updatedAt",
+        meTestUser.updatedAt.getTime()
+      );
+      expect(meData).toHaveProperty("pubSignKey", meTestUser.pubSignKey);
+      expect(meData).toHaveProperty(
+        "encPrivSignKey",
+        meTestUser.encPrivSignKey
+      );
+      expect(meData).toHaveProperty("encSecretKey", meTestUser.encSecretKey);
+      expect(meData).toHaveProperty("pubEncKey", meTestUser.pubEncKey);
+      expect(meData).toHaveProperty("encPrivEncKey", meTestUser.encPrivEncKey);
+      expect(meData).toHaveProperty("emails");
+      const meEmails = meData.emails;
+      expect(meEmails).toHaveLength(1);
+      const meEmail = meEmails[0];
+      expect(meEmail).toHaveProperty("__typename", "UserEmail");
+      expect(meEmail).toHaveProperty("email", meTestEmail.email);
+      expect(meEmail).toHaveProperty("user");
+      expect(meEmail.user).toHaveProperty("__typename", "FullUser");
+      expect(meEmail.user).toHaveProperty("uuid", meData.uuid);
+      expect(meEmail).toHaveProperty("primary", true);
+      expect(meEmail).toHaveProperty("verified", true);
+      expect(meEmail).toHaveProperty("createdAt");
+      expect(meEmail).toHaveProperty("updatedAt");
     });
   });
 
@@ -350,93 +529,13 @@ describe("Users", () => {
     });
   });
 
-  describe("getUserAuthParams", () => {
-    let authParamsUser: User = null;
-    let authParamsEmail: UserEmail = null;
-    let gqlClient: ApolloClient<NormalizedCacheObject> = null;
-    let subscriptionClient: SubscriptionClient = null;
-    const query = gql`
-      query GetUserAuthParams($email: String!) {
-        getUserAuthParams(email: $email) {
-          pwFunc
-          pwDigest
-          pwCost
-          pwKeySize
-          pwSalt
-        }
-      }
-    `;
-
-    beforeAll(async () => {
-      await getConnection().transaction(async transactionEntityManager => {
-        const { u, e } = generateGenericUser("authParams");
-        authParamsUser = await transactionEntityManager.save(u);
-        e.user = authParamsUser;
-        authParamsEmail = await transactionEntityManager.save(e);
-      });
-      const { s, g } = generateGraphQLClients(userTestPort);
-      gqlClient = g;
-      subscriptionClient = s;
-    });
-
-    afterAll(async () => {
-      await getConnection()
-        .getRepository(User)
-        .delete(authParamsUser);
-      subscriptionClient.close();
-    });
-
-    it("should get a user's authentication parameters", async () => {
-      expect.assertions(7);
-      const getAuthParamsQueryResponse = await gqlClient.query({
-        query,
-        variables: { email: authParamsEmail.email }
-      });
-      const { pwFunc, pwDigest, pwCost, pwKeySize, pwSalt } = authParamsUser;
-
-      expect(getAuthParamsQueryResponse).toHaveProperty("data");
-      const getAuthParamsData: any = getAuthParamsQueryResponse.data;
-      expect(getAuthParamsData).toHaveProperty("getUserAuthParams");
-      const getUserAuthParams = getAuthParamsData.getUserAuthParams;
-      expect(getUserAuthParams).toHaveProperty("pwFunc", pwFunc);
-      expect(getUserAuthParams).toHaveProperty("pwDigest", pwDigest);
-      expect(getUserAuthParams).toHaveProperty("pwCost", pwCost);
-      expect(getUserAuthParams).toHaveProperty("pwKeySize", pwKeySize);
-      expect(getUserAuthParams).toHaveProperty("pwSalt", pwSalt);
-    });
-
-    it("should reject with graphql error when email not found", async () => {
-      expect.assertions(1);
-      return expect(
-        gqlClient.query({
-          query,
-          variables: {
-            email: "unknown@udia.ca"
-          }
-        })
-      ).rejects.toHaveProperty(
-        "message",
-        `GraphQL error: The request is invalid.\n* email: Email not found.`
-      );
-    });
-  });
-
   describe("signInUser", () => {
     const testUserEmail = "signInTest@udia.ca";
     const testUserInputtedPassword = "signInTestPassword Test!^123";
-    const {
-      pw,
-      pwSalt,
-      pwCost,
-      pwFunc,
-      pwDigest,
-      pwKeySize,
-      pubSignKey,
-      encPrivSignKey,
-      encSecretKey,
-      pubEncKey,
-      encPrivEncKey
-    } = generateUserCryptoParams(testUserEmail, testUserInputtedPassword);
+    const { pw } = generateUserCryptoParams(
+      testUserEmail,
+      testUserInputtedPassword
+    );
     let signInTestUser: User = null;
     let signInEmail: UserEmail = null;
     let gqlClient: ApolloClient<NormalizedCacheObject> = null;
@@ -464,16 +563,6 @@ describe("Users", () => {
       await getConnection().transaction(async transactionEntityManager => {
         const { u, e } = generateGenericUser("signInTest");
         u.pwHash = pwHash;
-        // u.pwSalt = pwSalt;
-        // u.pwCost = pwCost;
-        // u.pwFunc = pwFunc;
-        // u.pwDigest = pwDigest;
-        // u.pwKeySize = pwKeySize;
-        // u.pubSignKey = pubSignKey;
-        // u.encPrivSignKey = encPrivEncKey;
-        // u.encSecretKey = encSecretKey;
-        // u.pubEncKey = pubEncKey;
-        // u.encPrivEncKey = encPrivEncKey;
         signInTestUser = await transactionEntityManager.save(u);
         e.user = signInTestUser;
         signInEmail = await transactionEntityManager.save(e);
@@ -520,109 +609,6 @@ describe("Users", () => {
       const emailUser = userEmail.user;
       expect(emailUser).toHaveProperty("__typename", "FullUser");
       expect(emailUser).toHaveProperty("uuid", user.uuid);
-    });
-  });
-
-  describe("me", () => {
-    let meTestUser: User = null;
-    let meTestEmail: UserEmail = null;
-    let gqlClient: ApolloClient<NormalizedCacheObject> = null;
-    let subscriptionClient: SubscriptionClient = null;
-    const query = gql`
-      query Me {
-        me {
-          uuid
-          username
-          emails {
-            email
-            user {
-              uuid
-            }
-            primary
-            verified
-            createdAt
-            updatedAt
-          }
-          pwFunc
-          pwDigest
-          pwCost
-          pwKeySize
-          pwSalt
-          pubSignKey
-          encPrivSignKey
-          encSecretKey
-          pubEncKey
-          encPrivEncKey
-          createdAt
-          updatedAt
-        }
-      }
-    `;
-
-    beforeAll(async () => {
-      await getConnection().transaction(async transactionEntityManager => {
-        const { u, e } = generateGenericUser("meTest");
-        meTestUser = await transactionEntityManager.save(u);
-        e.user = meTestUser;
-        meTestEmail = await transactionEntityManager.save(e);
-      });
-      const jwt = Auth.signUserJWT(meTestUser);
-      const { s, g } = generateGraphQLClients(userTestPort, jwt);
-      gqlClient = g;
-      subscriptionClient = s;
-    });
-
-    afterAll(async () => {
-      await getConnection()
-        .getRepository(User)
-        .delete(meTestUser);
-      subscriptionClient.close();
-    });
-
-    it("should get a logged in user.", async () => {
-      expect.assertions(28);
-      const meQueryResponse = await gqlClient.query({ query });
-      expect(meQueryResponse).toHaveProperty("data");
-      const meQueryResponseData: any = meQueryResponse.data;
-      expect(meQueryResponseData).toHaveProperty("me");
-      const meData = meQueryResponseData.me;
-      expect(meData).toHaveProperty("__typename", "FullUser");
-      expect(meData).toHaveProperty("uuid", meTestUser.uuid);
-      expect(meData).toHaveProperty("username", meTestUser.username);
-      expect(meData).toHaveProperty("pwFunc", meTestUser.pwFunc);
-      expect(meData).toHaveProperty("pwDigest", meTestUser.pwDigest);
-      expect(meData).toHaveProperty("pwCost", meTestUser.pwCost);
-      expect(meData).toHaveProperty("pwKeySize", meTestUser.pwKeySize);
-      expect(meData).toHaveProperty("pwSalt", meTestUser.pwSalt);
-      expect(meData).toHaveProperty(
-        "createdAt",
-        meTestUser.createdAt.getTime()
-      );
-      expect(meData).toHaveProperty(
-        "updatedAt",
-        meTestUser.updatedAt.getTime()
-      );
-      expect(meData).toHaveProperty("pubSignKey", meTestUser.pubSignKey);
-      expect(meData).toHaveProperty(
-        "encPrivSignKey",
-        meTestUser.encPrivSignKey
-      );
-      expect(meData).toHaveProperty("encSecretKey", meTestUser.encSecretKey);
-      expect(meData).toHaveProperty("pubEncKey", meTestUser.pubEncKey);
-      expect(meData).toHaveProperty("encPrivEncKey", meTestUser.encPrivEncKey);
-      expect(meData).toHaveProperty("emails");
-      const meEmails = meData.emails;
-      expect(meEmails).toHaveLength(1);
-      const meEmail = meEmails[0];
-      expect(meEmail).toHaveProperty("__typename", "UserEmail");
-      expect(meEmail).toHaveProperty("email", meTestEmail.email);
-      expect(meEmail).toHaveProperty("user");
-      expect(meEmail.user).toHaveProperty("__typename", "FullUser");
-      expect(meEmail.user).toHaveProperty("uuid", meData.uuid);
-      expect(meEmail).toHaveProperty("primary", true);
-      expect(meEmail).toHaveProperty("verified", true);
-      expect(meEmail).toHaveProperty("createdAt");
-      expect(meEmail).toHaveProperty("updatedAt");
     });
   });
 
@@ -709,81 +695,6 @@ describe("Users", () => {
       expect(newEmail).toHaveProperty("verified", false);
 
       expect(sendEmailVerificationSpy).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe("emailVerification", () => {
-    let sendEmailVerUser: User = null;
-    let sendEmailVerEmail: UserEmail = null;
-    let gqlClient: ApolloClient<NormalizedCacheObject> = null;
-    let subscriptionClient: SubscriptionClient = null;
-    const sendEmailVerificationMutation = gql`
-      mutation SendEmailVerification($email: String!) {
-        sendEmailVerification(email: $email)
-      }
-    `;
-    const verifyEmailTokenMutation = gql`
-      mutation VerifyEmailToken($emailToken: String!) {
-        verifyEmailToken(emailToken: $emailToken)
-      }
-    `;
-
-    let sendEmailVerificationSpy: jest.SpyInstance;
-
-    beforeEach(() => {
-      sendEmailVerificationSpy.mockReset();
-    });
-
-    beforeAll(async () => {
-      await getConnection().transaction(async transactionEntityManager => {
-        const { u, e } = generateGenericUser("verifyEmail");
-        sendEmailVerUser = await transactionEntityManager.save(u);
-        e.user = sendEmailVerUser;
-        e.verified = false;
-        sendEmailVerEmail = await transactionEntityManager.save(e);
-      });
-      const jwt = Auth.signUserJWT(sendEmailVerUser);
-      const { s, g } = generateGraphQLClients(userTestPort, jwt);
-      gqlClient = g;
-      subscriptionClient = s;
-      sendEmailVerificationSpy = jest.spyOn(Mailer, "sendEmailVerification");
-    });
-
-    afterAll(async () => {
-      sendEmailVerificationSpy.mockClear();
-      await getConnection()
-        .getRepository(User)
-        .delete(sendEmailVerUser);
-      subscriptionClient.close();
-    });
-
-    it("should send and verify an email verification.", async () => {
-      expect.assertions(8);
-      const sendEmailVerificationResp = await gqlClient.mutate({
-        mutation: sendEmailVerificationMutation,
-        variables: { email: sendEmailVerEmail.email }
-      });
-      expect(sendEmailVerificationResp).toHaveProperty("data");
-      const sendEmailVerificationData = sendEmailVerificationResp.data;
-      expect(sendEmailVerificationData).toHaveProperty(
-        "sendEmailVerification",
-        true
-      );
-      expect(sendEmailVerificationSpy).toHaveBeenCalledTimes(1);
-      const sendEmailParams = sendEmailVerificationSpy.mock.calls[0];
-      expect(sendEmailParams[0]).toEqual(sendEmailVerUser.username);
-      expect(sendEmailParams[1]).toEqual(sendEmailVerEmail.email);
-      expect(sendEmailParams[2]).toMatch(
-        new RegExp(`^${sendEmailVerEmail.lEmail}:.*`)
-      );
-      const emailToken = sendEmailParams[2];
-      const verifyEmailTokenReponse = await gqlClient.mutate({
-        mutation: verifyEmailTokenMutation,
-        variables: { emailToken }
-      });
-      expect(verifyEmailTokenReponse).toHaveProperty("data");
-      const verifyEmailTokenData = verifyEmailTokenReponse.data;
-      expect(verifyEmailTokenData).toHaveProperty("verifyEmailToken", true);
     });
   });
 
@@ -944,237 +855,532 @@ describe("Users", () => {
     });
   });
 
-  // it("should update a user's password (naive/email) then delete a user.", async done => {
-  //   // this should really be broken up into 5 tests, but gqlClient is hard
-  //   const updateUserAuthParams = {
-  //     uip: "Another secure p455word~",
-  //     pwCost: 3000,
-  //     pwSalt: "066c1fb06d3488df129bf476dfa6e58e6223293d",
-  //     pwFunc: "pbkdf2",
-  //     pwDigest: "sha512",
-  //     pwKeySize: 768
-  //   };
+  describe("updatePassword", () => {
+    const username = "updatePass";
+    const email = "updatePass@udia.ca";
+    const oldUIP = "Old Super S3C$^T P~!۩s";
+    const newUIP = "New Super S3C$^T P~!۩s";
 
-  //   // PART A - UPDATE PASSWORD (logged in)
+    let updatePassUser: User = null;
+    let emailExistsEmail: UserEmail = null;
+    let gqlClient: ApolloClient<NormalizedCacheObject> = null;
+    let subscriptionClient: SubscriptionClient = null;
+    const { pw } = generateUserCryptoParams(email, oldUIP);
 
-  //   // get old password
-  //   const { pw } = deriveSubKeysFromUserInputPassword(updateUserAuthParams);
-  //   // generate a new password
-  //   updateUserAuthParams.pwCost = 3001;
-  //   updateUserAuthParams.pwSalt = "09b5f819982f9f2ef18ec3b4156dbbc802c79d11";
-  //   updateUserAuthParams.uip = `My new รєςยгє p4$!w#rd.`;
-  //   const { pw: newerPw } = deriveSubKeysFromUserInputPassword(
-  //     updateUserAuthParams
-  //   );
+    const mutation = gql`
+      mutation UpdatePassword(
+        $newPw: String!
+        $pw: String!
+        $pwFunc: String!
+        $pwDigest: String!
+        $pwCost: Int!
+        $pwKeySize: Int!
+        $pwSalt: String!
+        $encPrivSignKey: String!
+        $encSecretKey: String!
+        $encPrivEncKey: String!
+      ) {
+        updatePassword(
+          newPw: $newPw
+          pw: $pw
+          pwFunc: $pwFunc
+          pwDigest: $pwDigest
+          pwCost: $pwCost
+          pwKeySize: $pwKeySize
+          pwSalt: $pwSalt
+          encPrivSignKey: $encPrivSignKey
+          encSecretKey: $encSecretKey
+          encPrivEncKey: $encPrivEncKey
+        ) {
+          uuid
+          username
+          pwSalt
+          pwCost
+          pwFunc
+          pwDigest
+          pwCost
+          pwKeySize
+          pwSalt
+          encPrivEncKey
+          encSecretKey
+          encPrivSignKey
+          createdAt
+          updatedAt
+        }
+      }
+    `;
 
-  //   const updatePasswordMutationResponse = await gqlClient.mutate({
-  //     mutation: gql`
-  //       mutation UpdatePassword(
-  //         $newPw: String!
-  //         $pw: String!
-  //         $pwFunc: String!
-  //         $pwDigest: String!
-  //         $pwCost: Int!
-  //         $pwKeySize: Int!
-  //         $pwSalt: String!
-  //       ) {
-  //         updatePassword(
-  //           newPw: $newPw
-  //           pw: $pw
-  //           pwFunc: $pwFunc
-  //           pwDigest: $pwDigest
-  //           pwCost: $pwCost
-  //           pwKeySize: $pwKeySize
-  //           pwSalt: $pwSalt
-  //         ) {
-  //           uuid
-  //           username
-  //           pwSalt
-  //           pwCost
-  //           createdAt
-  //           updatedAt
-  //         }
-  //       }
-  //     `,
-  //     variables: {
-  //       newPw: newerPw,
-  //       pw,
-  //       pwFunc: updateUserAuthParams.pwFunc,
-  //       pwDigest: updateUserAuthParams.pwDigest,
-  //       pwCost: updateUserAuthParams.pwCost,
-  //       pwKeySize: updateUserAuthParams.pwKeySize,
-  //       pwSalt: updateUserAuthParams.pwSalt
-  //     }
-  //   });
-  //   expect(updatePasswordMutationResponse).toHaveProperty("data");
-  //   const updatePasswordMutationData = updatePasswordMutationResponse.data;
-  //   expect(updatePasswordMutationData).toHaveProperty("updatePassword");
-  //   const updatePassword = updatePasswordMutationData.updatePassword;
-  //   expect(updatePassword).toHaveProperty("__typename", "FullUser");
-  //   expect(updatePassword).toHaveProperty("uuid");
-  //   expect(updatePassword).toHaveProperty("username", "updateMe");
-  //   expect(updatePassword).toHaveProperty(
-  //     "pwSalt",
-  //     updateUserAuthParams.pwSalt
-  //   );
-  //   expect(updatePassword).toHaveProperty(
-  //     "pwCost",
-  //     updateUserAuthParams.pwCost
-  //   );
-  //   expect(updatePassword).toHaveProperty("createdAt");
-  //   expect(updatePassword).toHaveProperty("updatedAt");
-  //   const { createdAt, updatedAt } = updatePassword;
-  //   expect(updatedAt).toBeGreaterThanOrEqual(createdAt);
+    beforeAll(async () => {
+      const pwHash = await Auth.hashPassword(pw);
+      await getConnection().transaction(async transactionEntityManager => {
+        const { u, e } = generateGenericUser(username);
+        u.pwHash = pwHash;
+        updatePassUser = await transactionEntityManager.save(u);
+        e.user = updatePassUser;
+        emailExistsEmail = await transactionEntityManager.save(e);
+      });
+      const jwt = Auth.signUserJWT(updatePassUser);
+      const { s, g } = generateGraphQLClients(userTestPort, jwt);
+      gqlClient = g;
+      subscriptionClient = s;
+    });
 
-  //   // PART B - REQUEST PASSWORD RESET EMAIL
+    afterAll(async () => {
+      await getConnection()
+        .getRepository(User)
+        .delete(updatePassUser);
+      subscriptionClient.close();
+    });
 
-  //   // reset the password using email/forgot password function
-  //   const sendForgotPasswordResponse = await gqlClient.mutate({
-  //     mutation: gql`
-  //       mutation SendForgotPasswordEmail($email: String!) {
-  //         sendForgotPasswordEmail(email: $email)
-  //       }
-  //     `,
-  //     variables: { email: "upDateme@udia.ca" }
-  //   });
-  //   expect(sendForgotPasswordResponse).toEqual({
-  //     data: { sendForgotPasswordEmail: true }
-  //   });
-  //   expect(sendForgotPassEmailSpy).toHaveBeenCalledTimes(1);
-  //   const sendEmailParams = sendForgotPassEmailSpy.mock.calls[0];
-  //   expect(sendEmailParams[0]).toEqual("updateMe");
-  //   expect(sendEmailParams[1]).toEqual("updateMe@udia.ca");
-  //   expect(sendEmailParams[2]).toMatch(/^updateme:.*/);
-  //   const resetToken = sendEmailParams[2];
+    it("should update a user's password.", async () => {
+      expect.assertions(16);
+      const {
+        pw: newPw,
+        pwFunc,
+        pwDigest,
+        pwCost,
+        pwKeySize,
+        pwSalt,
+        encPrivEncKey,
+        encSecretKey,
+        encPrivSignKey
+      } = generateUserCryptoParams(email, newUIP);
 
-  //   // PART C - VERIFY RESET TOKEN
-  //   const checkResetTokenResponse = await gqlClient.query({
-  //     query: gql`
-  //       query CheckResetToken($resetToken: String!) {
-  //         checkResetToken(resetToken: $resetToken) {
-  //           isValid
-  //           expiry
-  //         }
-  //       }
-  //     `,
-  //     variables: { resetToken }
-  //   });
-  //   expect(checkResetTokenResponse).toHaveProperty("data");
-  //   const checkResetTokenData: any = checkResetTokenResponse.data;
-  //   expect(checkResetTokenData).toHaveProperty("checkResetToken");
-  //   const checkResetToken = checkResetTokenData.checkResetToken;
-  //   expect(checkResetToken).toHaveProperty("__typename", "TokenValidity");
-  //   expect(checkResetToken).toHaveProperty("isValid", true);
-  //   expect(checkResetToken).toHaveProperty("expiry");
-  //   expect(checkResetToken.expiry).toBeGreaterThan(Date.now());
+      const updatePasswordMutationResponse = await gqlClient.mutate({
+        mutation,
+        variables: {
+          newPw,
+          pw,
+          pwFunc,
+          pwDigest,
+          pwCost,
+          pwKeySize,
+          pwSalt,
+          encPrivEncKey,
+          encSecretKey,
+          encPrivSignKey
+        }
+      });
 
-  //   // PART D - UPDATE PASSWORD (reset token)
-  //   // generate a newest password
-  //   updateUserAuthParams.pwCost = 4000;
-  //   updateUserAuthParams.pwSalt = "9ab5f819982f9f2ef10ec3b4156dbbc802c79c14";
-  //   updateUserAuthParams.uip = `Transcend newest รєςยгє p4$!w#rd.`;
-  //   const { pw: newestPw } = deriveSubKeysFromUserInputPassword(
-  //     updateUserAuthParams
-  //   );
+      expect(updatePasswordMutationResponse).toHaveProperty("data");
+      const updatePasswordData = updatePasswordMutationResponse.data;
+      expect(updatePasswordData).toHaveProperty("updatePassword");
+      const updatePassword = updatePasswordData.updatePassword;
 
-  //   const resetPasswordResponse = await gqlClient.mutate({
-  //     mutation: gql`
-  //       mutation ResetPassword(
-  //         $resetToken: String!
-  //         $newPw: String!
-  //         $pwFunc: String!
-  //         $pwDigest: String!
-  //         $pwCost: Int!
-  //         $pwKeySize: Int!
-  //         $pwSalt: String!
-  //       ) {
-  //         resetPassword(
-  //           resetToken: $resetToken
-  //           newPw: $newPw
-  //           pwFunc: $pwFunc
-  //           pwDigest: $pwDigest
-  //           pwCost: $pwCost
-  //           pwKeySize: $pwKeySize
-  //           pwSalt: $pwSalt
-  //         ) {
-  //           jwt
-  //           user {
-  //             uuid
-  //             username
-  //             pwSalt
-  //             pwCost
-  //             createdAt
-  //             updatedAt
-  //           }
-  //         }
-  //       }
-  //     `,
-  //     variables: {
-  //       resetToken,
-  //       newPw: newestPw,
-  //       pwFunc: updateUserAuthParams.pwFunc,
-  //       pwDigest: updateUserAuthParams.pwDigest,
-  //       pwCost: updateUserAuthParams.pwCost,
-  //       pwKeySize: updateUserAuthParams.pwKeySize,
-  //       pwSalt: updateUserAuthParams.pwSalt
-  //     }
-  //   });
+      expect(updatePassword).toHaveProperty("__typename", "FullUser");
+      expect(updatePassword).toHaveProperty("uuid", updatePassUser.uuid);
+      expect(updatePassword).toHaveProperty(
+        "username",
+        updatePassUser.username
+      );
+      expect(updatePassword).toHaveProperty("pwSalt", pwSalt);
+      expect(updatePassword).toHaveProperty("pwCost", pwCost);
+      expect(updatePassword).toHaveProperty("pwFunc", pwFunc);
+      expect(updatePassword).toHaveProperty("pwDigest", pwDigest);
+      expect(updatePassword).toHaveProperty("pwKeySize", pwKeySize);
+      expect(updatePassword).toHaveProperty("encPrivEncKey", encPrivEncKey);
+      expect(updatePassword).toHaveProperty("encSecretKey", encSecretKey);
+      expect(updatePassword).toHaveProperty("encPrivSignKey", encPrivSignKey);
+      expect(updatePassword).toHaveProperty(
+        "createdAt",
+        updatePassUser.createdAt.getTime()
+      );
+      expect(updatePassword).toHaveProperty("updatedAt");
+      expect(updatePassword.updatedAt).toBeGreaterThan(
+        updatePassUser.updatedAt.getTime()
+      );
+    });
 
-  //   expect(resetPasswordResponse).toHaveProperty("data");
-  //   const resetPasswordData = resetPasswordResponse.data;
-  //   expect(resetPasswordData).toHaveProperty("resetPassword");
-  //   const resetPassword = resetPasswordData.resetPassword;
-  //   expect(resetPassword).toHaveProperty("__typename", "UserAuthPayload");
-  //   expect(resetPassword).toHaveProperty("jwt");
-  //   expect(resetPassword).toHaveProperty("user");
-  //   const resetPasswordUser = resetPassword.user;
-  //   expect(resetPasswordUser).toHaveProperty("uuid", updatePassword.uuid);
-  //   expect(resetPasswordUser).toHaveProperty("username", "updateMe");
-  //   expect(resetPasswordUser).toHaveProperty(
-  //     "pwSalt",
-  //     updateUserAuthParams.pwSalt
-  //   );
-  //   expect(resetPasswordUser).toHaveProperty(
-  //     "pwCost",
-  //     updateUserAuthParams.pwCost
-  //   );
-  //   expect(resetPasswordUser).toHaveProperty("createdAt");
-  //   expect(resetPasswordUser).toHaveProperty("updatedAt");
-  //   expect(resetPasswordUser.updatedAt).toBeGreaterThan(
-  //     resetPasswordUser.createdAt
-  //   );
+    it("should reject with graphql error when old pw is invalid.", async () => {
+      expect.assertions(1);
+      const {
+        pw: newPw,
+        pwFunc,
+        pwDigest,
+        pwCost,
+        pwKeySize,
+        pwSalt,
+        encPrivEncKey,
+        encSecretKey,
+        encPrivSignKey
+      } = generateUserCryptoParams(email, newUIP);
 
-  //   // PART E - DELETE USER
-  //   // because JWT is stateless, the old one still works. don't update client
-  //   const deleteUserMutationResponse = await gqlClient.mutate({
-  //     mutation: gql`
-  //       mutation DeleteUser($pw: String!) {
-  //         deleteUser(pw: $pw)
-  //       }
-  //     `,
-  //     variables: { pw: newestPw }
-  //   });
-  //   expect(deleteUserMutationResponse).toEqual({
-  //     data: { deleteUser: true }
-  //   });
+      return expect(
+        gqlClient.mutate({
+          mutation,
+          variables: {
+            newPw,
+            pw: "wrongoldpassword",
+            pwFunc,
+            pwDigest,
+            pwCost,
+            pwKeySize,
+            pwSalt,
+            encPrivEncKey,
+            encSecretKey,
+            encPrivSignKey
+          }
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "GraphQL error: The request is invalid.\n* pw: Invalid password."
+      );
+    });
+  });
 
-  //   // PART F - VERIFY UNDEFINED/NULL ME
-  //   const meQueryResponse = await gqlClient.query({
-  //     query: gql`
-  //       query Me {
-  //         me {
-  //           uuid
-  //           username
-  //         }
-  //       }
-  //     `,
-  //     fetchPolicy: "no-cache" // required or old user is returned
-  //   });
-  //   expect(meQueryResponse).toHaveProperty("data");
-  //   const meQueryResponseData: any = meQueryResponse.data;
-  //   expect(meQueryResponseData).toEqual({ me: null });
-  //   done();
-  // });
+  describe("emailVerification", () => {
+    let sendEmailVerUser: User = null;
+    let sendEmailVerEmail: UserEmail = null;
+    let gqlClient: ApolloClient<NormalizedCacheObject> = null;
+    let subscriptionClient: SubscriptionClient = null;
+    const sendEmailVerificationMutation = gql`
+      mutation SendEmailVerification($email: String!) {
+        sendEmailVerification(email: $email)
+      }
+    `;
+    const verifyEmailTokenMutation = gql`
+      mutation VerifyEmailToken($emailToken: String!) {
+        verifyEmailToken(emailToken: $emailToken)
+      }
+    `;
+
+    let sendEmailVerificationSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      sendEmailVerificationSpy.mockReset();
+    });
+
+    beforeAll(async () => {
+      await getConnection().transaction(async transactionEntityManager => {
+        const { u, e } = generateGenericUser("verifyEmail");
+        sendEmailVerUser = await transactionEntityManager.save(u);
+        e.user = sendEmailVerUser;
+        e.verified = false;
+        sendEmailVerEmail = await transactionEntityManager.save(e);
+      });
+      const jwt = Auth.signUserJWT(sendEmailVerUser);
+      const { s, g } = generateGraphQLClients(userTestPort, jwt);
+      gqlClient = g;
+      subscriptionClient = s;
+      sendEmailVerificationSpy = jest.spyOn(Mailer, "sendEmailVerification");
+    });
+
+    afterAll(async () => {
+      sendEmailVerificationSpy.mockClear();
+      await getConnection()
+        .getRepository(User)
+        .delete(sendEmailVerUser);
+      subscriptionClient.close();
+    });
+
+    it("should send and verify an email verification.", async () => {
+      expect.assertions(8);
+      const sendEmailVerificationResp = await gqlClient.mutate({
+        mutation: sendEmailVerificationMutation,
+        variables: { email: sendEmailVerEmail.email }
+      });
+      expect(sendEmailVerificationResp).toHaveProperty("data");
+      const sendEmailVerificationData = sendEmailVerificationResp.data;
+      expect(sendEmailVerificationData).toHaveProperty(
+        "sendEmailVerification",
+        true
+      );
+      expect(sendEmailVerificationSpy).toHaveBeenCalledTimes(1);
+      const sendEmailParams = sendEmailVerificationSpy.mock.calls[0];
+      expect(sendEmailParams[0]).toEqual(sendEmailVerUser.username);
+      expect(sendEmailParams[1]).toEqual(sendEmailVerEmail.email);
+      expect(sendEmailParams[2]).toMatch(
+        new RegExp(`^${sendEmailVerEmail.lEmail}:.*`)
+      );
+      const emailToken = sendEmailParams[2];
+      const verifyEmailTokenReponse = await gqlClient.mutate({
+        mutation: verifyEmailTokenMutation,
+        variables: { emailToken }
+      });
+      expect(verifyEmailTokenReponse).toHaveProperty("data");
+      const verifyEmailTokenData = verifyEmailTokenReponse.data;
+      expect(verifyEmailTokenData).toHaveProperty("verifyEmailToken", true);
+    });
+  });
+
+  describe("passwordResetVerification", () => {
+    let resetPassUser: User = null;
+    let resetPassEmail: UserEmail = null;
+    let gqlClient: ApolloClient<NormalizedCacheObject> = null;
+    let subscriptionClient: SubscriptionClient = null;
+    let sendForgotPasswordSpy: jest.SpyInstance;
+    const sendForgotPasswordEmailMutation = gql`
+      mutation SendForgotPasswordEmail($email: String!) {
+        sendForgotPasswordEmail(email: $email)
+      }
+    `;
+    const checkResetTokenQuery = gql`
+      query CheckResetToken($resetToken: String!) {
+        checkResetToken(resetToken: $resetToken) {
+          isValid
+          expiry
+        }
+      }
+    `;
+    const resetPasswordMutation = gql`
+      mutation ResetPassword(
+        $resetToken: String!
+        $newPw: String!
+        $pwFunc: String!
+        $pwDigest: String!
+        $pwCost: Int!
+        $pwKeySize: Int!
+        $pwSalt: String!
+        $pubSignKey: String!
+        $encPrivSignKey: String!
+        $encSecretKey: String!
+        $pubEncKey: String!
+        $encPrivEncKey: String!
+      ) {
+        resetPassword(
+          resetToken: $resetToken
+          newPw: $newPw
+          pwFunc: $pwFunc
+          pwDigest: $pwDigest
+          pwCost: $pwCost
+          pwKeySize: $pwKeySize
+          pwSalt: $pwSalt
+          pubSignKey: $pubSignKey
+          encPrivSignKey: $encPrivSignKey
+          encSecretKey: $encSecretKey
+          pubEncKey: $pubEncKey
+          encPrivEncKey: $encPrivEncKey
+        ) {
+          jwt
+          user {
+            uuid
+            pwFunc
+            pwDigest
+            pwCost
+            pwKeySize
+            pwSalt
+            pubSignKey
+            encPrivSignKey
+            encSecretKey
+            pubEncKey
+            encPrivEncKey
+            createdAt
+            updatedAt
+          }
+        }
+      }
+    `;
+
+    beforeEach(() => {
+      sendForgotPasswordSpy.mockReset();
+    });
+
+    beforeAll(async () => {
+      await getConnection().transaction(async transactionEntityManager => {
+        const { u, e } = generateGenericUser("resetPass");
+        resetPassUser = await transactionEntityManager.save(u);
+        e.user = resetPassUser;
+        e.verified = false;
+        resetPassEmail = await transactionEntityManager.save(e);
+      });
+      const jwt = Auth.signUserJWT(resetPassUser);
+      const { s, g } = generateGraphQLClients(userTestPort, jwt);
+      gqlClient = g;
+      subscriptionClient = s;
+      sendForgotPasswordSpy = jest.spyOn(Mailer, "sendForgotPasswordEmail");
+    });
+
+    afterAll(async () => {
+      sendForgotPasswordSpy.mockClear();
+      await getConnection()
+        .getRepository(User)
+        .delete(resetPassUser);
+      subscriptionClient.close();
+    });
+
+    it("should handle the forgot > reset password functionality.", async () => {
+      expect.assertions(31);
+      const sendForgotPasswordEmailResponse = await gqlClient.mutate({
+        mutation: sendForgotPasswordEmailMutation,
+        variables: { email: resetPassEmail.email }
+      });
+      expect(sendForgotPasswordEmailResponse).toHaveProperty("data");
+      const sendForgotPasswordEmailData = sendForgotPasswordEmailResponse.data;
+      expect(sendForgotPasswordEmailData).toHaveProperty(
+        "sendForgotPasswordEmail",
+        true
+      );
+      expect(sendForgotPasswordSpy).toHaveBeenCalledTimes(1);
+      const sendEmailParams = sendForgotPasswordSpy.mock.calls[0];
+      expect(sendEmailParams[0]).toEqual(resetPassUser.username);
+      expect(sendEmailParams[1]).toEqual(resetPassEmail.email);
+      expect(sendEmailParams[2]).toMatch(
+        new RegExp(`^${resetPassUser.lUsername}:.*`)
+      );
+      const resetToken = sendEmailParams[2];
+      const checkResetTokenQueryResponse = await gqlClient.query({
+        query: checkResetTokenQuery,
+        variables: { resetToken }
+      });
+      expect(checkResetTokenQueryResponse).toHaveProperty("data");
+      const checkResetTokenQueryData: any = checkResetTokenQueryResponse.data;
+      expect(checkResetTokenQueryData).toHaveProperty("checkResetToken");
+      const checkResetToken = checkResetTokenQueryData.checkResetToken;
+
+      expect(checkResetToken).toHaveProperty("__typename", "TokenValidity");
+      expect(checkResetToken).toHaveProperty("isValid", true);
+      expect(checkResetToken).toHaveProperty("expiry");
+
+      const params = generateUserCryptoParams(
+        resetPassEmail.email,
+        "new pass/lost data"
+      );
+      const newPw = params.pw;
+      delete params.ak;
+      delete params.mk;
+      delete params.pw;
+
+      const resetPasswordResponse = await gqlClient.mutate({
+        mutation: resetPasswordMutation,
+        variables: {
+          resetToken,
+          newPw,
+          ...params
+        }
+      });
+      expect(resetPasswordResponse).toHaveProperty("data");
+      const resetPasswordData = resetPasswordResponse.data;
+      expect(resetPasswordData).toHaveProperty("resetPassword");
+      const resetPassword = resetPasswordData.resetPassword;
+
+      expect(resetPassword).toHaveProperty("__typename", "UserAuthPayload");
+      expect(resetPassword).toHaveProperty("jwt");
+      expect(resetPassword).toHaveProperty("user");
+      const user = resetPassword.user;
+
+      expect(user).toHaveProperty("__typename", "FullUser");
+      expect(user).toHaveProperty("uuid", resetPassUser.uuid);
+      expect(user).toHaveProperty("pwFunc", params.pwFunc);
+      expect(user).toHaveProperty("pwDigest", params.pwDigest);
+      expect(user).toHaveProperty("pwCost", params.pwCost);
+      expect(user).toHaveProperty("pwKeySize", params.pwKeySize);
+      expect(user).toHaveProperty("pwSalt", params.pwSalt);
+      expect(user).toHaveProperty("pubSignKey", params.pubSignKey);
+      expect(user).toHaveProperty("encPrivSignKey", params.encPrivSignKey);
+      expect(user).toHaveProperty("encSecretKey", params.encSecretKey);
+      expect(user).toHaveProperty("pubEncKey", params.pubEncKey);
+      expect(user).toHaveProperty("encPrivEncKey", params.encPrivEncKey);
+      expect(user).toHaveProperty(
+        "createdAt",
+        resetPassUser.createdAt.getTime()
+      );
+      expect(user).toHaveProperty("updatedAt");
+      expect(user.updatedAt).toBeGreaterThan(resetPassUser.updatedAt.getTime());
+    });
+  });
+
+  describe("deleteUser", () => {
+    const deleteUserEmail = "deleteUserTest@udia.ca";
+    const deleteUserUIP = "deleteUserTest Test!^123";
+    const { pw } = generateUserCryptoParams(deleteUserEmail, deleteUserUIP);
+    let deleteUser: User = null;
+    let deleteUserUEmail: UserEmail = null;
+    let gqlClient: ApolloClient<NormalizedCacheObject> = null;
+    let subscriptionClient: SubscriptionClient = null;
+    const mutation = gql`
+      mutation DeleteUser($pw: String!) {
+        deleteUser(pw: $pw)
+      }
+    `;
+
+    beforeAll(async () => {
+      const pwHash = await Auth.hashPassword(pw);
+      await getConnection().transaction(async transactionEntityManager => {
+        const { u, e } = generateGenericUser("deleteUserTest");
+        u.pwHash = pwHash;
+        deleteUser = await transactionEntityManager.save(u);
+        e.user = deleteUser;
+        deleteUserUEmail = await transactionEntityManager.save(e);
+      });
+      const jwt = Auth.signUserJWT(deleteUser);
+      const { s, g } = generateGraphQLClients(userTestPort, jwt);
+      gqlClient = g;
+      subscriptionClient = s;
+    });
+
+    afterAll(async () => {
+      await getConnection()
+        .getRepository(User)
+        .delete(deleteUser); // cleanup, just in case?
+      subscriptionClient.close();
+    });
+
+    it("should delete a user", async () => {
+      expect.assertions(2);
+      const deleteUserMutationResponse = await gqlClient.mutate({
+        mutation,
+        variables: { pw }
+      });
+      expect(deleteUserMutationResponse).toEqual({
+        data: { deleteUser: true }
+      });
+      const user = await getConnection()
+        .getRepository(User)
+        .findOne(deleteUser.uuid);
+      expect(user).toBeUndefined();
+    });
+  });
+
+  describe("refreshJWT", () => {
+    let refreshJWTUser: User = null;
+    let gqlClient: ApolloClient<NormalizedCacheObject> = null;
+    let subscriptionClient: SubscriptionClient = null;
+    const mutation = gql`
+      mutation RefreshJWT {
+        refreshJWT
+      }
+    `;
+
+    beforeAll(async () => {
+      await getConnection().transaction(async transactionEntityManager => {
+        const { u, e } = generateGenericUser("refreshJWT");
+        refreshJWTUser = await transactionEntityManager.save(u);
+        e.user = refreshJWTUser;
+        await transactionEntityManager.save(e);
+      });
+      const jwt = Auth.signUserJWT(refreshJWTUser);
+      const { s, g } = generateGraphQLClients(userTestPort, jwt);
+      gqlClient = g;
+      subscriptionClient = s;
+    });
+
+    afterAll(async () => {
+      await getConnection()
+        .getRepository(User)
+        .delete(refreshJWTUser);
+      subscriptionClient.close();
+    });
+
+    it("should refresh a user's JSON Web Token", async done => {
+      expect.assertions(2);
+      const refreshJWTResponse = await gqlClient.mutate({ mutation });
+      expect(refreshJWTResponse).toHaveProperty("data");
+      const refreshJWTData = refreshJWTResponse.data;
+      expect(refreshJWTData).toHaveProperty("refreshJWT");
+      const freshJWT = refreshJWTData.refreshJWT;
+      let testSubClient: SubscriptionClient = null;
+      try {
+        const { s: sp, g: gp } = generateGraphQLClients(userTestPort, freshJWT);
+        testSubClient = sp;
+        await gp.mutate({ mutation });
+      } catch {
+        done("Refreshed JWT was invalid!");
+      } finally {
+        testSubClient.close();
+        done();
+      }
+    });
+  });
 
   // it("should handle graphQL validation errors.", async done => {
   //   const email = "badactor@udia.ca";

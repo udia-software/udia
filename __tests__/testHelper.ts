@@ -173,10 +173,10 @@ export function generateGenericUser(username: string) {
   user.username = username.trim();
   user.lUsername = username.trim().toLowerCase();
   user.pubSignKey = JSON.stringify({ kty: "invalidkey" });
-  user.encPrivSignKey = "dummyivbase64enc:dummyencprivsignkeybase64enc";
-  user.encSecretKey = "dummyivbase64enc:dummyencsecretkeybase64enc";
+  user.encPrivSignKey = "dummyivbase64enc.dummyencprivsignkeybase64enc";
+  user.encSecretKey = "dummyivbase64enc.dummyencsecretkeybase64enc";
   user.pubEncKey = JSON.stringify({ kty: "invalidkey" });
-  user.encPrivEncKey = "dummyivbase64enc:dummyencprivenckeybase64enc";
+  user.encPrivEncKey = "dummyivbase64enc.dummyencprivenckeybase64enc";
   user.pwHash = "$argon2i$v=1$m=1,t=1,p=1$101";
   user.pwFunc = "PBKDF2";
   user.pwDigest = "SHA-512";

@@ -32,6 +32,9 @@ export interface IUpdatePasswordParams {
   pwCost: number;
   pwKeySize: number;
   pwSalt: string;
+  encPrivEncKey: string;
+  encSecretKey: string;
+  encPrivSignKey: string;
 }
 
 export interface ISignInUserParams {
@@ -71,6 +74,11 @@ export interface IResetPasswordParams {
   pwCost: number;
   pwKeySize: number;
   pwSalt: string;
+  pubSignKey: string;
+  encPrivSignKey: string;
+  encSecretKey: string;
+  pubEncKey: string;
+  encPrivEncKey: string;
 }
 
 export interface IResetTokenValidity {
@@ -185,7 +193,10 @@ export default class UserManager {
       pwDigest,
       pwCost,
       pwKeySize,
-      pwSalt
+      pwSalt,
+      encPrivEncKey,
+      encSecretKey,
+      encPrivSignKey
     }: IUpdatePasswordParams
   ) {
     const user = await this.getUserByUsername(username);
@@ -205,6 +216,10 @@ export default class UserManager {
     user.pwCost = pwCost;
     user.pwKeySize = pwKeySize;
     user.pwSalt = pwSalt;
+    user.encPrivEncKey = encPrivEncKey;
+    user.encSecretKey = encSecretKey;
+    user.encPrivSignKey = encPrivSignKey;
+
     return getRepository(User).save(user);
   }
 
@@ -501,7 +516,12 @@ export default class UserManager {
     pwDigest,
     pwCost,
     pwKeySize,
-    pwSalt
+    pwSalt,
+    pubSignKey,
+    encPrivSignKey,
+    encSecretKey,
+    pubEncKey,
+    encPrivEncKey
   }: IResetPasswordParams) {
     const [username] = resetToken.split(":");
     if (!username) {
@@ -536,6 +556,12 @@ export default class UserManager {
     user.pwSalt = pwSalt;
     user.forgotPwExpiry = null;
     user.forgotPwHash = null;
+    user.pubSignKey = pubSignKey;
+    user.encPrivSignKey = encPrivSignKey;
+    user.encSecretKey = encSecretKey;
+    user.pubEncKey = pubEncKey;
+    user.encPrivEncKey = encPrivEncKey;
+
     user = await getRepository(User).save(user);
     return { user, jwt: Auth.signUserJWT(user) };
   }
