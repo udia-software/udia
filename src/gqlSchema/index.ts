@@ -68,6 +68,16 @@ const typeDefs: ITypedef[] = [
       pwKeySize: Int!
       # Client generated password salt. (Not server password salt!)
       pwSalt: String!
+      # Unencrypted jwk-pub signing key (JSON.stringified)
+      pubSignKey: String!
+      # Encrypted private jwk-priv signing key
+      encPrivSignKey: String!
+      # Encrypted symmetric jwk-key for user secrets.
+      encSecretKey: String!
+      # Unencrypted asymmetric jwk-pub encryption key (JSON.stringified)
+      pubEncKey: String!
+      # Encrypted asymmetric jwk-priv encryption key
+      encPrivEncKey: String!
     ): UserAuthPayload!
 
     # Update user's password and corresponding private encryption keys.
@@ -86,6 +96,12 @@ const typeDefs: ITypedef[] = [
       pwKeySize: Int!
       # Client generated password salt.
       pwSalt: String!
+      # Encrypted private jwk-priv signing key.
+      encPrivSignKey: String!
+      # Encrypted symmetric jwk-key for user secrets.
+      encSecretKey: String!
+      # Encrypted asymmetric jwk-priv encryption key.
+      encPrivEncKey: String!
     ): FullUser!
 
     # Sign in a user.
@@ -138,15 +154,32 @@ const typeDefs: ITypedef[] = [
       email: String!
     ): Boolean!
 
-    # Reset a user password and corresponding public and private encryption keys.
+    # Reset a user password and all corresponding encryption keys.
     resetPassword(
+      # Password reset token that was emailed to the user.
       resetToken: String!
+      # Client generated proof of secret.
       newPw: String!
+      # Client chosen password function.
       pwFunc: String!
+      # Client chosen password digest.
       pwDigest: String!
+      # Client chosen derivation cost/iterations.
       pwCost: Int!
+      # Client chosen derivation key byte size.
       pwKeySize: Int!
+      # Client generated password salt.
       pwSalt: String!
+      # Unencrypted jwk-pub signing key (JSON.stringified)
+      pubSignKey: String!
+      # Encrypted private jwk-priv signing key.
+      encPrivSignKey: String!
+      # Encrypted symmetric jwk-key for user secrets.
+      encSecretKey: String!
+      # Unencrypted asymmetric jwk-pub encryption key (JSON.stringified)
+      pubEncKey: String!
+      # Encrypted asymmetric jwk-priv encryption key.
+      encPrivEncKey: String!
     ): UserAuthPayload!
 
     # Return a refreshed JWT associated from  the header authentication JWT.
@@ -180,28 +213,52 @@ const typeDefs: ITypedef[] = [
   type User {
     # Server generated UUID.
     uuid: ID!
-    # User chosen username
+    # User chosen username.
     username: String!
     # When this user was created.
     createdAt: DateTime!
     # Items belonging to the user.
     # Parameter 'username' is overridden.
     items(params: ItemPaginationInput): ItemPagination!
+    # Unencrypted jwk-pub signing key (JSON.stringified)
+    pubSignKey: String!
+    # Unencrypted asymmetric jwk-pub encryption key (JSON.stringified)
+    pubEncKey: String!
   }`,
   `# Protected FullUser type
   type FullUser {
+    # Server generated UUID.
     uuid: ID!
+    # User chosen username.
     username: String!
+    # Emails belonging to the user.
     emails: [UserEmail!]!
+    # Unencrypted jwk-pub signing key (JSON.stringified)
+    pubSignKey: String!
+    # Encrypted private jwk-priv signing key.
+    encPrivSignKey: String!
+    # Encrypted symmetric jwk-key for user secrets.
+    encSecretKey: String!
+    # Unencrypted asymmetric jwk-pub encryption key (JSON.stringified)
+    pubEncKey: String!
+    # Encrypted asymmetric jwk-priv encryption key.
+    encPrivEncKey: String!
+    # User client password derivation function.
     pwFunc: String!
+    # User client password derivation digest.
     pwDigest: String!
+    # User client derivation cost or iterations.
     pwCost: Int!
+    # User client derived secret keysize.
     pwKeySize: Int!
+    # User client password salt.
     pwSalt: String!
     # Items belonging to the user.
     # Parameter 'username' is overridden.
     items(params: ItemPaginationInput): ItemPagination!
+    # When this user was created.
     createdAt: DateTime!
+    # When this user was last updated.
     updatedAt: DateTime!
   }`,
   `# Protected UserEmail type
@@ -375,9 +432,7 @@ const typeDefs: ITypedef[] = [
     parentId: ID
   }`,
   `# Custom scalar for supporting Javascript Date
-  scalar DateTime`,
-  `# Custom scalar for supporting arbitrary JS Objects
-  scalar Object`
+  scalar DateTime`
 ];
 
 const executableSchemaDefinition: IExecutableSchemaDefinition = {

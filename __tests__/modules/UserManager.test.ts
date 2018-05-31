@@ -105,10 +105,10 @@ describe("UserManager", () => {
           pwCost: 3000,
           pwKeySize: 768,
           pwSalt: "salt",
-          pubSignKey: { dummy: "key" },
+          pubSignKey: JSON.stringify({ dummy: "key" }),
           encPrivSignKey: "dummykey",
           encSecretKey: "dummykey",
-          pubEncKey: { dummy: "key" },
+          pubEncKey: JSON.stringify({ dummy: "key" }),
           encPrivEncKey: "dummykey"
         });
       } catch (err) {
@@ -134,10 +134,10 @@ describe("UserManager", () => {
           pwCost: 3000,
           pwKeySize: 768,
           pwSalt: "salt",
-          pubSignKey: { dummy: "key" },
+          pubSignKey: JSON.stringify({ dummy: "key" }),
           encPrivSignKey: "dummykey",
           encSecretKey: "dummykey",
-          pubEncKey: { dummy: "key" },
+          pubEncKey: JSON.stringify({ dummy: "key" }),
           encPrivEncKey: "dummykey"
         });
       } catch (err) {
@@ -162,10 +162,10 @@ describe("UserManager", () => {
           pwCost: 3000,
           pwKeySize: 768,
           pwSalt: "salt",
-          pubSignKey: { dummy: "key" },
+          pubSignKey: JSON.stringify({ dummy: "key" }),
           encPrivSignKey: "dummykey",
           encSecretKey: "dummykey",
-          pubEncKey: { dummy: "key" },
+          pubEncKey: JSON.stringify({ dummy: "key" }),
           encPrivEncKey: "dummykey"
         });
       } catch (err) {
@@ -189,10 +189,10 @@ describe("UserManager", () => {
         pwCost: 3000,
         pwKeySize: 768,
         pwSalt: "salt",
-        pubSignKey: { dummy: "key" },
+        pubSignKey: JSON.stringify({ dummy: "key" }),
         encPrivSignKey: "dummykey",
         encSecretKey: "dummykey",
-        pubEncKey: { dummy: "key" },
+        pubEncKey: JSON.stringify({ dummy: "key" }),
         encPrivEncKey: "dummykey"
       });
       expect(shrugUser).toHaveProperty("jwt");

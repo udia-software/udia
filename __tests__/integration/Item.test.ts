@@ -1,4 +1,4 @@
-import { InMemoryCache } from "apollo-cache-inmemory";
+import { InMemoryCache, NormalizedCacheObject } from "apollo-cache-inmemory";
 import ApolloClient from "apollo-client";
 import { ApolloLink, split } from "apollo-link";
 import { HttpLink } from "apollo-link-http";
@@ -20,7 +20,7 @@ import ItemManager from "../../src/modules/ItemManager";
 
 let server: Server = null;
 let itemUser: User = null;
-let gqlClient: ApolloClient<any> = null;
+let gqlClient: ApolloClient<NormalizedCacheObject> = null;
 let subscriptionClient: SubscriptionClient = null;
 
 async function createUsers() {
@@ -479,7 +479,6 @@ describe("Item", () => {
       expect(createItemUser).toHaveProperty("__typename", "User");
       expect(createItemUser).toHaveProperty("username", "itemtestuser");
     });
-
   });
 
   describe("updateItem", () => {

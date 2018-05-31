@@ -17,10 +17,10 @@ export interface ICreateUserParams {
   pwCost: number;
   pwKeySize: number;
   pwSalt: string;
-  pubSignKey: object; // jwk-pub signing key stored as jsonb
+  pubSignKey: string; // JSON stringified jwk-pub signing key
   encPrivSignKey: string; // encrypted jwk-priv signing key
   encSecretKey: string; // encrypted jwk-key for user secrets
-  pubEncKey: object; // jwk-pub encryption key stored as jsonb
+  pubEncKey: string; // JSON stringified jwk-pub encryption key
   encPrivEncKey: string; // jwk-priv encryption key
 }
 

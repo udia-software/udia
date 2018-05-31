@@ -1,8 +1,8 @@
 import Auth from "../src/modules/Auth";
 import {
+  deriveSubKeysFromUserInputPassword,
   generateKeyPairECDH,
-  generateUserCryptoParams,
-  loginUserCryptoParams
+  generateUserCryptoParams
 } from "./testHelper";
 
 describe("TestHelper", () => {
@@ -19,7 +19,7 @@ describe("TestHelper", () => {
       pwDigest,
       pwKeySize
     } = generateUserCryptoParams(email, userInputtedPassword);
-    const { pw: lpw, mk: lmk, ak: lak } = loginUserCryptoParams({
+    const { pw: lpw, mk: lmk, ak: lak } = deriveSubKeysFromUserInputPassword({
       uip: userInputtedPassword,
       pwCost,
       pwSalt,

@@ -1,20 +1,25 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-/**
- * Added comments for all fields, added columns for encryption keys
- */
-export class CommentsEnc1527694885298 implements MigrationInterface {
+export class CommentsAndKeys1527774871381 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<any> {
-    await queryRunner.query(`ALTER TABLE "user" ADD "pubSignKey" jsonb`);
     await queryRunner.query(
-      `ALTER TABLE "user" ADD "encPrivSignKey" character varying`
+      `ALTER TABLE "user" ADD "pubSignKey" character varying NOT NULL ` +
+        `DEFAULT ''`
     );
     await queryRunner.query(
-      `ALTER TABLE "user" ADD "encSecretKey" character varying`
+      `ALTER TABLE "user" ADD "encPrivSignKey" character varying NOT NULL ` +
+        `DEFAULT ''`
     );
-    await queryRunner.query(`ALTER TABLE "user" ADD "pubEncKey" jsonb`);
     await queryRunner.query(
-      `ALTER TABLE "user" ADD "encPrivEncKey" character varying`
+      `ALTER TABLE "user" ADD "encSecretKey" character varying NOT NULL ` +
+        `DEFAULT ''`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "user" ADD "pubEncKey" character varying NOT NULL DEFAULT ''`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "user" ADD "encPrivEncKey" character varying NOT NULL ` +
+        `DEFAULT ''`
     );
     await queryRunner.query(
       `COMMENT ON COLUMN "user"."pwFunc" IS ` +
@@ -195,15 +200,15 @@ export class CommentsEnc1527694885298 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "user" ALTER COLUMN "pwCost" SET DEFAULT 5000`
     );
-    await queryRunner.query(`COMMENT ON COLUMN "user"."pwCost" IS NULL`);
+    await queryRunner.query(`COMMENT ON COLUMN "user"."pwCost" IS ''`);
     await queryRunner.query(
       `ALTER TABLE "user" ALTER COLUMN "pwDigest" SET DEFAULT 'sha512'`
     );
-    await queryRunner.query(`COMMENT ON COLUMN "user"."pwDigest" IS NULL`);
+    await queryRunner.query(`COMMENT ON COLUMN "user"."pwDigest" IS ''`);
     await queryRunner.query(
       `ALTER TABLE "user" ALTER COLUMN "pwFunc" SET DEFAULT 'pbkdf2'`
     );
-    await queryRunner.query(`COMMENT ON COLUMN "user"."pwFunc" IS NULL`);
+    await queryRunner.query(`COMMENT ON COLUMN "user"."pwFunc" IS ''`);
     await queryRunner.query(`ALTER TABLE "user" DROP COLUMN "encPrivEncKey"`);
     await queryRunner.query(`ALTER TABLE "user" DROP COLUMN "pubEncKey"`);
     await queryRunner.query(`ALTER TABLE "user" DROP COLUMN "encSecretKey"`);
