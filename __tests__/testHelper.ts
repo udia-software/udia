@@ -1,4 +1,4 @@
-import { InMemoryCache } from "apollo-cache-inmemory";
+import { InMemoryCache, NormalizedCacheObject } from "apollo-cache-inmemory";
 import { ApolloClient } from "apollo-client";
 import { ApolloLink, split } from "apollo-link";
 import { HttpLink } from "apollo-link-http";
@@ -7,18 +7,22 @@ import { getOperationDefinition } from "apollo-utilities";
 import crypto from "crypto";
 import fetch from "node-fetch";
 import { SubscriptionClient } from "subscriptions-transport-ws";
-import { createSecureContext } from "tls";
 import WebSocket from "ws";
 import { User } from "../src/entity/User";
 import { UserEmail } from "../src/entity/UserEmail";
 
-interface ILoginParams {
+export interface ILoginParams {
   uip: string;
   pwCost: number;
   pwSalt: string;
   pwFunc: string;
   pwDigest: string;
   pwKeySize: number;
+}
+
+export interface IGraphQLClients {
+  s: SubscriptionClient;
+  g: ApolloClient<NormalizedCacheObject>;
 }
 
 /**
@@ -112,14 +116,17 @@ export function generateKeyPairECDH() {
  * @param {string} port - String value of the server port
  * @param {string} jwt - Optional, what JWT to authenticate with
  */
-export function generateGraphQLClients(port: string, jwt?: string) {
+export function generateGraphQLClients(
+  port: string,
+  jwt?: string
+): IGraphQLClients {
   const GRAPHQL_HTTP_ENDPOINT = `http://0.0.0.0:${port}/graphql`;
   const GRAPHQL_SUBSCRIPTIONS_ENDPOINT = `ws://0.0.0.0:${port}/subscriptions`;
 
   const authorizationHeader = jwt ? `Bearer ${jwt}` : "";
   const middlewareAuthLink = new ApolloLink((operation, forward) => {
     operation.setContext({ headers: { authorization: authorizationHeader } });
-    return forward(operation);
+    return forward!(operation);
   });
 
   const httpLinkWithAuthToken = middlewareAuthLink.concat(

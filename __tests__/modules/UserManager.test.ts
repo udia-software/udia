@@ -9,7 +9,7 @@ import ItemManager from "../../src/modules/ItemManager";
 import UserManager from "../../src/modules/UserManager";
 import { generateUserCryptoParams } from "../testHelper";
 
-let server: Server = null;
+let server: Server;
 
 async function createUsers() {
   await getConnection().transaction(async transactionEntityManager => {
@@ -213,7 +213,10 @@ describe("UserManager", () => {
         pwDigest,
         pwCost,
         pwKeySize,
-        pwSalt
+        pwSalt,
+        encPrivSignKey,
+        encSecretKey,
+        encPrivEncKey
       } = generateUserCryptoParams("badActor@udia.ca", "Dupe S3C$^T P~!۩s");
       try {
         await UserManager.updatePassword(undefined, {
@@ -223,7 +226,10 @@ describe("UserManager", () => {
           pwDigest,
           pwCost,
           pwKeySize,
-          pwSalt
+          pwSalt,
+          encPrivSignKey,
+          encSecretKey,
+          encPrivEncKey
         });
       } catch (err) {
         expect(err).toHaveProperty(
@@ -243,7 +249,10 @@ describe("UserManager", () => {
         pwDigest,
         pwCost,
         pwKeySize,
-        pwSalt
+        pwSalt,
+        encPrivSignKey,
+        encSecretKey,
+        encPrivEncKey
       } = generateUserCryptoParams("dupeuser@udia.ca", "Dupe S3C$^T P~!۩s");
       try {
         await UserManager.updatePassword("dupeuser", {
@@ -253,8 +262,11 @@ describe("UserManager", () => {
           pwDigest,
           pwCost,
           pwKeySize,
-          pwSalt
-        });
+          pwSalt,
+          encPrivSignKey,
+          encSecretKey,
+          encPrivEncKey
+          });
       } catch (err) {
         expect(err).toHaveProperty(
           "message",
@@ -379,9 +391,11 @@ describe("UserManager", () => {
       await getConnection()
         .getRepository(UserEmail)
         .update("dupeuser2@udia.ca", { verified: true });
-      const user = await UserManager.removeEmail("dupeuser", {
+      let user = await UserManager.removeEmail("dupeuser", {
         email: "dupeUser@udia.ca"
       });
+      expect(user).toBeDefined();
+      user = user!;
       expect(user).toHaveProperty("emails");
       expect(user.emails).toHaveLength(1);
       const userEmail = user.emails[0];
@@ -609,7 +623,12 @@ describe("UserManager", () => {
           pwDigest: "",
           pwCost: 1,
           pwKeySize: 1,
-          pwSalt: ""
+          pwSalt: "",
+          pubSignKey: "",
+          encPrivSignKey: "",
+          encSecretKey: "",
+          pubEncKey: "",
+          encPrivEncKey: ""
         });
       } catch (err) {
         expect(err).toHaveProperty(
@@ -630,7 +649,12 @@ describe("UserManager", () => {
           pwDigest: "",
           pwCost: 1,
           pwKeySize: 1,
-          pwSalt: ""
+          pwSalt: "",
+          pubSignKey: "",
+          encPrivSignKey: "",
+          encSecretKey: "",
+          pubEncKey: "",
+          encPrivEncKey: ""
         });
       } catch (err) {
         expect(err).toHaveProperty(
@@ -651,7 +675,12 @@ describe("UserManager", () => {
           pwDigest: "",
           pwCost: 1,
           pwKeySize: 1,
-          pwSalt: ""
+          pwSalt: "",
+          pubSignKey: "",
+          encPrivSignKey: "",
+          encSecretKey: "",
+          pubEncKey: "",
+          encPrivEncKey: ""
         });
       } catch (err) {
         expect(err).toHaveProperty(
@@ -682,16 +711,12 @@ describe("UserManager", () => {
 
   describe("emailExists", () => {
     it("should handle invalid email", async () => {
-      expect.assertions(5);
+      expect.assertions(4);
       await expect(UserManager.emailExists()).rejects.toHaveProperty(
         "message",
         `The request is invalid.\n* email: Email is invalid.`
       );
       await expect(UserManager.emailExists("")).rejects.toHaveProperty(
-        "message",
-        `The request is invalid.\n* email: Email is invalid.`
-      );
-      await expect(UserManager.emailExists(null)).rejects.toHaveProperty(
         "message",
         `The request is invalid.\n* email: Email is invalid.`
       );
@@ -708,18 +733,13 @@ describe("UserManager", () => {
 
   describe("usernameExists", () => {
     it("should handle invalid usernames", async () => {
-      expect.assertions(5);
+      expect.assertions(4);
       await expect(UserManager.usernameExists()).rejects.toHaveProperty(
         "message",
         `The request is invalid.\n` +
           `* username: Username is too short (under 3 characters).`
       );
       await expect(UserManager.usernameExists("")).rejects.toHaveProperty(
-        "message",
-        `The request is invalid.\n` +
-          `* username: Username is too short (under 3 characters).`
-      );
-      await expect(UserManager.usernameExists(null)).rejects.toHaveProperty(
         "message",
         `The request is invalid.\n` +
           `* username: Username is too short (under 3 characters).`
@@ -742,8 +762,8 @@ describe("UserManager", () => {
   });
 
   describe("getUserFromItem", () => {
-    let itemUser: User = null;
-    let item: Item = null;
+    let itemUser: User;
+    let item: Item;
     beforeAll(async () => {
       await getConnection().transaction(async transactionEntityManager => {
         itemUser = new User();

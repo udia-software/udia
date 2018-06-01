@@ -1,3 +1,4 @@
+import { GraphQLSchema } from "graphql";
 import {
   IExecutableSchemaDefinition,
   ITypedef,
@@ -439,4 +440,7 @@ const executableSchemaDefinition: IExecutableSchemaDefinition = {
   typeDefs,
   resolvers
 };
-export default makeExecutableSchema(executableSchemaDefinition);
+const executableSchema: GraphQLSchema = makeExecutableSchema(
+  executableSchemaDefinition
+);
+export default executableSchema;

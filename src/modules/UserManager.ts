@@ -118,6 +118,7 @@ export default class UserManager {
     if (userEmail && userEmail.user) {
       return userEmail.user;
     }
+    return null;
   }
 
   /**
@@ -286,7 +287,8 @@ export default class UserManager {
     if (!passwordsMatch) {
       throw new ValidationError([{ key: "pw", message: "Invalid password." }]);
     }
-    return getRepository(User).delete({ uuid: user.uuid });
+    await getRepository(User).delete({ uuid: user.uuid });
+    return true;
   }
 
   /**
@@ -624,6 +626,10 @@ export default class UserManager {
     return count;
   }
 
+  /**
+   * Given an item ID, return the user that owns it
+   * @param {string} itemId - UUID of the item
+   */
   public static async getUserFromItemId(itemId: string) {
     return getRepository(User)
       .createQueryBuilder("user")
