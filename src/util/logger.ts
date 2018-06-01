@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import moment from "moment";
 import onFinished from "on-finished";
 import { Logger as ITypeORMLogger } from "typeorm";
-import { Logger, transports } from "winston";
+import { Logger, LoggerInstance, transports } from "winston";
 import { NODE_ENV } from "../constants";
 
 // this is always debug in test
@@ -14,7 +14,7 @@ const logMaxFiles = 8;
 /**
  * Winston logger instance. Transports change based on node environment.
  */
-const logger = new Logger({
+const logger: LoggerInstance = new Logger({
   level: logLevel,
   transports: [
     new transports.Console({

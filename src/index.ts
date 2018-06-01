@@ -2,7 +2,7 @@ import PostgresPubSub from "@udia/graphql-postgres-subscriptions";
 import crypto from "crypto";
 import { execute, subscribe } from "graphql";
 import { PubSubEngine } from "graphql-subscriptions";
-import { createServer } from "http";
+import { createServer, Server } from "http";
 import Graceful from "node-graceful";
 import { Client } from "pg";
 import "reflect-metadata"; // required for typeorm
@@ -27,8 +27,8 @@ import metric from "./util/metric";
 
 let pubSub: PubSubEngine;
 const dateReviver = (key: any, value: any) => {
-  const isISO8601Z = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/;
-  if (typeof value === "string" && isISO8601Z.test(value)) {
+  const ISO8601Z = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/;
+  if (typeof value === "string" && ISO8601Z.test(value)) {
     const tempDateNumber = Date.parse(value);
     if (!isNaN(tempDateNumber)) {
       return new Date(tempDateNumber);
@@ -41,7 +41,7 @@ const dateReviver = (key: any, value: any) => {
  * Start the server. Initialize the Database Client and tables.
  * Throws an error if client initialization fails
  */
-const start = async (port: string) => {
+const start: (port: string) => Promise<Server> = async (port: string) => {
   // crypto module may not exist in node binary (will throw error)
   app.set("crypto", crypto);
 
@@ -76,6 +76,7 @@ const start = async (port: string) => {
           const payload = Auth.verifyUserJWT(jwt);
           return { user: payload };
         }
+        return {};
       }
     },
     {

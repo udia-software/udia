@@ -1032,6 +1032,7 @@ describe("Users", () => {
       let sendEmailVerEmail: UserEmail;
       let gqlClient: ApolloClient<NormalizedCacheObject>;
       let subscriptionClient: SubscriptionClient;
+      let sendEmailVerificationSpy: jest.SpyInstance;
       const sendEmailVerificationMutation = gql`
         mutation SendEmailVerification($email: String!) {
           sendEmailVerification(email: $email)
@@ -1042,8 +1043,6 @@ describe("Users", () => {
           verifyEmailToken(emailToken: $emailToken)
         }
       `;
-
-      let sendEmailVerificationSpy: jest.SpyInstance;
 
       beforeEach(() => {
         sendEmailVerificationSpy.mockReset();
@@ -1492,42 +1491,4 @@ describe("Users", () => {
       expect(userItem).toHaveProperty("encItemKey", resolveItem.encItemKey);
     });
   });
-
-  // it("should handle graphQL validation errors.", async done => {
-  //   const email = "badactor@udia.ca";
-  //   try {
-  //     await gqlClient.query({
-  //       query: gql`
-  //         query GetUserAuthParams($email: String!) {
-  //           getUserAuthParams(email: $email) {
-  //             pwFunc
-  //             pwDigest
-  //             pwCost
-  //             pwKeySize
-  //             pwSalt
-  //           }
-  //         }
-  //       `,
-  //       variables: { email }
-  //     });
-  //   } catch (err) {
-  //     expect(err).toHaveProperty("networkError", null);
-  //     expect(err).toHaveProperty("graphQLErrors", [
-  //       {
-  //         locations: [{ column: 3, line: 2 }],
-  //         message: "The request is invalid.\n* email: Email not found.",
-  //         path: ["getUserAuthParams"],
-  //         state: { email: ["Email not found."] }
-  //       }
-  //     ]);
-  //     expect(err).toHaveProperty(
-  //       "message",
-  //       "GraphQL error: The request is invalid.\n* email: Email not found."
-  //     );
-  //     expect(err).toHaveProperty("extraInfo", undefined);
-  //     done();
-  //     return;
-  //   }
-  //   done("Error not caught.");
-  // });
 });

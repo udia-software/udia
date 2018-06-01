@@ -15,7 +15,7 @@ import Auth from "./modules/Auth";
 import { middlewareLogger } from "./util/logger";
 import metric from "./util/metric";
 
-const app = express();
+const app: express.Express = express();
 
 // serve static files with index
 app.use(
@@ -72,9 +72,11 @@ if (NODE_ENV !== "production") {
     })
   );
 }
-app.get("/health", (req, res) => res.json(metric()));
+app.get("/health", (req: express.Request, res: express.Response) =>
+  res.json(metric())
+);
 // TODO: GraphQL Server Side rendering with Hydrating client would be lit
-app.get("/", (req, res) => {
+app.get("/", (req: express.Request, res: express.Response) => {
   res.setHeader("Content-Type", "text/html");
   res.write(`<!DOCTYPE html>
   <html>

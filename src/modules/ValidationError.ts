@@ -5,7 +5,7 @@ export interface IErrorMessage {
   message: string;
 }
 
-interface IErrorState {
+export interface IErrorState {
   [key: string]: string[] | undefined;
   messages?: string[];
 }

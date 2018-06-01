@@ -5,100 +5,109 @@ import { PORT } from "../../src/constants";
 import { Item } from "../../src/entity/Item";
 import { User } from "../../src/entity/User";
 import { UserEmail } from "../../src/entity/UserEmail";
+import Mailer from "../../src/mailer";
 import ItemManager from "../../src/modules/ItemManager";
 import UserManager from "../../src/modules/UserManager";
-import { generateUserCryptoParams } from "../testHelper";
-
-let server: Server;
-
-async function createUsers() {
-  await getConnection().transaction(async transactionEntityManager => {
-    let dpUser = new User();
-    const dpEmail = new UserEmail();
-    dpEmail.email = "dupeUser@udia.ca";
-    dpEmail.lEmail = "dupeuser@udia.ca";
-    dpEmail.primary = true;
-    dpEmail.verified = true;
-    const dp2Email = new UserEmail();
-    dp2Email.email = "dupeUser2@udia.ca";
-    dp2Email.lEmail = "dupeuser2@udia.ca";
-    dp2Email.primary = false;
-    dp2Email.verified = false;
-    dpUser.username = "dupeUser";
-    dpUser.lUsername = "dupeuser";
-    dpUser.pwHash =
-      "$argon2i$v=19$m=4096,t=3,p=1$5QDqoNEphcTCPUMnWL40Lg$Q1nX2c5H3DZlesJ4Nb15dL7xcHa0ZNJqnEwyZl5ewSk";
-    dpUser.pwFunc = "pbkdf2";
-    dpUser.pwDigest = "sha512";
-    dpUser.pwCost = 3000;
-    dpUser.pwSalt = "64a6e864ac0bd477aa9ead6fa4a902628bc691dc";
-    dpUser = await transactionEntityManager.save(dpUser);
-    dpEmail.user = dpUser;
-    await transactionEntityManager.save(dpEmail);
-    dp2Email.user = dpUser;
-    await transactionEntityManager.save(dp2Email);
-
-    let veUser = new User();
-    const veEmail = new UserEmail();
-    veEmail.email = "verifyEmailUser@udia.ca";
-    veEmail.lEmail = "verifyemailuser@udia.ca";
-    veEmail.primary = true;
-    veEmail.verified = false;
-    veEmail.verificationExpiry = new Date();
-    veEmail.verificationHash = "$argon2i$v=1$m=1,t=1,p=1$101";
-    veUser.username = "verifyEmailUser";
-    veUser.lUsername = "verifyemailuser";
-    veUser.pwHash = "$argon2i$v=1$m=1,t=1,p=1$101";
-    veUser.pwFunc = "pbkdf2";
-    veUser.pwDigest = "sha512";
-    veUser.pwCost = 3000;
-    veUser.pwSalt = "101";
-    veUser = await transactionEntityManager.save(veUser);
-    veEmail.user = veUser;
-    await transactionEntityManager.save(veEmail);
-  });
-}
-
-async function deleteUsers() {
-  await getConnection()
-    .createQueryBuilder()
-    .delete()
-    .from(User)
-    .where({ lUsername: "dupeuser" })
-    .orWhere("lUsername = :shrugUsername", { shrugUsername: "¯\\_(ツ)_/¯" })
-    .orWhere("lUsername = :veUsername", { veUsername: "verifyemailuser" })
-    .orWhere("lUsername = :itemUsername", { itemUsername: "itemusertest" })
-    .execute();
-}
-
-beforeAll(async () => {
-  // Ports are staggered to prevent multiple tests from clobbering
-  const userTestPort = `${parseInt(PORT, 10) + 3}`;
-  server = await start(userTestPort);
-  await deleteUsers();
-  await createUsers();
-});
-
-afterAll(async done => {
-  await deleteUsers();
-  server.close(done);
-});
+import { generateGenericUser, generateUserCryptoParams } from "../testHelper";
 
 describe("UserManager", () => {
+  // Ports are staggered to prevent multiple tests from clobbering
+  const userTestPort = `${parseInt(PORT, 10) + 3}`;
+  let server: Server;
+
+  async function deleteValues() {
+    await getConnection()
+      .createQueryBuilder()
+      .delete()
+      .from(User)
+      .where({ lUsername: "badactor" })
+      .orWhere("lUsername = :fuUser", { fuUser: "findusername" })
+      .orWhere("lUsername = :dupeUser", { dupeUser: "dupeuser" })
+      .orWhere("lUsername = :shrugUser", { shrugUser: "¯\\_(ツ)_/¯" })
+      .orWhere("lUsername = :upUser", { upUser: "updatepassuser" })
+      .orWhere("lUsername = :siUser", { siUser: "signinuser" })
+      .orWhere("lUsername = :aeUser", { aeUser: "addemailuser" })
+      .orWhere("lUsername = :reUser", { reUser: "removeemailuser" })
+      .orWhere("lUsername = :spUser", { spUser: "setpemailuser" })
+      .orWhere("lUsername = :delUser", { delUser: "delmeuser" })
+      .orWhere("lUsername = :sveUser", { sveUser: "sendvemailuser" })
+      .orWhere("lUsername = :veUser", { veUser: "verifyemailuser" })
+      .orWhere("lUsername = :fpUser", { fpUser: "forgotpassuser" })
+      .orWhere("lUsername = :rpUser", { rpUser: "resetpassuser" })
+      .orWhere("lUsername = :itemUser", { itemUser: "itemuser" })
+      .execute();
+  }
+
+  beforeAll(async () => {
+    server = await start(userTestPort);
+    await deleteValues();
+  });
+
+  afterAll(async done => {
+    await deleteValues();
+    server.close(done);
+  });
+
   describe("getUserByUsername", () => {
-    it("should handle no username supplied", async done => {
+    let findUNUser: User;
+    beforeAll(async () => {
+      await getConnection().transaction(async transactionEntityManager => {
+        const { u, e } = generateGenericUser("findUsername");
+        findUNUser = await transactionEntityManager.save(u);
+        e.user = findUNUser;
+        await transactionEntityManager.save(e);
+      });
+    });
+
+    afterAll(async () => {
+      await getConnection()
+        .getRepository(User)
+        .delete(findUNUser);
+    });
+
+    it("should handle no username supplied", async () => {
+      expect.assertions(1);
       const user = await UserManager.getUserByUsername();
       expect(user).toBeUndefined();
-      done();
+    });
+
+    it("should handle blank username supplied", async () => {
+      expect.assertions(1);
+      const user = await UserManager.getUserByUsername("");
+      expect(user).toBeUndefined();
+    });
+
+    it("should handle invalid username supplied", async () => {
+      expect.assertions(1);
+      const user = await UserManager.getUserByUsername("unknown");
+      expect(user).toBeUndefined();
     });
   });
 
   describe("createUser", () => {
-    it("should handle username or email is taken", async done => {
-      try {
-        await UserManager.createUser({
-          username: " dUpEuSeR",
-          email: "DupeUser@udia.ca ",
+    let dupeUser: User;
+    let dupeUserEmail: UserEmail;
+    beforeAll(async () => {
+      await getConnection().transaction(async transactionEntityManager => {
+        const { u, e } = generateGenericUser("dupeUser");
+        dupeUser = await transactionEntityManager.save(u);
+        e.user = dupeUser;
+        dupeUserEmail = await transactionEntityManager.save(e);
+      });
+    });
+
+    afterAll(async () => {
+      await getConnection()
+        .getRepository(User)
+        .delete(dupeUser);
+    });
+
+    it("should handle username or email is taken", async () => {
+      expect.assertions(1);
+      return expect(
+        UserManager.createUser({
+          username: ` ${dupeUser.username}`,
+          email: `${dupeUserEmail.email} `,
           pw: "tempbadpass",
           pwFunc: "pbkdf2",
           pwDigest: "sha512",
@@ -110,22 +119,19 @@ describe("UserManager", () => {
           encSecretKey: "dummykey",
           pubEncKey: JSON.stringify({ dummy: "key" }),
           encPrivEncKey: "dummykey"
-        });
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          "The request is invalid.\n" +
-            "* username: Username is taken.\n" +
-            "* email: Email is taken."
-        );
-        return done();
-      }
-      done("Should have thrown username and email taken error.");
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n" +
+          "* username: Username is taken.\n" +
+          "* email: Email is taken."
+      );
     });
 
-    it("should handle username too long", async done => {
-      try {
-        await UserManager.createUser({
+    it("should handle username too long", async () => {
+      expect.assertions(1);
+      return expect(
+        UserManager.createUser({
           username: "somelongusernamehere12345",
           email: "somelongusernamehere12345@udia.ca",
           pw: "tempbadpass",
@@ -139,21 +145,18 @@ describe("UserManager", () => {
           encSecretKey: "dummykey",
           pubEncKey: JSON.stringify({ dummy: "key" }),
           encPrivEncKey: "dummykey"
-        });
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          "The request is invalid.\n" +
-            "* username: Username is too long (over 24 characters)."
-        );
-        return done();
-      }
-      done("Should have thrown username too long error.");
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n" +
+          "* username: Username is too long (over 24 characters)."
+      );
     });
 
-    it("should handle username too short", async done => {
-      try {
-        await UserManager.createUser({
+    it("should handle username too short", async () => {
+      expect.assertions(1);
+      return expect(
+        UserManager.createUser({
           username: "na",
           email: "na@udia.ca",
           pw: "tempbadpass",
@@ -167,19 +170,40 @@ describe("UserManager", () => {
           encSecretKey: "dummykey",
           pubEncKey: JSON.stringify({ dummy: "key" }),
           encPrivEncKey: "dummykey"
-        });
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          "The request is invalid.\n" +
-            "* username: Username is too short (under 3 characters)."
-        );
-        return done();
-      }
-      done("Should have thrown username too short error.");
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n" +
+          "* username: Username is too short (under 3 characters)."
+      );
     });
 
-    it("should handle unicode usernames", async done => {
+    it("should handle weak proof of secret", async () => {
+      expect.assertions(1);
+      return expect(
+        UserManager.createUser({
+          username: "nanana",
+          email: "nanana@udia.ca",
+          pw: "wkpw",
+          pwFunc: "pbkdf2",
+          pwDigest: "sha512",
+          pwCost: 3000,
+          pwKeySize: 768,
+          pwSalt: "salt",
+          pubSignKey: JSON.stringify({ dummy: "key" }),
+          encPrivSignKey: "dummykey",
+          encSecretKey: "dummykey",
+          pubEncKey: JSON.stringify({ dummy: "key" }),
+          encPrivEncKey: "dummykey"
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* pw: Invalid password."
+      );
+    });
+
+    it("should handle unicode usernames", async () => {
+      expect.assertions(4);
       const shrugUser = await UserManager.createUser({
         username: "¯\\_(ツ)_/¯",
         email: "shrug@udia.ca",
@@ -200,12 +224,29 @@ describe("UserManager", () => {
       const user = shrugUser.user;
       expect(user).toHaveProperty("lUsername", "¯\\_(ツ)_/¯");
       expect(user).toHaveProperty("username", "¯\\_(ツ)_/¯");
-      done();
     });
   });
 
   describe("updatePassword", () => {
-    it("should handle password update invalid jwt", async done => {
+    let updatePassUser: User;
+    let updatePassEmail: UserEmail;
+    beforeAll(async () => {
+      await getConnection().transaction(async transactionEntityManager => {
+        const { u, e } = generateGenericUser("updatePassUser");
+        updatePassUser = await transactionEntityManager.save(u);
+        e.user = updatePassUser;
+        updatePassEmail = await transactionEntityManager.save(e);
+      });
+    });
+
+    afterAll(async () => {
+      await getConnection()
+        .getRepository(User)
+        .delete(updatePassUser);
+    });
+
+    it("should handle password update invalid jwt", async () => {
+      expect.assertions(1);
       const {
         pw,
         mk: newPw,
@@ -218,8 +259,8 @@ describe("UserManager", () => {
         encSecretKey,
         encPrivEncKey
       } = generateUserCryptoParams("badActor@udia.ca", "Dupe S3C$^T P~!۩s");
-      try {
-        await UserManager.updatePassword(undefined, {
+      return expect(
+        UserManager.updatePassword("unknown", {
           newPw,
           pw,
           pwFunc,
@@ -230,18 +271,15 @@ describe("UserManager", () => {
           encPrivSignKey,
           encSecretKey,
           encPrivEncKey
-        });
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          "The request is invalid.\n* id: Invalid JWT."
-        );
-        return done();
-      }
-      done("Should have thrown invalid JWT error.");
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* id: Invalid JWT."
+      );
     });
 
-    it("should handle password update invalid password", async done => {
+    it("should handle password update invalid password", async () => {
+      expect.assertions(1);
       const {
         pw,
         mk: newPw,
@@ -253,9 +291,9 @@ describe("UserManager", () => {
         encPrivSignKey,
         encSecretKey,
         encPrivEncKey
-      } = generateUserCryptoParams("dupeuser@udia.ca", "Dupe S3C$^T P~!۩s");
-      try {
-        await UserManager.updatePassword("dupeuser", {
+      } = generateUserCryptoParams(updatePassEmail.email, "Dupe S3C$^T P~!۩s");
+      return expect(
+        UserManager.updatePassword(updatePassUser.lUsername, {
           newPw,
           pw: `b${pw}d`,
           pwFunc,
@@ -266,357 +304,462 @@ describe("UserManager", () => {
           encPrivSignKey,
           encSecretKey,
           encPrivEncKey
-          });
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          "The request is invalid.\n* pw: Invalid password."
-        );
-        return done();
-      }
-      done("Should have thrown invalid password error.");
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* pw: Invalid password."
+      );
     });
   });
 
   describe("signInUser", () => {
-    it("should handle sign in email not found", async done => {
+    let siUser: User;
+    let siEmail: UserEmail;
+    beforeAll(async () => {
+      await getConnection().transaction(async transactionEntityManager => {
+        const { u, e } = generateGenericUser("signInUser");
+        siUser = await transactionEntityManager.save(u);
+        e.user = siUser;
+        siEmail = await transactionEntityManager.save(e);
+      });
+    });
+
+    afterAll(async () => {
+      await getConnection()
+        .getRepository(User)
+        .delete(siUser);
+    });
+
+    it("should handle sign in email not found", async () => {
+      expect.assertions(1);
       const { pw } = generateUserCryptoParams(
         "badActor@udia.ca",
         "Dupe S3C$^T P~!۩s"
       );
-      try {
-        await UserManager.signInUser({ email: "badActor@udia.ca", pw });
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          "The request is invalid.\n* email: Email not found."
-        );
-        return done();
-      }
-      done("Should have thrown email not found error.");
+      return expect(
+        UserManager.signInUser({ email: "badActor@udia.ca", pw })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* email: Email not found."
+      );
     });
 
-    it("should handle sign in invalid password", async done => {
+    it("should handle sign in invalid password", async () => {
+      expect.assertions(1);
       const { pw } = generateUserCryptoParams(
-        "dupeuser@udia.ca",
+        siEmail.email,
         "Dupe S3C$^T P~!۩s"
       );
-      try {
-        await UserManager.signInUser({
-          email: "dupeuser@udia.ca",
+      return expect(
+        UserManager.signInUser({
+          email: siEmail.email,
           pw: `b${pw}d`
-        });
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          "The request is invalid.\n* pw: Invalid password."
-        );
-        return done();
-      }
-      done("Should have thrown invalid password error.");
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* pw: Invalid password."
+      );
     });
   });
 
   describe("addEmail", () => {
-    it("should handle add email invalid jwt", async done => {
-      try {
-        await UserManager.addEmail(undefined, { email: "badActor@udia.ca" });
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          "The request is invalid.\n* id: Invalid JWT."
-        );
-        return done();
-      }
-      done("Should have thrown invalid jwt error.");
+    let aeUser: User;
+    let aeEmail: UserEmail;
+
+    beforeAll(async () => {
+      await getConnection().transaction(async transactionEntityManager => {
+        const { u, e } = generateGenericUser("addEmailUser");
+        aeUser = await transactionEntityManager.save(u);
+        e.user = aeUser;
+        aeEmail = await transactionEntityManager.save(e);
+      });
     });
 
-    it("should handle add email email exists", async done => {
-      try {
-        await UserManager.addEmail("dupeuser", { email: "dupeuser@udia.ca" });
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          "The request is invalid.\n* email: Email is taken."
-        );
-        return done();
-      }
-      done("Should have thrown email exists error.");
+    afterAll(async () => {
+      await getConnection()
+        .getRepository(User)
+        .delete(aeUser);
+    });
+
+    it("should handle add email invalid jwt", async () => {
+      expect.assertions(1);
+      return expect(
+        UserManager.addEmail(undefined, { email: "badActor@udia.ca" })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* id: Invalid JWT."
+      );
+    });
+
+    it("should handle add email email exists", async () => {
+      expect.assertions(1);
+      return expect(
+        UserManager.addEmail(aeUser.username, { email: aeEmail.email })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* email: Email is taken."
+      );
     });
   });
 
   describe("removeEmail", () => {
-    it("should handle remove email invalid jwt", async done => {
-      try {
-        await UserManager.removeEmail(undefined, { email: "badActor@udia.ca" });
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          "The request is invalid.\n* id: Invalid JWT."
-        );
-        return done();
-      }
-      done("Should have thrown invalid jwt error.");
+    let reUser: User;
+    let reEmail: UserEmail;
+
+    beforeAll(async () => {
+      await getConnection().transaction(async transactionEntityManager => {
+        const { u, e } = generateGenericUser("removeEmailUser");
+        reUser = await transactionEntityManager.save(u);
+        e.user = reUser;
+        reEmail = await transactionEntityManager.save(e);
+      });
     });
 
-    it("should handle remove invalid email", async done => {
-      try {
-        await UserManager.removeEmail("dupeuser", { email: "" });
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          "The request is invalid.\n* email: Invalid Email."
-        );
-        return done();
-      }
-      done("Should have thrown invalid email error.");
+    afterAll(async () => {
+      await getConnection()
+        .getRepository(User)
+        .delete(reUser);
     });
 
-    it("should handle orphan user attempt", async done => {
-      try {
-        await UserManager.removeEmail("dupeuser", {
-          email: "dupeUser@udia.ca"
-        });
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          "The request is invalid.\n* email: Cannot orphan user."
-        );
-        return done();
-      }
-      done("Should have thrown orphan user error.");
+    it("should handle remove email invalid jwt", async () => {
+      expect.assertions(1);
+      return expect(
+        UserManager.removeEmail(undefined, { email: "badActor@udia.ca" })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* id: Invalid JWT."
+      );
     });
 
-    it("should handle switch primary email", async done => {
+    it("should handle remove invalid email", async () => {
+      expect.assertions(1);
+      return expect(
+        UserManager.removeEmail(reUser.username, { email: "" })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* email: Invalid Email."
+      );
+    });
+
+    it("should handle orphan user attempt", async () => {
+      expect.assertions(1);
+      return expect(
+        UserManager.removeEmail(reUser.username, { email: reEmail.email })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* email: Cannot orphan user."
+      );
+    });
+
+    it("should handle switch primary email", async () => {
+      expect.assertions(10);
+      const reSwitchEmail: UserEmail = new UserEmail();
+      reSwitchEmail.email = "switchRemoveEmail@udia.ca";
+      reSwitchEmail.lEmail = "switchremoveemail@udia.ca";
+      reSwitchEmail.verified = true;
+      reSwitchEmail.user = reUser;
       await getConnection()
         .getRepository(UserEmail)
-        .update("dupeuser2@udia.ca", { verified: true });
-      let user = await UserManager.removeEmail("dupeuser", {
-        email: "dupeUser@udia.ca"
+        .save(reSwitchEmail);
+
+      let user = await UserManager.removeEmail(reUser.username, {
+        email: reEmail.email
       });
       expect(user).toBeDefined();
       user = user!;
       expect(user).toHaveProperty("emails");
       expect(user.emails).toHaveLength(1);
       const userEmail = user.emails[0];
-      expect(userEmail).toHaveProperty("email", "dupeUser2@udia.ca");
-      expect(userEmail).toHaveProperty("lEmail", "dupeuser2@udia.ca");
+      expect(userEmail).toHaveProperty("email", reSwitchEmail.email);
+      expect(userEmail).toHaveProperty("lEmail", reSwitchEmail.lEmail);
       expect(userEmail).toHaveProperty("primary", true);
       expect(userEmail).toHaveProperty("verified", true);
       expect(userEmail).toHaveProperty("verificationHash", null);
-      expect(userEmail).toHaveProperty("createdAt");
+      expect(userEmail).toHaveProperty("createdAt", reSwitchEmail.createdAt);
       expect(userEmail).toHaveProperty("updatedAt");
-      done();
     });
   });
 
   describe("setPrimaryEmail", () => {
-    it("should handle set primary email invalid JWT", async done => {
-      try {
-        await UserManager.setPrimaryEmail(undefined, {
+    let spUser: User;
+
+    beforeAll(async () => {
+      await getConnection().transaction(async transactionEntityManager => {
+        const { u, e } = generateGenericUser("setPEmailUser");
+        spUser = await transactionEntityManager.save(u);
+        e.user = spUser;
+        await transactionEntityManager.save(e);
+      });
+    });
+
+    afterAll(async () => {
+      await getConnection()
+        .getRepository(User)
+        .delete(spUser);
+    });
+
+    it("should handle set primary email invalid JWT", async () => {
+      expect.assertions(1);
+      return expect(
+        UserManager.setPrimaryEmail(undefined, {
           email: "badActor@udia.ca"
-        });
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          "The request is invalid.\n* id: Invalid JWT."
-        );
-        return done();
-      }
-      done("Should have thrown invalid jwt error.");
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* id: Invalid JWT."
+      );
     });
 
-    it("should handle set primary invalid email", async done => {
-      try {
-        await UserManager.setPrimaryEmail("dupeuser", { email: "" });
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          "The request is invalid.\n* email: Invalid Email."
-        );
-        return done();
-      }
-      done("Should have thrown invalid email error.");
+    it("should handle set primary invalid email", async () => {
+      expect.assertions(1);
+      return expect(
+        UserManager.setPrimaryEmail(spUser.username, { email: "" })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* email: Invalid Email."
+      );
     });
 
-    it("should handle set primary email non verified", async done => {
+    it("should handle set primary email non verified", async () => {
+      expect.assertions(1);
+      const switchPEmail: UserEmail = new UserEmail();
+      switchPEmail.email = "switchPrimaryEmail@udia.ca";
+      switchPEmail.lEmail = "switchprimaryemail@udia.ca";
+      switchPEmail.user = spUser;
       await getConnection()
         .getRepository(UserEmail)
-        .update("dupeuser2@udia.ca", { verified: false });
-      try {
-        await UserManager.setPrimaryEmail("dupeuser", {
-          email: "dupeUser2@udia.ca"
-        });
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          "The request is invalid.\n* email: Email must be verified."
-        );
-        return done();
-      }
-      done("Should have thrown email must be verified error.");
+        .save(switchPEmail);
+      return expect(
+        UserManager.setPrimaryEmail(spUser.username, {
+          email: switchPEmail.email
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* email: Email must be verified."
+      );
     });
   });
 
   describe("deleteUser", () => {
-    it("should handle delete user invalid jwt", async done => {
-      const { pw } = generateUserCryptoParams(
-        "badActor@udia.ca",
-        "Dupe S3C$^T P~!۩s"
-      );
-      try {
-        await UserManager.deleteUser(undefined, { pw });
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          "The request is invalid.\n* id: Invalid JWT."
-        );
-        return done();
-      }
-      done("Should have thrown invalid jwt error.");
+    let delUser: User;
+    let duEmail: UserEmail;
+
+    beforeAll(async () => {
+      await getConnection().transaction(async transactionEntityManager => {
+        const { u, e } = generateGenericUser("delMeUser");
+        delUser = await transactionEntityManager.save(u);
+        e.user = delUser;
+        duEmail = await transactionEntityManager.save(e);
+      });
     });
 
-    it("should handle delete user invalid password", async done => {
+    afterAll(async () => {
+      await getConnection()
+        .getRepository(User)
+        .delete(delUser);
+    });
+
+    it("should handle delete user invalid jwt", async () => {
+      expect.assertions(1);
       const { pw } = generateUserCryptoParams(
         "badActor@udia.ca",
         "Dupe S3C$^T P~!۩s"
       );
-      try {
-        await UserManager.deleteUser("dupeuser", { pw });
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          "The request is invalid.\n* pw: Invalid password."
-        );
-        return done();
-      }
-      done("Should have thrown invalid password error.");
+      return expect(
+        UserManager.deleteUser(undefined, { pw })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* id: Invalid JWT."
+      );
+    });
+
+    it("should handle delete user invalid password", async () => {
+      const { pw } = generateUserCryptoParams(
+        duEmail.email,
+        "Dupe S3C$^T P~!۩s"
+      );
+      return expect(
+        UserManager.deleteUser(delUser.username, { pw })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* pw: Invalid password."
+      );
     });
   });
 
   describe("sendEmailVerification", () => {
-    it("should handle invalid email", async done => {
-      try {
-        await UserManager.sendEmailVerification({
-          email: ""
-        });
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          "The request is invalid.\n* email: Email not found."
-        );
-        return done();
-      }
-      done("Should have thrown email not found error.");
+    let sveUser: User;
+    let sveEmail: UserEmail;
+
+    beforeAll(async () => {
+      await getConnection().transaction(async transactionEntityManager => {
+        const { u, e } = generateGenericUser("sendVEmailUser");
+        sveUser = await transactionEntityManager.save(u);
+        e.user = sveUser;
+        e.verified = false;
+        sveEmail = await transactionEntityManager.save(e);
+      });
+    });
+
+    afterAll(async () => {
+      await getConnection()
+        .getRepository(User)
+        .delete(sveUser);
+    });
+
+    it("should handle invalid email", async () => {
+      expect.assertions(1);
+      return expect(
+        UserManager.sendEmailVerification({ email: "" })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* email: Email not found."
+      );
     });
 
     it("should send an email verification email", async () => {
       expect.assertions(1);
-      await expect(
-        UserManager.sendEmailVerification({
-          email: "dupeUser2@udia.ca"
-        })
-      ).resolves.toBe(true);
+      const result = await UserManager.sendEmailVerification({
+        email: sveEmail.email
+      });
+      expect(result).toBe(true);
     });
   });
 
   describe("verifyEmailToken", () => {
-    it("should handle invalid token", async done => {
-      try {
-        await UserManager.verifyEmailToken({
-          emailToken: ""
-        });
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          "The request is invalid.\n* emailToken: Invalid token."
-        );
-        return done();
-      }
-      done("Should have thrown invalid token error.");
+    let veUser: User;
+    let veEmail: UserEmail;
+    let uveEmail: UserEmail;
+
+    beforeAll(async () => {
+      await getConnection().transaction(async transactionEntityManager => {
+        const { u, e } = generateGenericUser("verifyEmailUser");
+        veUser = await transactionEntityManager.save(u);
+        e.user = veUser;
+        veEmail = await transactionEntityManager.save(e);
+        uveEmail = new UserEmail();
+        uveEmail.email = "unverifiedEmail@udia.ca";
+        uveEmail.lEmail = "unverifiedemail@udia.ca";
+        uveEmail.verificationExpiry = new Date();
+        uveEmail.verificationHash = "$argon2i$v=1$m=1,t=1,p=1$101";
+        await transactionEntityManager.save(uveEmail);
+      });
     });
 
-    it("should handle email not found", async done => {
-      try {
-        await UserManager.verifyEmailToken({
-          emailToken: "a:b@c.ca:tok3n"
-        });
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          "The request is invalid.\n* emailToken: Email not found."
-        );
-        return done();
-      }
-      done("Should have thrown email not found error.");
-    });
-
-    it("should handle email already validated", async done => {
+    afterAll(async () => {
       await getConnection()
-        .getRepository(UserEmail)
-        .update("dupeuser2@udia.ca", { verified: true });
-      try {
-        await UserManager.verifyEmailToken({
-          emailToken: "dupeuser2@udia.ca:test"
-        });
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          "The request is invalid.\n* emailToken: Email already verified."
-        );
-        return done();
-      }
-      done("Should have thrown email already verified error.");
+        .getRepository(User)
+        .delete(veUser);
     });
 
-    it("should handle invalid & expired secret", async done => {
-      try {
-        await UserManager.verifyEmailToken({
-          emailToken: "verifyemailuser@udia.ca:tok3n"
-        });
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          `The request is invalid.\n` +
-            `* emailToken: Token is expired.\n` +
-            `* emailToken: Invalid secret.`
-        );
-        return done();
-      }
-      done("Should have thrown invalid & expired secret error.");
+    it("should handle invalid token", async () => {
+      expect.assertions(1);
+      return expect(
+        UserManager.verifyEmailToken({ emailToken: "" })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* emailToken: Invalid token."
+      );
+    });
+
+    it("should handle email not found", async () => {
+      expect.assertions(1);
+      return expect(
+        UserManager.verifyEmailToken({ emailToken: "a:b@c.ca:tok3n" })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* emailToken: Email not found."
+      );
+    });
+
+    it("should handle email already validated", async () => {
+      expect.assertions(1);
+      return expect(
+        UserManager.verifyEmailToken({
+          emailToken: `${veEmail.email}:anyval`
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* emailToken: Email already verified."
+      );
+    });
+
+    it("should handle invalid & expired secret", async () => {
+      expect.assertions(1);
+      return expect(
+        UserManager.verifyEmailToken({
+          emailToken: `${uveEmail.lEmail}:tok3n`
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        `The request is invalid.\n` +
+          `* emailToken: Token is expired.\n` +
+          `* emailToken: Invalid secret.`
+      );
     });
   });
 
   describe("sendForgotPasswordEmail", () => {
-    it("should handle invalid email", async done => {
-      try {
-        await UserManager.sendForgotPasswordEmail({
-          email: ""
-        });
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          "The request is invalid.\n* email: Email not found."
-        );
-        return done();
-      }
-      done("Should have thrown email not found error.");
+    let fpUser: User;
+    let fpEmail: UserEmail;
+
+    beforeAll(async () => {
+      await getConnection().transaction(async transactionEntityManager => {
+        const { u, e } = generateGenericUser("forgotPassUser");
+        fpUser = await transactionEntityManager.save(u);
+        e.user = fpUser;
+        e.verified = false;
+        fpEmail = await transactionEntityManager.save(e);
+      });
     });
 
-    it("should send an password reset email", async () => {
+    afterAll(async () => {
+      await getConnection()
+        .getRepository(User)
+        .delete(fpUser);
+    });
+
+    it("should handle invalid email", async () => {
       expect.assertions(1);
-      await expect(
-        UserManager.sendForgotPasswordEmail({
-          email: "dupeUser2@udia.ca"
-        })
-      ).resolves.toBe(true);
+      return expect(
+        UserManager.sendForgotPasswordEmail({ email: "" })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* email: Email not found."
+      );
+    });
+
+    it("should send a password reset email", async () => {
+      expect.assertions(1);
+      const result = await UserManager.sendForgotPasswordEmail({
+        email: fpEmail.email
+      });
+      expect(result).toBe(true);
     });
   });
 
   describe("resetPassword", () => {
-    it("should handle invalid token", async done => {
-      try {
-        await UserManager.resetPassword({
+    let rpUser: User;
+
+    beforeAll(async () => {
+      await getConnection().transaction(async transactionEntityManager => {
+        const { u, e } = generateGenericUser("resetPassUser");
+        rpUser = await transactionEntityManager.save(u);
+        e.user = rpUser;
+        await transactionEntityManager.save(e);
+      });
+    });
+
+    afterAll(async () => {
+      await getConnection()
+        .getRepository(User)
+        .delete(rpUser);
+    });
+
+    it("should handle invalid token", async () => {
+      expect.assertions(1);
+      return expect(
+        UserManager.resetPassword({
           resetToken: "",
           newPw: "",
           pwFunc: "",
@@ -629,20 +772,17 @@ describe("UserManager", () => {
           encSecretKey: "",
           pubEncKey: "",
           encPrivEncKey: ""
-        });
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          "The request is invalid.\n* resetToken: Invalid token."
-        );
-        return done();
-      }
-      done("Should have thrown invalid token error.");
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* resetToken: Invalid token."
+      );
     });
 
-    it("should handle user not found", async done => {
-      try {
-        await UserManager.resetPassword({
+    it("should handle user not found", async () => {
+      expect.assertions(1);
+      return expect(
+        UserManager.resetPassword({
           resetToken: "badActor:tok3n",
           newPw: "",
           pwFunc: "",
@@ -655,21 +795,18 @@ describe("UserManager", () => {
           encSecretKey: "",
           pubEncKey: "",
           encPrivEncKey: ""
-        });
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          "The request is invalid.\n* resetToken: User not found."
-        );
-        return done();
-      }
-      done("Should have thrown user not found error.");
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* resetToken: User not found."
+      );
     });
 
-    it("should handle invalid & expired secret", async done => {
-      try {
-        await UserManager.resetPassword({
-          resetToken: "verifyemailuser:tok3n",
+    it("should handle invalid & expired secret", async () => {
+      expect.assertions(1);
+      return expect(
+        UserManager.resetPassword({
+          resetToken: `${rpUser.lUsername}:tok3n`,
           newPw: "",
           pwFunc: "",
           pwDigest: "",
@@ -681,17 +818,13 @@ describe("UserManager", () => {
           encSecretKey: "",
           pubEncKey: "",
           encPrivEncKey: ""
-        });
-      } catch (err) {
-        expect(err).toHaveProperty(
-          "message",
-          `The request is invalid.\n` +
-            `* resetToken: Token is expired.\n` +
-            `* resetToken: Invalid secret.`
-        );
-        return done();
-      }
-      done("Should have thrown invalid & expired secret error.");
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        `The request is invalid.\n` +
+          `* resetToken: Token is expired.\n` +
+          `* resetToken: Invalid secret.`
+      );
     });
   });
 
@@ -764,26 +897,13 @@ describe("UserManager", () => {
   describe("getUserFromItem", () => {
     let itemUser: User;
     let item: Item;
+
     beforeAll(async () => {
       await getConnection().transaction(async transactionEntityManager => {
-        itemUser = new User();
-        const itemEmail = new UserEmail();
-        itemEmail.email = "itemUserTest@udia.ca";
-        itemEmail.lEmail = "itemusertest@udia.ca";
-        itemEmail.primary = true;
-        itemEmail.verified = false;
-        itemEmail.verificationExpiry = new Date();
-        itemEmail.verificationHash = "$argon2i$v=1$m=1,t=1,p=1$101";
-        itemUser.username = "itemUserTest";
-        itemUser.lUsername = "itemusertest";
-        itemUser.pwHash = "$argon2i$v=1$m=1,t=1,p=1$101";
-        itemUser.pwFunc = "pbkdf2";
-        itemUser.pwDigest = "sha512";
-        itemUser.pwCost = 3000;
-        itemUser.pwSalt = "101";
-        itemUser = await transactionEntityManager.save(itemUser);
-        itemEmail.user = itemUser;
-        await transactionEntityManager.save(itemEmail);
+        const { u, e } = generateGenericUser("itemUser");
+        itemUser = await transactionEntityManager.save(u);
+        e.user = itemUser;
+        await transactionEntityManager.save(e);
       });
     });
 
@@ -795,7 +915,7 @@ describe("UserManager", () => {
 
     it("should get a user from an item", async () => {
       expect.assertions(1);
-      item = await ItemManager.createItem("itemusertest", {
+      item = await ItemManager.createItem(itemUser.lUsername, {
         content: "Item User Test",
         contentType: "plaintext",
         encItemKey: "unencrypted"

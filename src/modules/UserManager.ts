@@ -700,7 +700,7 @@ export default class UserManager {
     // This is really a sanity check, as proof of secret generation should
     // give us strong passwords of 256 bytes entropy base64 encoded
     if (pw.length < 8) {
-      errors.push({ key: "pw", message: "Password is invalid." });
+      errors.push({ key: "pw", message: "Invalid password." });
     }
   }
 
