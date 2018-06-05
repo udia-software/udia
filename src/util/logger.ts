@@ -5,9 +5,10 @@ import { Logger as ITypeORMLogger } from "typeorm";
 import { Logger, LoggerInstance, transports } from "winston";
 import { NODE_ENV } from "../constants";
 
-// this is always debug in test
-/* istanbul ignore next */
-const logLevel = NODE_ENV === "production" ? "info" : "debug";
+const logLevel =
+  NODE_ENV === "production"
+    ? /* istanbul ignore next: will always be debug in test */ "info"
+    : "debug";
 const logFileSize = 10 * 1024 * 1024; // 10MiB
 const logMaxFiles = 8;
 
@@ -34,9 +35,7 @@ const logger: LoggerInstance = new Logger({
   exitOnError: false
 });
 
-// we don't want to see console output in test
-/* istanbul ignore next */
-
+/* istanbul ignore next: we don't want to see console output in test */
 if (NODE_ENV === "test") {
   logger.remove("console");
 }
@@ -63,8 +62,7 @@ const middlewareLogger = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
-// don't cover TypeORM logger methods
-/* istanbul ignore next */
+/* istanbul ignore next: don't cover TypeORM logger methods */
 class TypeORMLogger implements ITypeORMLogger {
   /**
    * Winston logger instance. Transports change based on node environment.

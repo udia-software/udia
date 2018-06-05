@@ -9,7 +9,7 @@ import ItemManager from "../../src/modules/ItemManager";
 import { generateGenericUser } from "../testHelper";
 
 describe("ItemManager", () => {
-  const itemTestPort = `${parseInt(PORT, 10) + 5}`;
+  const itemTestPort = `${parseInt(PORT, 10) + 6}`;
   let server: Server;
 
   async function deleteValues() {

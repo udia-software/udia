@@ -60,8 +60,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(Auth.jwtMiddleware());
 app.use("/graphql", graphqlExpress(graphqlBuildOptions));
 
-// coverage don't care about vetting developer graphiql route
-/* istanbul ignore next */
+/* istanbul ignore next: don't vet developer graphiql route */
 if (NODE_ENV !== "production") {
   app.use(
     "/graphiql",

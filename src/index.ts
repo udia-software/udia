@@ -113,8 +113,7 @@ const start: (port: string) => Promise<Server> = async (port: string) => {
         return done();
       })
       .catch(
-        // coverage don't care about nongraceful shutdowns in test
-        /* istanbul ignore next */
+        /* istanbul ignore next: don't care about nongraceful test shutdown */
         err => {
           logger.error("!)\tTERMERR\n", err);
           process.exit(1);
@@ -131,8 +130,7 @@ const start: (port: string) => Promise<Server> = async (port: string) => {
   return server;
 };
 
-// test coverage will never run `node index`
-/* istanbul ignore next */
+/* istanbul ignore next: test coverage never runs `node index` */
 if (require.main === module) {
   start(PORT);
 }

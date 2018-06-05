@@ -23,7 +23,7 @@ import {
  */
 describe("Users", () => {
   // Ports are staggered to prevent multiple tests from clobbering
-  const userTestPort = `${parseInt(PORT, 10) + 1}`;
+  const userTestPort = `${parseInt(PORT, 10) + 3}`;
   let server: Server;
 
   // Sanity function to ensure test state is clean.
@@ -450,7 +450,7 @@ describe("Users", () => {
       });
 
       afterAll(async () => {
-        sendEmailVerificationSpy.mockClear();
+        sendEmailVerificationSpy.mockRestore();
         await getConnection()
           .getRepository(User)
           .delete(createTestUserID);
@@ -464,7 +464,6 @@ describe("Users", () => {
         const userInputtedPassword = "My Super S3C$^T P~!۩s"; // wow!
         const params = generateUserCryptoParams(email, userInputtedPassword);
         const {
-          pw,
           pwSalt,
           pwCost,
           pwFunc,
@@ -1099,6 +1098,43 @@ describe("Users", () => {
         const verifyEmailTokenData = verifyEmailTokenReponse.data;
         expect(verifyEmailTokenData).toHaveProperty("verifyEmailToken", true);
       });
+
+      it("should handle email send rate limit", async () => {
+        expect.assertions(5);
+        const rateLimitEmail: UserEmail = new UserEmail();
+        rateLimitEmail.email = "verifyEmailRate@udia.ca";
+        rateLimitEmail.lEmail = "verifyemailrate@udia.ca";
+        rateLimitEmail.user = sendEmailVerUser;
+        await getConnection()
+          .getRepository(UserEmail)
+          .save(rateLimitEmail);
+        const sendEmailVerificationResp = await gqlClient.mutate({
+          mutation: sendEmailVerificationMutation,
+          variables: { email: rateLimitEmail.email }
+        });
+        expect(sendEmailVerificationResp).toHaveProperty("data");
+        const sendEmailVerificationData = sendEmailVerificationResp.data;
+        expect(sendEmailVerificationData).toHaveProperty(
+          "sendEmailVerification",
+          true
+        );
+        expect(sendEmailVerificationSpy).toHaveBeenCalledTimes(1);
+        sendEmailVerificationSpy.mockClear();
+        try {
+          await gqlClient.mutate({
+            mutation: sendEmailVerificationMutation,
+            variables: { email: rateLimitEmail.email }
+          });
+        } catch (err) {
+          expect(err).toHaveProperty(
+            "message",
+            `GraphQL error: The request is invalid.\n` +
+              `* email: Email sent within last 15 minutes. Wait 14 minutes, 59 seconds.`
+          );
+        } finally {
+          expect(sendEmailVerificationSpy).toHaveBeenCalledTimes(0);
+        }
+      });
     });
 
     describe("passwordResetVerification", () => {
@@ -1189,7 +1225,7 @@ describe("Users", () => {
       });
 
       afterAll(async () => {
-        sendForgotPasswordSpy.mockClear();
+        sendForgotPasswordSpy.mockRestore();
         await getConnection()
           .getRepository(User)
           .delete(resetPassUser);
@@ -1277,6 +1313,43 @@ describe("Users", () => {
         expect(user.updatedAt).toBeGreaterThan(
           resetPassUser.updatedAt.getTime()
         );
+      });
+
+      it("should handle email send rate limit", async () => {
+        expect.assertions(5);
+        const rateLimitEmail: UserEmail = new UserEmail();
+        rateLimitEmail.email = "resetEmailRate@udia.ca";
+        rateLimitEmail.lEmail = "resetemailrate@udia.ca";
+        rateLimitEmail.user = resetPassUser;
+        await getConnection()
+          .getRepository(UserEmail)
+          .save(rateLimitEmail);
+        const sendEmailVerificationResp = await gqlClient.mutate({
+          mutation: sendForgotPasswordEmailMutation,
+          variables: { email: rateLimitEmail.email }
+        });
+        expect(sendEmailVerificationResp).toHaveProperty("data");
+        const sendEmailVerificationData = sendEmailVerificationResp.data;
+        expect(sendEmailVerificationData).toHaveProperty(
+          "sendForgotPasswordEmail",
+          true
+        );
+        expect(sendForgotPasswordSpy).toHaveBeenCalledTimes(1);
+        sendForgotPasswordSpy.mockClear();
+        try {
+          await gqlClient.mutate({
+            mutation: sendForgotPasswordEmailMutation,
+            variables: { email: rateLimitEmail.email }
+          });
+        } catch (err) {
+          expect(err).toHaveProperty(
+            "message",
+            `GraphQL error: The request is invalid.\n` +
+              `* email: Email sent within last 15 minutes. Wait 14 minutes, 59 seconds.`
+          );
+        } finally {
+          expect(sendForgotPasswordSpy).toHaveBeenCalledTimes(0);
+        }
       });
     });
 

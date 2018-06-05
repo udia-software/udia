@@ -729,25 +729,25 @@ export default class UserManager {
   }
 
   /**
-   * Ensure that users do not spam the email sending functionality
+   * Hard email rate limit. Force 15 minute wait.
    * @param {Date} expTime - DateTime last email was sent
    * @param errors - Array of errors
    */
   private static handleEmailSendLimit(expTime: Date, errors: IErrorMessage[]) {
     const emailTimeoutMS = parseInt(EMAIL_TOKEN_TIMEOUT, 10);
     const sentTimeMS = expTime.getTime() - emailTimeoutMS;
-    const sentPlus15Min = sentTimeMS + 900000;
+    const sentPlus15Min = sentTimeMS + 900000; // 15 * 60 * 1000
     if (Date.now() < sentPlus15Min) {
-      const waitTimeTotalSec = sentPlus15Min - Date.now() / 1000;
-      const waitTimeMin = Math.floor(waitTimeTotalSec / 60);
-      const waitTimeSec = Math.floor(waitTimeTotalSec % 60);
-      let waitTime = `${waitTimeSec} seconds.`;
-      if (waitTimeMin > 0) {
-        waitTime = `${waitTimeMin} minutes, ${waitTime}`;
+      const waitTimeTotalSec = (sentPlus15Min - Date.now()) / 1000;
+      const wtMin = Math.floor(waitTimeTotalSec / 60);
+      const wtSec = Math.floor(waitTimeTotalSec % 60);
+      let waitTimeStr = `${wtSec} second${wtSec > 1 ? 's' : ''}`;
+      if (wtMin > 0) {
+        waitTimeStr = `${wtMin} minute${wtMin > 1 ? 's' : ''}, ${waitTimeStr}`;
       }
       errors.push({
         key: "email",
-        message: `Email sent within last 15 minutes. Wait ${waitTime}.`
+        message: `Email sent within last 15 minutes. Wait ${waitTimeStr}.`
       });
     }
   }

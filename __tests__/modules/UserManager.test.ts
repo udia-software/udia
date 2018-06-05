@@ -11,7 +11,7 @@ import { generateGenericUser, generateUserCryptoParams } from "../testHelper";
 
 describe("UserManager", () => {
   // Ports are staggered to prevent multiple tests from clobbering
-  const userTestPort = `${parseInt(PORT, 10) + 3}`;
+  const userTestPort = `${parseInt(PORT, 10) + 5}`;
   let server: Server;
 
   async function deleteValues() {
@@ -264,6 +264,72 @@ describe("UserManager", () => {
       } = generateUserCryptoParams("badActor@udia.ca", "Dupe S3C$^T P~!۩s");
       return expect(
         UserManager.updatePassword("unknown", {
+          newPw,
+          pw,
+          pwFunc,
+          pwDigest,
+          pwCost,
+          pwKeySize,
+          pwSalt,
+          encPrivSignKey,
+          encSecretKey,
+          encPrivEncKey
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* id: Invalid JWT."
+      );
+    });
+
+    it("should handle password update null jwt", async () => {
+      expect.assertions(1);
+      const {
+        pw,
+        mk: newPw,
+        pwFunc,
+        pwDigest,
+        pwCost,
+        pwKeySize,
+        pwSalt,
+        encPrivSignKey,
+        encSecretKey,
+        encPrivEncKey
+      } = generateUserCryptoParams("badActor@udia.ca", "Dupe S3C$^T P~!۩s");
+      return expect(
+        UserManager.updatePassword(null, {
+          newPw,
+          pw,
+          pwFunc,
+          pwDigest,
+          pwCost,
+          pwKeySize,
+          pwSalt,
+          encPrivSignKey,
+          encSecretKey,
+          encPrivEncKey
+        })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* id: Invalid JWT."
+      );
+    });
+
+    it("should handle password update undefined jwt", async () => {
+      expect.assertions(1);
+      const {
+        pw,
+        mk: newPw,
+        pwFunc,
+        pwDigest,
+        pwCost,
+        pwKeySize,
+        pwSalt,
+        encPrivSignKey,
+        encSecretKey,
+        encPrivEncKey
+      } = generateUserCryptoParams("badActor@udia.ca", "Dupe S3C$^T P~!۩s");
+      return expect(
+        UserManager.updatePassword(undefined, {
           newPw,
           pw,
           pwFunc,

@@ -6,8 +6,7 @@ const APP_VERSION = version;
 
 // Environment Variables (SEE README)
 
-// This is always test for coverage
-/* istanbul ignore next */
+/* istanbul ignore next: node env always test */
 const NODE_ENV = process.env.NODE_ENV || "development";
 const PORT = process.env.PORT || "3000";
 const SQL_USER = process.env.SQL_USER || "pguser";

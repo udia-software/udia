@@ -18,13 +18,13 @@
     "pretty": true,
     "sourceMap": true,
     "outDir": "dist",
+    "skipLibCheck": true,
     "strict": true,
     "strictPropertyInitialization": false,
     "target": "es2016"
   },
   "include": [
-    "src/**/*.ts",
-    "__tests__/**/*.ts"
+    "src/**/*.ts"
   ],
   "exclude": [
     "node_modules"

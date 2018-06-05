@@ -14,7 +14,7 @@ import { generateGenericUser, generateGraphQLClients } from "../testHelper";
 
 describe("Item", () => {
   // Ports are staggered to prevent multiple tests from clobbering
-  const itemTestPort = `${parseInt(PORT, 10) + 6}`;
+  const itemTestPort = `${parseInt(PORT, 10) + 4}`;
 
   let server: Server;
   let itemUser: User;
@@ -344,7 +344,7 @@ describe("Item", () => {
               parentId: "${parentItem.uuid}"
               depth: 1,
               limit: 13,
-              datetime: "${new Date(1).toISOString()}"
+              datetime: "${new Date(1).toString()}"
               order: ASC
             }
           ) {
