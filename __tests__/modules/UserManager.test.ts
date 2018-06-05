@@ -5,7 +5,6 @@ import { PORT } from "../../src/constants";
 import { Item } from "../../src/entity/Item";
 import { User } from "../../src/entity/User";
 import { UserEmail } from "../../src/entity/UserEmail";
-import Mailer from "../../src/mailer";
 import ItemManager from "../../src/modules/ItemManager";
 import UserManager from "../../src/modules/UserManager";
 import { generateGenericUser, generateUserCryptoParams } from "../testHelper";
@@ -23,7 +22,7 @@ describe("UserManager", () => {
       .where({ lUsername: "badactor" })
       .orWhere("lUsername = :fuUser", { fuUser: "findusername" })
       .orWhere("lUsername = :dupeUser", { dupeUser: "dupeuser" })
-      .orWhere("lUsername = :shrugUser", { shrugUser: "¯\\_(ツ)_/¯" })
+      .orWhere("lUsername = :shrugUser", { shrugUser: "¯\\_(🎃)_/¯" })
       .orWhere("lUsername = :upUser", { upUser: "updatepassuser" })
       .orWhere("lUsername = :siUser", { siUser: "signinuser" })
       .orWhere("lUsername = :aeUser", { aeUser: "addemailuser" })
@@ -202,11 +201,11 @@ describe("UserManager", () => {
       );
     });
 
-    it("should handle unicode usernames", async () => {
-      expect.assertions(4);
+    it("should handle unicode username and email", async () => {
+      expect.assertions(7);
       const shrugUser = await UserManager.createUser({
-        username: "¯\\_(ツ)_/¯",
-        email: "shrug@udia.ca",
+        username: "¯\\_(🎃)_/¯",
+        email: "🎃shrug@udia.ca",
         pw: "tempbadpass",
         pwFunc: "pbkdf2",
         pwDigest: "sha512",
@@ -222,8 +221,12 @@ describe("UserManager", () => {
       expect(shrugUser).toHaveProperty("jwt");
       expect(shrugUser).toHaveProperty("user");
       const user = shrugUser.user;
-      expect(user).toHaveProperty("lUsername", "¯\\_(ツ)_/¯");
-      expect(user).toHaveProperty("username", "¯\\_(ツ)_/¯");
+      expect(user).toHaveProperty("lUsername", "¯\\_(🎃)_/¯");
+      expect(user).toHaveProperty("username", "¯\\_(🎃)_/¯");
+      const uEmail = await UserManager.getUserEmailByEmail("🎃shrug@udia.ca");
+      expect(uEmail).toHaveProperty("email", "🎃shrug@udia.ca");
+      expect(uEmail).toHaveProperty("lEmail", "🎃shrug@udia.ca");
+      expect(uEmail!.user.uuid).toEqual(user.uuid);
     });
   });
 

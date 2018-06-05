@@ -414,21 +414,27 @@ export default class UserManager {
   public static async sendEmailVerification({
     email
   }: ISendEmailVerificationParams) {
+    const errors = [];
     const uEmail = await this.getUserEmailByEmail(email);
     if (!uEmail) {
-      throw new ValidationError([
-        { key: "email", message: "Email not found." }
-      ]);
+      errors.push({ key: "email", message: "Email not found." });
+    }
+    // Check sent within the last 15 minutes.
+    if (uEmail && uEmail.verificationExpiry) {
+      UserManager.handleEmailSendLimit(uEmail.verificationExpiry, errors);
+    }
+    if (errors.length > 0) {
+      throw new ValidationError(errors);
     }
     // Token is in the format `<email>:<password>`
-    const emailToken = `${uEmail.lEmail}:${randomBytes(16).toString("hex")}`;
-    await getRepository(UserEmail).update(uEmail.lEmail, {
+    const emailToken = `${uEmail!.lEmail}:${randomBytes(16).toString("hex")}`;
+    await getRepository(UserEmail).update(uEmail!.lEmail, {
       verificationHash: await Auth.hashPassword(emailToken),
       verificationExpiry: new Date(Date.now() + +EMAIL_TOKEN_TIMEOUT)
     });
     await Mailer.sendEmailVerification(
-      uEmail.user.username,
-      uEmail.email,
+      uEmail!.user.username,
+      uEmail!.email,
       emailToken
     );
     return true;
@@ -487,21 +493,28 @@ export default class UserManager {
   public static async sendForgotPasswordEmail({
     email
   }: ISendForgotPasswordEmailParams) {
+    const errors = [];
     const uEmail = await this.getUserEmailByEmail(email);
     if (!uEmail) {
-      throw new ValidationError([
-        { key: "email", message: "Email not found." }
-      ]);
+      errors.push({ key: "email", message: "Email not found." });
     }
-    const id = uEmail.user.lUsername;
+    // Check sent within the last 15 minutes.
+    if (uEmail && uEmail.user.forgotPwExpiry) {
+      UserManager.handleEmailSendLimit(uEmail.user.forgotPwExpiry, errors);
+    }
+    if (errors.length > 0) {
+      throw new ValidationError(errors);
+    }
+
+    const id = uEmail!.user.lUsername;
     const forgotPasswordToken = `${id}:${randomBytes(16).toString("hex")}`;
-    await getRepository(User).update(uEmail.user.uuid, {
+    await getRepository(User).update(uEmail!.user.uuid, {
       forgotPwHash: await Auth.hashPassword(forgotPasswordToken),
       forgotPwExpiry: new Date(Date.now() + +EMAIL_TOKEN_TIMEOUT)
     });
     await Mailer.sendForgotPasswordEmail(
-      uEmail.user.username,
-      uEmail.email,
+      uEmail!.user.username,
+      uEmail!.email,
       forgotPasswordToken
     );
     return true;
@@ -647,6 +660,17 @@ export default class UserManager {
       .getOne();
   }
 
+  /**
+   * Helper method to get the UserEmail entity from an email
+   * @param email user's email
+   */
+  public static async getUserEmailByEmail(email: string) {
+    const lEmail = (email || "").toLowerCase().trim();
+    return getRepository(UserEmail).findOne(lEmail, {
+      relations: ["user"]
+    });
+  }
+
   private static async handleValidateUsername(
     username: string,
     errors: IErrorMessage[]
@@ -705,13 +729,26 @@ export default class UserManager {
   }
 
   /**
-   * Private helper method to get the UserEmail entity from an email
-   * @param email user's email
+   * Ensure that users do not spam the email sending functionality
+   * @param {Date} expTime - DateTime last email was sent
+   * @param errors - Array of errors
    */
-  private static async getUserEmailByEmail(email: string) {
-    const lEmail = (email || "").toLowerCase().trim();
-    return getRepository(UserEmail).findOne(lEmail, {
-      relations: ["user"]
-    });
+  private static handleEmailSendLimit(expTime: Date, errors: IErrorMessage[]) {
+    const emailTimeoutMS = parseInt(EMAIL_TOKEN_TIMEOUT, 10);
+    const sentTimeMS = expTime.getTime() - emailTimeoutMS;
+    const sentPlus15Min = sentTimeMS + 900000;
+    if (Date.now() < sentPlus15Min) {
+      const waitTimeTotalSec = sentPlus15Min - Date.now() / 1000;
+      const waitTimeMin = Math.floor(waitTimeTotalSec / 60);
+      const waitTimeSec = Math.floor(waitTimeTotalSec % 60);
+      let waitTime = `${waitTimeSec} seconds.`;
+      if (waitTimeMin > 0) {
+        waitTime = `${waitTimeMin} minutes, ${waitTime}`;
+      }
+      errors.push({
+        key: "email",
+        message: `Email sent within last 15 minutes. Wait ${waitTime}.`
+      });
+    }
   }
 }
