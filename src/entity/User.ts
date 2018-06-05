@@ -11,6 +11,7 @@ import { Item } from "./Item";
 import { UserEmail } from "./UserEmail";
 
 @Entity()
+@Index(['createdAt', 'uuid', 'lUsername'])
 export class User {
   @PrimaryGeneratedColumn("uuid") public uuid: string;
 

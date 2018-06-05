@@ -1,4 +1,5 @@
 import { getConnection, getRepository } from "typeorm";
+import { ITEMS_PAGE_LIMIT } from "../constants";
 import { Item } from "../entity/Item";
 import { ItemClosure } from "../entity/ItemClosure";
 import { User } from "../entity/User";
@@ -110,7 +111,7 @@ export default class ItemManager {
     username, // Get items that belong to the given user (username) or undefined
     parentId, // Get items from ancestor (null for root, undefined for all)
     depth = 0, // Get items at a specific depth from ancestor
-    limit = 14, // Limit number of items returned
+    limit = 10, // Limit number of items returned
     datetime, // Keyset pagination on date (unindexed for updatedAt)
     sort = "createdAt", // Sort by createdAt field
     order = "DESC" // Order by descending value (show newest first)
@@ -170,18 +171,16 @@ export default class ItemManager {
     // Datetime is used for pagination over items
     if (datetime !== undefined) {
       // operator depends on ASC or DESC
-      const datetimeOp = {
-        DESC: "<",
-        ASC: ">"
-      };
-      itemQueryBuilder.andWhere(`item.${sort} ${datetimeOp[order]} :datetime`, {
-        datetime
-      });
+      const datetimeOp = { DESC: "<", ASC: ">" };
+      itemQueryBuilder.andWhere(
+        `"item"."${sort}" ${datetimeOp[order]} :datetime`,
+        { datetime }
+      );
     }
 
     const [items, count] = await itemQueryBuilder
-      .orderBy(`item.${sort}`, order)
-      .limit(limit)
+      .orderBy(`"item"."${sort}"`, order)
+      .limit(Math.min(limit, parseInt(ITEMS_PAGE_LIMIT, 10)))
       .getManyAndCount();
     return { items, count };
   }

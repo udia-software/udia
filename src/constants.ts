@@ -30,6 +30,8 @@ const DEV_JWT = process.env.DEV_JWT || "";
 const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID || "";
 const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY || "";
 const AWS_SES_REGION = process.env.AWS_SES_REGION || "us-west-2";
+const ITEMS_PAGE_LIMIT = process.env.ITEMS_PAGE_LIMIT || "32";
+const USERS_PAGE_LIMIT = process.env.USERS_PAGE_LIMIT || "32";
 
 export {
   APP_VERSION,
@@ -54,5 +56,7 @@ export {
   DEV_JWT,
   AWS_ACCESS_KEY_ID,
   AWS_SECRET_ACCESS_KEY,
-  AWS_SES_REGION
+  AWS_SES_REGION,
+  ITEMS_PAGE_LIMIT,
+  USERS_PAGE_LIMIT
 };

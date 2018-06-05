@@ -14,7 +14,8 @@ export class ItemClosure {
   @PrimaryColumn()
   @ManyToOne(type => Item, {
     cascade: ["insert", "update", "remove"],
-    onDelete: "CASCADE"
+    onDelete: "CASCADE",
+    nullable: false
   })
   @JoinColumn({ name: "ancestor", referencedColumnName: "uuid" })
   public ancestor: Item;
@@ -22,7 +23,8 @@ export class ItemClosure {
   @PrimaryColumn()
   @ManyToOne(type => Item, {
     cascade: ["insert", "update", "remove"],
-    onDelete: "CASCADE"
+    onDelete: "CASCADE",
+    nullable: false
   })
   @JoinColumn({ name: "descendant", referencedColumnName: "uuid" })
   public descendant: Item;

@@ -1,12 +1,21 @@
 import { randomBytes } from "crypto";
 import { getConnection, getRepository, Not } from "typeorm";
-import { EMAIL_TOKEN_TIMEOUT } from "../constants";
+import { EMAIL_TOKEN_TIMEOUT, USERS_PAGE_LIMIT } from "../constants";
 import { Item } from "../entity/Item";
 import { User } from "../entity/User";
 import { UserEmail } from "../entity/UserEmail";
 import Mailer from "../mailer";
 import Auth from "./Auth";
 import { IErrorMessage, ValidationError } from "./ValidationError";
+
+export interface IGetUsersParams {
+  usernameLike?: string;
+  usernameNotLike?: string;
+  limit?: number;
+  datetime?: Date;
+  sort?: "createdAt" | "updatedAt";
+  order?: "ASC" | "DESC";
+}
 
 export interface ICreateUserParams {
   username: string;
@@ -178,6 +187,63 @@ export default class UserManager {
       user: newUser,
       jwt: Auth.signUserJWT(newUser)
     };
+  }
+
+  /**
+   * Return a pagination result of the users (array of users, count of all).
+   * Client sets `[`, `]`, `%`, `!`, and `_` for lUsername filtering.
+   * @param {IGetUsersParams} parameters - user defined search parameters
+   */
+  public static async getUsers({
+    usernameLike, // variable for lUsername LIKE
+    usernameNotLike, // variable for lUsername NOT LIKE
+    limit = 10, // Limit number of users returned,
+    datetime, // Keyset pagination on date (unindexed for updatedAt)
+    sort = "createdAt", // Sort by createdAt field by default
+    order = "DESC" // Order by descending value (show newest first)
+  }: IGetUsersParams) {
+    let isWhereSet = false;
+    // intialize the query builder
+    const userQueryBuilder = getRepository(User).createQueryBuilder("user");
+
+    // if usernameLike is set, perform the where like query
+    if (usernameLike !== undefined) {
+      userQueryBuilder.where(`"user"."lUsername" LIKE :unameLike`, {
+        unameLike: usernameLike.toLowerCase()
+      });
+      isWhereSet = true;
+    }
+
+    // if usernameNotLike is set, perform the where not like query
+    if (usernameNotLike !== undefined) {
+      const fragment = `"user"."lUsername" NOT LIKE :unameNotLike`;
+      const subst = { unameNotLike: usernameNotLike.toLowerCase() };
+      if (isWhereSet) {
+        userQueryBuilder.andWhere(fragment, subst);
+      } else {
+        userQueryBuilder.where(fragment, subst);
+      }
+      isWhereSet = true;
+    }
+
+    // if datetime is set, add keyset pagination query
+    if (datetime !== undefined) {
+      const datetimeOp = { DESC: "<", ASC: ">" };
+      const fragment = `"user"."${sort}" ${datetimeOp[order]} :datetime`;
+      const subst = { datetime };
+      if (isWhereSet) {
+        userQueryBuilder.andWhere(fragment, subst);
+      } else {
+        userQueryBuilder.where(fragment, subst);
+      }
+      isWhereSet = true;
+    }
+
+    const [users, count] = await userQueryBuilder
+      .orderBy(`"user"."${sort}"`, order)
+      .limit(Math.min(limit, parseInt(USERS_PAGE_LIMIT, 10)))
+      .getManyAndCount();
+    return { users, count };
   }
 
   /**
@@ -741,9 +807,9 @@ export default class UserManager {
       const waitTimeTotalSec = (sentPlus15Min - Date.now()) / 1000;
       const wtMin = Math.floor(waitTimeTotalSec / 60);
       const wtSec = Math.floor(waitTimeTotalSec % 60);
-      let waitTimeStr = `${wtSec} second${wtSec > 1 ? 's' : ''}`;
+      let waitTimeStr = `${wtSec} second${wtSec > 1 ? "s" : ""}`;
       if (wtMin > 0) {
-        waitTimeStr = `${wtMin} minute${wtMin > 1 ? 's' : ''}, ${waitTimeStr}`;
+        waitTimeStr = `${wtMin} minute${wtMin > 1 ? "s" : ""}, ${waitTimeStr}`;
       }
       errors.push({
         key: "email",

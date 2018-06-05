@@ -59,6 +59,9 @@ const resolvers: IResolvers = {
     },
     getItems: async (root: any, { params }: any, context: IContext) => {
       return ItemManager.getItems(params || {});
+    },
+    getUsers: async (root: any, { params }: any, context: IContext) => {
+      return UserManager.getUsers(params || {});
     }
   },
   Mutation: {

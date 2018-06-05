@@ -4,6 +4,7 @@ import {
   ITypedef,
   makeExecutableSchema
 } from "graphql-tools";
+import { ITEMS_PAGE_LIMIT, USERS_PAGE_LIMIT } from "../constants";
 import resolvers from "./resolvers";
 
 const typeDefs: ITypedef[] = [
@@ -48,6 +49,10 @@ const typeDefs: ITypedef[] = [
     # Given the item pagination parameters,
     # return the count of items and subset of items in an array.
     getItems(params: ItemPaginationInput): ItemPagination!
+
+    # Given the user pagination parameters,
+    # return the count of users and a subset of users in an array.
+    getUsers(params: UserPaginationInput): UserPagination!
   }`,
   `# UDIA Server GraphQL Mutations
   type Mutation {
@@ -323,11 +328,11 @@ const typeDefs: ITypedef[] = [
     # When the item was last updated.
     updatedAt: DateTime!
   }`,
-  `enum ItemSortValue {
+  `enum KeysetSortValue {
     createdAt
     updatedAt
   }`,
-  `enum ItemOrderValue {
+  `enum KeysetOrderValue {
     ASC
     DESC
   }`,
@@ -336,6 +341,13 @@ const typeDefs: ITypedef[] = [
     # Array of item objects
     items: [Item]!
     # Total number of items matching pagination query parameters
+    count: Int!
+  }`,
+  `# Public facing User Pagination structure
+  type UserPagination {
+    # Array of user objects
+    users: [User]!
+    # Total number of users matching pagination query parameters
     count: Int!
   }`,
   `# Public Facing Health Metric Object
@@ -393,6 +405,22 @@ const typeDefs: ITypedef[] = [
     # Interrupt Request mode in seconds
     irq: Int!
   }`,
+  `# Users Pagination Parameters
+  input UserPaginationInput {
+    # Filter users by lower case username SQL LIKE
+    usernameLike: String
+    # Filter users by lower case username SQL NOT LIKE
+    usernameNotLike: String
+    # Maximum number of users returned from query (Hard cap ${USERS_PAGE_LIMIT})
+    limit: Int
+    # Datetime for keyset pagination
+    datetime: DateTime
+    # Sort users by? (Defaults to createdAt)
+    sort: KeysetSortValue
+    # Order users by? (Defaults to DESC)
+    order: KeysetOrderValue
+  }
+  `,
   `# Items Pagination Parameters
   input ItemPaginationInput {
     # Filter items by username (or null for orphaned by deleted user)
@@ -401,14 +429,14 @@ const typeDefs: ITypedef[] = [
     parentId: ID
     # Filter items by depth in relation to parentId
     depth: Int
-    # Maximum number of items returned from query
+    # Maximum number of items returned from query (Hard cap ${ITEMS_PAGE_LIMIT})
     limit: Int
     # Datetime for keyset pagination
     datetime: DateTime
-    # Sort items by? (Defaults to CreatedAt)
-    sort: ItemSortValue
+    # Sort items by? (Defaults to createdAt)
+    sort: KeysetSortValue
     # Order items by? (Defaults to DESC)
-    order: ItemOrderValue
+    order: KeysetOrderValue
   }`,
   `# Create Item Parameters
   input CreateItemInput {
