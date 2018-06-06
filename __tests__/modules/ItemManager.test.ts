@@ -529,6 +529,21 @@ describe("ItemManager", () => {
       expect(noCount).toBeGreaterThanOrEqual(0);
       expect(noItems.length).toBeGreaterThanOrEqual(0);
     });
+
+    it("should handle negative number for limit", async () => {
+      expect.assertions(2);
+      const limitTestItem = await ItemManager.createItem(
+        itemPaginationUser.lUsername,
+        {
+          content: "Negative Limit Test item",
+          contentType: "plaintext",
+          encItemKey: "unencrypted"
+        }
+      );
+      const { items, count } = await ItemManager.getItems({ limit: -10 });
+      expect(count).toBeGreaterThanOrEqual(0);
+      expect(items).toHaveLength(1);
+    });
   });
 
   describe("updateItem", () => {

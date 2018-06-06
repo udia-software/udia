@@ -239,9 +239,13 @@ export default class UserManager {
       isWhereSet = true;
     }
 
+    // Ensure limit is between 1 and USERS_PAGE_LIMIT
+    let safeLimit = Math.min(limit, parseInt(USERS_PAGE_LIMIT, 10));
+    safeLimit = Math.max(1, safeLimit);
+
     const [users, count] = await userQueryBuilder
       .orderBy(`"user"."${sort}"`, order)
-      .limit(Math.min(limit, parseInt(USERS_PAGE_LIMIT, 10)))
+      .limit(safeLimit)
       .getManyAndCount();
     return { users, count };
   }

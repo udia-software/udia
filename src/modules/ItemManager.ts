@@ -178,9 +178,13 @@ export default class ItemManager {
       );
     }
 
+    // Ensure limit is between 1 and ITEMS_PAGE_LIMIT
+    let safeLimit = Math.min(limit, parseInt(ITEMS_PAGE_LIMIT, 10));
+    safeLimit = Math.max(1, safeLimit);
+
     const [items, count] = await itemQueryBuilder
       .orderBy(`"item"."${sort}"`, order)
-      .limit(Math.min(limit, parseInt(ITEMS_PAGE_LIMIT, 10)))
+      .limit(safeLimit)
       .getManyAndCount();
     return { items, count };
   }
