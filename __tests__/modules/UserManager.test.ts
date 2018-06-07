@@ -34,6 +34,7 @@ describe("UserManager", () => {
       .orWhere("lUsername = :fpUser", { fpUser: "forgotpassuser" })
       .orWhere("lUsername = :rpUser", { rpUser: "resetpassuser" })
       .orWhere("lUsername = :itemUser", { itemUser: "itemuser" })
+      .orWhere("lUsername LIKE :pTestUsers", { pTestUsers: "mtestgetusers%" })
       .execute();
   }
 
@@ -991,6 +992,74 @@ describe("UserManager", () => {
       });
       const verifyUser = await UserManager.getUserFromItemId(item.uuid);
       expect(verifyUser).toEqual(itemUser);
+    });
+  });
+
+  describe("getUsers", () => {
+    const testUsers: User[] = [];
+
+    beforeAll(async () => {
+      // Generate twenty users named mTestGetUsers1 to mTestGetUsers20
+      for (let i = 1; i <= 20; i++) {
+        await getConnection().transaction(async transactionEntityManager => {
+          const { u, e } = generateGenericUser(`mTestGetUsers${i}`);
+          u.pubEncKey += i;
+          u.pubSignKey += i;
+          const savedUser = await transactionEntityManager.save(u);
+          e.user = savedUser;
+          await transactionEntityManager.save(e);
+          // sleep for 10ms to ensure no overlap on keyset pagination
+          await new Promise(done => setTimeout(done, 10));
+          testUsers.push(u);
+        });
+      }
+    });
+
+    afterAll(async () => {
+      await getConnection()
+        .getRepository(User)
+        .delete(testUsers.map(u => u.uuid));
+    });
+
+    it("should get paginated users using defaults", async () => {
+      expect.assertions(2);
+      const userPaginationResult = await UserManager.getUsers({});
+      expect(userPaginationResult.count).toBeGreaterThanOrEqual(20);
+      expect(userPaginationResult.users).toHaveLength(10);
+    });
+
+    it("should get paginated users using usernameLike", async () => {
+      expect.assertions(3);
+      const userPaginationResult = await UserManager.getUsers({
+        usernameLike: "mTestGetUsers1"
+      });
+      expect(userPaginationResult.count).toEqual(1);
+      expect(userPaginationResult.users).toHaveLength(1);
+      const user = userPaginationResult.users[0];
+      expect(user).toHaveProperty("username", "mTestGetUsers1");
+    });
+
+    it("should get paginated users using usernameNotLike", async () => {
+      expect.assertions(12);
+      const userPaginationResult = await UserManager.getUsers({
+        usernameNotLike: "mTestGetUsers1%"
+      });
+      expect(userPaginationResult.count).toBeGreaterThanOrEqual(10);
+      expect(userPaginationResult.users).toHaveLength(10);
+      const users = userPaginationResult.users;
+      users.forEach(user => {
+        expect(user.username).not.toMatch(/mTestGetUsers1.*/);
+      })
+    });
+
+    it("should get no users created in the future", async () => {
+      expect.assertions(2);
+      const userPaginationResult = await UserManager.getUsers({
+        datetime: new Date(Date.now() + 10000), // 10 seconds into future
+        order: "ASC"
+      });
+      expect(userPaginationResult.count).toEqual(0);
+      expect(userPaginationResult.users).toHaveLength(0);
     });
   });
 });

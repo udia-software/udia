@@ -48,7 +48,7 @@ describe("Users", () => {
       .orWhere("lUsername = :deleteUser", { deleteUser: "deleteusertest" })
       .orWhere("lUsername = :refreshJWT", { refreshJWT: "refreshjwt" })
       .orWhere("lUsername = :resolveUser", { resolveUser: "resolveuser" })
-      .orWhere("lUsername LIKE :pTestUsers", { pTestUsers: "testGetUsers%" })
+      .orWhere("lUsername LIKE :pTestUsers", { pTestUsers: "testgetusers%" })
       .execute();
   }
 
@@ -1477,7 +1477,7 @@ describe("Users", () => {
       `;
 
       beforeAll(async () => {
-        // Generate twenty users named testGetUser1 to testGetUsers20
+        // Generate twenty users named testGetUsers1 to testGetUsers20
         for (let i = 1; i <= 20; i++) {
           await getConnection().transaction(async transactionEntityManager => {
             const { u, e } = generateGenericUser(`testGetUsers${i}`);
@@ -1504,7 +1504,7 @@ describe("Users", () => {
       });
 
       it("should get paginated users", async () => {
-        // expect.assertions(0);
+        expect.assertions(127);
         const getUsersQueryResponse = await gqlClient.query({
           query,
           variables: {
