@@ -48,6 +48,7 @@ describe("Users", () => {
       .orWhere("lUsername = :deleteUser", { deleteUser: "deleteusertest" })
       .orWhere("lUsername = :refreshJWT", { refreshJWT: "refreshjwt" })
       .orWhere("lUsername = :resolveUser", { resolveUser: "resolveuser" })
+      .orWhere("lUsername LIKE :pTestUsers", { pTestUsers: "testGetUsers%" })
       .execute();
   }
 
@@ -1452,6 +1453,148 @@ describe("Users", () => {
           done("Refreshed JWT was invalid!");
         } finally {
           done();
+        }
+      });
+    });
+
+    describe("getUsers", () => {
+      const testUsers: User[] = [];
+      let gqlClient: ApolloClient<NormalizedCacheObject>;
+      let subscriptionClient: SubscriptionClient;
+      const query = gql`
+        query GetUsers($params: UserPaginationInput) {
+          getUsers(params: $params) {
+            count
+            users {
+              uuid
+              username
+              createdAt
+              pubSignKey
+              pubEncKey
+            }
+          }
+        }
+      `;
+
+      beforeAll(async () => {
+        // Generate twenty users named testGetUser1 to testGetUsers20
+        for (let i = 1; i <= 20; i++) {
+          await getConnection().transaction(async transactionEntityManager => {
+            const { u, e } = generateGenericUser(`testGetUsers${i}`);
+            u.pubEncKey += i;
+            u.pubSignKey += i;
+            const savedUser = await transactionEntityManager.save(u);
+            e.user = savedUser;
+            await transactionEntityManager.save(e);
+            // sleep for 10ms to ensure no overlap on keyset pagination
+            await new Promise(done => setTimeout(done, 10));
+            testUsers.push(u);
+          });
+        }
+        const { s, g } = generateGraphQLClients(userTestPort);
+        gqlClient = g;
+        subscriptionClient = s;
+      });
+
+      afterAll(async () => {
+        await getConnection()
+          .getRepository(User)
+          .delete(testUsers.map(u => u.uuid));
+        subscriptionClient.close();
+      });
+
+      it("should get paginated users", async () => {
+        // expect.assertions(0);
+        const getUsersQueryResponse = await gqlClient.query({
+          query,
+          variables: {
+            params: {
+              usernameLike: "testGetUsers%",
+              usernameNotLike: "%14",
+              limit: 13,
+              order: "ASC"
+            }
+          }
+        });
+        expect(getUsersQueryResponse).toHaveProperty("data");
+        const getUsersData: any = getUsersQueryResponse.data;
+        expect(getUsersData).toHaveProperty("getUsers");
+        const getUsers = getUsersData.getUsers;
+        expect(getUsers).toHaveProperty("__typename", "UserPagination");
+        expect(getUsers).toHaveProperty("count", 19);
+        expect(getUsers).toHaveProperty("users");
+        const usersPage = getUsers.users;
+        expect(usersPage).toHaveLength(13);
+        for (let i = 0; i < usersPage.length; i++) {
+          expect(usersPage[i]).toHaveProperty("__typename", "User");
+          expect(usersPage[i]).toHaveProperty(
+            "username",
+            testUsers[i].username
+          );
+          expect(usersPage[i]).toHaveProperty("uuid", testUsers[i].uuid);
+          expect(usersPage[i]).toHaveProperty(
+            "createdAt",
+            testUsers[i].createdAt.getTime()
+          );
+          expect(usersPage[i]).toHaveProperty(
+            "pubSignKey",
+            testUsers[i].pubSignKey
+          );
+          expect(usersPage[i]).toHaveProperty(
+            "pubEncKey",
+            testUsers[i].pubEncKey
+          );
+        }
+        // Get next page
+        const getUsersNextQueryResponse = await gqlClient.query({
+          query,
+          variables: {
+            params: {
+              usernameLike: "testGetUsers%",
+              usernameNotLike: "%14",
+              datetime: new Date(usersPage[usersPage.length - 1].createdAt),
+              order: "ASC"
+            }
+          }
+        });
+        expect(getUsersNextQueryResponse).toHaveProperty("data");
+        const getUsersNextData: any = getUsersNextQueryResponse.data;
+        expect(getUsersNextData).toHaveProperty("getUsers");
+        const getNextUsers = getUsersNextData.getUsers;
+        expect(getNextUsers).toHaveProperty("__typename", "UserPagination");
+        expect(getNextUsers).toHaveProperty("count", 6);
+        expect(getNextUsers).toHaveProperty("users");
+        const usersNextPage = getNextUsers.users;
+
+        // check no overlap! This caught typeorm timestamp precision bug
+        expect(usersNextPage[0].username).not.toEqual(
+          usersPage[usersPage.length - 1].username
+        );
+
+        expect(usersNextPage).toHaveLength(6);
+        const offset = 14; // Skip user 14 as defined in query params
+        for (let i = 0; i < usersNextPage.length; i++) {
+          expect(usersNextPage[i]).toHaveProperty("__typename", "User");
+          expect(usersNextPage[i]).toHaveProperty(
+            "username",
+            testUsers[i + offset].username
+          );
+          expect(usersNextPage[i]).toHaveProperty(
+            "uuid",
+            testUsers[i + offset].uuid
+          );
+          expect(usersNextPage[i]).toHaveProperty(
+            "createdAt",
+            testUsers[i + offset].createdAt.getTime()
+          );
+          expect(usersNextPage[i]).toHaveProperty(
+            "pubSignKey",
+            testUsers[i + offset].pubSignKey
+          );
+          expect(usersNextPage[i]).toHaveProperty(
+            "pubEncKey",
+            testUsers[i + offset].pubEncKey
+          );
         }
       });
     });

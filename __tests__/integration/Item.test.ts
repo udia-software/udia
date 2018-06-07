@@ -227,12 +227,10 @@ describe("Item", () => {
     });
 
     it("should get items by variable pagination parameters", async () => {
-      expect.assertions(117);
+      expect.assertions(113);
       const getItemsQuery = gql`
         query GetItems($params: ItemPaginationInput) {
-          getItems(
-            params: $params
-          ) {
+          getItems(params: $params) {
             items {
               uuid
               content
@@ -281,9 +279,7 @@ describe("Item", () => {
 
       const getNextItemsQuery = gql`
         query GetItems($params: ItemPaginationInput) {
-          getItems(
-            params: $params
-          ) {
+          getItems(params: $params) {
             items {
               uuid
               content
@@ -312,30 +308,40 @@ describe("Item", () => {
       expect(getItemsQueryData).toHaveProperty("getItems");
       getItems = getItemsQueryData.getItems;
       expect(getItems).toHaveProperty("__typename", "ItemPagination");
-      expect(getItems).toHaveProperty("count", 8);
+      expect(getItems).toHaveProperty("count", 7);
       expect(getItems).toHaveProperty("items");
       const secondQueryItems = getItems.items;
-      expect(secondQueryItems).toHaveLength(8);
+
+      // Check for overlap
+      expect(secondQueryItems[0].uuid).not.toEqual(
+        firstQueryItems[firstQueryItems.length - 1].uuid
+      );
+
+      expect(secondQueryItems).toHaveLength(7);
+      const offset = 13;
       for (let i = 0; i < secondQueryItems.length; i++) {
         expect(secondQueryItems[i]).toHaveProperty("__typename", "Item");
         expect(secondQueryItems[i]).toHaveProperty(
           "content",
-          items[12 + i].content
+          items[offset + i].content
         );
         expect(secondQueryItems[i]).toHaveProperty(
           "contentType",
-          items[12 + i].contentType
+          items[offset + i].contentType
         );
         expect(secondQueryItems[i]).toHaveProperty(
           "encItemKey",
-          items[12 + i].encItemKey
+          items[offset + i].encItemKey
         );
-        expect(secondQueryItems[i]).toHaveProperty("uuid", items[12 + i].uuid);
+        expect(secondQueryItems[i]).toHaveProperty(
+          "uuid",
+          items[offset + i].uuid
+        );
       }
     });
 
     it("should get items by inline pagination parameters", async () => {
-      expect.assertions(117);
+      expect.assertions(113);
       const getItemsInlineQuery = gql`
         query GetItems {
           getItems(
@@ -414,25 +420,35 @@ describe("Item", () => {
       expect(getItemsQueryData).toHaveProperty("getItems");
       getItems = getItemsQueryData.getItems;
       expect(getItems).toHaveProperty("__typename", "ItemPagination");
-      expect(getItems).toHaveProperty("count", 8);
+      expect(getItems).toHaveProperty("count", 7);
       expect(getItems).toHaveProperty("items");
       const secondQueryItems = getItems.items;
-      expect(secondQueryItems).toHaveLength(8);
+
+      // Check for overlap
+      expect(secondQueryItems[0].uuid).not.toEqual(
+        firstQueryItems[firstQueryItems.length - 1].uuid
+      );
+
+      expect(secondQueryItems).toHaveLength(7);
+      const offset = 13;
       for (let i = 0; i < secondQueryItems.length; i++) {
         expect(secondQueryItems[i]).toHaveProperty("__typename", "Item");
         expect(secondQueryItems[i]).toHaveProperty(
           "content",
-          items[12 + i].content
+          items[offset + i].content
         );
         expect(secondQueryItems[i]).toHaveProperty(
           "contentType",
-          items[12 + i].contentType
+          items[offset + i].contentType
         );
         expect(secondQueryItems[i]).toHaveProperty(
           "encItemKey",
-          items[12 + i].encItemKey
+          items[offset + i].encItemKey
         );
-        expect(secondQueryItems[i]).toHaveProperty("uuid", items[12 + i].uuid);
+        expect(secondQueryItems[i]).toHaveProperty(
+          "uuid",
+          items[offset + i].uuid
+        );
       }
     });
   });
@@ -529,7 +545,7 @@ describe("Item", () => {
   });
 
   describe("updateItem", () => {
-    let item: Item ;
+    let item: Item;
 
     beforeAll(async () => {
       item = await ItemManager.createItem(itemUser.lUsername, {

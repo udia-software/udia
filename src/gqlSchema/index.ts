@@ -7,6 +7,7 @@ import {
 import { ITEMS_PAGE_LIMIT, USERS_PAGE_LIMIT } from "../constants";
 import resolvers from "./resolvers";
 
+// TODO: rewrite this so it's not just one big string?
 const typeDefs: ITypedef[] = [
   `# UDIA Server GraphQL Queries
   type Query {

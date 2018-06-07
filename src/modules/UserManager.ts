@@ -229,7 +229,8 @@ export default class UserManager {
     // if datetime is set, add keyset pagination query
     if (datetime !== undefined) {
       const datetimeOp = { DESC: "<", ASC: ">" };
-      const fragment = `"user"."${sort}" ${datetimeOp[order]} :datetime`;
+      const fragment =
+        `"user"."${sort}" ${datetimeOp[order]} :datetime`;
       const subst = { datetime };
       if (isWhereSet) {
         userQueryBuilder.andWhere(fragment, subst);
