@@ -12,18 +12,19 @@ import { User } from "./User";
 @Entity()
 export class UserEmail {
   @Column({
+    comment: "User provided email.",
     type: "varchar",
     length: 255,
     nullable: false
-    // comment: "User provided email."
   })
   @Index({ unique: true })
   public email: string;
 
   @PrimaryColumn({
+    comment: "Lower case email. Used for internal uniqueness and primary key.",
     type: "citext",
+    // length: 255,
     nullable: false
-    // comment: "Lower case email. Used for internal uniqueness and primary key"
   })
   @Index({ unique: true })
   public lEmail: string;
@@ -35,43 +36,43 @@ export class UserEmail {
   public user: User;
 
   @Column({
+    comment: "Is the user email their primary email?",
     type: "boolean",
     default: false
-    // comment: "Is user email primary."
   })
   public primary: boolean;
 
   @Column({
+    comment: "Is the user email verified?",
     type: "boolean",
     default: false
-    // comment: "Is user email verified."
   })
   public verified: boolean;
 
   @Column({
+    comment: "Server stored hash of client sent verification code.",
     type: "varchar",
     length: 255,
     nullable: true
-    // comment: "Server stored hash of client sent verification code."
   })
   public verificationHash: string | null;
 
   @Column({
+    comment: "When the verification hash is valid until.",
     type: "timestamp with time zone",
     nullable: true
-    // comment: "Verification hash valid until."
   })
   public verificationExpiry: Date | null;
 
   @CreateDateColumn({
+    comment: "User email creation timestamp.",
     type: "timestamp with time zone"
-    // comment: "Email creation timestamp."
   })
   public createdAt: Date;
 
   @UpdateDateColumn({
+    comment: "User email last updated timestamp.",
     type: "timestamp with time zone"
-    // comment: "Email last updated timestamp."
   })
   public updatedAt: Date;
 }

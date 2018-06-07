@@ -5,13 +5,8 @@ import { Item } from "../entity/Item";
 import { User } from "../entity/User";
 import { UserEmail } from "../entity/UserEmail";
 import { pubSub } from "../index";
-import { IJwtPayload } from "../modules/Auth";
-import ItemManager, {
-  ICreateItemParams,
-  IDeleteItemParams,
-  IGetItemsParams,
-  IUpdateItemParams
-} from "../modules/ItemManager";
+import Auth, { IJwtPayload } from "../modules/Auth";
+import ItemManager, { IDeleteItemParams } from "../modules/ItemManager";
 import UserManager, {
   IAddEmailParams,
   ICreateUserParams,
@@ -62,12 +57,11 @@ const resolvers: IResolvers = {
       const id = params.id;
       return ItemManager.getItemById(id);
     },
-    getItems: async (
-      root: any,
-      params: IGetItemsParams | any,
-      context: IContext
-    ) => {
-      return ItemManager.getItems(params);
+    getItems: async (root: any, { params }: any, context: IContext) => {
+      return ItemManager.getItems(params || {});
+    },
+    getUsers: async (root: any, { params }: any, context: IContext) => {
+      return UserManager.getUsers(params || {});
     }
   },
   Mutation: {
@@ -174,21 +168,18 @@ const resolvers: IResolvers = {
       pubSub.publish(`me:${user.lUsername}`, { me: user });
       return { user, jwt };
     },
-    createItem: async (
-      root: any,
-      params: ICreateItemParams | any,
-      context: IContext
-    ) => {
+    refreshJWT: async (root: any, params: any, context: IContext) => {
+      const username = context.jwtPayload && context.jwtPayload.username;
+      const user = await UserManager.getUserByUsername(username);
+      return user && Auth.signUserJWT(user);
+    },
+    createItem: async (root: any, { params }: any, context: IContext) => {
       const username = context.jwtPayload && context.jwtPayload.username;
       return ItemManager.createItem(username, params);
     },
-    updateItem: async (
-      root: any,
-      params: IUpdateItemParams | any,
-      context: IContext
-    ) => {
+    updateItem: async (root: any, { id, params }: any, context: IContext) => {
       const username = context.jwtPayload && context.jwtPayload.username;
-      return ItemManager.updateItem(username, params);
+      return ItemManager.updateItem(username, { id, ...params });
     },
     deleteItem: async (
       root: any,
@@ -231,20 +222,12 @@ const resolvers: IResolvers = {
       const user = await UserManager.getUserById(root.uuid);
       return user!.emails;
     },
-    items: async (
-      root: User,
-      params: IGetItemsParams | any,
-      context: IContext
-    ) => {
-      return ItemManager.getItems({ userId: root.uuid, ...params });
+    items: async (root: User, { params }: any, context: IContext) => {
+      return ItemManager.getItems({ userId: root.uuid, ...(params || {}) });
     }
   },
   User: {
-    items: async (
-      root: User,
-      params: IGetItemsParams | any,
-      context: IContext
-    ) => {
+    items: async (root: User, { params }: any, context: IContext) => {
       return ItemManager.getItems({ userId: root.uuid, ...params });
     }
   },
@@ -255,12 +238,12 @@ const resolvers: IResolvers = {
     parent: async (root: Item, params: any, context: IContext) => {
       return ItemManager.getParentFromChildId(root.uuid);
     },
-    children: async (
-      root: Item,
-      params: IGetItemsParams | any,
-      context: IContext
-    ) => {
-      return ItemManager.getItems({ parentId: root.uuid, depth: 1, ...params });
+    children: async (root: Item, { params }: any, context: IContext) => {
+      return ItemManager.getItems({
+        parentId: root.uuid,
+        depth: 1,
+        ...(params || {})
+      });
     }
   },
   UserEmail: {

@@ -15,7 +15,7 @@ import Auth from "./modules/Auth";
 import { middlewareLogger } from "./util/logger";
 import metric from "./util/metric";
 
-const app = express();
+const app: express.Express = express();
 
 // serve static files with index
 app.use(
@@ -49,14 +49,7 @@ const graphqlBuildOptions: ExpressGraphQLOptionsFunction = req => {
 };
 const CORS_OPTIONS: CorsOptions = {
   origin: CORS_ORIGIN,
-  allowedHeaders: [
-    "Origin",
-    "X-Requested-With",
-    "Content-Type",
-    "Accept",
-    "X-Access-Token",
-    "Authorization"
-  ],
+  allowedHeaders: ["Origin", "Content-Type", "Accept", "Authorization"],
   methods: ["GET", "HEAD", "OPTIONS", "PUT", "PATCH", "POST", "DELETE"]
 };
 app.set("trust proxy", ["loopback", "linklocal", "uniquelocal"]);
@@ -67,22 +60,22 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(Auth.jwtMiddleware());
 app.use("/graphql", graphqlExpress(graphqlBuildOptions));
 
-// coverage don't care about vetting developer graphiql route
-/* istanbul ignore next */
+/* istanbul ignore next: don't vet developer graphiql route */
 if (NODE_ENV !== "production") {
-  const jwt = DEV_JWT;
   app.use(
     "/graphiql",
     graphiqlExpress({
       endpointURL: "/graphql",
-      passHeader: jwt && `Authorization: Bearer ${jwt}`,
+      passHeader: DEV_JWT ? `Authorization: Bearer ${DEV_JWT}` : undefined,
       subscriptionsEndpoint: `ws://localhost:${PORT}/subscriptions`
     })
   );
 }
-app.get("/health", (req, res) => res.json(metric()));
+app.get("/health", (req: express.Request, res: express.Response) =>
+  res.json(metric())
+);
 // TODO: GraphQL Server Side rendering with Hydrating client would be lit
-app.get("/", (req, res) => {
+app.get("/", (req: express.Request, res: express.Response) => {
   res.setHeader("Content-Type", "text/html");
   res.write(`<!DOCTYPE html>
   <html>
@@ -98,16 +91,39 @@ app.get("/", (req, res) => {
     <style>
       html{background-color:#000000;color:#ffffff;width:100%;height:100%;}
       body{width:100%;height:100%;margin:0px;font-family:"Raleway",consolas,courier;}
-      .center{display:flex;flex-direction:column;justify-content:center;height:100%;text-align:center;}
+      .center{display:flex;flex-direction:column;justify-content:center;height:100%;align-items:center;text-align:center;}
+      .emph{text-decoration:underline;font-weight:bold;}
+      #api-tbl tr:hover{background-color:rgb(22,22,22);}
+      #api-tbl tr{height:1em;}
+      #i-do{text-decoration:none;}
     </style>
   </head>
   <body>
     <div class="center">
+      <img src="/static/logo/logo-inverse-64x64.png" alt="UDIA"/>
       <p>
-      VERSION ${APP_VERSION}<br/>
-      YOU DISTURB INTERNAL API<br/>
-      ?<br/>
-      AIDU
+        YO<span class="emph">U</span>
+        <span class="emph">D</span>ISTURB
+        <span class="emph">I</span>NTERNAL
+        <span class="emph">A</span>PI
+      </p>
+      <p>VERSION ${APP_VERSION}<br/>
+      <hr/>
+      <table id="api-tbl">
+      <tr>
+        <td><a href="/static">/static</a></td>
+        <td>static files</td></tr>
+      <tr>
+        <td><a href="https://github.com/udia-software/udia">server src</a></td>
+        <td>server source</td>
+      </tr>
+      <tr>
+        <td><a href="https://github.com/udia-software/udia-client">client src</a></td>
+        <td>client source</td>
+      </tr>
+      </table>
+      <br/>
+      <a id="i-do" href="https://udia.ca">AIDU</a>
       </p>
     </div>
   </body>

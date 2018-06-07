@@ -15,40 +15,40 @@ export class Item {
   @PrimaryGeneratedColumn("uuid") public uuid: string;
 
   @Column({
+    comment: "JSON string encoded structure of the note, may be encrypted.",
     type: "varchar",
     nullable: true
-    // comment: "JSON string encoded structure of the note, encrypted."
   })
   public content: string | null;
 
   @Column({
+    comment: "Type of the structure contained in the content field.",
     type: "citext",
     nullable: true
-    // comment: "content type of the structure contained in the content field."
   })
   public contentType: string | null;
 
   @Column({
+    comment: "Client encrypted jwt-key encryption key for this item.",
     type: "varchar",
     nullable: true
-    // comment: "locally encrypted encryption key for this item."
   })
   public encItemKey: string | null;
 
   @Column({
+    comment: "Has the item has been deleted?",
     type: "boolean",
     nullable: false,
     default: false
-    // comment: "Whether the item has been deleted."
   })
   public deleted: boolean;
 
+  // User that created this item.
   @ManyToOne(type => User, user => user.items, {
     cascade: ["insert", "update", "remove"],
     onDelete: "SET NULL",
     nullable: true,
     eager: true
-    // comment: "User that owns this item."
   })
   public user: User | null;
 
@@ -56,19 +56,18 @@ export class Item {
     cascade: ["insert", "update", "remove"],
     onDelete: "SET NULL",
     nullable: true
-    // comment: "Parent that encompasses this item."
   })
   public parent: Item | null;
 
   @CreateDateColumn({
+    comment: "Item creation timestamp.",
     type: "timestamp with time zone"
-    // comment: "Item creation timestamp."
   })
   public createdAt: Date;
 
   @UpdateDateColumn({
+    comment: "Item updated timestamp.",
     type: "timestamp with time zone"
-    // comment: "Item updated timestamp."
   })
   public updatedAt: Date;
 }

@@ -1,133 +1,113 @@
-import { InMemoryCache } from "apollo-cache-inmemory";
+import { NormalizedCacheObject } from "apollo-cache-inmemory";
 import ApolloClient from "apollo-client";
-import { ApolloLink, split } from "apollo-link";
-import { HttpLink } from "apollo-link-http";
-import { WebSocketLink } from "apollo-link-ws";
-import { getOperationDefinition } from "apollo-utilities";
 import gql from "graphql-tag";
 import { Server } from "http";
-import fetch from "node-fetch";
 import { SubscriptionClient } from "subscriptions-transport-ws";
-import { getConnection, getRepository } from "typeorm";
-import WebSocket from "ws";
+import { getConnection } from "typeorm";
 import { PORT } from "../../src/constants";
 import { Item } from "../../src/entity/Item";
 import { User } from "../../src/entity/User";
-import { UserEmail } from "../../src/entity/UserEmail";
 import start from "../../src/index";
 import Auth from "../../src/modules/Auth";
 import ItemManager from "../../src/modules/ItemManager";
-
-let server: Server = null;
-let itemUser: User = null;
-let gqlClient: ApolloClient<any> = null;
-let subscriptionClient: SubscriptionClient = null;
-
-async function createUsers() {
-  await getConnection().transaction(async transactionEntityManager => {
-    // userInputtedPassword = `Another secure p455word~`;
-    itemUser = new User();
-    const itemEmail = new UserEmail();
-    itemEmail.email = "itemTestUser@udia.ca";
-    itemEmail.lEmail = "itemtestuser@udia.ca";
-    itemEmail.primary = true;
-    itemEmail.verified = true;
-    itemUser.username = "itemtestuser";
-    itemUser.lUsername = "itemtestuser";
-    itemUser.pwHash =
-      `$argon2i$v=19$m=4096,t=3,p=1$` +
-      `oQsV2gDZcl3Qx2dfn+4hmg$2eeavsqCtG5zZRCQ/lVFSjrayzkmQGbdGYEi+p+Ny9w`;
-    itemUser.pwFunc = "pbkdf2";
-    itemUser.pwDigest = "sha512";
-    itemUser.pwCost = 3000;
-    itemUser.pwSalt = "c9b5f819984f9f2ef18ec4c4156dbbc802c79d11";
-    itemUser = await transactionEntityManager.save(itemUser);
-    itemEmail.user = itemUser;
-    await transactionEntityManager.save(itemEmail);
-  });
-}
-
-async function deleteUsers() {
-  await getConnection()
-    .createQueryBuilder()
-    .delete()
-    .from(User)
-    .where({ lUsername: "itemtestuser" })
-    .execute();
-}
-
-/**
- * Setup the server and gql clients
- */
-beforeAll(async done => {
-  // Ports are staggered to prevent multiple tests from clobbering
-  const itemTestPort = `${parseInt(PORT, 10) + 6}`;
-  server = await start(itemTestPort);
-  await deleteUsers();
-  await createUsers();
-  const GRAPHQL_HTTP_ENDPOINT = `http://0.0.0.0:${itemTestPort}/graphql`;
-  const GRAPHQL_SUBSCRIPTIONS_ENDPOINT = `ws://0.0.0.0:${itemTestPort}/subscriptions`;
-
-  const jwt = Auth.signUserJWT(itemUser);
-  const authorizationHeader = `Bearer ${jwt}`;
-  const middlewareAuthLink = new ApolloLink((operation, forward) => {
-    operation.setContext({ headers: { authorization: authorizationHeader } });
-    return forward(operation);
-  });
-  const httpLinkWithAuthToken = middlewareAuthLink.concat(
-    // TODO https://github.com/apollographql/apollo-link/issues/513
-    new HttpLink({ uri: GRAPHQL_HTTP_ENDPOINT, fetch: fetch as any })
-  );
-
-  subscriptionClient = new SubscriptionClient(
-    GRAPHQL_SUBSCRIPTIONS_ENDPOINT,
-    {
-      reconnect: true,
-      connectionParams: { authorization: jwt }
-    },
-    WebSocket
-  );
-  const wsLinkWithAuthToken = new WebSocketLink(subscriptionClient);
-  const link = split(
-    ({ query }) => {
-      // TODO https://github.com/apollographql/apollo-link/issues/601
-      const { kind, operation } = getOperationDefinition(query as any) || {
-        kind: null,
-        operation: null
-      };
-      return kind === "OperationDefinition" && operation === "subscription";
-    },
-    wsLinkWithAuthToken,
-    httpLinkWithAuthToken
-  );
-  gqlClient = new ApolloClient({
-    link,
-    cache: new InMemoryCache()
-  });
-  done();
-});
-
-/**
- * Close the server and clients
- */
-afterAll(async done => {
-  await deleteUsers();
-  subscriptionClient.close();
-  server.close(done);
-});
+import { generateGenericUser, generateGraphQLClients } from "../testHelper";
 
 describe("Item", () => {
+  // Ports are staggered to prevent multiple tests from clobbering
+  const itemTestPort = `${parseInt(PORT, 10) + 4}`;
+
+  let server: Server;
+  let itemUser: User;
+  let gqlClient: ApolloClient<NormalizedCacheObject>;
+  let subscriptionClient: SubscriptionClient;
+
+  async function deleteUsers() {
+    await getConnection()
+      .createQueryBuilder()
+      .delete()
+      .from(User)
+      .where({ lUsername: "itemgqltest" })
+      .execute();
+  }
+
+  /**
+   * Setup the server and gql clients
+   */
+  beforeAll(async () => {
+    // Ports are staggered to prevent multiple tests from clobbering
+    server = await start(itemTestPort);
+    await deleteUsers();
+    await getConnection().transaction(async transactionEntityManager => {
+      const { u, e } = generateGenericUser("itemGQLTest");
+      itemUser = await transactionEntityManager.save(u);
+      e.user = itemUser;
+      await transactionEntityManager.save(e);
+    });
+    const jwt = Auth.signUserJWT(itemUser);
+    const { s, g } = generateGraphQLClients(itemTestPort, jwt);
+    gqlClient = g;
+    subscriptionClient = s;
+  });
+
+  /**
+   * Close the server
+   */
+  afterAll(async done => {
+    await deleteUsers();
+    subscriptionClient.close();
+    server.close(done);
+  });
+
   describe("getItem", () => {
-    let item: Item = null;
-    let childItem: Item = null;
+    let item: Item;
+    let childItem: Item;
+    const query = gql`
+      query GetItem($id: ID!) {
+        getItem(id: $id) {
+          uuid
+          content
+          contentType
+          encItemKey
+          user {
+            username
+          }
+          parent {
+            uuid
+          }
+          children {
+            count
+            items {
+              uuid
+              content
+              contentType
+              encItemKey
+              user {
+                username
+              }
+              deleted
+              parent {
+                uuid
+              }
+              children {
+                count
+                items {
+                  uuid
+                }
+              }
+            }
+          }
+          deleted
+        }
+      }
+    `;
 
     beforeAll(async () => {
-      item = await ItemManager.createItem("itemtestuser", {
+      item = await ItemManager.createItem(itemUser.lUsername, {
         content: "gql parent item test",
         contentType: "plaintext",
         encItemKey: "unencrypted"
       });
-      childItem = await ItemManager.createItem("itemtestuser", {
+      childItem = await ItemManager.createItem(itemUser.lUsername, {
         content: "gql child item test",
         contentType: "plaintext",
         encItemKey: "unencrypted",
@@ -141,48 +121,10 @@ describe("Item", () => {
         .delete(item);
     });
 
-    it("should get an item by id", async done => {
+    it("should get an item by id", async () => {
       expect.assertions(34);
       const getItemQueryResponse = await gqlClient.query({
-        query: gql`
-          query GetItem($id: ID!) {
-            getItem(id: $id) {
-              uuid
-              content
-              contentType
-              encItemKey
-              user {
-                username
-              }
-              parent {
-                uuid
-              }
-              children {
-                count
-                items {
-                  uuid
-                  content
-                  contentType
-                  encItemKey
-                  user {
-                    username
-                  }
-                  deleted
-                  parent {
-                    uuid
-                  }
-                  children {
-                    count
-                    items {
-                      uuid
-                    }
-                  }
-                }
-              }
-              deleted
-            }
-          }
-        `,
+        query,
         variables: { id: item.uuid }
       });
       expect(getItemQueryResponse).toHaveProperty("data");
@@ -198,7 +140,7 @@ describe("Item", () => {
       expect(getItem).toHaveProperty("user");
       const parentItemUser = getItem.user;
       expect(parentItemUser).toHaveProperty("__typename", "User");
-      expect(parentItemUser).toHaveProperty("username", "itemtestuser");
+      expect(parentItemUser).toHaveProperty("username", itemUser.username);
       expect(getItem).toHaveProperty("parent");
       const parentItemParent = getItem.parent;
       expect(parentItemParent).toBeNull();
@@ -219,7 +161,7 @@ describe("Item", () => {
       expect(childrenItem).toHaveProperty("user");
       const childItemUser = childrenItem.user;
       expect(childItemUser).toHaveProperty("__typename", "User");
-      expect(childItemUser).toHaveProperty("username", "itemtestuser");
+      expect(childItemUser).toHaveProperty("username", itemUser.username);
       expect(childrenItem).toHaveProperty("parent");
       const childItemParent = childrenItem.parent;
       expect(childItemParent).toHaveProperty("__typename", "Item");
@@ -229,22 +171,21 @@ describe("Item", () => {
       expect(childItemChildren).toHaveProperty("__typename", "ItemPagination");
       expect(childItemChildren).toHaveProperty("count", 0);
       expect(childItemChildren).toHaveProperty("items", []);
-      done();
     });
   });
 
   describe("getItems", () => {
-    let parentItem: Item = null;
+    let parentItem: Item;
     const items: Item[] = [];
 
     beforeAll(async () => {
-      parentItem = await ItemManager.createItem("itemtestuser", {
+      parentItem = await ItemManager.createItem(itemUser.lUsername, {
         content: `gql items test root item`,
         contentType: "plaintext",
         encItemKey: "unencrypted"
       });
       for (let i = 1; i <= 20; i++) {
-        const item = await ItemManager.createItem("itemtestuser", {
+        const item = await ItemManager.createItem(itemUser.lUsername, {
           content: `gql items test ${i}`,
           contentType: "plaintext",
           encItemKey: "unencrypted",
@@ -265,27 +206,31 @@ describe("Item", () => {
       }
     });
 
-    it("should get items by pagination parameters", async () => {
-      expect.assertions(117);
+    it("should get items by pagination with no parameters", async () => {
+      expect.assertions(4);
       const getItemsQuery = gql`
-        query GetItems(
-          $username: String
-          $parentId: ID
-          $depth: Int
-          $limit: Int
-          $datetime: DateTime
-          $sort: ItemSortValue
-          $order: ItemOrderValue
-        ) {
-          getItems(
-            username: $username
-            parentId: $parentId
-            depth: $depth
-            limit: $limit
-            datetime: $datetime
-            sort: $sort
-            order: $order
-          ) {
+        query GetItems {
+          getItems {
+            count
+          }
+        }
+      `;
+      const getItemsQueryResponse = await gqlClient.query({
+        query: getItemsQuery
+      });
+      expect(getItemsQueryResponse).toHaveProperty("data");
+      const getItemsData: any = getItemsQueryResponse.data;
+      expect(getItemsData).toHaveProperty("getItems");
+      const getItems = getItemsData.getItems;
+      expect(getItems).toHaveProperty("count");
+      expect(getItems.count).toBeGreaterThanOrEqual(21);
+    });
+
+    it("should get items by variable pagination parameters", async () => {
+      expect.assertions(113);
+      const getItemsQuery = gql`
+        query GetItems($params: ItemPaginationInput) {
+          getItems(params: $params) {
             items {
               uuid
               content
@@ -299,11 +244,14 @@ describe("Item", () => {
       let getItemsQueryResponse = await gqlClient.query({
         query: getItemsQuery,
         variables: {
-          username: "itemtestuser",
-          parentId: parentItem.uuid,
-          depth: 1,
-          limit: 13,
-          order: "ASC"
+          params: {
+            username: itemUser.lUsername,
+            parentId: parentItem.uuid,
+            depth: 1,
+            limit: 13,
+            datetime: new Date(1),
+            order: "ASC"
+          }
         }
       });
       expect(getItemsQueryResponse).toHaveProperty("data");
@@ -328,16 +276,31 @@ describe("Item", () => {
         );
         expect(firstQueryItems[i]).toHaveProperty("uuid", items[i].uuid);
       }
-      // get second pass
+
+      const getNextItemsQuery = gql`
+        query GetItems($params: ItemPaginationInput) {
+          getItems(params: $params) {
+            items {
+              uuid
+              content
+              contentType
+              encItemKey
+            }
+            count
+          }
+        }
+      `;
       getItemsQueryResponse = await gqlClient.query({
-        query: getItemsQuery,
+        query: getNextItemsQuery,
         variables: {
-          username: "itemtestuser",
-          parentId: parentItem.uuid,
-          depth: 1,
-          limit: 13,
-          datetime: items[12].createdAt,
-          order: "ASC"
+          params: {
+            username: itemUser.lUsername,
+            parentId: parentItem.uuid,
+            depth: 1,
+            limit: 13,
+            datetime: items[12].createdAt,
+            order: "ASC"
+          }
         }
       });
       expect(getItemsQueryResponse).toHaveProperty("data");
@@ -345,31 +308,153 @@ describe("Item", () => {
       expect(getItemsQueryData).toHaveProperty("getItems");
       getItems = getItemsQueryData.getItems;
       expect(getItems).toHaveProperty("__typename", "ItemPagination");
-      expect(getItems).toHaveProperty("count", 8);
+      expect(getItems).toHaveProperty("count", 7);
       expect(getItems).toHaveProperty("items");
       const secondQueryItems = getItems.items;
-      expect(secondQueryItems).toHaveLength(8);
+
+      // Check for overlap
+      expect(secondQueryItems[0].uuid).not.toEqual(
+        firstQueryItems[firstQueryItems.length - 1].uuid
+      );
+
+      expect(secondQueryItems).toHaveLength(7);
+      const offset = 13;
       for (let i = 0; i < secondQueryItems.length; i++) {
         expect(secondQueryItems[i]).toHaveProperty("__typename", "Item");
         expect(secondQueryItems[i]).toHaveProperty(
           "content",
-          items[12 + i].content
+          items[offset + i].content
         );
         expect(secondQueryItems[i]).toHaveProperty(
           "contentType",
-          items[12 + i].contentType
+          items[offset + i].contentType
         );
         expect(secondQueryItems[i]).toHaveProperty(
           "encItemKey",
-          items[12 + i].encItemKey
+          items[offset + i].encItemKey
         );
-        expect(secondQueryItems[i]).toHaveProperty("uuid", items[12 + i].uuid);
+        expect(secondQueryItems[i]).toHaveProperty(
+          "uuid",
+          items[offset + i].uuid
+        );
+      }
+    });
+
+    it("should get items by inline pagination parameters", async () => {
+      expect.assertions(113);
+      const getItemsInlineQuery = gql`
+        query GetItems {
+          getItems(
+            params: {
+              username: "${itemUser.lUsername}"
+              parentId: "${parentItem.uuid}"
+              depth: 1,
+              limit: 13,
+              datetime: "${new Date(1).toString()}"
+              order: ASC
+            }
+          ) {
+            items {
+              uuid
+              content
+              contentType
+              encItemKey
+            }
+            count
+          }
+        }
+      `;
+      let getItemsQueryResponse = await gqlClient.query({
+        query: getItemsInlineQuery
+      });
+      expect(getItemsQueryResponse).toHaveProperty("data");
+      let getItemsQueryData: any = getItemsQueryResponse.data;
+      expect(getItemsQueryData).toHaveProperty("getItems");
+      let getItems = getItemsQueryData.getItems;
+      expect(getItems).toHaveProperty("__typename", "ItemPagination");
+      expect(getItems).toHaveProperty("count", 20);
+      expect(getItems).toHaveProperty("items");
+      const firstQueryItems = getItems.items;
+      expect(firstQueryItems).toHaveLength(13);
+      for (let i = 0; i < firstQueryItems.length; i++) {
+        expect(firstQueryItems[i]).toHaveProperty("__typename", "Item");
+        expect(firstQueryItems[i]).toHaveProperty("content", items[i].content);
+        expect(firstQueryItems[i]).toHaveProperty(
+          "contentType",
+          items[i].contentType
+        );
+        expect(firstQueryItems[i]).toHaveProperty(
+          "encItemKey",
+          items[i].encItemKey
+        );
+        expect(firstQueryItems[i]).toHaveProperty("uuid", items[i].uuid);
+      }
+
+      const getNextItemsInlineQuery = gql`
+        query GetItems {
+          getItems(
+            params: {
+              username: "${itemUser.lUsername}"
+              parentId: "${parentItem.uuid}"
+              depth: 1
+              limit: 13
+              datetime: ${items[12].createdAt.getTime()}
+              order: ASC
+            }
+          ) {
+            items {
+              uuid
+              content
+              contentType
+              encItemKey
+            }
+            count
+          }
+        }
+      `;
+      getItemsQueryResponse = await gqlClient.query({
+        query: getNextItemsInlineQuery
+      });
+      expect(getItemsQueryResponse).toHaveProperty("data");
+      getItemsQueryData = getItemsQueryResponse.data;
+      expect(getItemsQueryData).toHaveProperty("getItems");
+      getItems = getItemsQueryData.getItems;
+      expect(getItems).toHaveProperty("__typename", "ItemPagination");
+      expect(getItems).toHaveProperty("count", 7);
+      expect(getItems).toHaveProperty("items");
+      const secondQueryItems = getItems.items;
+
+      // Check for overlap
+      expect(secondQueryItems[0].uuid).not.toEqual(
+        firstQueryItems[firstQueryItems.length - 1].uuid
+      );
+
+      expect(secondQueryItems).toHaveLength(7);
+      const offset = 13;
+      for (let i = 0; i < secondQueryItems.length; i++) {
+        expect(secondQueryItems[i]).toHaveProperty("__typename", "Item");
+        expect(secondQueryItems[i]).toHaveProperty(
+          "content",
+          items[offset + i].content
+        );
+        expect(secondQueryItems[i]).toHaveProperty(
+          "contentType",
+          items[offset + i].contentType
+        );
+        expect(secondQueryItems[i]).toHaveProperty(
+          "encItemKey",
+          items[offset + i].encItemKey
+        );
+        expect(secondQueryItems[i]).toHaveProperty(
+          "uuid",
+          items[offset + i].uuid
+        );
       }
     });
   });
 
   describe("createItem", () => {
-    let itemUuid: string = null;
+    let itemUuid: string;
 
     afterAll(async () => {
       await getConnection()
@@ -380,16 +465,8 @@ describe("Item", () => {
     it("should create an item", async () => {
       expect.assertions(10);
       const createItemMutation = gql`
-        mutation CreateItem(
-          $content: String!
-          $contentType: String!
-          $encItemKey: String!
-        ) {
-          createItem(
-            content: $content
-            contentType: $contentType
-            encItemKey: $encItemKey
-          ) {
+        mutation CreateItem($params: CreateItemInput!) {
+          createItem(params: $params) {
             uuid
             content
             contentType
@@ -403,13 +480,15 @@ describe("Item", () => {
       const createItemMutationResponse = await gqlClient.mutate({
         mutation: createItemMutation,
         variables: {
-          content: "createItemTest content",
-          contentType: "plaintext",
-          encItemKey: "unencrypted"
+          params: {
+            content: "createItemTest content",
+            contentType: "plaintext",
+            encItemKey: "unencrypted"
+          }
         }
       });
       expect(createItemMutationResponse).toHaveProperty("data");
-      const createItemData = createItemMutationResponse.data;
+      const createItemData = createItemMutationResponse.data!;
       expect(createItemData).toHaveProperty("createItem");
       const createItem = createItemData.createItem;
       expect(createItem).toHaveProperty("uuid");
@@ -421,15 +500,55 @@ describe("Item", () => {
       expect(createItem).toHaveProperty("user");
       const createItemUser = createItem.user;
       expect(createItemUser).toHaveProperty("__typename", "User");
-      expect(createItemUser).toHaveProperty("username", "itemtestuser");
+      expect(createItemUser).toHaveProperty("username", itemUser.username);
+    });
+
+    it("should create an item with no encItemKey", async () => {
+      expect.assertions(10);
+      const createItemMutation = gql`
+        mutation CreateItem($params: CreateItemInput!) {
+          createItem(params: $params) {
+            uuid
+            content
+            contentType
+            encItemKey
+            user {
+              username
+            }
+          }
+        }
+      `;
+      const createItemMutationResponse = await gqlClient.mutate({
+        mutation: createItemMutation,
+        variables: {
+          params: {
+            content: "createItemTest content2",
+            contentType: "plaintext"
+          }
+        }
+      });
+      expect(createItemMutationResponse).toHaveProperty("data");
+      const createItemData = createItemMutationResponse.data!;
+      expect(createItemData).toHaveProperty("createItem");
+      const createItem = createItemData.createItem;
+      expect(createItem).toHaveProperty("uuid");
+      itemUuid = createItem.uuid;
+      expect(createItem).toHaveProperty("__typename", "Item");
+      expect(createItem).toHaveProperty("content", "createItemTest content2");
+      expect(createItem).toHaveProperty("contentType", "plaintext");
+      expect(createItem).toHaveProperty("encItemKey", null);
+      expect(createItem).toHaveProperty("user");
+      const createItemUser = createItem.user;
+      expect(createItemUser).toHaveProperty("__typename", "User");
+      expect(createItemUser).toHaveProperty("username", itemUser.username);
     });
   });
 
   describe("updateItem", () => {
-    let item: Item = null;
+    let item: Item;
 
     beforeAll(async () => {
-      item = await ItemManager.createItem("itemtestuser", {
+      item = await ItemManager.createItem(itemUser.lUsername, {
         content: `gql items test update item`,
         contentType: "plaintext",
         encItemKey: "unencrypted"
@@ -445,8 +564,8 @@ describe("Item", () => {
     it("should update an item", async () => {
       expect.assertions(13);
       const updateItemMutation = gql`
-        mutation UpdateItem($id: ID!, $content: String) {
-          updateItem(id: $id, content: $content) {
+        mutation UpdateItem($id: ID!, $params: UpdateItemInput!) {
+          updateItem(id: $id, params: $params) {
             uuid
             content
             contentType
@@ -463,11 +582,13 @@ describe("Item", () => {
         mutation: updateItemMutation,
         variables: {
           id: item.uuid,
-          content: "item has been updated"
+          params: {
+            content: "item has been updated"
+          }
         }
       });
       expect(updateItemMutationResponse).toHaveProperty("data");
-      const updateItemData = updateItemMutationResponse.data;
+      const updateItemData = updateItemMutationResponse.data!;
       expect(updateItemData).toHaveProperty("updateItem");
       const updateItem = updateItemData.updateItem;
       expect(updateItem).toHaveProperty("__typename", "Item");
@@ -478,7 +599,7 @@ describe("Item", () => {
       expect(updateItem).toHaveProperty("user");
       const updateItemUser = updateItem.user;
       expect(updateItemUser).toHaveProperty("__typename", "User");
-      expect(updateItemUser).toHaveProperty("username", "itemtestuser");
+      expect(updateItemUser).toHaveProperty("username", itemUser.username);
       expect(updateItem).toHaveProperty("createdAt");
       expect(updateItem).toHaveProperty("updatedAt");
       expect(updateItem.createdAt).toBeLessThan(updateItem.updatedAt);
@@ -486,10 +607,10 @@ describe("Item", () => {
   });
 
   describe("deleteItem", () => {
-    let item: Item = null;
+    let item: Item;
 
     beforeAll(async () => {
-      item = await ItemManager.createItem("itemtestuser", {
+      item = await ItemManager.createItem(itemUser.lUsername, {
         content: `gql items test delete item`,
         contentType: "plaintext",
         encItemKey: "unencrypted"
@@ -524,7 +645,7 @@ describe("Item", () => {
         variables: { id: item.uuid }
       });
       expect(deleteItemMutationResponse).toHaveProperty("data");
-      const deleteItemData = deleteItemMutationResponse.data;
+      const deleteItemData = deleteItemMutationResponse.data!;
       expect(deleteItemData).toHaveProperty("deleteItem");
       const deleteItem = deleteItemData.deleteItem;
       expect(deleteItem).toHaveProperty("__typename", "Item");
@@ -535,7 +656,7 @@ describe("Item", () => {
       expect(deleteItem).toHaveProperty("user");
       const deleteItemUser = deleteItem.user;
       expect(deleteItemUser).toHaveProperty("__typename", "User");
-      expect(deleteItemUser).toHaveProperty("username", "itemtestuser");
+      expect(deleteItemUser).toHaveProperty("username", itemUser.username);
       expect(deleteItem).toHaveProperty("uuid", item.uuid);
       expect(deleteItem).toHaveProperty("createdAt");
       expect(deleteItem).toHaveProperty("updatedAt");

@@ -1,18 +1,27 @@
 {
   "compilerOptions": {
-    "lib": ["es5", "es2015", "esnext"],
-    "target": "es2015",
+    "allowSyntheticDefaultImports": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "declaration": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
+    "lib": ["es2016", "esnext.asynciterable"],
     "module": "commonjs",
-    "inlineSourceMap": true,
-    "inlineSources": true,
+    "noEmitOnError": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
     "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "pretty": true,
+    "sourceMap": true,
     "outDir": "dist",
+    "skipLibCheck": true,
     "strict": true,
     "strictPropertyInitialization": false,
-    "esModuleInterop": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "noUnusedLocals": true
+    "target": "es2016"
   },
   "include": [
     "src/**/*.ts"

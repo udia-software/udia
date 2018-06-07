@@ -30,8 +30,7 @@ let config: any = {
   }
 };
 
-// coverage don't care about non test route
-/* istanbul ignore next */
+/* istanbul ignore next: don't care about non test route */
 if (NODE_ENV === "development") {
   config = {
     streamTransport: true,
@@ -45,9 +44,8 @@ if (NODE_ENV === "development") {
   };
 }
 
-// coverage should not be using AWS
-/* istanbul ignore next */
-if (NODE_ENV !== 'test' && !!AWS_ACCESS_KEY_ID && !!AWS_SECRET_ACCESS_KEY) {
+/* istanbul ignore next: test coverage does not use AWS */
+if (NODE_ENV !== "test" && !!AWS_ACCESS_KEY_ID && !!AWS_SECRET_ACCESS_KEY) {
   logger.info("Using AWS SDK for Mailer");
   AWSConfig.accessKeyId = AWS_ACCESS_KEY_ID;
   AWSConfig.secretAccessKey = AWS_SECRET_ACCESS_KEY;
@@ -81,8 +79,11 @@ export default class Mailer {
         name: username,
         address: email
       },
-      subject: `[UDIA${NODE_ENV !== "production" ?
-        ` ${NODE_ENV}` : ''}] Validate Your Email`,
+      subject: `[UDIA${
+        NODE_ENV !== "production"
+          ? ` ${NODE_ENV}` /* istanbul ignore next: always test */
+          : ""
+      }] Validate Your Email`,
       text:
         "This is your email validation token.\n" +
         `It is valid for ${validityTime}.\n` +
@@ -109,8 +110,7 @@ export default class Mailer {
         logger.info("sendEmailVerification sent", info);
       })
       .catch(
-        // coverage don't care about send mail failure, test mail never fails
-        /* istanbul ignore next */
+        /* istanbul ignore next: test mail never fails */
         err => {
           logger.error("sendEmailVerification failed", err);
         }
@@ -137,8 +137,11 @@ export default class Mailer {
         name: username,
         address: email
       },
-      subject: `[UDIA${NODE_ENV !== "production" ?
-      ` ${NODE_ENV}` : ''}] Reset Your Password`,
+      subject: `[UDIA${
+        NODE_ENV !== "production"
+        ? ` ${NODE_ENV}` /* istanbul ignore next: always test */
+        : ""
+      }] Reset Your Password`,
       text:
         `This is your password reset token.\n` +
         `It is valid for ${validityTime}.\n` +
@@ -165,8 +168,7 @@ export default class Mailer {
         logger.info("sendForgotPasswordEmail sent", info);
       })
       .catch(
-        // coverage don't care about send mail failure, test mail never fails
-        /* istanbul ignore next */
+        /* istanbul ignore next: test mail never fails */
         err => {
           logger.error("sendForgotPasswordEmail failed", err);
         }

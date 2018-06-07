@@ -1,4 +1,5 @@
 import { getConnection, getRepository } from "typeorm";
+import { ITEMS_PAGE_LIMIT } from "../constants";
 import { Item } from "../entity/Item";
 import { ItemClosure } from "../entity/ItemClosure";
 import { User } from "../entity/User";
@@ -21,7 +22,7 @@ export interface IGetItemsParams {
 export interface ICreateItemParams {
   content: string;
   contentType: string;
-  encItemKey: string;
+  encItemKey?: string;
   parentId?: string;
 }
 
@@ -70,7 +71,9 @@ export default class ItemManager {
     let newItem = new Item();
     newItem.content = content;
     newItem.contentType = contentType;
-    newItem.encItemKey = encItemKey;
+    if (encItemKey) {
+      newItem.encItemKey = encItemKey;
+    }
     newItem.user = user!;
     if (parentItem) {
       newItem.parent = parentItem;
@@ -108,7 +111,7 @@ export default class ItemManager {
     username, // Get items that belong to the given user (username) or undefined
     parentId, // Get items from ancestor (null for root, undefined for all)
     depth = 0, // Get items at a specific depth from ancestor
-    limit = 14, // Limit number of items returned
+    limit = 10, // Limit number of items returned
     datetime, // Keyset pagination on date (unindexed for updatedAt)
     sort = "createdAt", // Sort by createdAt field
     order = "DESC" // Order by descending value (show newest first)
@@ -168,18 +171,20 @@ export default class ItemManager {
     // Datetime is used for pagination over items
     if (datetime !== undefined) {
       // operator depends on ASC or DESC
-      const datetimeOp = {
-        DESC: "<",
-        ASC: ">"
-      };
-      itemQueryBuilder.andWhere(`item.${sort} ${datetimeOp[order]} :datetime`, {
-        datetime
-      });
+      const datetimeOp = { DESC: "<", ASC: ">" };
+      itemQueryBuilder.andWhere(
+        `"item"."${sort}" ${datetimeOp[order]} :datetime`,
+        { datetime }
+      );
     }
 
+    // Ensure limit is between 1 and ITEMS_PAGE_LIMIT
+    let safeLimit = Math.min(limit, parseInt(ITEMS_PAGE_LIMIT, 10));
+    safeLimit = Math.max(1, safeLimit);
+
     const [items, count] = await itemQueryBuilder
-      .orderBy(`item.${sort}`, order)
-      .limit(limit)
+      .orderBy(`"item"."${sort}"`, order)
+      .limit(safeLimit)
       .getManyAndCount();
     return { items, count };
   }
