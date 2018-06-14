@@ -353,6 +353,8 @@ const typeDefs: ITypedef[] = [
   }`,
   `# Public Facing Health Metric Object
   type HealthMetric {
+    # Package.json name field
+    name: String!
     # UDIA API Version
     version: String!
     # Server NodeJS Version

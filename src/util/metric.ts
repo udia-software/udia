@@ -10,7 +10,7 @@ import {
   uptime as osUptime
 } from "os";
 import { uptime as pUptime, version as nodeVersion } from "process";
-import { APP_VERSION } from "../constants";
+import { APP_NAME, APP_VERSION } from "../constants";
 
 /**
  * CPU metrics are unreliable inside a containerized environment (Docker)
@@ -36,6 +36,7 @@ function metric() {
   });
 
   return {
+    name: APP_NAME, 
     version: APP_VERSION, // version of application defined in package.json
     nodeVersion, // version of Node.js running the web application
     arch: arch(), // CPU architecture that compiled Node.js binary

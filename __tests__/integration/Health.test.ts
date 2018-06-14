@@ -3,6 +3,7 @@ import axios, { AxiosInstance } from "axios";
 import gql from "graphql-tag";
 import { Server } from "http";
 import { SubscriptionClient } from "subscriptions-transport-ws";
+import { name, version } from "../../package.json";
 import { PORT } from "../../src/constants";
 import start from "../../src/index";
 import { generateGraphQLClients } from "../testHelper";
@@ -30,10 +31,11 @@ describe("Health", () => {
     });
 
     it("should query the `/health` endpoint", async () => {
-      expect.assertions(15);
+      expect.assertions(16);
       const getHealthResp = await restClient.get("/health");
       const respData = getHealthResp.data || {};
-      expect(respData).toHaveProperty("version");
+      expect(respData).toHaveProperty("name", name);
+      expect(respData).toHaveProperty("version", version);
       expect(respData).toHaveProperty("nodeVersion");
       expect(respData).toHaveProperty("arch");
       expect(respData).toHaveProperty("hostname");
@@ -57,6 +59,7 @@ describe("Health", () => {
     const query = gql`
       query Health {
         health {
+          name
           version
           nodeVersion
           arch
@@ -97,13 +100,14 @@ describe("Health", () => {
     });
 
     it("should query the `/graphql` endpoint", async () => {
-      expect.assertions(17);
+      expect.assertions(18);
       const getHealthQueryResp = await gqlClient.query({ query });
       expect(getHealthQueryResp).toHaveProperty("data");
       const getHealthData: any = getHealthQueryResp.data;
       expect(getHealthData).toHaveProperty("health");
       const getHealth = getHealthData.health;
-      expect(getHealth).toHaveProperty("version");
+      expect(getHealth).toHaveProperty("name", name);
+      expect(getHealth).toHaveProperty("version", version);
       expect(getHealth).toHaveProperty("nodeVersion");
       expect(getHealth).toHaveProperty("arch");
       expect(getHealth).toHaveProperty("hostname");

@@ -1,11 +1,13 @@
-import dotenv from 'dotenv';
-import { version } from "pjson";
+import dotenv from "dotenv";
+import path from "path";
+import { name, version } from "../package.json";
 dotenv.config(); // can also set environment variables using .env file
 
 const APP_VERSION = version;
+const APP_NAME = name;
+const LOG_DIR = path.join(__dirname, "..", "log");
 
 // Environment Variables (SEE README)
-
 /* istanbul ignore next: node env always test */
 const NODE_ENV = process.env.NODE_ENV || "development";
 const PORT = process.env.PORT || "3000";
@@ -35,6 +37,8 @@ const USERS_PAGE_LIMIT = process.env.USERS_PAGE_LIMIT || "32";
 
 export {
   APP_VERSION,
+  APP_NAME,
+  LOG_DIR,
   NODE_ENV,
   PORT,
   SQL_USER,

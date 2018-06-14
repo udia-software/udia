@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import moment from "moment";
+import moment, { ISO_8601 } from "moment";
 import onFinished from "on-finished";
+import path from "path";
 import { Logger as ITypeORMLogger } from "typeorm";
-import { Logger, LoggerInstance, transports } from "winston";
-import { NODE_ENV } from "../constants";
+import { createLogger, format, Logger, transports } from "winston";
+import { LOG_DIR, NODE_ENV } from "../constants";
 
 const logLevel =
   NODE_ENV === "production"
@@ -12,45 +13,65 @@ const logLevel =
 const logFileSize = 10 * 1024 * 1024; // 10MiB
 const logMaxFiles = 8;
 
-/**
- * Winston logger instance. Transports change based on node environment.
- */
-const logger: LoggerInstance = new Logger({
+// Default formatter, simply set timestamp to be now
+const defaultFormatter = (logEntry: any) => {
+  const json = { timestamp: new Date().toISOString(), ...logEntry };
+  logEntry[Symbol.for("message")] = JSON.stringify(json);
+  return logEntry;
+};
+
+// Custom Formatter for console transport
+/* istanbul ignore next: we don't want to see console output in test */
+const consoleFormatter = format.combine(
+  format.colorize(),
+  format.timestamp(),
+  format.printf(({ timestamp, level, message, ...args }) => {
+    return `${moment(
+      timestamp,
+      ISO_8601,
+      true
+    ).toLocaleString()} [${level}]: ${message} ${
+      Object.keys(args).length ? JSON.stringify(args) : ""
+    }`;
+  })
+);
+
+// Winston transports
+const consoleTransport = new transports.Console({
+  format: consoleFormatter
+});
+const fileTransport = new transports.File({
+  filename: path.join(LOG_DIR, `${NODE_ENV}-${logLevel}.log`),
   level: logLevel,
-  transports: [
-    new transports.Console({
-      name: "console",
-      colorize: true,
-      timestamp: true
-    }),
-    new transports.File({
-      name: `${NODE_ENV}-${logLevel}`,
-      filename: `log/${NODE_ENV}-${logLevel}.log`,
-      level: logLevel,
-      maxsize: logFileSize,
-      maxFiles: logMaxFiles,
-      tailable: true
-    })
-  ],
+  maxsize: logFileSize,
+  maxFiles: logMaxFiles,
+  tailable: true
+});
+
+// Winston logger instance. Transports change based on node environment.
+const logger: Logger = createLogger({
+  level: logLevel,
+  format: format(defaultFormatter)(),
+  transports: [consoleTransport, fileTransport],
   exitOnError: false
 });
 
 /* istanbul ignore next: we don't want to see console output in test */
 if (NODE_ENV === "test") {
-  logger.remove("console");
+  logger.remove(consoleTransport);
 }
 
 const MS_PER_S = 1e3;
 const NS_PER_MS = 1e6;
 const middlewareLogger = (req: Request, res: Response, next: NextFunction) => {
   const reqStartAt = process.hrtime();
-  const reqStartTime = moment();
+  const reqStartTime = new Date();
   const reqURL = req.originalUrl;
   onFinished(res, () => {
     const hrRespTime = process.hrtime(reqStartAt);
     const responseTime = hrRespTime[0] * MS_PER_S + hrRespTime[1] / NS_PER_MS;
     logger.info(`${res.statusCode} ${reqURL} ${responseTime}ms`, {
-      requestStartTime: reqStartTime.toISOString(true),
+      requestStartTime: reqStartTime.toISOString(),
       reqIp: req.ip,
       reqIps: req.ips,
       statusCode: res.statusCode,
@@ -67,12 +88,11 @@ class TypeORMLogger implements ITypeORMLogger {
   /**
    * Winston logger instance. Transports change based on node environment.
    */
-  private static winstonTypeORMlogger = new Logger({
+  private static winstonTypeORMlogger = createLogger({
     level: "verbose",
     transports: [
       new transports.File({
-        name: `${NODE_ENV}-typeorm`,
-        filename: `log/${NODE_ENV}-typeorm.log`,
+        filename: path.join(LOG_DIR, `${NODE_ENV}-typeorm.log`),
         level: "verbose",
         maxsize: logFileSize,
         maxFiles: logMaxFiles,

@@ -10,15 +10,15 @@
     "prestart": "yarn clean && yarn build && yarn runMigrations",
     "start": "node dist/index.js",
     "build": "tsc",
-    "lint": "tslint -c tslint.json 'src/**/*.ts' '__tests__/**/*.ts'",
+    "lint": "tslint -c tslint.json --project .",
     "watch": "nodemon --watch src --verbose --ext ts --exec yarn start",
     "prepublishOnly": "yarn test",
     "makeMigration": "ts-node node_modules/.bin/typeorm migration:generate",
     "runMigrations": "ts-node node_modules/.bin/typeorm migration:run",
     "revertMigration": "ts-node node_modules/.bin/typeorm migration:revert",
     "dropSchema": "ts-node node_modules/.bin/typeorm schema:drop",
-    "clean": "rm -rf dist/*",
-    "cleanLogs": "rm -rf log/*.log"
+    "clean": "rimraf dist",
+    "cleanLogs": "rimraf log"
   },
   "jest": {
     "transform": {
@@ -35,13 +35,14 @@
       "node"
     ],
     "testPathIgnorePatterns": [
-      "/node_modules/",
-      "/__tests__/testHelper.ts"
+      "node_modules/*",
+      "__tests__/testHelper.ts"
     ],
     "collectCoverage": true,
     "collectCoverageFrom": [
-      "**/src/**/*.ts",
-      "!**/src/migration/**"
+      "src/**/*.ts",
+      "!src/migration/*",
+      "!src/**/*.d.ts"
     ],
     "coverageReporters": [
       "json",
@@ -108,8 +109,8 @@
     "nodemon": "^1.17.2",
     "on-finished": "^2.3.0",
     "pg": "^7.4.1",
-    "pjson": "^1.0.9",
     "reflect-metadata": "^0.1.12",
+    "rimraf": "^2.6.2",
     "serve-index": "^1.9.1",
     "subscriptions-transport-ws": "^0.9.7",
     "ts-jest": "^22.4.2",
@@ -119,7 +120,7 @@
     "typeorm": "^0.2.0",
     "typescript": "^2.7.2",
     "websocket": "^1.0.25",
-    "winston": "^2.4.1",
+    "winston": "^3",
     "ws": "^5.1.1"
   },
   "engines": {

@@ -9,9 +9,11 @@ import "reflect-metadata"; // required for typeorm
 import { ServerOptions, SubscriptionServer } from "subscriptions-transport-ws";
 import { createConnection, getConnectionOptions } from "typeorm";
 
+import { existsSync, mkdir } from "fs";
 import app from "./app";
 import {
   HEALTH_METRIC_INTERVAL,
+  LOG_DIR,
   NODE_ENV,
   PORT,
   SQL_DB,
@@ -42,6 +44,12 @@ const dateReviver = (key: any, value: any) => {
  * Throws an error if client initialization fails
  */
 const start: (port: string) => Promise<Server> = async (port: string) => {
+
+  /* istanbul ignore next: we don't care about log dir init in test */
+  if (!existsSync(LOG_DIR)) {
+    // If the log directory does not exist, create it
+    await new Promise(resolve => mkdir(LOG_DIR, resolve));
+  }
   // crypto module may not exist in node binary (will throw error)
   app.set("crypto", crypto);
 
