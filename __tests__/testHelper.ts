@@ -40,7 +40,7 @@ export function generateUserCryptoParams(email: string, uip: string) {
 
   const hash = crypto.createHash("sha1");
   hash.update([email, pwNonce].join(":"));
-  const pwSalt = hash.digest("hex");
+  const pwSalt = hash.digest("base64");
 
   // Derive the three keys
   const { pw, mk, ak } = deriveSubKeysFromUserInputPassword({
@@ -65,7 +65,7 @@ export function generateUserCryptoParams(email: string, uip: string) {
     pw,
     mk,
     ak,
-    pwSalt,
+    pwNonce,
     pwCost,
     pwFunc,
     pwDigest,
@@ -189,6 +189,6 @@ export function generateGenericUser(username: string) {
   user.pwDigest = "SHA-512";
   user.pwCost = 100000;
   user.pwKeySize = 768;
-  user.pwSalt = "testsalt";
+  user.pwNonce = "testnonce";
   return { u: user, e: email };
 }

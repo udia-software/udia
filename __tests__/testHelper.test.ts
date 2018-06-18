@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import Auth from "../src/modules/Auth";
 import {
   deriveSubKeysFromUserInputPassword,
@@ -13,12 +14,15 @@ describe("TestHelper", () => {
       pw: upw,
       mk: umk,
       ak: uak,
-      pwSalt,
+      pwNonce,
       pwCost,
       pwFunc,
       pwDigest,
       pwKeySize
     } = generateUserCryptoParams(email, userInputtedPassword);
+    const hash = crypto.createHash("sha1");
+    hash.update([email, pwNonce].join(":"));
+    const pwSalt = hash.digest("base64");
     const { pw: lpw, mk: lmk, ak: lak } = deriveSubKeysFromUserInputPassword({
       uip: userInputtedPassword,
       pwCost,

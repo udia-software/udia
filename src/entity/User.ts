@@ -127,13 +127,13 @@ export class User {
   public pwKeySize: number;
 
   @Column({
-    comment: "Client side derived password salt.",
+    comment: "Client side derived password nonce.",
     type: "varchar",
     length: 512,
     default: "",
     nullable: false
   })
-  public pwSalt: string;
+  public pwNonce: string;
 
   @Column({
     comment: "If user forgot password, set temporary token hash.",

@@ -1,7 +1,10 @@
 # Created by https://www.gitignore.io/api/osx,node
 
 ### Node ###
+# Typescript Output
+dist
 # Logs
+log
 logs
 *.log
 npm-debug.log*
@@ -97,5 +100,3 @@ data
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
-
-dist

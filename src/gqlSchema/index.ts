@@ -73,8 +73,8 @@ const typeDefs: ITypedef[] = [
       pwCost: Int!
       # Client chosen derivation key byte size. (Defaults to 768)
       pwKeySize: Int!
-      # Client generated password salt. (Not server password salt!)
-      pwSalt: String!
+      # Client generated password nonce.
+      pwNonce: String!
       # Unencrypted jwk-pub signing key (JSON.stringified)
       pubSignKey: String!
       # Encrypted private jwk-priv signing key
@@ -101,8 +101,8 @@ const typeDefs: ITypedef[] = [
       pwCost: Int!
       # Client chosen derivation key byte size.
       pwKeySize: Int!
-      # Client generated password salt.
-      pwSalt: String!
+      # Client generated password nonce.
+      pwNonce: String!
       # Encrypted private jwk-priv signing key.
       encPrivSignKey: String!
       # Encrypted symmetric jwk-key for user secrets.
@@ -175,8 +175,8 @@ const typeDefs: ITypedef[] = [
       pwCost: Int!
       # Client chosen derivation key byte size.
       pwKeySize: Int!
-      # Client generated password salt.
-      pwSalt: String!
+      # Client generated password nonce.
+      pwNonce: String!
       # Unencrypted jwk-pub signing key (JSON.stringified)
       pubSignKey: String!
       # Encrypted private jwk-priv signing key.
@@ -258,8 +258,8 @@ const typeDefs: ITypedef[] = [
     pwCost: Int!
     # User client derived secret keysize.
     pwKeySize: Int!
-    # User client password salt.
-    pwSalt: String!
+    # User client password nonce.
+    pwNonce: String!
     # Items belonging to the user.
     # Parameter 'username' is overridden.
     items(params: ItemPaginationInput): ItemPagination!
@@ -288,8 +288,8 @@ const typeDefs: ITypedef[] = [
     pwCost: Int!
     # Client chosen derivation key byte size.
     pwKeySize: Int!
-    # Client generated password salt.
-    pwSalt: String!
+    # Client generated password nonce.
+    pwNonce: String!
   }`,
   `# Protected Authentication Payload
   type UserAuthPayload {

@@ -1,4 +1,5 @@
 # Logs
+log
 logs
 *.log
 
@@ -28,3 +29,6 @@ node_modules
 
 # Database Data directory
 data
+
+# Typescript Output
+dist

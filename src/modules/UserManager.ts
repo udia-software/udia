@@ -25,7 +25,7 @@ export interface ICreateUserParams {
   pwDigest: string;
   pwCost: number;
   pwKeySize: number;
-  pwSalt: string;
+  pwNonce: string;
   pubSignKey: string; // JSON stringified jwk-pub signing key
   encPrivSignKey: string; // encrypted jwk-priv signing key
   encSecretKey: string; // encrypted jwk-key for user secrets
@@ -40,7 +40,7 @@ export interface IUpdatePasswordParams {
   pwDigest: string;
   pwCost: number;
   pwKeySize: number;
-  pwSalt: string;
+  pwNonce: string;
   encPrivEncKey: string;
   encSecretKey: string;
   encPrivSignKey: string;
@@ -82,7 +82,7 @@ export interface IResetPasswordParams {
   pwDigest: string;
   pwCost: number;
   pwKeySize: number;
-  pwSalt: string;
+  pwNonce: string;
   pubSignKey: string;
   encPrivSignKey: string;
   encSecretKey: string;
@@ -142,7 +142,7 @@ export default class UserManager {
     pwDigest,
     pwCost,
     pwKeySize,
-    pwSalt,
+    pwNonce,
     pubSignKey,
     encPrivSignKey,
     encSecretKey,
@@ -171,7 +171,7 @@ export default class UserManager {
     newUser.pwDigest = pwDigest;
     newUser.pwCost = pwCost;
     newUser.pwKeySize = pwKeySize;
-    newUser.pwSalt = pwSalt;
+    newUser.pwNonce = pwNonce;
     newUser.pubSignKey = pubSignKey;
     newUser.encPrivSignKey = encPrivSignKey;
     newUser.encSecretKey = encSecretKey;
@@ -265,7 +265,7 @@ export default class UserManager {
       pwDigest,
       pwCost,
       pwKeySize,
-      pwSalt,
+      pwNonce,
       encPrivEncKey,
       encSecretKey,
       encPrivSignKey
@@ -287,7 +287,7 @@ export default class UserManager {
     user.pwDigest = pwDigest;
     user.pwCost = pwCost;
     user.pwKeySize = pwKeySize;
-    user.pwSalt = pwSalt;
+    user.pwNonce = pwNonce;
     user.encPrivEncKey = encPrivEncKey;
     user.encSecretKey = encSecretKey;
     user.encPrivSignKey = encPrivSignKey;
@@ -334,7 +334,7 @@ export default class UserManager {
     }
     return {
       pwCost: user.pwCost,
-      pwSalt: user.pwSalt,
+      pwNonce: user.pwNonce,
       pwFunc: user.pwFunc,
       pwDigest: user.pwDigest,
       pwKeySize: user.pwKeySize
@@ -602,7 +602,7 @@ export default class UserManager {
     pwDigest,
     pwCost,
     pwKeySize,
-    pwSalt,
+    pwNonce,
     pubSignKey,
     encPrivSignKey,
     encSecretKey,
@@ -639,7 +639,7 @@ export default class UserManager {
     user.pwDigest = pwDigest;
     user.pwCost = pwCost;
     user.pwKeySize = pwKeySize;
-    user.pwSalt = pwSalt;
+    user.pwNonce = pwNonce;
     user.forgotPwExpiry = null;
     user.forgotPwHash = null;
     user.pubSignKey = pubSignKey;

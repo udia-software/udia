@@ -209,7 +209,7 @@ describe("Users", () => {
             pwDigest
             pwCost
             pwKeySize
-            pwSalt
+            pwNonce
           }
         }
       `;
@@ -239,7 +239,7 @@ describe("Users", () => {
           query,
           variables: { email: authParamsEmail.email }
         });
-        const { pwFunc, pwDigest, pwCost, pwKeySize, pwSalt } = authParamsUser;
+        const { pwFunc, pwDigest, pwCost, pwKeySize, pwNonce } = authParamsUser;
 
         expect(getAuthParamsQueryResponse).toHaveProperty("data");
         const getAuthParamsData: any = getAuthParamsQueryResponse.data;
@@ -249,7 +249,7 @@ describe("Users", () => {
         expect(getUserAuthParams).toHaveProperty("pwDigest", pwDigest);
         expect(getUserAuthParams).toHaveProperty("pwCost", pwCost);
         expect(getUserAuthParams).toHaveProperty("pwKeySize", pwKeySize);
-        expect(getUserAuthParams).toHaveProperty("pwSalt", pwSalt);
+        expect(getUserAuthParams).toHaveProperty("pwNonce", pwNonce);
       });
 
       it("should reject with graphql error when email not found", async () => {
@@ -292,7 +292,7 @@ describe("Users", () => {
             pwDigest
             pwCost
             pwKeySize
-            pwSalt
+            pwNonce
             pubSignKey
             encPrivSignKey
             encSecretKey
@@ -338,7 +338,7 @@ describe("Users", () => {
         expect(meData).toHaveProperty("pwDigest", meTestUser.pwDigest);
         expect(meData).toHaveProperty("pwCost", meTestUser.pwCost);
         expect(meData).toHaveProperty("pwKeySize", meTestUser.pwKeySize);
-        expect(meData).toHaveProperty("pwSalt", meTestUser.pwSalt);
+        expect(meData).toHaveProperty("pwNonce", meTestUser.pwNonce);
         expect(meData).toHaveProperty(
           "createdAt",
           meTestUser.createdAt.getTime()
@@ -385,7 +385,7 @@ describe("Users", () => {
           $email: String!
           $pw: String!
           $pwCost: Int!
-          $pwSalt: String!
+          $pwNonce: String!
           $pwFunc: String!
           $pwDigest: String!
           $pwKeySize: Int!
@@ -400,7 +400,7 @@ describe("Users", () => {
             email: $email
             pw: $pw
             pwCost: $pwCost
-            pwSalt: $pwSalt
+            pwNonce: $pwNonce
             pwFunc: $pwFunc
             pwDigest: $pwDigest
             pwKeySize: $pwKeySize
@@ -418,7 +418,7 @@ describe("Users", () => {
               pwDigest
               pwCost
               pwKeySize
-              pwSalt
+              pwNonce
               createdAt
               updatedAt
               pubSignKey
@@ -465,7 +465,7 @@ describe("Users", () => {
         const userInputtedPassword = "My Super S3C$^T P~!۩s"; // wow!
         const params = generateUserCryptoParams(email, userInputtedPassword);
         const {
-          pwSalt,
+          pwNonce,
           pwCost,
           pwFunc,
           pwDigest,
@@ -502,7 +502,7 @@ describe("Users", () => {
         expect(createdUser).toHaveProperty("pwDigest", pwDigest);
         expect(createdUser).toHaveProperty("pwCost", pwCost);
         expect(createdUser).toHaveProperty("pwKeySize", pwKeySize);
-        expect(createdUser).toHaveProperty("pwSalt", pwSalt);
+        expect(createdUser).toHaveProperty("pwNonce", pwNonce);
         expect(createdUser).toHaveProperty("createdAt");
         expect(createdUser).toHaveProperty("updatedAt");
         expect(createdUser).toHaveProperty("pubSignKey", pubSignKey);
@@ -874,7 +874,7 @@ describe("Users", () => {
           $pwDigest: String!
           $pwCost: Int!
           $pwKeySize: Int!
-          $pwSalt: String!
+          $pwNonce: String!
           $encPrivSignKey: String!
           $encSecretKey: String!
           $encPrivEncKey: String!
@@ -886,20 +886,20 @@ describe("Users", () => {
             pwDigest: $pwDigest
             pwCost: $pwCost
             pwKeySize: $pwKeySize
-            pwSalt: $pwSalt
+            pwNonce: $pwNonce
             encPrivSignKey: $encPrivSignKey
             encSecretKey: $encSecretKey
             encPrivEncKey: $encPrivEncKey
           ) {
             uuid
             username
-            pwSalt
+            pwNonce
             pwCost
             pwFunc
             pwDigest
             pwCost
             pwKeySize
-            pwSalt
+            pwNonce
             encPrivEncKey
             encSecretKey
             encPrivSignKey
@@ -939,7 +939,7 @@ describe("Users", () => {
           pwDigest,
           pwCost,
           pwKeySize,
-          pwSalt,
+          pwNonce,
           encPrivEncKey,
           encSecretKey,
           encPrivSignKey
@@ -954,7 +954,7 @@ describe("Users", () => {
             pwDigest,
             pwCost,
             pwKeySize,
-            pwSalt,
+            pwNonce,
             encPrivEncKey,
             encSecretKey,
             encPrivSignKey
@@ -972,7 +972,7 @@ describe("Users", () => {
           "username",
           updatePassUser.username
         );
-        expect(updatePassword).toHaveProperty("pwSalt", pwSalt);
+        expect(updatePassword).toHaveProperty("pwNonce", pwNonce);
         expect(updatePassword).toHaveProperty("pwCost", pwCost);
         expect(updatePassword).toHaveProperty("pwFunc", pwFunc);
         expect(updatePassword).toHaveProperty("pwDigest", pwDigest);
@@ -998,7 +998,7 @@ describe("Users", () => {
           pwDigest,
           pwCost,
           pwKeySize,
-          pwSalt,
+          pwNonce,
           encPrivEncKey,
           encSecretKey,
           encPrivSignKey
@@ -1014,7 +1014,7 @@ describe("Users", () => {
               pwDigest,
               pwCost,
               pwKeySize,
-              pwSalt,
+              pwNonce,
               encPrivEncKey,
               encSecretKey,
               encPrivSignKey
@@ -1165,7 +1165,7 @@ describe("Users", () => {
           $pwDigest: String!
           $pwCost: Int!
           $pwKeySize: Int!
-          $pwSalt: String!
+          $pwNonce: String!
           $pubSignKey: String!
           $encPrivSignKey: String!
           $encSecretKey: String!
@@ -1179,7 +1179,7 @@ describe("Users", () => {
             pwDigest: $pwDigest
             pwCost: $pwCost
             pwKeySize: $pwKeySize
-            pwSalt: $pwSalt
+            pwNonce: $pwNonce
             pubSignKey: $pubSignKey
             encPrivSignKey: $encPrivSignKey
             encSecretKey: $encSecretKey
@@ -1193,7 +1193,7 @@ describe("Users", () => {
               pwDigest
               pwCost
               pwKeySize
-              pwSalt
+              pwNonce
               pubSignKey
               encPrivSignKey
               encSecretKey
@@ -1300,7 +1300,7 @@ describe("Users", () => {
         expect(user).toHaveProperty("pwDigest", params.pwDigest);
         expect(user).toHaveProperty("pwCost", params.pwCost);
         expect(user).toHaveProperty("pwKeySize", params.pwKeySize);
-        expect(user).toHaveProperty("pwSalt", params.pwSalt);
+        expect(user).toHaveProperty("pwNonce", params.pwNonce);
         expect(user).toHaveProperty("pubSignKey", params.pubSignKey);
         expect(user).toHaveProperty("encPrivSignKey", params.encPrivSignKey);
         expect(user).toHaveProperty("encSecretKey", params.encSecretKey);
