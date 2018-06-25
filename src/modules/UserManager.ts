@@ -26,11 +26,11 @@ export interface ICreateUserParams {
   pwCost: number;
   pwKeySize: number;
   pwNonce: string;
-  pubSignKey: string; // JSON stringified jwk-pub signing key
-  encPrivSignKey: string; // encrypted jwk-priv signing key
+  pubVerifyKey: string; // JSON stringified jwk-pub signing key
+  encPrivateSignKey: string; // encrypted jwk-priv signing key
   encSecretKey: string; // encrypted jwk-key for user secrets
-  pubEncKey: string; // JSON stringified jwk-pub encryption key
-  encPrivEncKey: string; // jwk-priv encryption key
+  pubEncryptKey: string; // JSON stringified jwk-pub encryption key
+  encPrivateDecryptKey: string; // jwk-priv encryption key
 }
 
 export interface IUpdatePasswordParams {
@@ -41,9 +41,9 @@ export interface IUpdatePasswordParams {
   pwCost: number;
   pwKeySize: number;
   pwNonce: string;
-  encPrivEncKey: string;
+  encPrivateDecryptKey: string;
   encSecretKey: string;
-  encPrivSignKey: string;
+  encPrivateSignKey: string;
 }
 
 export interface ISignInUserParams {
@@ -83,11 +83,11 @@ export interface IResetPasswordParams {
   pwCost: number;
   pwKeySize: number;
   pwNonce: string;
-  pubSignKey: string;
-  encPrivSignKey: string;
+  pubVerifyKey: string;
+  encPrivateSignKey: string;
   encSecretKey: string;
-  pubEncKey: string;
-  encPrivEncKey: string;
+  pubEncryptKey: string;
+  encPrivateDecryptKey: string;
 }
 
 export interface IResetTokenValidity {
@@ -143,11 +143,11 @@ export default class UserManager {
     pwCost,
     pwKeySize,
     pwNonce,
-    pubSignKey,
-    encPrivSignKey,
+    pubVerifyKey,
+    encPrivateSignKey,
     encSecretKey,
-    pubEncKey,
-    encPrivEncKey
+    pubEncryptKey,
+    encPrivateDecryptKey
   }: ICreateUserParams) {
     const errors: IErrorMessage[] = [];
     await UserManager.handleValidateUsername(username, errors);
@@ -172,11 +172,11 @@ export default class UserManager {
     newUser.pwCost = pwCost;
     newUser.pwKeySize = pwKeySize;
     newUser.pwNonce = pwNonce;
-    newUser.pubSignKey = pubSignKey;
-    newUser.encPrivSignKey = encPrivSignKey;
+    newUser.pubVerifyKey = pubVerifyKey;
+    newUser.encPrivateSignKey = encPrivateSignKey;
     newUser.encSecretKey = encSecretKey;
-    newUser.pubEncKey = pubEncKey;
-    newUser.encPrivEncKey = encPrivEncKey;
+    newUser.pubEncryptKey = pubEncryptKey;
+    newUser.encPrivateDecryptKey = encPrivateDecryptKey;
     await getConnection().transaction(async transactionEntityManager => {
       newUser = await transactionEntityManager.save(newUser);
       newEmail.user = newUser;
@@ -229,8 +229,7 @@ export default class UserManager {
     // if datetime is set, add keyset pagination query
     if (datetime !== undefined) {
       const datetimeOp = { DESC: "<", ASC: ">" };
-      const fragment =
-        `"user"."${sort}" ${datetimeOp[order]} :datetime`;
+      const fragment = `"user"."${sort}" ${datetimeOp[order]} :datetime`;
       const subst = { datetime };
       if (isWhereSet) {
         userQueryBuilder.andWhere(fragment, subst);
@@ -266,9 +265,9 @@ export default class UserManager {
       pwCost,
       pwKeySize,
       pwNonce,
-      encPrivEncKey,
+      encPrivateDecryptKey,
       encSecretKey,
-      encPrivSignKey
+      encPrivateSignKey
     }: IUpdatePasswordParams
   ) {
     const user = await this.getUserByUsername(username);
@@ -288,9 +287,9 @@ export default class UserManager {
     user.pwCost = pwCost;
     user.pwKeySize = pwKeySize;
     user.pwNonce = pwNonce;
-    user.encPrivEncKey = encPrivEncKey;
+    user.encPrivateDecryptKey = encPrivateDecryptKey;
     user.encSecretKey = encSecretKey;
-    user.encPrivSignKey = encPrivSignKey;
+    user.encPrivateSignKey = encPrivateSignKey;
 
     return getRepository(User).save(user);
   }
@@ -603,11 +602,11 @@ export default class UserManager {
     pwCost,
     pwKeySize,
     pwNonce,
-    pubSignKey,
-    encPrivSignKey,
+    pubVerifyKey,
+    encPrivateSignKey,
     encSecretKey,
-    pubEncKey,
-    encPrivEncKey
+    pubEncryptKey,
+    encPrivateDecryptKey
   }: IResetPasswordParams) {
     const [username] = resetToken.split(":");
     if (!username) {
@@ -642,11 +641,11 @@ export default class UserManager {
     user.pwNonce = pwNonce;
     user.forgotPwExpiry = null;
     user.forgotPwHash = null;
-    user.pubSignKey = pubSignKey;
-    user.encPrivSignKey = encPrivSignKey;
+    user.pubVerifyKey = pubVerifyKey;
+    user.encPrivateSignKey = encPrivateSignKey;
     user.encSecretKey = encSecretKey;
-    user.pubEncKey = pubEncKey;
-    user.encPrivEncKey = encPrivEncKey;
+    user.pubEncryptKey = pubEncryptKey;
+    user.encPrivateDecryptKey = encPrivateDecryptKey;
 
     user = await getRepository(User).save(user);
     return { user, jwt: Auth.signUserJWT(user) };

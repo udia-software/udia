@@ -14,7 +14,7 @@ import { UserEmail } from "../src/entity/UserEmail";
 export interface ILoginParams {
   uip: string;
   pwCost: number;
-  pwSalt: string;
+  pwNonce: string;
   pwFunc: string;
   pwDigest: string;
   pwKeySize: number;
@@ -46,19 +46,19 @@ export function generateUserCryptoParams(email: string, uip: string) {
   const { pw, mk, ak } = deriveSubKeysFromUserInputPassword({
     uip,
     pwCost,
-    pwSalt,
+    pwNonce,
     pwFunc,
     pwDigest,
     pwKeySize
   });
   // generate unusable keys for test placeholder purposes
   const {
-    publicKey: pubSignKey,
-    privateKey: encPrivSignKey
+    publicKey: pubVerifyKey,
+    privateKey: encPrivateSignKey
   } = generateKeyPairECDH();
   const {
-    publicKey: pubEncKey,
-    privateKey: encPrivEncKey
+    publicKey: pubEncryptKey,
+    privateKey: encPrivateDecryptKey
   } = generateKeyPairECDH();
   const encSecretKey = crypto.randomBytes(256).toString("base64");
   return {
@@ -70,11 +70,11 @@ export function generateUserCryptoParams(email: string, uip: string) {
     pwFunc,
     pwDigest,
     pwKeySize,
-    pubSignKey,
-    encPrivSignKey,
+    pubVerifyKey,
+    encPrivateSignKey,
     encSecretKey,
-    pubEncKey,
-    encPrivEncKey
+    pubEncryptKey,
+    encPrivateDecryptKey
   };
 }
 
@@ -85,7 +85,7 @@ export function generateUserCryptoParams(email: string, uip: string) {
 export function deriveSubKeysFromUserInputPassword({
   uip,
   pwCost,
-  pwSalt,
+  pwNonce,
   pwFunc,
   pwDigest,
   pwKeySize
@@ -93,10 +93,10 @@ export function deriveSubKeysFromUserInputPassword({
   if (pwFunc !== "pbkdf2") {
     throw new Error(`Unsupported password function ${pwFunc}`);
   }
-  const key = crypto.pbkdf2Sync(uip, pwSalt, pwCost, pwKeySize, pwDigest);
+  const key = crypto.pbkdf2Sync(uip, pwNonce, pwCost, pwKeySize, pwDigest);
   const pw = key.slice(0, key.length / 3).toString("hex");
-  const mk = key.slice(key.length / 3, key.length / 3 * 2).toString("hex");
-  const ak = key.slice(key.length / 3 * 2, key.length).toString("hex");
+  const mk = key.slice(key.length / 3, (key.length / 3) * 2).toString("hex");
+  const ak = key.slice((key.length / 3) * 2, key.length).toString("hex");
   return { pw, mk, ak };
 }
 
@@ -179,11 +179,11 @@ export function generateGenericUser(username: string) {
   email.verified = true;
   user.username = username.trim();
   user.lUsername = username.trim().toLowerCase();
-  user.pubSignKey = JSON.stringify({ kty: "invalidkey" });
-  user.encPrivSignKey = "dummyivbase64enc.dummyencprivsignkeybase64enc";
+  user.pubVerifyKey = JSON.stringify({ kty: "invalidkey" });
+  user.encPrivateSignKey = "dummyivbase64enc.dummyencprivsignkeybase64enc";
   user.encSecretKey = "dummyivbase64enc.dummyencsecretkeybase64enc";
-  user.pubEncKey = JSON.stringify({ kty: "invalidkey" });
-  user.encPrivEncKey = "dummyivbase64enc.dummyencprivenckeybase64enc";
+  user.pubEncryptKey = JSON.stringify({ kty: "invalidkey" });
+  user.encPrivateDecryptKey = "dummyivbase64enc.dummyencprivenckeybase64enc";
   user.pwHash = "$argon2i$v=1$m=1,t=1,p=1$101";
   user.pwFunc = "PBKDF2";
   user.pwDigest = "SHA-512";

@@ -18,6 +18,35 @@ import {
   generateUserCryptoParams
 } from "../testHelper";
 
+// GraphQL FullUser Emails
+interface IUserEmail {
+  email: string;
+  primary: boolean;
+  verified: boolean;
+  createdAt: number;
+  updatedAt: number;
+  verificationExpiry: number;
+}
+
+// GraphQL FullUser
+interface IFullUser {
+  uuid: string;
+  username: string;
+  emails: UserEmail[];
+  encSecretKey: string;
+  pubVerifyKey: string;
+  encPrivateSignKey: string;
+  pubEncryptKey: string;
+  encPrivateDecryptKey: string;
+  pwFunc: string;
+  pwDigest: string;
+  pwCost: number;
+  pwKeySize: number;
+  pwNonce: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
 /**
  * Integration tests for all user related GraphQL API calls
  */
@@ -98,14 +127,16 @@ describe("Users", () => {
       it("should return 0 when an email does not exist.", async () => {
         expect.assertions(3);
         const unknownEmail = "unknown@udia.ca";
-        const checkUnknownEmailExistsQuery = await gqlClient.query({
+        const checkUnknownEmailExistsQuery = await gqlClient.query<{
+          checkEmailExists: number;
+        }>({
           query,
           variables: {
             email: unknownEmail
           }
         });
         expect(checkUnknownEmailExistsQuery).toHaveProperty("data");
-        const checkUnknownEmailExistsQueryData: any =
+        const checkUnknownEmailExistsQueryData =
           checkUnknownEmailExistsQuery.data;
         expect(checkUnknownEmailExistsQueryData).toHaveProperty(
           "checkEmailExists"
@@ -163,14 +194,16 @@ describe("Users", () => {
       it("should return 0 when username does not exist.", async () => {
         expect.assertions(3);
         const unknownUsername = "unknown";
-        const checkUnknownUsernameExistsQuery = await gqlClient.query({
+        const checkUnknownUsernameExistsQuery = await gqlClient.query<{
+          checkUsernameExists: number;
+        }>({
           query,
           variables: {
             username: unknownUsername
           }
         });
         expect(checkUnknownUsernameExistsQuery).toHaveProperty("data");
-        const checkUnknownUsernameExistsQueryData: any =
+        const checkUnknownUsernameExistsQueryData =
           checkUnknownUsernameExistsQuery.data;
         expect(checkUnknownUsernameExistsQueryData).toHaveProperty(
           "checkUsernameExists"
@@ -235,14 +268,22 @@ describe("Users", () => {
 
       it("should get a user's authentication parameters", async () => {
         expect.assertions(7);
-        const getAuthParamsQueryResponse = await gqlClient.query({
+        const getAuthParamsQueryResponse = await gqlClient.query<{
+          getUserAuthParams: {
+            pwFunc: string;
+            pwDigest: string;
+            pwCost: number;
+            pwKeySize: number;
+            pwNonce: string;
+          };
+        }>({
           query,
           variables: { email: authParamsEmail.email }
         });
         const { pwFunc, pwDigest, pwCost, pwKeySize, pwNonce } = authParamsUser;
 
         expect(getAuthParamsQueryResponse).toHaveProperty("data");
-        const getAuthParamsData: any = getAuthParamsQueryResponse.data;
+        const getAuthParamsData = getAuthParamsQueryResponse.data;
         expect(getAuthParamsData).toHaveProperty("getUserAuthParams");
         const getUserAuthParams = getAuthParamsData.getUserAuthParams;
         expect(getUserAuthParams).toHaveProperty("pwFunc", pwFunc);
@@ -293,11 +334,11 @@ describe("Users", () => {
             pwCost
             pwKeySize
             pwNonce
-            pubSignKey
-            encPrivSignKey
+            pubVerifyKey
+            encPrivateSignKey
             encSecretKey
-            pubEncKey
-            encPrivEncKey
+            pubEncryptKey
+            encPrivateDecryptKey
             createdAt
             updatedAt
           }
@@ -326,9 +367,11 @@ describe("Users", () => {
 
       it("should get a logged in user.", async () => {
         expect.assertions(28);
-        const meQueryResponse = await gqlClient.query({ query });
+        const meQueryResponse = await gqlClient.query<{ me: IFullUser }>({
+          query
+        });
         expect(meQueryResponse).toHaveProperty("data");
-        const meQueryResponseData: any = meQueryResponse.data;
+        const meQueryResponseData = meQueryResponse.data;
         expect(meQueryResponseData).toHaveProperty("me");
         const meData = meQueryResponseData.me;
         expect(meData).toHaveProperty("__typename", "FullUser");
@@ -347,16 +390,19 @@ describe("Users", () => {
           "updatedAt",
           meTestUser.updatedAt.getTime()
         );
-        expect(meData).toHaveProperty("pubSignKey", meTestUser.pubSignKey);
+        expect(meData).toHaveProperty("pubVerifyKey", meTestUser.pubVerifyKey);
         expect(meData).toHaveProperty(
-          "encPrivSignKey",
-          meTestUser.encPrivSignKey
+          "encPrivateSignKey",
+          meTestUser.encPrivateSignKey
         );
         expect(meData).toHaveProperty("encSecretKey", meTestUser.encSecretKey);
-        expect(meData).toHaveProperty("pubEncKey", meTestUser.pubEncKey);
         expect(meData).toHaveProperty(
-          "encPrivEncKey",
-          meTestUser.encPrivEncKey
+          "pubEncryptKey",
+          meTestUser.pubEncryptKey
+        );
+        expect(meData).toHaveProperty(
+          "encPrivateDecryptKey",
+          meTestUser.encPrivateDecryptKey
         );
         expect(meData).toHaveProperty("emails");
         const meEmails = meData.emails;
@@ -389,11 +435,11 @@ describe("Users", () => {
           $pwFunc: String!
           $pwDigest: String!
           $pwKeySize: Int!
-          $pubSignKey: String!
-          $encPrivSignKey: String!
+          $pubVerifyKey: String!
+          $encPrivateSignKey: String!
           $encSecretKey: String!
-          $pubEncKey: String!
-          $encPrivEncKey: String!
+          $pubEncryptKey: String!
+          $encPrivateDecryptKey: String!
         ) {
           createUser(
             username: $username
@@ -404,11 +450,11 @@ describe("Users", () => {
             pwFunc: $pwFunc
             pwDigest: $pwDigest
             pwKeySize: $pwKeySize
-            pubSignKey: $pubSignKey
-            encPrivSignKey: $encPrivSignKey
+            pubVerifyKey: $pubVerifyKey
+            encPrivateSignKey: $encPrivateSignKey
             encSecretKey: $encSecretKey
-            pubEncKey: $pubEncKey
-            encPrivEncKey: $encPrivEncKey
+            pubEncryptKey: $pubEncryptKey
+            encPrivateDecryptKey: $encPrivateDecryptKey
           ) {
             jwt
             user {
@@ -421,11 +467,11 @@ describe("Users", () => {
               pwNonce
               createdAt
               updatedAt
-              pubSignKey
-              encPrivSignKey
+              pubVerifyKey
+              encPrivateSignKey
               encSecretKey
-              pubEncKey
-              encPrivEncKey
+              pubEncryptKey
+              encPrivateDecryptKey
               emails {
                 email
                 user {
@@ -470,17 +516,19 @@ describe("Users", () => {
           pwFunc,
           pwDigest,
           pwKeySize,
-          pubSignKey,
-          encPrivSignKey,
+          pubVerifyKey,
+          encPrivateSignKey,
           encSecretKey,
-          pubEncKey,
-          encPrivEncKey
+          pubEncryptKey,
+          encPrivateDecryptKey
         } = params;
         // Even though this is a test, don't send the mk and ak values
         delete params.mk;
         delete params.ak;
 
-        const createUserMutationResp = await gqlClient.mutate({
+        const createUserMutationResp = await gqlClient.mutate<{
+          createUser: { jwt: string; user: IFullUser };
+        }>({
           mutation,
           variables: { username, email, ...params }
         });
@@ -505,11 +553,17 @@ describe("Users", () => {
         expect(createdUser).toHaveProperty("pwNonce", pwNonce);
         expect(createdUser).toHaveProperty("createdAt");
         expect(createdUser).toHaveProperty("updatedAt");
-        expect(createdUser).toHaveProperty("pubSignKey", pubSignKey);
-        expect(createdUser).toHaveProperty("encPrivSignKey", encPrivSignKey);
+        expect(createdUser).toHaveProperty("pubVerifyKey", pubVerifyKey);
+        expect(createdUser).toHaveProperty(
+          "encPrivateSignKey",
+          encPrivateSignKey
+        );
         expect(createdUser).toHaveProperty("encSecretKey", encSecretKey);
-        expect(createdUser).toHaveProperty("pubEncKey", pubEncKey);
-        expect(createdUser).toHaveProperty("encPrivEncKey", encPrivEncKey);
+        expect(createdUser).toHaveProperty("pubEncryptKey", pubEncryptKey);
+        expect(createdUser).toHaveProperty(
+          "encPrivateDecryptKey",
+          encPrivateDecryptKey
+        );
         expect(createdUser).toHaveProperty("emails");
 
         const createdUserEmails = createdUser.emails;
@@ -578,7 +632,12 @@ describe("Users", () => {
 
       it("should sign in a user.", async () => {
         expect.assertions(15);
-        const signInUserMutationResponse = await gqlClient.mutate({
+        const signInUserMutationResponse = await gqlClient.mutate<{
+          signInUser: {
+            jwt: string;
+            user: IFullUser;
+          };
+        }>({
           mutation,
           variables: { email: testUserEmail, pw }
         });
@@ -660,7 +719,9 @@ describe("Users", () => {
       it("should add a new email to the user", async () => {
         expect.assertions(21);
         const email = "newlyAddedEmail@udia.ca";
-        const addEmailMutationResponse = await gqlClient.mutate({
+        const addEmailMutationResponse = await gqlClient.mutate<{
+          addEmail: IFullUser;
+        }>({
           mutation,
           variables: { email }
         });
@@ -745,7 +806,9 @@ describe("Users", () => {
 
       it("should set a user email as primary", async () => {
         expect.assertions(20);
-        const setPrimaryEmailResp = await gqlClient.mutate({
+        const setPrimaryEmailResp = await gqlClient.mutate<{
+          setPrimaryEmail: IFullUser;
+        }>({
           mutation,
           variables: { email: emailSecEmail.email }
         });
@@ -875,9 +938,9 @@ describe("Users", () => {
           $pwCost: Int!
           $pwKeySize: Int!
           $pwNonce: String!
-          $encPrivSignKey: String!
+          $encPrivateSignKey: String!
           $encSecretKey: String!
-          $encPrivEncKey: String!
+          $encPrivateDecryptKey: String!
         ) {
           updatePassword(
             newPw: $newPw
@@ -887,9 +950,9 @@ describe("Users", () => {
             pwCost: $pwCost
             pwKeySize: $pwKeySize
             pwNonce: $pwNonce
-            encPrivSignKey: $encPrivSignKey
+            encPrivateSignKey: $encPrivateSignKey
             encSecretKey: $encSecretKey
-            encPrivEncKey: $encPrivEncKey
+            encPrivateDecryptKey: $encPrivateDecryptKey
           ) {
             uuid
             username
@@ -900,9 +963,9 @@ describe("Users", () => {
             pwCost
             pwKeySize
             pwNonce
-            encPrivEncKey
+            encPrivateDecryptKey
             encSecretKey
-            encPrivSignKey
+            encPrivateSignKey
             createdAt
             updatedAt
           }
@@ -940,12 +1003,14 @@ describe("Users", () => {
           pwCost,
           pwKeySize,
           pwNonce,
-          encPrivEncKey,
+          encPrivateDecryptKey,
           encSecretKey,
-          encPrivSignKey
+          encPrivateSignKey
         } = generateUserCryptoParams(email, newUIP);
 
-        const updatePasswordMutationResponse = await gqlClient.mutate({
+        const updatePasswordMutationResponse = await gqlClient.mutate<{
+          updatePassword: IFullUser;
+        }>({
           mutation,
           variables: {
             newPw,
@@ -955,9 +1020,9 @@ describe("Users", () => {
             pwCost,
             pwKeySize,
             pwNonce,
-            encPrivEncKey,
+            encPrivateDecryptKey,
             encSecretKey,
-            encPrivSignKey
+            encPrivateSignKey
           }
         });
 
@@ -977,9 +1042,15 @@ describe("Users", () => {
         expect(updatePassword).toHaveProperty("pwFunc", pwFunc);
         expect(updatePassword).toHaveProperty("pwDigest", pwDigest);
         expect(updatePassword).toHaveProperty("pwKeySize", pwKeySize);
-        expect(updatePassword).toHaveProperty("encPrivEncKey", encPrivEncKey);
+        expect(updatePassword).toHaveProperty(
+          "encPrivateDecryptKey",
+          encPrivateDecryptKey
+        );
         expect(updatePassword).toHaveProperty("encSecretKey", encSecretKey);
-        expect(updatePassword).toHaveProperty("encPrivSignKey", encPrivSignKey);
+        expect(updatePassword).toHaveProperty(
+          "encPrivateSignKey",
+          encPrivateSignKey
+        );
         expect(updatePassword).toHaveProperty(
           "createdAt",
           updatePassUser.createdAt.getTime()
@@ -999,9 +1070,9 @@ describe("Users", () => {
           pwCost,
           pwKeySize,
           pwNonce,
-          encPrivEncKey,
+          encPrivateDecryptKey,
           encSecretKey,
-          encPrivSignKey
+          encPrivateSignKey
         } = generateUserCryptoParams(email, newUIP);
 
         return expect(
@@ -1015,9 +1086,9 @@ describe("Users", () => {
               pwCost,
               pwKeySize,
               pwNonce,
-              encPrivEncKey,
+              encPrivateDecryptKey,
               encSecretKey,
-              encPrivSignKey
+              encPrivateSignKey
             }
           })
         ).rejects.toHaveProperty(
@@ -1073,7 +1144,9 @@ describe("Users", () => {
 
       it("should send and verify an email verification.", async () => {
         expect.assertions(8);
-        const sendEmailVerificationResp = await gqlClient.mutate({
+        const sendEmailVerificationResp = await gqlClient.mutate<{
+          sendEmailVerification: boolean;
+        }>({
           mutation: sendEmailVerificationMutation,
           variables: { email: sendEmailVerEmail.email }
         });
@@ -1109,7 +1182,9 @@ describe("Users", () => {
         await getConnection()
           .getRepository(UserEmail)
           .save(rateLimitEmail);
-        const sendEmailVerificationResp = await gqlClient.mutate({
+        const sendEmailVerificationResp = await gqlClient.mutate<{
+          sendEmailverification: boolean;
+        }>({
           mutation: sendEmailVerificationMutation,
           variables: { email: rateLimitEmail.email }
         });
@@ -1166,11 +1241,11 @@ describe("Users", () => {
           $pwCost: Int!
           $pwKeySize: Int!
           $pwNonce: String!
-          $pubSignKey: String!
-          $encPrivSignKey: String!
+          $pubVerifyKey: String!
+          $encPrivateSignKey: String!
           $encSecretKey: String!
-          $pubEncKey: String!
-          $encPrivEncKey: String!
+          $pubEncryptKey: String!
+          $encPrivateDecryptKey: String!
         ) {
           resetPassword(
             resetToken: $resetToken
@@ -1180,11 +1255,11 @@ describe("Users", () => {
             pwCost: $pwCost
             pwKeySize: $pwKeySize
             pwNonce: $pwNonce
-            pubSignKey: $pubSignKey
-            encPrivSignKey: $encPrivSignKey
+            pubVerifyKey: $pubVerifyKey
+            encPrivateSignKey: $encPrivateSignKey
             encSecretKey: $encSecretKey
-            pubEncKey: $pubEncKey
-            encPrivEncKey: $encPrivEncKey
+            pubEncryptKey: $pubEncryptKey
+            encPrivateDecryptKey: $encPrivateDecryptKey
           ) {
             jwt
             user {
@@ -1194,11 +1269,11 @@ describe("Users", () => {
               pwCost
               pwKeySize
               pwNonce
-              pubSignKey
-              encPrivSignKey
+              pubVerifyKey
+              encPrivateSignKey
               encSecretKey
-              pubEncKey
-              encPrivEncKey
+              pubEncryptKey
+              encPrivateDecryptKey
               createdAt
               updatedAt
             }
@@ -1235,7 +1310,9 @@ describe("Users", () => {
 
       it("should handle the forgot > reset password flow.", async () => {
         expect.assertions(31);
-        const sendForgotPasswordEmailResponse = await gqlClient.mutate({
+        const sendForgotPasswordEmailResponse = await gqlClient.mutate<{
+          sendForgotPasswordEmail: boolean;
+        }>({
           mutation: sendForgotPasswordEmailMutation,
           variables: { email: resetPassEmail.email }
         });
@@ -1254,12 +1331,17 @@ describe("Users", () => {
           new RegExp(`^${resetPassUser.lUsername}:.*`)
         );
         const resetToken = sendEmailParams[2];
-        const checkResetTokenQueryResponse = await gqlClient.query({
+        const checkResetTokenQueryResponse = await gqlClient.query<{
+          checkResetToken: {
+            isValid: boolean;
+            expiry: number;
+          };
+        }>({
           query: checkResetTokenQuery,
           variables: { resetToken }
         });
         expect(checkResetTokenQueryResponse).toHaveProperty("data");
-        const checkResetTokenQueryData: any = checkResetTokenQueryResponse.data;
+        const checkResetTokenQueryData = checkResetTokenQueryResponse.data;
         expect(checkResetTokenQueryData).toHaveProperty("checkResetToken");
         const checkResetToken = checkResetTokenQueryData.checkResetToken;
 
@@ -1276,7 +1358,9 @@ describe("Users", () => {
         delete params.mk;
         delete params.pw;
 
-        const resetPasswordResponse = await gqlClient.mutate({
+        const resetPasswordResponse = await gqlClient.mutate<{
+          resetPassword: { jwt: string; user: IFullUser };
+        }>({
           mutation: resetPasswordMutation,
           variables: {
             resetToken,
@@ -1301,11 +1385,17 @@ describe("Users", () => {
         expect(user).toHaveProperty("pwCost", params.pwCost);
         expect(user).toHaveProperty("pwKeySize", params.pwKeySize);
         expect(user).toHaveProperty("pwNonce", params.pwNonce);
-        expect(user).toHaveProperty("pubSignKey", params.pubSignKey);
-        expect(user).toHaveProperty("encPrivSignKey", params.encPrivSignKey);
+        expect(user).toHaveProperty("pubVerifyKey", params.pubVerifyKey);
+        expect(user).toHaveProperty(
+          "encPrivateSignKey",
+          params.encPrivateSignKey
+        );
         expect(user).toHaveProperty("encSecretKey", params.encSecretKey);
-        expect(user).toHaveProperty("pubEncKey", params.pubEncKey);
-        expect(user).toHaveProperty("encPrivEncKey", params.encPrivEncKey);
+        expect(user).toHaveProperty("pubEncryptKey", params.pubEncryptKey);
+        expect(user).toHaveProperty(
+          "encPrivateDecryptKey",
+          params.encPrivateDecryptKey
+        );
         expect(user).toHaveProperty(
           "createdAt",
           resetPassUser.createdAt.getTime()
@@ -1325,7 +1415,9 @@ describe("Users", () => {
         await getConnection()
           .getRepository(UserEmail)
           .save(rateLimitEmail);
-        const sendEmailVerificationResp = await gqlClient.mutate({
+        const sendEmailVerificationResp = await gqlClient.mutate<{
+          sendForgotPasswordEmail: boolean;
+        }>({
           mutation: sendForgotPasswordEmailMutation,
           variables: { email: rateLimitEmail.email }
         });
@@ -1391,7 +1483,9 @@ describe("Users", () => {
 
       it("should delete a user", async () => {
         expect.assertions(2);
-        const deleteUserMutationResponse = await gqlClient.mutate({
+        const deleteUserMutationResponse = await gqlClient.mutate<{
+          deleteUser: boolean;
+        }>({
           mutation,
           variables: { pw }
         });
@@ -1437,7 +1531,9 @@ describe("Users", () => {
 
       it("should refresh a user's JSON Web Token", async done => {
         expect.assertions(2);
-        const refreshJWTResponse = await gqlClient.mutate({ mutation });
+        const refreshJWTResponse = await gqlClient.mutate<{
+          refreshJWT: string;
+        }>({ mutation });
         expect(refreshJWTResponse).toHaveProperty("data");
         const refreshJWTData = refreshJWTResponse.data!;
         expect(refreshJWTData).toHaveProperty("refreshJWT");
@@ -1469,8 +1565,8 @@ describe("Users", () => {
               uuid
               username
               createdAt
-              pubSignKey
-              pubEncKey
+              pubVerifyKey
+              pubEncryptKey
             }
           }
         }
@@ -1481,8 +1577,8 @@ describe("Users", () => {
         for (let i = 1; i <= 20; i++) {
           await getConnection().transaction(async transactionEntityManager => {
             const { u, e } = generateGenericUser(`testGetUsers${i}`);
-            u.pubEncKey += i;
-            u.pubSignKey += i;
+            u.pubEncryptKey += i;
+            u.pubVerifyKey += i;
             const savedUser = await transactionEntityManager.save(u);
             e.user = savedUser;
             await transactionEntityManager.save(e);
@@ -1505,7 +1601,12 @@ describe("Users", () => {
 
       it("should get paginated users", async () => {
         expect.assertions(127);
-        const getUsersQueryResponse = await gqlClient.query({
+        const getUsersQueryResponse = await gqlClient.query<{
+          getUsers: {
+            count: number;
+            users: IFullUser[]; // really not the full user, but whatever
+          };
+        }>({
           query,
           variables: {
             params: {
@@ -1517,7 +1618,7 @@ describe("Users", () => {
           }
         });
         expect(getUsersQueryResponse).toHaveProperty("data");
-        const getUsersData: any = getUsersQueryResponse.data;
+        const getUsersData = getUsersQueryResponse.data;
         expect(getUsersData).toHaveProperty("getUsers");
         const getUsers = getUsersData.getUsers;
         expect(getUsers).toHaveProperty("__typename", "UserPagination");
@@ -1537,16 +1638,21 @@ describe("Users", () => {
             testUsers[i].createdAt.getTime()
           );
           expect(usersPage[i]).toHaveProperty(
-            "pubSignKey",
-            testUsers[i].pubSignKey
+            "pubVerifyKey",
+            testUsers[i].pubVerifyKey
           );
           expect(usersPage[i]).toHaveProperty(
-            "pubEncKey",
-            testUsers[i].pubEncKey
+            "pubEncryptKey",
+            testUsers[i].pubEncryptKey
           );
         }
         // Get next page
-        const getUsersNextQueryResponse = await gqlClient.query({
+        const getUsersNextQueryResponse = await gqlClient.query<{
+          getUsers: {
+            count: number;
+            users: IFullUser[]; // really not the full user, but whatever
+          };
+        }>({
           query,
           variables: {
             params: {
@@ -1558,7 +1664,7 @@ describe("Users", () => {
           }
         });
         expect(getUsersNextQueryResponse).toHaveProperty("data");
-        const getUsersNextData: any = getUsersNextQueryResponse.data;
+        const getUsersNextData = getUsersNextQueryResponse.data;
         expect(getUsersNextData).toHaveProperty("getUsers");
         const getNextUsers = getUsersNextData.getUsers;
         expect(getNextUsers).toHaveProperty("__typename", "UserPagination");
@@ -1588,12 +1694,12 @@ describe("Users", () => {
             testUsers[i + offset].createdAt.getTime()
           );
           expect(usersNextPage[i]).toHaveProperty(
-            "pubSignKey",
-            testUsers[i + offset].pubSignKey
+            "pubVerifyKey",
+            testUsers[i + offset].pubVerifyKey
           );
           expect(usersNextPage[i]).toHaveProperty(
-            "pubEncKey",
-            testUsers[i + offset].pubEncKey
+            "pubEncryptKey",
+            testUsers[i + offset].pubEncryptKey
           );
         }
       });

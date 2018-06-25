@@ -117,7 +117,7 @@ const start: (port: string) => Promise<Server> = async (port: string) => {
         return pgClient.end();
       })
       .then(() => {
-        logger.warn(`1)\tShutting down. Goodbye!`);
+        logger.warn(`1)\tShutting down. Goodbye!\n`);
         return done();
       })
       .catch(

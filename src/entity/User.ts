@@ -45,20 +45,20 @@ export class User {
   public items: Item[];
 
   @Column({
-    comment: "Unencrypted jwk-pub signing key for verification.",
+    comment: "Unencrypted asymmetric jwk-pub verification key.",
     type: "varchar",
     nullable: false,
     default: ""
   })
-  public pubSignKey: string;
+  public pubVerifyKey: string;
 
   @Column({
-    comment: "Encrypted private jwk-priv signing key for verification.",
+    comment: "Encrypted asymmetric jwk-priv signing key.",
     type: "varchar",
     nullable: false,
     default: ""
   })
-  public encPrivSignKey: string;
+  public encPrivateSignKey: string;
 
   @Column({
     comment: "Encrypted symmetric jwk-key for user secrets.",
@@ -69,20 +69,20 @@ export class User {
   public encSecretKey: string;
 
   @Column({
-    comment: "Unencrypted asymmetric jwk-pub encryption key for P2P.",
+    comment: "Unencrypted asymmetric jwk-pub encryption key for P2P comm.",
     type: "varchar",
     nullable: false,
     default: ""
   })
-  public pubEncKey: string;
+  public pubEncryptKey: string;
 
   @Column({
-    comment: "Encrypted asymmetric jwk-priv encryption key for P2P.",
+    comment: "Encrypted asymmetric jwk-priv decryption key for P2P comm.",
     type: "varchar",
     nullable: false,
     default: ""
   })
-  public encPrivEncKey: string;
+  public encPrivateDecryptKey: string;
 
   @Column({
     comment: "Server side storage of password hash used for Auth and JWT.",

@@ -75,16 +75,16 @@ const typeDefs: ITypedef[] = [
       pwKeySize: Int!
       # Client generated password nonce.
       pwNonce: String!
-      # Unencrypted jwk-pub signing key (JSON.stringified)
-      pubSignKey: String!
-      # Encrypted private jwk-priv signing key
-      encPrivSignKey: String!
-      # Encrypted symmetric jwk-key for user secrets.
+      # Unencrypted public ECDSA SHA-512 verification key (jwk-pub => JSON.stringify)
+      pubVerifyKey: String!
+      # Encrypted private ECDSA SHA-512 signing key (jwk-priv => JSON.stringify => encrypt)
+      encPrivateSignKey: String!
+      # Encrypted symmetric AES-GCM len 256 key for user secrets. (jwk-key => JSON.stringify => encrypt)
       encSecretKey: String!
-      # Unencrypted asymmetric jwk-pub encryption key (JSON.stringified)
-      pubEncKey: String!
-      # Encrypted asymmetric jwk-priv encryption key
-      encPrivEncKey: String!
+      # Unencrypted public RSA-OAEP encryption key (jwk-pub => JSON.stringify)
+      pubEncryptKey: String!
+      # Encrypted private RSA-OAEP decryption key (jwk-priv => JSON.stringify => encrypt)
+      encPrivateDecryptKey: String!
     ): UserAuthPayload!
 
     # Update user's password and corresponding private encryption keys.
@@ -103,12 +103,12 @@ const typeDefs: ITypedef[] = [
       pwKeySize: Int!
       # Client generated password nonce.
       pwNonce: String!
-      # Encrypted private jwk-priv signing key.
-      encPrivSignKey: String!
-      # Encrypted symmetric jwk-key for user secrets.
+      # Encrypted private ECDSA SHA-512 signing key (jwk-priv => JSON.stringify => encrypt)
+      encPrivateSignKey: String!
+      # Encrypted symmetric AES-GCM len 256 key for user secrets. (jwk-key => JSON.stringify => encrypt)
       encSecretKey: String!
-      # Encrypted asymmetric jwk-priv encryption key.
-      encPrivEncKey: String!
+      # Encrypted private RSA-OAEP decryption key (jwk-priv => JSON.stringify => encrypt)
+      encPrivateDecryptKey: String!
     ): FullUser!
 
     # Sign in a user.
@@ -177,16 +177,16 @@ const typeDefs: ITypedef[] = [
       pwKeySize: Int!
       # Client generated password nonce.
       pwNonce: String!
-      # Unencrypted jwk-pub signing key (JSON.stringified)
-      pubSignKey: String!
-      # Encrypted private jwk-priv signing key.
-      encPrivSignKey: String!
-      # Encrypted symmetric jwk-key for user secrets.
+      # Unencrypted public ECDSA SHA-512 verification key (jwk-pub => JSON.stringify)
+      pubVerifyKey: String!
+      # Encrypted private ECDSA SHA-512 signing key (jwk-priv => JSON.stringify => encrypt)
+      encPrivateSignKey: String!
+      # Encrypted symmetric AES-GCM len 256 key for user secrets. (jwk-key => JSON.stringify => encrypt)
       encSecretKey: String!
-      # Unencrypted asymmetric jwk-pub encryption key (JSON.stringified)
-      pubEncKey: String!
-      # Encrypted asymmetric jwk-priv encryption key.
-      encPrivEncKey: String!
+      # Unencrypted public RSA-OAEP encryption key (jwk-pub => JSON.stringify)
+      pubEncryptKey: String!
+      # Encrypted private RSA-OAEP decryption key (jwk-priv => JSON.stringify => encrypt)
+      encPrivateDecryptKey: String!
     ): UserAuthPayload!
 
     # Return a refreshed JWT associated from  the header authentication JWT.
@@ -227,10 +227,10 @@ const typeDefs: ITypedef[] = [
     # Items belonging to the user.
     # Parameter 'username' is overridden.
     items(params: ItemPaginationInput): ItemPagination!
-    # Unencrypted jwk-pub signing key (JSON.stringified)
-    pubSignKey: String!
-    # Unencrypted asymmetric jwk-pub encryption key (JSON.stringified)
-    pubEncKey: String!
+    # Unencrypted public ECDSA SHA-512 verification key (jwk-pub => JSON.stringify)
+    pubVerifyKey: String!
+    # Unencrypted public RSA-OAEP encryption key (jwk-pub => JSON.stringify)
+    pubEncryptKey: String!
   }`,
   `# Protected FullUser type
   type FullUser {
@@ -240,16 +240,16 @@ const typeDefs: ITypedef[] = [
     username: String!
     # Emails belonging to the user.
     emails: [UserEmail!]!
-    # Unencrypted jwk-pub signing key (JSON.stringified)
-    pubSignKey: String!
-    # Encrypted private jwk-priv signing key.
-    encPrivSignKey: String!
-    # Encrypted symmetric jwk-key for user secrets.
+    # Unencrypted public ECDSA SHA-512 verification key (jwk-pub => JSON.stringify)
+    pubVerifyKey: String!
+    # Encrypted private ECDSA SHA-512 signing key (jwk-priv => JSON.stringify => encrypt)
+    encPrivateSignKey: String!
+    # Encrypted symmetric AES-GCM len 256 key for user secrets. (jwk-key => JSON.stringify => encrypt)
     encSecretKey: String!
-    # Unencrypted asymmetric jwk-pub encryption key (JSON.stringified)
-    pubEncKey: String!
-    # Encrypted asymmetric jwk-priv encryption key.
-    encPrivEncKey: String!
+    # Unencrypted public RSA-OAEP encryption key (jwk-pub => JSON.stringify)
+    pubEncryptKey: String!
+    # Encrypted private RSA-OAEP decryption key (jwk-priv => JSON.stringify => encrypt)
+    encPrivateDecryptKey: String!
     # User client password derivation function.
     pwFunc: String!
     # User client password derivation digest.

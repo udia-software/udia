@@ -18,6 +18,7 @@
     "pretty": true,
     "sourceMap": true,
     "outDir": "dist",
+    "rootDir": "src",
     "skipLibCheck": true,
     "strict": true,
     "strictPropertyInitialization": false,

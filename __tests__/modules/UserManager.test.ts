@@ -114,11 +114,11 @@ describe("UserManager", () => {
           pwCost: 3000,
           pwKeySize: 768,
           pwNonce: "nonce",
-          pubSignKey: JSON.stringify({ dummy: "key" }),
-          encPrivSignKey: "dummykey",
+          pubVerifyKey: JSON.stringify({ dummy: "key" }),
+          encPrivateSignKey: "dummykey",
           encSecretKey: "dummykey",
-          pubEncKey: JSON.stringify({ dummy: "key" }),
-          encPrivEncKey: "dummykey"
+          pubEncryptKey: JSON.stringify({ dummy: "key" }),
+          encPrivateDecryptKey: "dummykey"
         })
       ).rejects.toHaveProperty(
         "message",
@@ -140,11 +140,11 @@ describe("UserManager", () => {
           pwCost: 3000,
           pwKeySize: 768,
           pwNonce: "nonce",
-          pubSignKey: JSON.stringify({ dummy: "key" }),
-          encPrivSignKey: "dummykey",
+          pubVerifyKey: JSON.stringify({ dummy: "key" }),
+          encPrivateSignKey: "dummykey",
           encSecretKey: "dummykey",
-          pubEncKey: JSON.stringify({ dummy: "key" }),
-          encPrivEncKey: "dummykey"
+          pubEncryptKey: JSON.stringify({ dummy: "key" }),
+          encPrivateDecryptKey: "dummykey"
         })
       ).rejects.toHaveProperty(
         "message",
@@ -165,11 +165,11 @@ describe("UserManager", () => {
           pwCost: 3000,
           pwKeySize: 768,
           pwNonce: "nonce",
-          pubSignKey: JSON.stringify({ dummy: "key" }),
-          encPrivSignKey: "dummykey",
+          pubVerifyKey: JSON.stringify({ dummy: "key" }),
+          encPrivateSignKey: "dummykey",
           encSecretKey: "dummykey",
-          pubEncKey: JSON.stringify({ dummy: "key" }),
-          encPrivEncKey: "dummykey"
+          pubEncryptKey: JSON.stringify({ dummy: "key" }),
+          encPrivateDecryptKey: "dummykey"
         })
       ).rejects.toHaveProperty(
         "message",
@@ -190,11 +190,11 @@ describe("UserManager", () => {
           pwCost: 3000,
           pwKeySize: 768,
           pwNonce: "nonce",
-          pubSignKey: JSON.stringify({ dummy: "key" }),
-          encPrivSignKey: "dummykey",
+          pubVerifyKey: JSON.stringify({ dummy: "key" }),
+          encPrivateSignKey: "dummykey",
           encSecretKey: "dummykey",
-          pubEncKey: JSON.stringify({ dummy: "key" }),
-          encPrivEncKey: "dummykey"
+          pubEncryptKey: JSON.stringify({ dummy: "key" }),
+          encPrivateDecryptKey: "dummykey"
         })
       ).rejects.toHaveProperty(
         "message",
@@ -213,11 +213,11 @@ describe("UserManager", () => {
         pwCost: 3000,
         pwKeySize: 768,
         pwNonce: "nonce",
-        pubSignKey: JSON.stringify({ dummy: "key" }),
-        encPrivSignKey: "dummykey",
+        pubVerifyKey: JSON.stringify({ dummy: "key" }),
+        encPrivateSignKey: "dummykey",
         encSecretKey: "dummykey",
-        pubEncKey: JSON.stringify({ dummy: "key" }),
-        encPrivEncKey: "dummykey"
+        pubEncryptKey: JSON.stringify({ dummy: "key" }),
+        encPrivateDecryptKey: "dummykey"
       });
       expect(shrugUser).toHaveProperty("jwt");
       expect(shrugUser).toHaveProperty("user");
@@ -259,9 +259,9 @@ describe("UserManager", () => {
         pwCost,
         pwKeySize,
         pwNonce,
-        encPrivSignKey,
+        encPrivateSignKey,
         encSecretKey,
-        encPrivEncKey
+        encPrivateDecryptKey
       } = generateUserCryptoParams("badActor@udia.ca", "Dupe S3C$^T P~!۩s");
       return expect(
         UserManager.updatePassword("unknown", {
@@ -272,9 +272,9 @@ describe("UserManager", () => {
           pwCost,
           pwKeySize,
           pwNonce,
-          encPrivSignKey,
+          encPrivateSignKey,
           encSecretKey,
-          encPrivEncKey
+          encPrivateDecryptKey
         })
       ).rejects.toHaveProperty(
         "message",
@@ -292,9 +292,9 @@ describe("UserManager", () => {
         pwCost,
         pwKeySize,
         pwNonce,
-        encPrivSignKey,
+        encPrivateSignKey,
         encSecretKey,
-        encPrivEncKey
+        encPrivateDecryptKey
       } = generateUserCryptoParams("badActor@udia.ca", "Dupe S3C$^T P~!۩s");
       return expect(
         UserManager.updatePassword(null, {
@@ -305,9 +305,9 @@ describe("UserManager", () => {
           pwCost,
           pwKeySize,
           pwNonce,
-          encPrivSignKey,
+          encPrivateSignKey,
           encSecretKey,
-          encPrivEncKey
+          encPrivateDecryptKey
         })
       ).rejects.toHaveProperty(
         "message",
@@ -325,9 +325,9 @@ describe("UserManager", () => {
         pwCost,
         pwKeySize,
         pwNonce,
-        encPrivSignKey,
+        encPrivateSignKey,
         encSecretKey,
-        encPrivEncKey
+        encPrivateDecryptKey
       } = generateUserCryptoParams("badActor@udia.ca", "Dupe S3C$^T P~!۩s");
       return expect(
         UserManager.updatePassword(undefined, {
@@ -338,9 +338,9 @@ describe("UserManager", () => {
           pwCost,
           pwKeySize,
           pwNonce,
-          encPrivSignKey,
+          encPrivateSignKey,
           encSecretKey,
-          encPrivEncKey
+          encPrivateDecryptKey
         })
       ).rejects.toHaveProperty(
         "message",
@@ -358,9 +358,9 @@ describe("UserManager", () => {
         pwCost,
         pwKeySize,
         pwNonce,
-        encPrivSignKey,
+        encPrivateSignKey,
         encSecretKey,
-        encPrivEncKey
+        encPrivateDecryptKey
       } = generateUserCryptoParams(updatePassEmail.email, "Dupe S3C$^T P~!۩s");
       return expect(
         UserManager.updatePassword(updatePassUser.lUsername, {
@@ -371,9 +371,9 @@ describe("UserManager", () => {
           pwCost,
           pwKeySize,
           pwNonce,
-          encPrivSignKey,
+          encPrivateSignKey,
           encSecretKey,
-          encPrivEncKey
+          encPrivateDecryptKey
         })
       ).rejects.toHaveProperty(
         "message",
@@ -837,11 +837,11 @@ describe("UserManager", () => {
           pwCost: 1,
           pwKeySize: 1,
           pwNonce: "",
-          pubSignKey: "",
-          encPrivSignKey: "",
+          pubVerifyKey: "",
+          encPrivateSignKey: "",
           encSecretKey: "",
-          pubEncKey: "",
-          encPrivEncKey: ""
+          pubEncryptKey: "",
+          encPrivateDecryptKey: ""
         })
       ).rejects.toHaveProperty(
         "message",
@@ -860,11 +860,11 @@ describe("UserManager", () => {
           pwCost: 1,
           pwKeySize: 1,
           pwNonce: "",
-          pubSignKey: "",
-          encPrivSignKey: "",
+          pubVerifyKey: "",
+          encPrivateSignKey: "",
           encSecretKey: "",
-          pubEncKey: "",
-          encPrivEncKey: ""
+          pubEncryptKey: "",
+          encPrivateDecryptKey: ""
         })
       ).rejects.toHaveProperty(
         "message",
@@ -883,11 +883,11 @@ describe("UserManager", () => {
           pwCost: 1,
           pwKeySize: 1,
           pwNonce: "",
-          pubSignKey: "",
-          encPrivSignKey: "",
+          pubVerifyKey: "",
+          encPrivateSignKey: "",
           encSecretKey: "",
-          pubEncKey: "",
-          encPrivEncKey: ""
+          pubEncryptKey: "",
+          encPrivateDecryptKey: ""
         })
       ).rejects.toHaveProperty(
         "message",
@@ -1003,8 +1003,8 @@ describe("UserManager", () => {
       for (let i = 1; i <= 20; i++) {
         await getConnection().transaction(async transactionEntityManager => {
           const { u, e } = generateGenericUser(`mTestGetUsers${i}`);
-          u.pubEncKey += i;
-          u.pubSignKey += i;
+          u.pubEncryptKey += i;
+          u.pubVerifyKey += i;
           const savedUser = await transactionEntityManager.save(u);
           e.user = savedUser;
           await transactionEntityManager.save(e);
