@@ -6,8 +6,8 @@ const NODE_ENV = process.env.NODE_ENV || "development";
 const TYPEORM_TYPE = process.env.TYPEORM_TYPE || "postgres";
 const TYPEORM_LOGGING = process.env.TYPEORM_LOGGING || "true";
 const SQL_USER = process.env.SQL_USER || "pguser"; // root
-const SQL_HOST = process.env.SQL_HOST || "localhost";
 const SQL_PASSWORD = process.env.SQL_PASSWORD || "mysecretpassword";
+const SQL_HOST = process.env.SQL_HOST || "localhost";
 let SQL_DB = process.env.SQL_DB || "udiadb";
 let SQL_PORT = process.env.SQL_PORT || "5432"; // 26527
 

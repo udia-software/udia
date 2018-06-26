@@ -18,7 +18,7 @@
     "revertMigration": "ts-node node_modules/.bin/typeorm migration:revert",
     "dropSchema": "ts-node node_modules/.bin/typeorm schema:drop",
     "clean": "rimraf dist",
-    "cleanLogs": "rimraf log"
+    "cleanLogs": "rimraf log coverage"
   },
   "jest": {
     "transform": {
@@ -114,7 +114,7 @@
     "serve-index": "^1.9.1",
     "subscriptions-transport-ws": "^0.9.7",
     "ts-jest": "^22.4.2",
-    "ts-node": "^6.0.0",
+    "ts-node": "^7",
     "tslint": "^5.9.1",
     "tslint-config-prettier": "^1.10.0",
     "typeorm": "^0.2.0",

@@ -23,8 +23,8 @@ Clone Repo: `git clone git@github.com:udia-software/udia.git && cd udia`
     Manual is reccommended for live reloading and development.
 
 1.  Ensure you have a sql database accessible and ready. (`postgres` supported)
-    * You can use docker! `docker-compose -f dev-compose.yml up` and the defaults env variables all work.
-    * To view raw database, connect to docker container with `psql -h 0.0.0.0 -p 5432 -U pguser -d udiadb`
+    - You can use docker! `docker-compose -f dev-compose.yml up` and the defaults env variables all work.
+    - To view raw database, connect to docker container with `psql -h 0.0.0.0 -p 5432 -U pguser -d udiadb`
 2.  Set your database connection values. (see [Environment Variables](#environment-variables))
 3.  Install dependencies: `yarn install`
 4.  Run database migrations `yarn runMigrations`
@@ -43,25 +43,27 @@ These environment variables can be set by modifying your `~/.*rc` or `~/.*profil
 | `SQL_USER`                | `pguser`                          | SQL User                                           |
 | `SQL_PASSWORD`            | `mysecretpassword`                | SQL Password                                       |
 | `SQL_HOST`                | `localhost`                       | SQL Hostname                                       |
-| `SQL_PORT`                | `5432`                            | SQL Port Number for serving                        |
 | `SQL_DB`                  | `udiadb`                          | SQL Database name (test: `udiadbtest`)             |
-| `SQL_TEST_PORT`           | `5433`                            | SQL Port number for testing                        |
+| `SQL_PORT`                | `5432`                            | SQL Port Number for serving                        |
 | `SQL_TEST_DB`             | `udiadbtest`                      | SQL Database name for testing                      |
+| `SQL_TEST_PORT`           | `5433`                            | SQL Port number for testing                        |
 | `JWT_SECRET`              | `DEVELOPMENT_SECRET`              | Secret string to use for JWT encryption            |
 | `CORS_ORIGIN`             | `http://localhost:3001`           | OPTIONS Res Header for Access-Control-Allow-Origin |
 | `CLIENT_DOMAINNAME`       | `localhost:3001`                  | Domain:port of client (`udia.ca`)                  |
 | `CLIENT_PROTOCOL`         | `http`                            | Protocol of Client (`https`)                       |
-| `EMAIL_TOKEN_TIMEOUT`     | `3600000`                         | How long should an email token last                |
+| `EMAIL_TOKEN_TIMEOUT`     | `3600000`                         | How long should an email token last in ms          |
 | `FROM_EMAIL`              | `noreply@udia.ca`                 | Email to use for `from` field                      |
 | `SMTP_USERNAME`           | `xxlvhieo2gqp352o@ethereal.email` | SMTP Username (ethereal default)                   |
 | `SMTP_PASSWORD`           | `rCJTErmv6v2uacmdRt`              | SMTP Password                                      |
 | `SMTP_HOST`               | `smtp.ethereal.email`             | SMTP Host (ethereal default)                       |
 | `SMTP_PORT`               | `587`                             | SMTP Port                                          |
 | `HEALTH_METRIC_INTERVAL`  | `500`                             | How often to send health metric                    |
-| `DEV_JWT`                 | ""                                | `Test/Dev`/graphiql` passHeader jwt                |
-| `AWS_ACCESS_KEY_ID`       | ""                                | (optional) Use AWS SDK for email instead of SMTP   |
-| `AWS_SECRET_ACCESS_KEY`   | ""                                | (optional) If fields are set, will ignore SMTP     |
+| `DEV_JWT`                 |                                   | `Test/Dev`/graphiql` passHeader jwt                |
+| `AWS_ACCESS_KEY_ID`       |                                   | (optional) Use AWS SDK for email instead of SMTP   |
+| `AWS_SECRET_ACCESS_KEY`   |                                   | (optional) If fields are set, will ignore SMTP     |
 | `AWS_SES_REGION`          | `us-west-2`                       | The region for Amazon's SES service                |
+| `ITEMS_PAGE_LIMIT`        | `32`                              | Items page size maximum value                      |
+| `USERS_PAGE_LIMIT`        | `32`                              | Users page size maximum value                      |
 
 ## License
 

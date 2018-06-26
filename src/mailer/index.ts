@@ -46,7 +46,9 @@ if (NODE_ENV === "development") {
 
 /* istanbul ignore next: test coverage does not use AWS */
 if (NODE_ENV !== "test" && !!AWS_ACCESS_KEY_ID && !!AWS_SECRET_ACCESS_KEY) {
-  logger.info("Using AWS SDK for Mailer");
+  logger.info(
+    `Mailer: AWS-SES; region ${AWS_SES_REGION}; keyID: ${AWS_ACCESS_KEY_ID};`
+  );
   AWSConfig.accessKeyId = AWS_ACCESS_KEY_ID;
   AWSConfig.secretAccessKey = AWS_SECRET_ACCESS_KEY;
   AWSConfig.region = AWS_SES_REGION;
@@ -54,6 +56,10 @@ if (NODE_ENV !== "test" && !!AWS_ACCESS_KEY_ID && !!AWS_SECRET_ACCESS_KEY) {
     SES: new SES({ apiVersion: "2010-12-01" }),
     sendingRate: 10 // max 10 messages per second
   };
+} else {
+  logger.info(
+    `Mailer: SMTP; user: ${SMTP_USERNAME}; host: ${SMTP_HOST}; port: ${SMTP_PORT};`
+  );
 }
 
 const transport = createTransport(config);
@@ -91,7 +97,7 @@ export default class Mailer {
         `${urlWithToken}\n` +
         "or by manually copying and pasting your token:\n" +
         `${validationToken}\n` +
-        "at\n" +
+        "to\n" +
         `${urlNoToken}\n`,
       html:
         "<p>This is your email validation token.<br/>" +
@@ -139,8 +145,8 @@ export default class Mailer {
       },
       subject: `[UDIA${
         NODE_ENV !== "production"
-        ? ` ${NODE_ENV}` /* istanbul ignore next: always test */
-        : ""
+          ? ` ${NODE_ENV}` /* istanbul ignore next: always test */
+          : ""
       }] Reset Your Password`,
       text:
         `This is your password reset token.\n` +

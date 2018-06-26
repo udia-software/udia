@@ -12,6 +12,7 @@ import { createConnection, getConnectionOptions } from "typeorm";
 import { existsSync, mkdir } from "fs";
 import app from "./app";
 import {
+  APP_VERSION,
   HEALTH_METRIC_INTERVAL,
   LOG_DIR,
   NODE_ENV,
@@ -44,7 +45,6 @@ const dateReviver = (key: any, value: any) => {
  * Throws an error if client initialization fails
  */
 const start: (port: string) => Promise<Server> = async (port: string) => {
-
   /* istanbul ignore next: we don't care about log dir init in test */
   if (!existsSync(LOG_DIR)) {
     // If the log directory does not exist, create it
@@ -95,7 +95,9 @@ const start: (port: string) => Promise<Server> = async (port: string) => {
 
   let metricSubscriptionInterval: NodeJS.Timer;
   server.listen(port, async () => {
-    logger.info(`UDIA ${NODE_ENV} server running on port ${port}.`);
+    logger.info(
+      `UDIA ${NODE_ENV} v${APP_VERSION} server running on port ${port}.`
+    );
     metricSubscriptionInterval = setInterval(() => {
       pubSub.publish("health", { health: metric() });
     }, +HEALTH_METRIC_INTERVAL);
