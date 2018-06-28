@@ -34,6 +34,7 @@ const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY || "";
 const AWS_SES_REGION = process.env.AWS_SES_REGION || "us-west-2";
 const ITEMS_PAGE_LIMIT = process.env.ITEMS_PAGE_LIMIT || "32";
 const USERS_PAGE_LIMIT = process.env.USERS_PAGE_LIMIT || "32";
+const USE_NODE_CLUSTER = process.env.USE_NODE_CLUSTER === "true";
 
 export {
   APP_VERSION,
@@ -62,5 +63,6 @@ export {
   AWS_SECRET_ACCESS_KEY,
   AWS_SES_REGION,
   ITEMS_PAGE_LIMIT,
-  USERS_PAGE_LIMIT
+  USERS_PAGE_LIMIT,
+  USE_NODE_CLUSTER
 };

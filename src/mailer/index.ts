@@ -1,5 +1,3 @@
-"use strict";
-
 import { config as AWSConfig, SES } from "aws-sdk";
 import { duration } from "moment";
 import { createTransport } from "nodemailer";
@@ -45,7 +43,11 @@ if (NODE_ENV === "development") {
 }
 
 /* istanbul ignore next: test coverage does not use AWS */
-if (NODE_ENV !== "test" && !!AWS_ACCESS_KEY_ID && !!AWS_SECRET_ACCESS_KEY) {
+if (
+  NODE_ENV !== "test" &&
+  !!AWS_ACCESS_KEY_ID &&
+  !!AWS_SECRET_ACCESS_KEY
+) {
   logger.info(
     `Mailer: AWS-SES; region ${AWS_SES_REGION}; keyID: ${AWS_ACCESS_KEY_ID};`
   );

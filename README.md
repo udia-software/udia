@@ -64,6 +64,7 @@ These environment variables can be set by modifying your `~/.*rc` or `~/.*profil
 | `AWS_SES_REGION`          | `us-west-2`                       | The region for Amazon's SES service                |
 | `ITEMS_PAGE_LIMIT`        | `32`                              | Items page size maximum value                      |
 | `USERS_PAGE_LIMIT`        | `32`                              | Users page size maximum value                      |
+| `USE_NODE_CLUSTER`        | `false`                           | Set `true` to enable node cluster (verify locking) |
 
 ## License
 

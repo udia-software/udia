@@ -1,10 +1,11 @@
+import cluster from "cluster";
 import { NextFunction, Request, Response } from "express";
 import moment, { ISO_8601 } from "moment";
 import onFinished from "on-finished";
 import path from "path";
 import { Logger as ITypeORMLogger } from "typeorm";
 import { createLogger, format, Logger, transports } from "winston";
-import { LOG_DIR, NODE_ENV } from "../constants";
+import { LOG_DIR, NODE_ENV, USE_NODE_CLUSTER } from "../constants";
 
 const logLevel =
   NODE_ENV === "production"
@@ -15,7 +16,16 @@ const logMaxFiles = 8;
 
 // Default formatter, simply set timestamp to be now
 const defaultFormatter = (logEntry: any) => {
-  const json = { timestamp: new Date().toISOString(), ...logEntry };
+  const json = {
+    timestamp: new Date().toISOString(),
+    pid: process.pid,
+    ...logEntry
+  };
+  if (USE_NODE_CLUSTER) {
+    json.workerNum = cluster.isMaster
+      ? "0"
+      : process.env._UDIA_WORKER_NUM || "FUBAR";
+  }
   logEntry[Symbol.for("message")] = JSON.stringify(json);
   return logEntry;
 };
@@ -26,11 +36,13 @@ const consoleFormatter = format.combine(
   format.colorize(),
   format.timestamp(),
   format.printf(({ timestamp, level, message, ...args }) => {
-    return `${moment(
-      timestamp,
-      ISO_8601,
-      true
-    ).toLocaleString()} [${level}]: ${message} ${
+    return `${moment(timestamp, ISO_8601, true).toLocaleString()} ${
+      USE_NODE_CLUSTER
+        ? `[CLUSTER ${
+            cluster.isMaster ? "0" : process.env._UDIA_WORKER_NUM || "FUBAR"
+          }:${process.pid}] `
+        : ""
+    }[${level}]: ${message} ${
       Object.keys(args).length ? JSON.stringify(args) : ""
     }`;
   })

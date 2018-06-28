@@ -1,15 +1,16 @@
 import PostgresPubSub from "@udia/graphql-postgres-subscriptions";
+import cluster from "cluster";
 import crypto from "crypto";
+import { existsSync, mkdir } from "fs";
 import { execute, subscribe } from "graphql";
 import { PubSubEngine } from "graphql-subscriptions";
 import { createServer, Server } from "http";
 import Graceful from "node-graceful";
+import { cpus } from "os";
 import { Client } from "pg";
 import "reflect-metadata"; // required for typeorm
 import { ServerOptions, SubscriptionServer } from "subscriptions-transport-ws";
 import { createConnection, getConnectionOptions } from "typeorm";
-
-import { existsSync, mkdir } from "fs";
 import app from "./app";
 import {
   APP_VERSION,
@@ -21,7 +22,8 @@ import {
   SQL_HOST,
   SQL_PASSWORD,
   SQL_PORT,
-  SQL_USER
+  SQL_USER,
+  USE_NODE_CLUSTER
 } from "./constants";
 import gqlSchema from "./gqlSchema";
 import Auth from "./modules/Auth";
@@ -106,21 +108,27 @@ const start: (port: string) => Promise<Server> = async (port: string) => {
   const shutdownListener = (done: () => void, event: any, signal: any) => {
     logger.warn(`!)\tGraceful ${signal} signal received.`);
     return new Promise(resolve => {
-      logger.warn(`3)\tHTTP & WebSocket servers on port ${port} closing.`);
+      logger.warn(`5)\tHealth metric interval ending.`);
       clearInterval(metricSubscriptionInterval);
-      subscriptionServer.close();
-      return server.close(resolve);
+      // setTimeout(resolve, +HEALTH_METRIC_INTERVAL); // maybe not necessary
+      return resolve();
     })
       .then(() => {
-        logger.warn(`2)\tDatabase connections closing.`);
-        return conn.close();
+        logger.warn(`4)\tHTTP & WebSocket servers on port ${port} closing.`);
+        subscriptionServer.close();
+        return server.close();
       })
       .then(() => {
+        logger.warn(`3)\tPostgres client ending.`);
         return pgClient.end();
       })
       .then(() => {
+        logger.warn(`2)\tDatabase connection closing.`);
+        return conn.close();
+      })
+      .then(() => {
         logger.warn(`1)\tShutting down. Goodbye!\n`);
-        return done();
+        return done;
       })
       .catch(
         /* istanbul ignore next: don't care about nongraceful test shutdown */
@@ -142,7 +150,41 @@ const start: (port: string) => Promise<Server> = async (port: string) => {
 
 /* istanbul ignore next: test coverage never runs `node index` */
 if (require.main === module) {
-  start(PORT);
+  if (USE_NODE_CLUSTER) {
+    if (cluster.isMaster) {
+      const clusterProcessInstanceToPID: number[] = [];
+      logger.info(`Using Node Cluster Mode!`);
+      logger.info(`Master ${process.pid} is running!`);
+      clusterProcessInstanceToPID.push(process.pid);
+      const numCPUs = cpus().length;
+      logger.info(
+        `Master is spawning ${numCPUs} worker${numCPUs > 1 ? "s" : ""}.`
+      );
+      for (let i = 1; i <= numCPUs; i++) {
+        const worker = cluster.fork({ _UDIA_WORKER_NUM: i });
+        clusterProcessInstanceToPID.push(worker.process.pid);
+      }
+
+      // If the master is still alive but a worker dies, create a new worker.
+      cluster.on("exit", (worker, code, signal) => {
+        const deadWorkerPID = worker.process.pid;
+        const workerNum = clusterProcessInstanceToPID.indexOf(deadWorkerPID);
+        const nWorker = cluster.fork();
+        const newWorkerPID = nWorker.process.pid;
+        logger.warn(
+          `Worker ${workerNum}:${deadWorkerPID} died, ` +
+            `reborn as ${workerNum}:${newWorkerPID}!`
+        );
+        clusterProcessInstanceToPID[workerNum] = newWorkerPID;
+      });
+    } else {
+      start(PORT);
+      const workerNum = process.env._UDIA_WORKER_NUM || "FUBAR";
+      logger.info(`Worker ${workerNum}:${process.pid} is running!`);
+    }
+  } else {
+    start(PORT);
+  }
 }
 
 export { pubSub, dateReviver };
