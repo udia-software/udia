@@ -1,4 +1,5 @@
 import { config as AWSConfig, SES } from "aws-sdk";
+import cluster from "cluster";
 import { duration } from "moment";
 import { createTransport } from "nodemailer";
 import {
@@ -13,7 +14,8 @@ import {
   SMTP_HOST,
   SMTP_PASSWORD,
   SMTP_PORT,
-  SMTP_USERNAME
+  SMTP_USERNAME,
+  USE_NODE_CLUSTER
 } from "../constants";
 import logger from "../util/logger";
 
@@ -43,14 +45,12 @@ if (NODE_ENV === "development") {
 }
 
 /* istanbul ignore next: test coverage does not use AWS */
-if (
-  NODE_ENV !== "test" &&
-  !!AWS_ACCESS_KEY_ID &&
-  !!AWS_SECRET_ACCESS_KEY
-) {
-  logger.info(
-    `Mailer: AWS-SES; region ${AWS_SES_REGION}; keyID: ${AWS_ACCESS_KEY_ID};`
-  );
+if (NODE_ENV !== "test" && !!AWS_ACCESS_KEY_ID && !!AWS_SECRET_ACCESS_KEY) {
+  if (cluster.isMaster || !USE_NODE_CLUSTER) {
+    logger.info(
+      `Mailer: AWS-SES; region ${AWS_SES_REGION}; keyID: ${AWS_ACCESS_KEY_ID};`
+    );
+  }
   AWSConfig.accessKeyId = AWS_ACCESS_KEY_ID;
   AWSConfig.secretAccessKey = AWS_SECRET_ACCESS_KEY;
   AWSConfig.region = AWS_SES_REGION;
@@ -59,9 +59,11 @@ if (
     sendingRate: 10 // max 10 messages per second
   };
 } else {
-  logger.info(
-    `Mailer: SMTP; user: ${SMTP_USERNAME}; host: ${SMTP_HOST}; port: ${SMTP_PORT};`
-  );
+  if (cluster.isMaster || !USE_NODE_CLUSTER) {
+    logger.info(
+      `Mailer: SMTP; user: ${SMTP_USERNAME}; host: ${SMTP_HOST}; port: ${SMTP_PORT};`
+    );
+  }
 }
 
 const transport = createTransport(config);

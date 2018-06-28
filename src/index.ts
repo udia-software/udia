@@ -43,7 +43,7 @@ const dateReviver = (key: any, value: any) => {
 };
 
 /**
- * Start the server. Initialize the Database Client and tables.
+ * Start the application server. Initialize the Database Client and tables.
  * Throws an error if client initialization fails
  */
 const start: (port: string) => Promise<Server> = async (port: string) => {
@@ -100,8 +100,43 @@ const start: (port: string) => Promise<Server> = async (port: string) => {
     logger.info(
       `UDIA ${NODE_ENV} v${APP_VERSION} server running on port ${port}.`
     );
-    metricSubscriptionInterval = setInterval(() => {
-      pubSub.publish("health", { health: metric() });
+
+    // Only one worker/server should be publishing health events at a time.
+    const HEALTH_ADVISORY_LOCK_ID = Number.MIN_SAFE_INTEGER;
+    let healthMetricLocked: boolean = false;
+    let kludgeBarf = 10;
+    metricSubscriptionInterval = setInterval(async () => {
+      try {
+        if (healthMetricLocked) {
+          const queryResp = await pgClient.query({
+            text: "SELECT pg_advisory_unlock($1)",
+            values: [HEALTH_ADVISORY_LOCK_ID]
+          });
+          // false means error, not unlocked. Explicitly check !(resp === true);
+          const unlockSuccess = queryResp.rows[0].pg_advisory_unlock;
+          if (!unlockSuccess) {
+            throw queryResp;
+          }
+          healthMetricLocked = false;
+        }
+        if (!healthMetricLocked) {
+          const queryResp = await pgClient.query({
+            text: "SELECT pg_try_advisory_lock($1)",
+            values: [HEALTH_ADVISORY_LOCK_ID]
+          });
+          healthMetricLocked = queryResp.rows[0].pg_try_advisory_lock;
+        }
+        if (healthMetricLocked) {
+          pubSub.publish("health", { health: metric() });
+          kludgeBarf -= 1;
+          if (!kludgeBarf) {
+            throw { kludgeBarf, healthMetricLocked };
+          }
+        }
+      } catch (err) {
+        logger.error("UNHEALTHY", err);
+        Graceful.exit(1);
+      }
     }, +HEALTH_METRIC_INTERVAL);
   });
 
@@ -110,7 +145,6 @@ const start: (port: string) => Promise<Server> = async (port: string) => {
     return new Promise(resolve => {
       logger.warn(`5)\tHealth metric interval ending.`);
       clearInterval(metricSubscriptionInterval);
-      // setTimeout(resolve, +HEALTH_METRIC_INTERVAL); // maybe not necessary
       return resolve();
     })
       .then(() => {
@@ -127,13 +161,13 @@ const start: (port: string) => Promise<Server> = async (port: string) => {
         return conn.close();
       })
       .then(() => {
-        logger.warn(`1)\tShutting down. Goodbye!\n`);
+        logger.warn(`1)\tShutting down. Goodbye!`);
         return done;
       })
       .catch(
         /* istanbul ignore next: don't care about nongraceful test shutdown */
         err => {
-          logger.error("!)\tTERMERR\n", err);
+          logger.error("!)\tTERMERR", err);
           process.exit(1);
         }
       );
@@ -148,40 +182,40 @@ const start: (port: string) => Promise<Server> = async (port: string) => {
   return server;
 };
 
+/**
+ * Start a cluster of servers, depending on machine CPU count.
+ */
+const clusterStart = () => {
+  if (cluster.isMaster) {
+    logger.info(`Using Node Cluster Mode!`);
+    logger.info(`Master ${process.pid} is running!`);
+    const numCPUs = cpus().length;
+    logger.info(
+      `Master is spawning ${numCPUs} worker${numCPUs > 1 ? "s" : ""}.`
+    );
+    for (let i = 1; i <= numCPUs; i++) {
+      setTimeout(cluster.fork, i * 100);
+    }
+    // If the master is still alive but a worker dies, create a new worker.
+    cluster.on("exit", (worker, code, signal) => {
+      const deadWorkerPID = worker.process.pid;
+      const nWorker = cluster.fork();
+      const newWorkerPID = nWorker.process.pid;
+      logger.warn(
+        `Worker ${worker.id}:${deadWorkerPID} died, ` +
+          `reborn as ${nWorker.id}:${newWorkerPID}!`
+      );
+    });
+  } else {
+    start(PORT);
+    logger.info(`Worker ${cluster.worker.id}:${process.pid} is running!`);
+  }
+};
+
 /* istanbul ignore next: test coverage never runs `node index` */
 if (require.main === module) {
   if (USE_NODE_CLUSTER) {
-    if (cluster.isMaster) {
-      const clusterProcessInstanceToPID: number[] = [];
-      logger.info(`Using Node Cluster Mode!`);
-      logger.info(`Master ${process.pid} is running!`);
-      clusterProcessInstanceToPID.push(process.pid);
-      const numCPUs = cpus().length;
-      logger.info(
-        `Master is spawning ${numCPUs} worker${numCPUs > 1 ? "s" : ""}.`
-      );
-      for (let i = 1; i <= numCPUs; i++) {
-        const worker = cluster.fork({ _UDIA_WORKER_NUM: i });
-        clusterProcessInstanceToPID.push(worker.process.pid);
-      }
-
-      // If the master is still alive but a worker dies, create a new worker.
-      cluster.on("exit", (worker, code, signal) => {
-        const deadWorkerPID = worker.process.pid;
-        const workerNum = clusterProcessInstanceToPID.indexOf(deadWorkerPID);
-        const nWorker = cluster.fork();
-        const newWorkerPID = nWorker.process.pid;
-        logger.warn(
-          `Worker ${workerNum}:${deadWorkerPID} died, ` +
-            `reborn as ${workerNum}:${newWorkerPID}!`
-        );
-        clusterProcessInstanceToPID[workerNum] = newWorkerPID;
-      });
-    } else {
-      start(PORT);
-      const workerNum = process.env._UDIA_WORKER_NUM || "FUBAR";
-      logger.info(`Worker ${workerNum}:${process.pid} is running!`);
-    }
+    clusterStart();
   } else {
     start(PORT);
   }

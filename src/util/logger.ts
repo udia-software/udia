@@ -23,8 +23,8 @@ const defaultFormatter = (logEntry: any) => {
   };
   if (USE_NODE_CLUSTER) {
     json.workerNum = cluster.isMaster
-      ? "0"
-      : process.env._UDIA_WORKER_NUM || "FUBAR";
+      ? "MASTER"
+      : cluster.worker.id;
   }
   logEntry[Symbol.for("message")] = JSON.stringify(json);
   return logEntry;
@@ -39,7 +39,7 @@ const consoleFormatter = format.combine(
     return `${moment(timestamp, ISO_8601, true).toLocaleString()} ${
       USE_NODE_CLUSTER
         ? `[CLUSTER ${
-            cluster.isMaster ? "0" : process.env._UDIA_WORKER_NUM || "FUBAR"
+            cluster.isMaster ? "MASTER" : cluster.worker.id
           }:${process.pid}] `
         : ""
     }[${level}]: ${message} ${

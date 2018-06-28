@@ -104,8 +104,8 @@
     "@types/node" "*"
 
 "@types/jest@^23.0.0":
-  version "23.1.2"
-  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-23.1.2.tgz#a6cd37deb9110a8c63dc1435d6ee2518b3bd8e54"
+  version "23.1.3"
+  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-23.1.3.tgz#4db19b2e7627dc254bbed5781b5609c621b5ad8e"
 
 "@types/jsonwebtoken@^7.2.6":
   version "7.2.7"
@@ -151,8 +151,8 @@
     moment ">=2.14.0"
 
 "@types/pg@^7.4.5":
-  version "7.4.9"
-  resolved "https://registry.yarnpkg.com/@types/pg/-/pg-7.4.9.tgz#441a88f14bb89d531e00bcf4cf02b23dd512168d"
+  version "7.4.10"
+  resolved "https://registry.yarnpkg.com/@types/pg/-/pg-7.4.10.tgz#1cf4d6c5d32e621566eca82981161b371fb90ace"
   dependencies:
     "@types/events" "*"
     "@types/node" "*"
@@ -200,8 +200,8 @@
   resolved "https://registry.yarnpkg.com/@types/zen-observable/-/zen-observable-0.5.4.tgz#b863a4191e525206819e008097ebf0fb2e3a1cdc"
 
 "@udia/graphql-postgres-subscriptions@^1.0.0":
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/@udia/graphql-postgres-subscriptions/-/graphql-postgres-subscriptions-1.0.7.tgz#bad90cb94ed40537f7b988f0161d15b5ef1481de"
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/@udia/graphql-postgres-subscriptions/-/graphql-postgres-subscriptions-1.0.8.tgz#f6988adb189af515a2a10cf14bee0a09d27dbe5f"
   dependencies:
     graphql-subscriptions "^0.5.8"
     iterall "^1.2.2"
@@ -535,8 +535,8 @@ atob@^2.1.1:
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.1.tgz#ae2d5a729477f289d60dd7f96a6314a22dd6c22a"
 
 aws-sdk@^2.235.1:
-  version "2.264.1"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.264.1.tgz#7478f3de36dab354172fd30f006ba8a96acd42e1"
+  version "2.265.1"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.265.1.tgz#a3b742954a074ebfc1148e8c48bfe73d2f57c2ee"
   dependencies:
     buffer "4.9.1"
     events "1.1.1"
@@ -1050,7 +1050,7 @@ cliui@^4.0.0:
     strip-ansi "^4.0.0"
     wrap-ansi "^2.0.0"
 
-clorox@^1.0.1:
+clorox@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/clorox/-/clorox-1.0.3.tgz#6fa63653f280c33d69f548fb14d239ddcfa1590d"
 
@@ -3849,11 +3849,11 @@ process-nextick-args@~2.0.0:
   resolved "https://registry.yarnpkg.com/process-nextick-args/-/process-nextick-args-2.0.0.tgz#a37d732f4271b4ab1ad070d35508e8290788ffaa"
 
 prompts@^0.1.9:
-  version "0.1.9"
-  resolved "https://registry.yarnpkg.com/prompts/-/prompts-0.1.9.tgz#be109f62f794f138c6bbd35c25370c5c526d9d78"
+  version "0.1.10"
+  resolved "https://registry.yarnpkg.com/prompts/-/prompts-0.1.10.tgz#832cbf6116ecb121d6884e84643bb2cf92b3ed2c"
   dependencies:
-    clorox "^1.0.1"
-    sisteransi "^0.1.0"
+    clorox "^1.0.3"
+    sisteransi "^0.1.1"
 
 proxy-addr@~2.0.3:
   version "2.0.3"
@@ -4294,7 +4294,7 @@ signal-exit@^3.0.0, signal-exit@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
 
-sisteransi@^0.1.0:
+sisteransi@^0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/sisteransi/-/sisteransi-0.1.1.tgz#5431447d5f7d1675aac667ccd0b865a4994cb3ce"
 
