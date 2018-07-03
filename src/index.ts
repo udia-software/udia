@@ -104,7 +104,6 @@ const start: (port: string) => Promise<Server> = async (port: string) => {
     // Only one worker/server should be publishing health events at a time.
     const HEALTH_ADVISORY_LOCK_ID = Number.MIN_SAFE_INTEGER;
     let healthMetricLocked: boolean = false;
-    let kludgeBarf = 10;
     metricSubscriptionInterval = setInterval(async () => {
       try {
         if (healthMetricLocked) {
@@ -127,11 +126,8 @@ const start: (port: string) => Promise<Server> = async (port: string) => {
           healthMetricLocked = queryResp.rows[0].pg_try_advisory_lock;
         }
         if (healthMetricLocked) {
+          logger.verbose(`Locked: ${healthMetricLocked}; sending health!`);
           pubSub.publish("health", { health: metric() });
-          kludgeBarf -= 1;
-          if (!kludgeBarf) {
-            throw { kludgeBarf, healthMetricLocked };
-          }
         }
       } catch (err) {
         logger.error("UNHEALTHY", err);
@@ -167,7 +163,7 @@ const start: (port: string) => Promise<Server> = async (port: string) => {
       .catch(
         /* istanbul ignore next: don't care about nongraceful test shutdown */
         err => {
-          logger.error("!)\tTERMERR", err);
+          logger.error(`${err.message || "TERMERR"}`, err);
           process.exit(1);
         }
       );

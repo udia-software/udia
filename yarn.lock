@@ -200,8 +200,8 @@
   resolved "https://registry.yarnpkg.com/@types/zen-observable/-/zen-observable-0.5.4.tgz#b863a4191e525206819e008097ebf0fb2e3a1cdc"
 
 "@udia/graphql-postgres-subscriptions@^1.0.0":
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/@udia/graphql-postgres-subscriptions/-/graphql-postgres-subscriptions-1.0.8.tgz#f6988adb189af515a2a10cf14bee0a09d27dbe5f"
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/@udia/graphql-postgres-subscriptions/-/graphql-postgres-subscriptions-1.0.9.tgz#84133fc31dbb9b7f8a122806da526457a74b38c5"
   dependencies:
     graphql-subscriptions "^0.5.8"
     iterall "^1.2.2"
@@ -1226,8 +1226,8 @@ crypto-random-string@^1.0.0:
   resolved "https://registry.yarnpkg.com/crypto-random-string/-/crypto-random-string-1.0.0.tgz#a230f64f568310e1498009940790ec99545bca7e"
 
 cssom@0.3.x, "cssom@>= 0.3.2 < 0.4.0":
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/cssom/-/cssom-0.3.2.tgz#b8036170c79f07a90ff2f16e22284027a243848b"
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/cssom/-/cssom-0.3.3.tgz#7b344769915759c2c9e3eb8c26f7fd533dbea252"
 
 "cssstyle@>= 0.3.1 < 0.4.0":
   version "0.3.1"
