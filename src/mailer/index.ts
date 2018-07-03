@@ -90,7 +90,7 @@ export default class Mailer {
     const urlNoToken = `${CLIENT_PROTOCOL}://${CLIENT_DOMAINNAME}/verify-email`;
     const urlWithToken = `${urlNoToken}/${validationToken}`;
     const sendEmailTime = utc().format("ddd, MMM D, YYYY @ h:mm A Z");
-    const { html, text } = Mailer.createVerifyEmailContentHTML({
+    const { html, text } = Mailer.createVerifyEmailContent({
       username,
       sendEmailTime,
       tokenValidDuration,
@@ -138,48 +138,41 @@ export default class Mailer {
     email: string,
     validationToken: string
   ): Promise<any> {
-    const validityTime = duration(
+    const tokenValidDuration = duration(
       +EMAIL_TOKEN_TIMEOUT,
       "milliseconds"
     ).humanize();
     const urlNoToken = `${CLIENT_PROTOCOL}://${CLIENT_DOMAINNAME}/reset-password`;
     const urlWithToken = `${urlNoToken}/${validationToken}`;
-    const payload = {
-      from: {
-        name: "UDIA",
-        address: FROM_EMAIL
-      },
-      to: {
-        name: username,
-        address: email
-      },
-      subject: `[UDIA${
-        NODE_ENV !== "production"
-          ? ` ${NODE_ENV}` /* istanbul ignore next: always test */
-          : ""
-      }] Reset Your Password`,
-      text:
-        `This is your password reset token.\n` +
-        `It is valid for ${validityTime}.\n` +
-        `You may verify your email by going to the following link:\n` +
-        `${urlWithToken}\n` +
-        `or by manually copying and pasting your token:\n` +
-        `${validationToken}\n` +
-        `at\n` +
-        `${urlNoToken}\n`,
-      html:
-        `<p>This is your password reset token.<br/>` +
-        `It is valid for ${validityTime}.</p>` +
-        `<p>You may verify your email by clicking:<br/>` +
-        `<a href="${urlWithToken}">${urlWithToken}</a>` +
-        `</p>` +
-        `<p>You may also verify your email by manually copying and pasting your token:</p>` +
-        `<pre><code><a href="#" style="text-decoration:none;">${validationToken}</a></code></pre>` +
-        `<p>to:<br/>` +
-        `<a href="${urlNoToken}">${urlNoToken}</a></p>`
-    };
+    const sendEmailTime = utc().format("ddd, MMM D, YYYY @ h:mm A Z");
+    const { html, text } = Mailer.createResetPasswordContent({
+      username,
+      sendEmailTime,
+      tokenValidDuration,
+      urlWithToken
+    });
     return transport
-      .sendMail(payload)
+      .sendMail({
+        from: {
+          name: "UDIA",
+          address: FROM_EMAIL
+        },
+        to: {
+          name: username,
+          address: email
+        },
+        replyTo: {
+          name: REPLY_TO_EMAIL_NAME,
+          address: REPLY_TO_EMAIL_ADDR
+        },
+        subject: `[UDIA${
+          NODE_ENV !== "production"
+            ? ` ${NODE_ENV}` /* istanbul ignore next: always test */
+            : undefined
+        }] Reset Your Password`,
+        text,
+        html
+      })
       .then(info => {
         logger.info("sendForgotPasswordEmail sent", info);
       })
@@ -201,7 +194,17 @@ export default class Mailer {
     { encoding: "utf8" }
   );
 
-  private static createVerifyEmailContentHTML({
+  private static resetPasswordHTMLTemplate = readFileSync(
+    path.join(EMAIL_TEMPLATES_DIR, "reset_password_template.html"),
+    { encoding: "utf8" }
+  );
+
+  private static resetPasswordTXTTemplate = readFileSync(
+    path.join(EMAIL_TEMPLATES_DIR, "reset_password_template.txt"),
+    { encoding: "utf8" }
+  );
+
+  private static createVerifyEmailContent({
     username,
     sendEmailTime,
     tokenValidDuration,
@@ -217,6 +220,32 @@ export default class Mailer {
         )
         .replace(new RegExp("@@URL_WITH_TOKEN@@", "g"), urlWithToken),
       text: Mailer.verifyEmailTXTTemplate
+        .replace(new RegExp("@@USERNAME@@", "g"), username)
+        .replace(new RegExp("@@SENT_EMAIL_TIME@@", "g"), sendEmailTime)
+        .replace(
+          new RegExp("@@TOKEN_VALID_DURATION@@", "g"),
+          tokenValidDuration
+        )
+        .replace(new RegExp("@@URL_WITH_TOKEN@@", "g"), urlWithToken)
+    };
+  }
+
+  private static createResetPasswordContent({
+    username,
+    sendEmailTime,
+    tokenValidDuration,
+    urlWithToken
+  }: IEmailVerificationVariables) {
+    return {
+      html: Mailer.resetPasswordHTMLTemplate
+        .replace(new RegExp("@@USERNAME@@", "g"), username)
+        .replace(new RegExp("@@SENT_EMAIL_TIME@@", "g"), sendEmailTime)
+        .replace(
+          new RegExp("@@TOKEN_VALID_DURATION@@", "g"),
+          tokenValidDuration
+        )
+        .replace(new RegExp("@@URL_WITH_TOKEN@@", "g"), urlWithToken),
+      text: Mailer.resetPasswordTXTTemplate
         .replace(new RegExp("@@USERNAME@@", "g"), username)
         .replace(new RegExp("@@SENT_EMAIL_TIME@@", "g"), sendEmailTime)
         .replace(
