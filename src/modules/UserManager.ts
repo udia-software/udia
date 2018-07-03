@@ -376,6 +376,12 @@ export default class UserManager {
       errors.push({ key: "id", message: "Invalid JWT." });
     }
     await this.handleValidateEmail(email, errors);
+    if (user && user.emails.length >= 2) {
+      errors.push({
+        key: "email",
+        message: "User is limited to two emails."
+      });
+    }
     if (errors.length > 0) {
       throw new ValidationError(errors);
     }
