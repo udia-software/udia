@@ -6,6 +6,8 @@ dotenv.config(); // can also set environment variables using .env file
 const APP_VERSION = version;
 const APP_NAME = name;
 const LOG_DIR = path.join(__dirname, "..", "log");
+const EMAIL_TEMPLATES_DIR = path.join(__dirname, "..", "static", "emails");
+const LEGAL_DIR = path.join(__dirname, "..", "static", "legal");
 
 // Environment Variables (SEE README)
 /* istanbul ignore next: node env always test */
@@ -22,6 +24,8 @@ const CLIENT_DOMAINNAME = process.env.CLIENT_DOMAINNAME || "localhost:8000";
 const CLIENT_PROTOCOL = process.env.CLIENTPROTOCOL || "http";
 const EMAIL_TOKEN_TIMEOUT = process.env.EMAIL_TOKEN_TIMEOUT || "3600000";
 const FROM_EMAIL = process.env.FROM_EMAIL || "noreply@udia.ca";
+const REPLY_TO_EMAIL_NAME = process.env.REPLY_TO_EMAIL_NAME || "Alexander Wong";
+const REPLY_TO_EMAIL_ADDR = process.env.REPLY_TO_EMAIL_ADDR || "alex@udia.ca";
 const SMTP_USERNAME =
   process.env.SMTP_USERNAME || "xxlvhieo2gqp352o@ethereal.email";
 const SMTP_PASSWORD = process.env.SMTP_PASSWORD || "rCJTErmv6v2uacmdRt";
@@ -39,6 +43,8 @@ export {
   APP_VERSION,
   APP_NAME,
   LOG_DIR,
+  EMAIL_TEMPLATES_DIR,
+  LEGAL_DIR,
   NODE_ENV,
   PORT,
   SQL_USER,
@@ -52,6 +58,8 @@ export {
   CLIENT_PROTOCOL,
   EMAIL_TOKEN_TIMEOUT,
   FROM_EMAIL,
+  REPLY_TO_EMAIL_NAME,
+  REPLY_TO_EMAIL_ADDR,
   SMTP_USERNAME,
   SMTP_PASSWORD,
   SMTP_HOST,

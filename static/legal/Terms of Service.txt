@@ -1,0 +1,121 @@
+Udia - Terms of Service
+
+1. Your Acceptance
+
+  A. By using or visiting the Udia websites https://udia.ca, https://api.udia.ca, or any Udia products and services provided to through the Udia website (collectively the "Service") you signify your agreement to (1) these terms and conditions (the "Terms of Service"), (2) Udia's Privacy Policy, found at https://api.udia.ca/static/legal/Privacy%20Policy.txt and incorporated herein by reference. If you do not agree to any of these terms or the Udia Privacy Policy, do not use the Service.
+
+  B. Although we may attempt to notify you when major changes are made to these Terms of Service, you should review the most up-to-date version found at https://api.udia.ca/static/legal/Terms%20of%20Service.txt. Udia may, in its sole discretion, modify or revise these Terms of Service and policies at any time. You agree to be bound by such modifications or revisions. Nothing in these Terms of Service confer any third-party rights or benefits.
+
+2. Service
+
+  A. These Terms of Service apply to all users of the Service, including users who are also contributors of Content on the Service. “Content” includes the text, software, scripts, graphics, photos, sounds, music, videos, audiovisual combinations, interactive features and other materials you may view on, access through, or contribute to the Service. The Service includes all aspects of Udia, including but not limited to all products, software and services offered via the Udia website.
+
+  B. The Service may contain links to third party websites that are not owned or controlled by Udia. Udia has no control over, and assumes no responsibility for, the content, privacy policies, or practices of any third party websites. Udia will not and cannot censor or edit the content of any third-party site. By using the Service, you expressly relieve Udia from any and all liability arising from your use of any third-party website.
+
+  C. You are responsible for understanding when you leave the Service and to read the terms and conditions and privacy policy of each other website that you visit.
+
+3. User Accounts
+
+  A. In order to access some features of the Service, you will have to create an Udia Account. You may never use another's account without permission. When creating your account, you must provide accurate and complete information. You are solely responsible for the activity that occurs on your account, and you must keep your account password secure. You must notify Udia immediately of any breach of security or unauthorized use of your account.
+
+  B. Udia will not be liable for your losses caused by any unauthorized use of your account. You may be liable for the losses of Udia or others due to such unauthorized use.
+
+4. General Use of the Service—Permissions and Restrictions
+
+Udia hereby grants you permission to access and use the Service as set forth in these Terms of Service, provided that:
+
+  A. You agree not to access Content through any technology or means other than the web client of the Service, or the application programming interface which the web client depends on.
+
+  B. You agree not to use the Service for any of the following commercial uses unless you obtain Udia's prior written approval:
+    1. the sale of access to the Service;
+    2. the sale of advertising, sponsorships, or promotions placed on or within the Service or Content;
+
+  C. Prohibited commercial uses does not include:
+    1. uploading original content to Udia;
+    2. any use that Udia expressly authorizes in writing;
+
+  D. You agree not to use or launch any automated system, including without limitation, "robots," "spiders," or "offline readers," that accesses the Service in a manner that sends more request messages to Udia's servers in a given period of time than a human can reasonably produce in the same period by using a conventional on-line web browser. Notwithstanding the foregoing, Udia grants the operators of public search engines permission to use spiders to copy materials from the site for the sole purpose of and solely to the extent necessary for creating publicly available searchable indices of the materials, but not caches or archives of such materials. Udia reserves the right to revoke these exceptions either generally or in specific cases. You agree not to collect or harvest any personally identifiable information, including account names, from the Service, nor to use the communication systems provided by the Service (e.g., comments, email) for any commercial solicitation purposes. You agree not to solicit, for commercial purposes, any users of the Service with respect to their Content.
+
+  E. In your use of the Service, you will comply with all applicable laws.
+
+  F. Udia reserves the right to discontinue any aspect of the Service at any time.
+
+5. Your Use of Content
+
+In addition to the general restrictions above, the following restrictions and conditions apply specifically to your use of Content.
+
+  A. The Content on the Service, and the trademarks, service marks and logos ("Marks") on the Service, are owned by or licensed to Udia, are subject to copyright and other intellectual property rights under the law.
+
+  B. Content is provided to you AS IS. You may access Content for your information and personal use solely as intended through the provided functionality of the Service and as permitted under these Terms of Service. You shall not copy, reproduce, distribute, transmit, broadcast, display, sell, license, or otherwise exploit any Content for any other purposes without the prior written consent of Udia or the respective licensors of the Content. Udia and its licensors reserve all rights not expressly granted in and to the Service and the Content.
+
+  C. You agree not to circumvent, disable or otherwise interfere with security-related features of the Service or features that prevent or restrict use or copying of any Content or enforce limitations on use of the Service or the Content therein.
+
+  D. You understand that when using the Service, you will be exposed to Content from a variety of sources. Udia is not responsible for the accuracy, usefulness, safety, or intellectual property rights of or relating to such Content. You further understand and acknowledge that you may be exposed to Content that is inaccurate, offensive, indecent, or objectionable, and you agree to waive, and hereby do waive, any legal or equitable rights or remedies you have or may have against Udia with respect thereto, and, to the extent permitted by applicable law, agree to indemnify and hold harmless Udia, its owners, operators, affiliates, licensors, and licensees to the fullest extent allowed by law regarding all matters related to your use of the Service.
+
+6. Your Content and Conduct
+
+  A. As a Udia account holder you may submit Content to the Service, including text and comments. You understand that Udia does not guarantee any confidentiality with respect to any Content you submit.
+
+  B. You shall be solely responsible for your own Content and the consequences of submitting and publishing your Content on the Service. You affirm, represent, and warrant that you own or have the necessary licenses, rights, consents, and permissions to publish Content you submit; and you license to Udia all patent, trademark, trade secret, copyright or other proprietary rights in and to such Content for publication on the Service pursuant to these Terms of Service.
+
+  C. For clarity, you retain all of your ownership rights in your Content. However, by submitting Content to Udia, you hereby grant Udia a worldwide, non-exclusive, royalty-free, sublicenseable and transferable license to use, reproduce, distribute, prepare derivative works of, display, and perform the Content in connection with the Service and Udia's (and its successors' and affiliates') business, including without limitation for promoting and redistributing part or all of the Service (and derivative works thereof) in any media formats and through any media channels. You also hereby grant each user of the Service a non-exclusive license to access your Content through the Service, and to use, reproduce, distribute, display and perform such Content as permitted through the functionality of the Service and under these Terms of Service. The above licenses granted by you in video Content you submit to the Service terminate within a commercially reasonable time after you remove or delete your videos from the Service. You understand and agree, however, that Udia may retain, but not display, distribute, or perform, server copies of your videos that have been removed or deleted. The above licenses granted by you in user comments you submit are perpetual and irrevocable.
+
+  D. You further agree that Content you submit to the Service will not contain third party copyrighted material, or material that is subject to other third party proprietary rights, unless you have permission from the rightful owner of the material or you are otherwise legally entitled to post the material and to grant Udia all of the license rights granted herein.
+
+  E. Udia does not endorse any Content submitted to the Service by any user or other licensor, or any opinion, recommendation, or advice expressed therein. Udia expressly disclaims any and all liability in connection with Content. Udia does not permit copyright infringing activities and infringement of intellectual property rights on the Service. Udia will remove all Content if properly notified that such Content infringes on another's intellectual property rights. Udia reserves the right to remove Content without prior notice.
+
+7. Account Termination Policy
+
+  A. Udia will terminate a user's access to the Service if, under appropriate circumstances, the user is determined to be a repeat infringer. A repeat infringer is a user who has been notified of policy and terms of service infringing activity more than twice.
+
+  B. Udia reserves the right to decide whether Content violates these Terms of Service for reasons other than copyright infringement, such as, but not limited to, pornography, obscenity, or excessive length. Udia may at any time, without prior notice and in its sole discretion, remove such Content and/or terminate a user's account for submitting such material in violation of these Terms of Service.
+
+8. Warranty Disclaimer
+
+YOU AGREE THAT YOUR USE OF THE SERVICES SHALL BE AT YOUR SOLE RISK. TO THE FULLEST EXTENT PERMITTED BY LAW, UDIA, ITS OFFICERS, DIRECTORS, EMPLOYEES, AND AGENTS DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, IN CONNECTION WITH THE SERVICES AND YOUR USE THEREOF. UDIA MAKES NO WARRANTIES OR REPRESENTATIONS ABOUT THE ACCURACY OR COMPLETENESS OF THIS SITE'S CONTENT OR THE CONTENT OF ANY SITES LINKED TO THIS SITE AND ASSUMES NO LIABILITY OR RESPONSIBILITY FOR ANY (I) ERRORS, MISTAKES, OR INACCURACIES OF CONTENT, (II) PERSONAL INJURY OR PROPERTY DAMAGE, OF ANY NATURE WHATSOEVER, RESULTING FROM YOUR ACCESS TO AND USE OF OUR SERVICES, (III) ANY UNAUTHORIZED ACCESS TO OR USE OF OUR SECURE SERVERS AND/OR ANY AND ALL PERSONAL INFORMATION AND/OR FINANCIAL INFORMATION STORED THEREIN, (IV) ANY INTERRUPTION OR CESSATION OF TRANSMISSION TO OR FROM OUR SERVICES, (IV) ANY BUGS, VIRUSES, TROJAN HORSES, OR THE LIKE WHICH MAY BE TRANSMITTED TO OR THROUGH OUR SERVICES BY ANY THIRD PARTY, AND/OR (V) ANY ERRORS OR OMISSIONS IN ANY CONTENT OR FOR ANY LOSS OR DAMAGE OF ANY KIND INCURRED AS A RESULT OF THE USE OF ANY CONTENT POSTED, EMAILED, TRANSMITTED, OR OTHERWISE MADE AVAILABLE VIA THE SERVICES. UDIA DOES NOT WARRANT, ENDORSE, GUARANTEE, OR ASSUME RESPONSIBILITY FOR ANY PRODUCT OR SERVICE ADVERTISED OR OFFERED BY A THIRD PARTY THROUGH THE SERVICES OR ANY HYPERLINKED SERVICES OR FEATURED IN ANY BANNER OR OTHER ADVERTISING. UDIA WILL NOT BE A PARTY TO OR IN ANY WAY BE RESPONSIBLE FOR MONITORING ANY TRANSACTION BETWEEN YOU AND THIRD-PARTY PROVIDERS OF PRODUCTS OR SERVICES. AS WITH THE PURCHASE OF A PRODUCT OR SERVICE THROUGH ANY MEDIUM OR IN ANY ENVIRONMENT, YOU SHOULD USE YOUR BEST JUDGMENT AND EXERCISE CAUTION WHERE APPROPRIATE.
+
+9. Limitation of Liability
+
+IN NO EVENT SHALL UDIA, ITS OFFICERS, DIRECTORS, EMPLOYEES, OR AGENTS, BE LIABLE TO YOU FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, PUNITIVE, OR CONSEQUENTIAL DAMAGES WHATSOEVER RESULTING FROM ANY (I) ERRORS, MISTAKES, OR INACCURACIES OF CONTENT, (II) PERSONAL INJURY OR PROPERTY DAMAGE, OF ANY NATURE WHATSOEVER, RESULTING FROM YOUR ACCESS TO AND USE OF OUR SERVICES, (III) ANY UNAUTHORIZED ACCESS TO OR USE OF OUR SECURE SERVERS AND/OR ANY AND ALL PERSONAL INFORMATION AND/OR FINANCIAL INFORMATION STORED THEREIN, (IV) ANY INTERRUPTION OR CESSATION OF TRANSMISSION TO OR FROM OUR SERVICES, (IV) ANY BUGS, VIRUSES, TROJAN HORSES, OR THE LIKE, WHICH MAY BE TRANSMITTED TO OR THROUGH OUR SERVICES BY ANY THIRD PARTY, AND/OR (V) ANY ERRORS OR OMISSIONS IN ANY CONTENT OR FOR ANY LOSS OR DAMAGE OF ANY KIND INCURRED AS A RESULT OF YOUR USE OF ANY CONTENT POSTED, EMAILED, TRANSMITTED, OR OTHERWISE MADE AVAILABLE VIA THE SERVICES, WHETHER BASED ON WARRANTY, CONTRACT, TORT, OR ANY OTHER LEGAL THEORY, AND WHETHER OR NOT THE COMPANY IS ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. THE FOREGOING LIMITATION OF LIABILITY SHALL APPLY TO THE FULLEST EXTENT PERMITTED BY LAW IN THE APPLICABLE JURISDICTION.
+
+YOU SPECIFICALLY ACKNOWLEDGE THAT UDIA SHALL NOT BE LIABLE FOR CONTENT OR THE DEFAMATORY, OFFENSIVE, OR ILLEGAL CONDUCT OF ANY THIRD PARTY AND THAT THE RISK OF HARM OR DAMAGE FROM THE FOREGOING RESTS ENTIRELY WITH YOU.
+
+The Service is controlled and offered by Udia from its facilities in the Canada. Udia makes no representations that the Service is appropriate or available for use in other locations. Those who access or use the Service from other jurisdictions do so at their own volition and are responsible for compliance with local law.
+
+10. Indemnity
+
+To the extent permitted by applicable law, you agree to defend, indemnify and hold harmless Udia, the corporation Udia Software Incorporated, its officers, directors, employees and agents, from and against any and all claims, damages, obligations, losses, liabilities, costs or debt, and expenses (including but not limited to attorney's fees) arising from: (i) your use of and access to the Service; (ii) your violation of any term of these Terms of Service; (iii) your violation of any third party right, including without limitation any copyright, property, or privacy right; or (iv) any claim that your Content caused damage to a third party. This defense and indemnification obligation will survive these Terms of Service and your use of the Service.
+
+11. Ability to Accept Terms of Service
+
+You affirm that you are either more than 18 years of age, or an emancipated minor, or possess legal parental or guardian consent, and are fully able and competent to enter into the terms, conditions, obligations, affirmations, representations, and warranties set forth in these Terms of Service, and to abide by and comply with these Terms of Service. In any case, you affirm that you are over the age of 13, as the Service is not intended for children under 13. If you are under 13 years of age, then please do not use the Service. There are lots of other great web sites for you. Talk to your parents about what sites are appropriate for you.
+
+12. Assignment
+
+These Terms of Service, and any rights and licenses granted hereunder, may not be transferred or assigned by you, but may be assigned by Udia without restriction.
+
+13. General
+
+You agree that: (i) the Service shall be deemed solely based in Alberta, Canada; and (ii) the Service shall be deemed a passive website that does not give rise to personal jurisdiction over Udia, either specific or general, in jurisdictions other than Alberta, Canada. These Terms of Service shall be governed by the internal substantive laws of the Province of Alberta, without respect to its conflict of laws principles. Any claim or dispute between you and Udia that arises in whole or in part from the Service shall be decided exclusively by a court of competent jurisdiction located in the province of Alberta, Canada. These Terms of Service, together with the Privacy Notice at https://api.udia.ca/static/legal/Privacy%20Policy.txt and any other legal notices published by Udia on the Service, shall constitute the entire agreement between you and Udia concerning the Service. If any provision of these Terms of Service is deemed invalid by a court of competent jurisdiction, the invalidity of such provision shall not affect the validity of the remaining provisions of these Terms of Service, which shall remain in full force and effect. No waiver of any term of this these Terms of Service shall be deemed a further or continuing waiver of such term or any other term, and Udia failure to assert any right or provision under these Terms of Service shall not constitute a waiver of such right or provision. Udia reserves the right to amend these Terms of Service at any time and without notice, and it is your responsibility to review these Terms of Service for any changes. Your use of the Service following any amendment of these Terms of Service will signify your assent to and acceptance of its revised terms. YOU AND UDIA AGREE THAT ANY CAUSE OF ACTION ARISING OUT OF OR RELATED TO THE SERVICES MUST COMMENCE WITHIN ONE (1) YEAR AFTER THE CAUSE OF ACTION ACCRUES. OTHERWISE, SUCH CAUSE OF ACTION IS PERMANENTLY BARRED.
+
+14. Contact
+
+For additional concerns and questions about the Udia Terms of Service or Privacy Policy:
+
+  Alexander Wong
+  Software Developer > Founder
+  alex@udia.ca
+  GPG ASCII Armored Public Key: 
+    https://api.udia.ca/static/keys/Alexander%20Wong.asc
+  GPG Raw Public Key:
+    https://api.udia.ca/static/keys/Alexander%20Wong.gpg
+
+For physical address of the corporate office and mailbox:
+
+  Udia Software Incorporated
+  Startup Edmonton
+  Unit 301 - 10359 104 Street NW
+  Edmonton AB  T5J 1B9
+  Canada
+
+Dated and Effective: July 1, 2018

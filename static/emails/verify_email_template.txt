@@ -1,0 +1,26 @@
+Hello, @@USERNAME@@!
+
+Please verify your account email. Your email is used for application related communications, authentication, and the reset password flow.
+
+By verifying your email, you also acknowledge receiving and unconditionally accept the Udia Terms of Service and Udia Privacy Policy.
+
+Terms of Service, effective July 1, 2018.
+  https://api.udia.ca/static/legal/Terms%20of%20Service.txt
+Privacy Policy, effective July 1, 2018.
+  https://api.udia.ca/static/legal/Privacy%20Policy.txt
+
+This email was sent on @@SENT_EMAIL_TIME@@.
+The verification token is valid for @@TOKEN_VALID_DURATION@@.
+
+To verify your email, navigate to the following link in your browser:
+
+@@URL_WITH_TOKEN@@
+
+If you have any questions, just reply to this email. We'll try to help out.
+
+Regards, 
+Udia Software Incorporated
+
+This is a transactional email and cannot be unsubscribed.
+
+Udia Software Incorporated | Startup Edmonton | Unit 301 - 10359 104 Street NW | Edmonton, AB | T5J 1B9 | Canada
