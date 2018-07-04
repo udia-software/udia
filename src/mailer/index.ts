@@ -113,7 +113,7 @@ export default class Mailer {
         subject: `[UDIA${
           NODE_ENV !== "production"
             ? ` ${NODE_ENV}` /* istanbul ignore next: always test */
-            : undefined
+            : ''
         }] Validate Your Email`,
         text,
         html,
@@ -168,7 +168,7 @@ export default class Mailer {
         subject: `[UDIA${
           NODE_ENV !== "production"
             ? ` ${NODE_ENV}` /* istanbul ignore next: always test */
-            : undefined
+            : ''
         }] Reset Your Password`,
         text,
         html
