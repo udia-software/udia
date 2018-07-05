@@ -3,9 +3,9 @@ import axios, { AxiosInstance } from "axios";
 import gql from "graphql-tag";
 import { Server } from "http";
 import { SubscriptionClient } from "subscriptions-transport-ws";
-import { name, version } from "../../package.json";
-import { PORT } from "../../src/constants";
-import start from "../../src/index";
+import { name, version } from "../../../package.json";
+import { PORT } from "../../constants";
+import start from "../../index";
 import { generateGraphQLClients } from "../testHelper";
 
 describe("Health", () => {

@@ -4,14 +4,14 @@ import gql from "graphql-tag";
 import { Server } from "http";
 import { SubscriptionClient } from "subscriptions-transport-ws";
 import { getConnection } from "typeorm";
-import { PORT } from "../../src/constants";
-import { Item } from "../../src/entity/Item";
-import { User } from "../../src/entity/User";
-import { UserEmail } from "../../src/entity/UserEmail";
-import start from "../../src/index";
-import Mailer from "../../src/mailer";
-import Auth from "../../src/modules/Auth";
-import ItemManager from "../../src/modules/ItemManager";
+import { PORT } from "../../constants";
+import { Item } from "../../entity/Item";
+import { User } from "../../entity/User";
+import { UserEmail } from "../../entity/UserEmail";
+import start from "../../index";
+import Mailer from "../../mailer";
+import Auth from "../../modules/Auth";
+import ItemManager from "../../modules/ItemManager";
 import {
   generateGenericUser,
   generateGraphQLClients,
@@ -19,14 +19,14 @@ import {
 } from "../testHelper";
 
 // GraphQL FullUser Emails
-interface IUserEmail {
-  email: string;
-  primary: boolean;
-  verified: boolean;
-  createdAt: number;
-  updatedAt: number;
-  verificationExpiry: number;
-}
+// interface IUserEmail {
+//   email: string;
+//   primary: boolean;
+//   verified: boolean;
+//   createdAt: number;
+//   updatedAt: number;
+//   verificationExpiry: number;
+// }
 
 // GraphQL FullUser
 interface IFullUser {

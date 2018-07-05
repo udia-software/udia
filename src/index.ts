@@ -1,5 +1,6 @@
 import PostgresPubSub from "@udia/graphql-postgres-subscriptions";
 import crypto from "crypto";
+import { existsSync, mkdir } from "fs";
 import { execute, subscribe } from "graphql";
 import { PubSubEngine } from "graphql-subscriptions";
 import { createServer, Server } from "http";
@@ -8,8 +9,6 @@ import { Client } from "pg";
 import "reflect-metadata"; // required for typeorm
 import { ServerOptions, SubscriptionServer } from "subscriptions-transport-ws";
 import { createConnection, getConnectionOptions } from "typeorm";
-
-import { existsSync, mkdir } from "fs";
 import app from "./app";
 import {
   APP_VERSION,
@@ -25,6 +24,7 @@ import {
 } from "./constants";
 import gqlSchema from "./gqlSchema";
 import Auth from "./modules/Auth";
+import { PostgresConnectionOptions } from "./types/typeormOpts";
 import logger, { TypeORMLogger } from "./util/logger";
 import metric from "./util/metric";
 
@@ -45,6 +45,8 @@ const dateReviver = (key: any, value: any) => {
  * Throws an error if client initialization fails
  */
 const start: (port: string) => Promise<Server> = async (port: string) => {
+  const { nodeVersion, arch, platform, release } = metric();
+  logger.info(`NodeJS ${nodeVersion} Arch ${arch} on ${platform} ${release}.`);
   /* istanbul ignore next: we don't care about log dir init in test */
   if (!existsSync(LOG_DIR)) {
     // If the log directory does not exist, create it
@@ -57,7 +59,16 @@ const start: (port: string) => Promise<Server> = async (port: string) => {
   const connectionOptions = await getConnectionOptions();
   Object.assign(connectionOptions, { logger: new TypeORMLogger() });
   const conn = await createConnection(connectionOptions);
-  logger.info(`Connected to ${conn.options.database} ${conn.options.type}.`);
+  const {
+    username,
+    host,
+    port: dbport,
+    database,
+    type
+  } = conn.options as PostgresConnectionOptions;
+  logger.info(
+    `Connected to ${type} DB ${database} at ${username}@${host}:${dbport}.`
+  );
   app.set("dbConnection", conn);
 
   // instantiate native postgres client for PubSub
@@ -106,17 +117,18 @@ const start: (port: string) => Promise<Server> = async (port: string) => {
   const shutdownListener = (done: () => void, event: any, signal: any) => {
     logger.warn(`!)\tGraceful ${signal} signal received.`);
     return new Promise(resolve => {
-      logger.warn(`3)\tHTTP & WebSocket servers on port ${port} closing.`);
+      logger.warn(`4)\tHTTP & WebSocket servers on port ${port} closing.`);
       clearInterval(metricSubscriptionInterval);
       subscriptionServer.close();
       return server.close(resolve);
     })
       .then(() => {
-        logger.warn(`2)\tDatabase connections closing.`);
-        return conn.close();
+        logger.warn(`3)\tDatabase clients ending.`);
+        return pgClient.end();
       })
       .then(() => {
-        return pgClient.end();
+        logger.warn(`2)\tDatabase connections closing.`);
+        return conn.close();
       })
       .then(() => {
         logger.warn(`1)\tShutting down. Goodbye!\n`);

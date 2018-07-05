@@ -4,12 +4,12 @@ import gql from "graphql-tag";
 import { Server } from "http";
 import { SubscriptionClient } from "subscriptions-transport-ws";
 import { getConnection } from "typeorm";
-import { PORT } from "../../src/constants";
-import { Item } from "../../src/entity/Item";
-import { User } from "../../src/entity/User";
-import start from "../../src/index";
-import Auth from "../../src/modules/Auth";
-import ItemManager from "../../src/modules/ItemManager";
+import { PORT } from "../../constants";
+import { Item } from "../../entity/Item";
+import { User } from "../../entity/User";
+import start from "../../index";
+import Auth from "../../modules/Auth";
+import ItemManager from "../../modules/ItemManager";
 import { generateGenericUser, generateGraphQLClients } from "../testHelper";
 
 describe("Item", () => {

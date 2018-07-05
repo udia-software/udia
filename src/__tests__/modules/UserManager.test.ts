@@ -1,12 +1,12 @@
 import { Server } from "http";
 import { getConnection } from "typeorm";
-import start from "../../src";
-import { PORT } from "../../src/constants";
-import { Item } from "../../src/entity/Item";
-import { User } from "../../src/entity/User";
-import { UserEmail } from "../../src/entity/UserEmail";
-import ItemManager from "../../src/modules/ItemManager";
-import UserManager from "../../src/modules/UserManager";
+import { PORT } from "../../constants";
+import { Item } from "../../entity/Item";
+import { User } from "../../entity/User";
+import { UserEmail } from "../../entity/UserEmail";
+import start from "../../index";
+import ItemManager from "../../modules/ItemManager";
+import UserManager from "../../modules/UserManager";
 import { generateGenericUser, generateUserCryptoParams } from "../testHelper";
 
 describe("UserManager", () => {
@@ -297,7 +297,7 @@ describe("UserManager", () => {
         encPrivateDecryptKey
       } = generateUserCryptoParams("badActor@udia.ca", "Dupe S3C$^T P~!۩s");
       return expect(
-        UserManager.updatePassword(null, {
+        UserManager.updatePassword(undefined, {
           newPw,
           pw,
           pwFunc,
@@ -1049,7 +1049,7 @@ describe("UserManager", () => {
       const users = userPaginationResult.users;
       users.forEach(user => {
         expect(user.username).not.toMatch(/mTestGetUsers1.*/);
-      })
+      });
     });
 
     it("should get no users created in the future", async () => {

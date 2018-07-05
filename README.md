@@ -53,14 +53,16 @@ These environment variables can be set by modifying your `~/.*rc` or `~/.*profil
 | `CLIENT_PROTOCOL`         | `http`                            | Protocol of Client (`https`)                       |
 | `EMAIL_TOKEN_TIMEOUT`     | `3600000`                         | How long should an email token last in ms          |
 | `FROM_EMAIL`              | `noreply@udia.ca`                 | Email to use for `from` field                      |
+| `REPLY_TO_EMAIL_NAME`     | `Alexander Wong`                  | Name to use for `reply-to` field                   |
+| `REPLY_TO_EMAIL_ADDR`     | `alex@udia.ca`                    | Email to use for `reply-to` field                  |
 | `SMTP_USERNAME`           | `xxlvhieo2gqp352o@ethereal.email` | SMTP Username (ethereal default)                   |
 | `SMTP_PASSWORD`           | `rCJTErmv6v2uacmdRt`              | SMTP Password                                      |
 | `SMTP_HOST`               | `smtp.ethereal.email`             | SMTP Host (ethereal default)                       |
 | `SMTP_PORT`               | `587`                             | SMTP Port                                          |
 | `HEALTH_METRIC_INTERVAL`  | `500`                             | How often to send health metric                    |
-| `DEV_JWT`                 |                                   | `Test/Dev`/graphiql` passHeader jwt                |
+| `DEV_JWT`                 |                                   | (optional) Set Dev `/graphiql` passHeader jwt      |
 | `AWS_ACCESS_KEY_ID`       |                                   | (optional) Use AWS SDK for email instead of SMTP   |
-| `AWS_SECRET_ACCESS_KEY`   |                                   | (optional) If fields are set, will ignore SMTP     |
+| `AWS_SECRET_ACCESS_KEY`   |                                   | (optional) If two fields are set, will ignore SMTP |
 | `AWS_SES_REGION`          | `us-west-2`                       | The region for Amazon's SES service                |
 | `ITEMS_PAGE_LIMIT`        | `32`                              | Items page size maximum value                      |
 | `USERS_PAGE_LIMIT`        | `32`                              | Users page size maximum value                      |

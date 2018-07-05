@@ -8,8 +8,8 @@ import crypto from "crypto";
 import fetch from "node-fetch";
 import { SubscriptionClient } from "subscriptions-transport-ws";
 import WebSocket from "ws";
-import { User } from "../src/entity/User";
-import { UserEmail } from "../src/entity/UserEmail";
+import { User } from "../entity/User";
+import { UserEmail } from "../entity/UserEmail";
 
 export interface ILoginParams {
   uip: string;
@@ -37,10 +37,6 @@ export function generateUserCryptoParams(email: string, uip: string) {
   const pwCost = 3000; // should be 100000 in production environments
   const pwKeySize = 768; // should be divisible by 3
   const pwNonce = crypto.randomBytes(256).toString("base64"); // random nonce
-
-  const hash = crypto.createHash("sha1");
-  hash.update([email, pwNonce].join(":"));
-  const pwSalt = hash.digest("base64");
 
   // Derive the three keys
   const { pw, mk, ak } = deriveSubKeysFromUserInputPassword({

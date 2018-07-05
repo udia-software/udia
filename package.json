@@ -24,7 +24,7 @@
     "transform": {
       "^.+\\.(ts|tsx)$": "ts-jest"
     },
-    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "testRegex": "src/__tests__/.*(test|spec)\\.(jsx?|tsx?)$",
     "testEnvironment": "node",
     "moduleFileExtensions": [
       "ts",
@@ -36,11 +36,12 @@
     ],
     "testPathIgnorePatterns": [
       "node_modules/*",
-      "__tests__/testHelper.ts"
+      "src/__tests__/testHelper.ts"
     ],
     "collectCoverage": true,
     "collectCoverageFrom": [
       "src/**/*.ts",
+      "!src/__tests__/*",
       "!src/migration/*",
       "!src/**/*.d.ts"
     ],
@@ -124,7 +125,7 @@
     "ws": "^5.1.1"
   },
   "engines": {
-    "node": ">=8.11.1 <10"
+    "node": ">=8.11.3 <=10"
   },
   "os": [
     "darwin",

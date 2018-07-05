@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import Auth from "../src/modules/Auth";
+import Auth from "../modules/Auth";
 import {
   deriveSubKeysFromUserInputPassword,
   generateKeyPairECDH,

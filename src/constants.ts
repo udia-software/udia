@@ -3,72 +3,49 @@ import path from "path";
 import { name, version } from "../package.json";
 dotenv.config(); // can also set environment variables using .env file
 
-const APP_VERSION = version;
-const APP_NAME = name;
-const LOG_DIR = path.join(__dirname, "..", "log");
-const EMAIL_TEMPLATES_DIR = path.join(__dirname, "..", "static", "emails");
-const LEGAL_DIR = path.join(__dirname, "..", "static", "legal");
+/* istanbul ignore next: node env always test */
+export const NODE_ENV = process.env.NODE_ENV || "development";
+
+// Constants for file system relative paths
+export const APP_VERSION = version;
+export const APP_NAME = name;
+export const LOG_DIR = path.join(__dirname, "..", "log");
+export const EMAIL_TEMPLATES_DIR = path.join(
+  __dirname,
+  "..",
+  "static",
+  "emails"
+);
+export const LEGAL_DIR = path.join(__dirname, "..", "static", "legal");
 
 // Environment Variables (SEE README)
-/* istanbul ignore next: node env always test */
-const NODE_ENV = process.env.NODE_ENV || "development";
-const PORT = process.env.PORT || "3000";
-const SQL_USER = process.env.SQL_USER || "pguser";
-const SQL_HOST = process.env.SQL_HOST || "localhost";
-const SQL_PASSWORD = process.env.SQL_PASSWORD || "mysecretpassword";
-const SQL_DB = process.env.SQL_DB || "udiadb";
-const SQL_PORT = process.env.SQL_PORT || "5432";
-const JWT_SECRET = process.env.JWT_SECRET || "DEVELOPMENT_SECRET";
-const CORS_ORIGIN = process.env.CORS_ORIGIN || "http://localhost:8000";
-const CLIENT_DOMAINNAME = process.env.CLIENT_DOMAINNAME || "localhost:8000";
-const CLIENT_PROTOCOL = process.env.CLIENTPROTOCOL || "http";
-const EMAIL_TOKEN_TIMEOUT = process.env.EMAIL_TOKEN_TIMEOUT || "3600000";
-const FROM_EMAIL = process.env.FROM_EMAIL || "noreply@udia.ca";
-const REPLY_TO_EMAIL_NAME = process.env.REPLY_TO_EMAIL_NAME || "Alexander Wong";
-const REPLY_TO_EMAIL_ADDR = process.env.REPLY_TO_EMAIL_ADDR || "alex@udia.ca";
-const SMTP_USERNAME =
+export const PORT = process.env.PORT || "3000";
+export const SQL_USER = process.env.SQL_USER || "pguser";
+export const SQL_HOST = process.env.SQL_HOST || "localhost";
+export const SQL_PASSWORD = process.env.SQL_PASSWORD || "mysecretpassword";
+export const SQL_DB = process.env.SQL_DB || "udiadb";
+export const SQL_PORT = process.env.SQL_PORT || "5432";
+export const JWT_SECRET = process.env.JWT_SECRET || "DEVELOPMENT_SECRET";
+export const CORS_ORIGIN = process.env.CORS_ORIGIN || "http://localhost:8000";
+export const CLIENT_DOMAINNAME =
+  process.env.CLIENT_DOMAINNAME || "localhost:8000";
+export const CLIENT_PROTOCOL = process.env.CLIENTPROTOCOL || "http";
+export const EMAIL_TOKEN_TIMEOUT = process.env.EMAIL_TOKEN_TIMEOUT || "3600000";
+export const FROM_EMAIL = process.env.FROM_EMAIL || "noreply@udia.ca";
+export const REPLY_TO_EMAIL_NAME =
+  process.env.REPLY_TO_EMAIL_NAME || "Alexander Wong";
+export const REPLY_TO_EMAIL_ADDR =
+  process.env.REPLY_TO_EMAIL_ADDR || "alex@udia.ca";
+export const SMTP_USERNAME =
   process.env.SMTP_USERNAME || "xxlvhieo2gqp352o@ethereal.email";
-const SMTP_PASSWORD = process.env.SMTP_PASSWORD || "rCJTErmv6v2uacmdRt";
-const SMTP_HOST = process.env.SMTP_HOST || "smtp.ethereal.email";
-const SMTP_PORT = process.env.SMTP_PORT || "587";
-const HEALTH_METRIC_INTERVAL = process.env.HEALTH_METRIC_INTERVAL || "500";
-const DEV_JWT = process.env.DEV_JWT || "";
-const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID || "";
-const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY || "";
-const AWS_SES_REGION = process.env.AWS_SES_REGION || "us-west-2";
-const ITEMS_PAGE_LIMIT = process.env.ITEMS_PAGE_LIMIT || "32";
-const USERS_PAGE_LIMIT = process.env.USERS_PAGE_LIMIT || "32";
-
-export {
-  APP_VERSION,
-  APP_NAME,
-  LOG_DIR,
-  EMAIL_TEMPLATES_DIR,
-  LEGAL_DIR,
-  NODE_ENV,
-  PORT,
-  SQL_USER,
-  SQL_HOST,
-  SQL_PASSWORD,
-  SQL_DB,
-  SQL_PORT,
-  JWT_SECRET,
-  CORS_ORIGIN,
-  CLIENT_DOMAINNAME,
-  CLIENT_PROTOCOL,
-  EMAIL_TOKEN_TIMEOUT,
-  FROM_EMAIL,
-  REPLY_TO_EMAIL_NAME,
-  REPLY_TO_EMAIL_ADDR,
-  SMTP_USERNAME,
-  SMTP_PASSWORD,
-  SMTP_HOST,
-  SMTP_PORT,
-  HEALTH_METRIC_INTERVAL,
-  DEV_JWT,
-  AWS_ACCESS_KEY_ID,
-  AWS_SECRET_ACCESS_KEY,
-  AWS_SES_REGION,
-  ITEMS_PAGE_LIMIT,
-  USERS_PAGE_LIMIT
-};
+export const SMTP_PASSWORD = process.env.SMTP_PASSWORD || "rCJTErmv6v2uacmdRt";
+export const SMTP_HOST = process.env.SMTP_HOST || "smtp.ethereal.email";
+export const SMTP_PORT = process.env.SMTP_PORT || "587";
+export const HEALTH_METRIC_INTERVAL =
+  process.env.HEALTH_METRIC_INTERVAL || "500";
+export const DEV_JWT = process.env.DEV_JWT || "";
+export const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID || "";
+export const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY || "";
+export const AWS_SES_REGION = process.env.AWS_SES_REGION || "us-west-2";
+export const ITEMS_PAGE_LIMIT = process.env.ITEMS_PAGE_LIMIT || "32";
+export const USERS_PAGE_LIMIT = process.env.USERS_PAGE_LIMIT || "32";

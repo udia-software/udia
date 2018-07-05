@@ -1,20 +1,26 @@
+
 language: node_js
 node_js:
-  - "9"
   - "lts/*" # 8.X
-# - "stable" # still broken with yarn
+  - "stable" # 10.X
+
 cache:
   yarn: true
   directories:
     - node_modules
+
 addons:
   postgresql: "9.6"
+
 services:
   - postgresql
+
 before_script:
   - psql -c 'CREATE DATABASE udiadbtest;' -U postgres
+
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+
 env:
   global:
     - NODE_ENV=test

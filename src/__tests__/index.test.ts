@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from "axios";
 import Graceful from "node-graceful";
-import { PORT } from "../src/constants";
-import start, { dateReviver } from "../src/index";
+import { PORT } from "../constants";
+import start, { dateReviver } from "../index";
 
 describe("Index", () => {
   // Ports are staggered to prevent multiple tests from clobbering

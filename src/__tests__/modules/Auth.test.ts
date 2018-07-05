@@ -1,4 +1,4 @@
-import Auth from "../../src/modules/Auth";
+import Auth from "../../modules/Auth";
 
 describe("Auth", () => {
   it("should handle invalid JWT", () => {

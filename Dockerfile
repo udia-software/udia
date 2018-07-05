@@ -2,7 +2,7 @@
 # https://nodejs.org/en/docs/guides/nodejs-docker-webapp/
 
 # Use Node LTS (Carbon is 8.X)
-FROM node:carbon
+FROM node:8.11.3-jessie
 
 # Create app directory
 RUN mkdir -p /usr/src/app

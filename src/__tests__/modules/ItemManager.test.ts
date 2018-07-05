@@ -1,11 +1,11 @@
 import { Server } from "http";
 import { getConnection } from "typeorm";
-import start from "../../src";
-import { PORT } from "../../src/constants";
-import { Item } from "../../src/entity/Item";
-import { ItemClosure } from "../../src/entity/ItemClosure";
-import { User } from "../../src/entity/User";
-import ItemManager from "../../src/modules/ItemManager";
+import { PORT } from "../../constants";
+import { Item } from "../../entity/Item";
+import { ItemClosure } from "../../entity/ItemClosure";
+import { User } from "../../entity/User";
+import start from "../../index";
+import ItemManager from "../../modules/ItemManager";
 import { generateGenericUser } from "../testHelper";
 
 describe("ItemManager", () => {
@@ -532,7 +532,7 @@ describe("ItemManager", () => {
 
     it("should handle negative number for limit", async () => {
       expect.assertions(2);
-      const limitTestItem = await ItemManager.createItem(
+      await ItemManager.createItem(
         itemPaginationUser.lUsername,
         {
           content: "Negative Limit Test item",
