@@ -104,8 +104,16 @@ export default class UserManager {
    * Get the user given the user's uuid
    * @param id uuid
    */
-  public static async getUserById(id: string) {
-    return getRepository(User).findOne(id);
+  public static async getUserById(id?: string) {
+    try {
+      const user = await getRepository(User).findOne(id);
+      if (user) {
+        return user;
+      }
+    } catch {
+      // uuid is invalid exceptions
+    }
+    return undefined;
   }
 
   /**
@@ -252,11 +260,11 @@ export default class UserManager {
 
   /**
    * Update a given user's password and password generation params
-   * @param username username derived from signed JWT payload
+   * @param uuid user uuid derived from signed JWT payload
    * @param params new password parameters
    */
   public static async updatePassword(
-    username: string = "",
+    uuid: string = "",
     {
       newPw,
       pw,
@@ -270,7 +278,7 @@ export default class UserManager {
       encPrivateSignKey
     }: IUpdatePasswordParams
   ) {
-    const user = await this.getUserByUsername(username);
+    const user = await this.getUserById(uuid);
     if (!user) {
       throw new ValidationError([{ key: "id", message: "Invalid JWT." }]);
     }
@@ -342,14 +350,14 @@ export default class UserManager {
 
   /**
    * Delete a user, resolve with true or throw error.
-   * @param username username derived from JWT payload
+   * @param uuid user's uuid derived from JWT payload
    * @param parameters delete user GQL parameters
    */
   public static async deleteUser(
-    username: string = "",
+    uuid: string = "",
     { pw }: IDeleteUserParams
   ) {
-    const user = await this.getUserByUsername(username);
+    const user = await this.getUserById(uuid);
     if (!user) {
       throw new ValidationError([{ key: "id", message: "Invalid JWT." }]);
     }
@@ -363,15 +371,15 @@ export default class UserManager {
 
   /**
    * Add a new email to a given user.
-   * @param username user's username
+   * @param uuid user's uuid
    * @param email new email that the user wants to add
    */
   public static async addEmail(
-    username: string = "",
+    uuid: string = "",
     { email }: IAddEmailParams
   ) {
     const errors: IErrorMessage[] = [];
-    const user = await this.getUserByUsername(username);
+    const user = await this.getUserById(uuid);
     if (!user) {
       errors.push({ key: "id", message: "Invalid JWT." });
     }
@@ -399,14 +407,14 @@ export default class UserManager {
 
   /**
    * Remove an email for a given user.
-   * @param username user's username
+   * @param uuid user's uuid
    * @param email email that the user wants to remove
    */
   public static async removeEmail(
-    username: string = "",
+    uuid: string = "",
     { email }: IRemoveEmailParams
   ) {
-    const user = await this.getUserByUsername(username);
+    const user = await this.getUserById(uuid);
     if (!user) {
       throw new ValidationError([{ key: "id", message: "Invalid JWT." }]);
     }
@@ -447,11 +455,16 @@ export default class UserManager {
     return this.getUserById(user.uuid);
   }
 
+  /**
+   * Set a given email to be the user's primary email address
+   * @param uuid user's uuid
+   * @param params set primary email parameters 
+   */
   public static async setPrimaryEmail(
-    username: string = "",
+    uuid: string = "",
     { email }: ISetPrimaryEmailParams
   ) {
-    const user = await this.getUserByUsername(username);
+    const user = await this.getUserById(uuid);
     if (!user) {
       throw new ValidationError([{ key: "id", message: "Invalid JWT." }]);
     }

@@ -1749,7 +1749,7 @@ describe("Users", () => {
       });
       const jwt = Auth.signUserJWT(resolveUser);
       const { s, g } = generateGraphQLClients(userTestPort, jwt);
-      resolveItem = await ItemManager.createItem("resolveUser", {
+      resolveItem = await ItemManager.createItem(resolveUser.uuid, {
         content: "test resolve user items",
         contentType: "plaintext",
         encItemKey: "unencrypted"

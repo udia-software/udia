@@ -47,8 +47,8 @@ const resolvers: IResolvers = {
       return UserManager.usernameExists(username);
     },
     me: async (root: any, params: any, context: IContext) => {
-      const username = context.jwtPayload && context.jwtPayload.username;
-      return UserManager.getUserByUsername(username);
+      const uuid = context.jwtPayload && context.jwtPayload.uuid;
+      return UserManager.getUserById(uuid);
     },
     health: async (root: any, params: any, context: IContext) => {
       return metric();
@@ -77,8 +77,8 @@ const resolvers: IResolvers = {
       params: IUpdatePasswordParams | any,
       context: IContext
     ) => {
-      const username = context.jwtPayload && context.jwtPayload.username;
-      const user = await UserManager.updatePassword(username, params);
+      const uuid = context.jwtPayload && context.jwtPayload.uuid;
+      const user = await UserManager.updatePassword(uuid, params);
       pubSub.publish(`me:${user.lUsername}`, { me: user });
       return user;
     },
@@ -94,8 +94,8 @@ const resolvers: IResolvers = {
       params: IAddEmailParams | any,
       context: IContext
     ) => {
-      const username = context.jwtPayload && context.jwtPayload.username;
-      const user = await UserManager.addEmail(username, params);
+      const uuid = context.jwtPayload && context.jwtPayload.uuid;
+      const user = await UserManager.addEmail(uuid, params);
       if (user) {
         pubSub.publish(`me:${user.lUsername}`, { me: user });
       }
@@ -106,8 +106,8 @@ const resolvers: IResolvers = {
       params: IRemoveEmailParams | any,
       context: IContext
     ) => {
-      const username = context.jwtPayload && context.jwtPayload.username;
-      const user = await UserManager.removeEmail(username, params);
+      const uuid = context.jwtPayload && context.jwtPayload.uuid;
+      const user = await UserManager.removeEmail(uuid, params);
       if (user) {
         pubSub.publish(`me:${user.lUsername}`, { me: user });
       }
@@ -118,8 +118,8 @@ const resolvers: IResolvers = {
       params: ISetPrimaryEmailParams | any,
       context: IContext
     ) => {
-      const username = context.jwtPayload && context.jwtPayload.username;
-      const user = await UserManager.setPrimaryEmail(username, params);
+      const uuid = context.jwtPayload && context.jwtPayload.uuid;
+      const user = await UserManager.setPrimaryEmail(uuid, params);
       if (user) {
         pubSub.publish(`me:${user.lUsername}`, { me: user });
       }
@@ -130,8 +130,8 @@ const resolvers: IResolvers = {
       params: IDeleteUserParams | any,
       context: IContext
     ) => {
-      const username = context.jwtPayload && context.jwtPayload.username;
-      return UserManager.deleteUser(username, params);
+      const uuid = context.jwtPayload && context.jwtPayload.uuid;
+      return UserManager.deleteUser(uuid, params);
     },
     sendEmailVerification: async (
       root: any,
@@ -169,25 +169,25 @@ const resolvers: IResolvers = {
       return { user, jwt };
     },
     refreshJWT: async (root: any, params: any, context: IContext) => {
-      const username = context.jwtPayload && context.jwtPayload.username;
-      const user = await UserManager.getUserByUsername(username);
+      const uuid = context.jwtPayload && context.jwtPayload.uuid;
+      const user = await UserManager.getUserById(uuid);
       return user && Auth.signUserJWT(user);
     },
     createItem: async (root: any, { params }: any, context: IContext) => {
-      const username = context.jwtPayload && context.jwtPayload.username;
-      return ItemManager.createItem(username, params);
+      const uuid = context.jwtPayload && context.jwtPayload.uuid;
+      return ItemManager.createItem(uuid, params);
     },
     updateItem: async (root: any, { id, params }: any, context: IContext) => {
-      const username = context.jwtPayload && context.jwtPayload.username;
-      return ItemManager.updateItem(username, { id, ...params });
+      const uuid = context.jwtPayload && context.jwtPayload.uuid;
+      return ItemManager.updateItem(uuid, { id, ...params });
     },
     deleteItem: async (
       root: any,
       params: IDeleteItemParams | any,
       context: IContext
     ) => {
-      const username = context.jwtPayload && context.jwtPayload.username;
-      return ItemManager.deleteItem(username, params);
+      const uuid = context.jwtPayload && context.jwtPayload.uuid;
+      return ItemManager.deleteItem(uuid, params);
     }
   },
   Subscription: {

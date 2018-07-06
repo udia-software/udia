@@ -363,7 +363,7 @@ describe("UserManager", () => {
         encPrivateDecryptKey
       } = generateUserCryptoParams(updatePassEmail.email, "Dupe S3C$^T P~!۩s");
       return expect(
-        UserManager.updatePassword(updatePassUser.lUsername, {
+        UserManager.updatePassword(updatePassUser.uuid, {
           newPw,
           pw: `b${pw}d`,
           pwFunc,
@@ -464,7 +464,7 @@ describe("UserManager", () => {
     it("should handle add email email exists", async () => {
       expect.assertions(1);
       return expect(
-        UserManager.addEmail(aeUser.username, { email: aeEmail.email })
+        UserManager.addEmail(aeUser.uuid, { email: aeEmail.email })
       ).rejects.toHaveProperty(
         "message",
         "The request is invalid.\n* email: Email is taken."
@@ -504,7 +504,7 @@ describe("UserManager", () => {
     it("should handle remove invalid email", async () => {
       expect.assertions(1);
       return expect(
-        UserManager.removeEmail(reUser.username, { email: "" })
+        UserManager.removeEmail(reUser.uuid, { email: "" })
       ).rejects.toHaveProperty(
         "message",
         "The request is invalid.\n* email: Invalid Email."
@@ -514,7 +514,7 @@ describe("UserManager", () => {
     it("should handle orphan user attempt", async () => {
       expect.assertions(1);
       return expect(
-        UserManager.removeEmail(reUser.username, { email: reEmail.email })
+        UserManager.removeEmail(reUser.uuid, { email: reEmail.email })
       ).rejects.toHaveProperty(
         "message",
         "The request is invalid.\n* email: Cannot orphan user."
@@ -532,7 +532,7 @@ describe("UserManager", () => {
         .getRepository(UserEmail)
         .save(reSwitchEmail);
 
-      let user = await UserManager.removeEmail(reUser.username, {
+      let user = await UserManager.removeEmail(reUser.uuid, {
         email: reEmail.email
       });
       expect(user).toBeDefined();
@@ -583,7 +583,7 @@ describe("UserManager", () => {
     it("should handle set primary invalid email", async () => {
       expect.assertions(1);
       return expect(
-        UserManager.setPrimaryEmail(spUser.username, { email: "" })
+        UserManager.setPrimaryEmail(spUser.uuid, { email: "" })
       ).rejects.toHaveProperty(
         "message",
         "The request is invalid.\n* email: Invalid Email."
@@ -600,7 +600,7 @@ describe("UserManager", () => {
         .getRepository(UserEmail)
         .save(switchPEmail);
       return expect(
-        UserManager.setPrimaryEmail(spUser.username, {
+        UserManager.setPrimaryEmail(spUser.uuid, {
           email: switchPEmail.email
         })
       ).rejects.toHaveProperty(
@@ -649,7 +649,7 @@ describe("UserManager", () => {
         "Dupe S3C$^T P~!۩s"
       );
       return expect(
-        UserManager.deleteUser(delUser.username, { pw })
+        UserManager.deleteUser(delUser.uuid, { pw })
       ).rejects.toHaveProperty(
         "message",
         "The request is invalid.\n* pw: Invalid password."
@@ -985,7 +985,7 @@ describe("UserManager", () => {
 
     it("should get a user from an item", async () => {
       expect.assertions(1);
-      item = await ItemManager.createItem(itemUser.lUsername, {
+      item = await ItemManager.createItem(itemUser.uuid, {
         content: "Item User Test",
         contentType: "plaintext",
         encItemKey: "unencrypted"

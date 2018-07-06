@@ -1,11 +1,11 @@
 import { hash, verify } from "argon2";
 import { NextFunction, Request, Response } from "express";
 import { sign, verify as jwtVerify } from "jsonwebtoken";
-import { JWT_SECRET } from "../constants";
+import { JWT_ALGORITHM, JWT_EXPIRES_IN, JWT_SECRET } from "../constants";
 import { User } from "../entity/User";
 
 export interface IJwtPayload {
-  username?: string;
+  uuid?: string;
 }
 
 export default class Auth {
@@ -39,11 +39,10 @@ export default class Auth {
    * @param userInstance instance of the user
    */
   public static signUserJWT(userInstance: User) {
-    const jwtPayload: IJwtPayload = { username: userInstance.lUsername };
+    const jwtPayload: IJwtPayload = { uuid: userInstance.uuid };
     return sign(jwtPayload, JWT_SECRET, {
-      algorithm: Auth.ALGORITHM,
-      expiresIn: Auth.EXPIRES_IN,
-      notBefore: Auth.NOT_BEFORE
+      algorithm: JWT_ALGORITHM,
+      expiresIn: JWT_EXPIRES_IN
     });
   }
 
@@ -54,7 +53,8 @@ export default class Auth {
   public static verifyUserJWT(jsonwebtoken: string) {
     try {
       return jwtVerify(jsonwebtoken, JWT_SECRET, {
-        algorithms: [Auth.ALGORITHM]
+        algorithms: [JWT_ALGORITHM],
+        maxAge: JWT_EXPIRES_IN
       });
     } catch {
       return null;
@@ -75,9 +75,4 @@ export default class Auth {
       next();
     };
   }
-
-  // Default JSON Web Token options
-  private static ALGORITHM = "HS256";
-  private static EXPIRES_IN = "8h";
-  private static NOT_BEFORE = 0;
 }

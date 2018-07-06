@@ -21,14 +21,16 @@ export const LEGAL_DIR = path.join(__dirname, "..", "static", "legal");
 // Environment Variables (SEE README)
 export const PORT = process.env.PORT || "3000";
 export const SQL_USER = process.env.SQL_USER || "pguser";
-export const SQL_HOST = process.env.SQL_HOST || "localhost";
+export const SQL_HOST = process.env.SQL_HOST || "127.0.0.1";
 export const SQL_PASSWORD = process.env.SQL_PASSWORD || "mysecretpassword";
 export const SQL_DB = process.env.SQL_DB || "udiadb";
 export const SQL_PORT = process.env.SQL_PORT || "5432";
 export const JWT_SECRET = process.env.JWT_SECRET || "DEVELOPMENT_SECRET";
-export const CORS_ORIGIN = process.env.CORS_ORIGIN || "http://localhost:8000";
+export const JWT_ALGORITHM = process.env.JWT_ALGORITHM || "HS256";
+export const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "7d";
+export const CORS_ORIGIN = process.env.CORS_ORIGIN || "http://127.0.0.1:8000";
 export const CLIENT_DOMAINNAME =
-  process.env.CLIENT_DOMAINNAME || "localhost:8000";
+  process.env.CLIENT_DOMAINNAME || "127.0.0.1:8000";
 export const CLIENT_PROTOCOL = process.env.CLIENTPROTOCOL || "http";
 export const EMAIL_TOKEN_TIMEOUT = process.env.EMAIL_TOKEN_TIMEOUT || "3600000";
 export const FROM_EMAIL = process.env.FROM_EMAIL || "noreply@udia.ca";

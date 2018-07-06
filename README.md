@@ -42,14 +42,16 @@ These environment variables can be set by modifying your `~/.*rc` or `~/.*profil
 | `TYPEORM_LOGGING`         | `true`                            | Log SQL queries to console                         |
 | `SQL_USER`                | `pguser`                          | SQL User                                           |
 | `SQL_PASSWORD`            | `mysecretpassword`                | SQL Password                                       |
-| `SQL_HOST`                | `localhost`                       | SQL Hostname                                       |
+| `SQL_HOST`                | `127.0.0.1`                       | SQL Hostname                                       |
 | `SQL_DB`                  | `udiadb`                          | SQL Database name (test: `udiadbtest`)             |
 | `SQL_PORT`                | `5432`                            | SQL Port Number for serving                        |
 | `SQL_TEST_DB`             | `udiadbtest`                      | SQL Database name for testing                      |
 | `SQL_TEST_PORT`           | `5433`                            | SQL Port number for testing                        |
 | `JWT_SECRET`              | `DEVELOPMENT_SECRET`              | Secret string to use for JWT encryption            |
-| `CORS_ORIGIN`             | `http://localhost:3001`           | OPTIONS Res Header for Access-Control-Allow-Origin |
-| `CLIENT_DOMAINNAME`       | `localhost:3001`                  | Domain:port of client (`udia.ca`)                  |
+| `JWT_ALGORITHM`           | `HS256`                           | Signing algorithm to use for JWT                   |
+| `JWT_EXPIRES_IN`          | `7d`                              | How long the JWT should be valid for               |
+| `CORS_ORIGIN`             | `http://127.0.0.1:3001`           | OPTIONS Res Header for Access-Control-Allow-Origin |
+| `CLIENT_DOMAINNAME`       | `127.0.0.1:3001`                  | Domain:port of client (`udia.ca`)                  |
 | `CLIENT_PROTOCOL`         | `http`                            | Protocol of Client (`https`)                       |
 | `EMAIL_TOKEN_TIMEOUT`     | `3600000`                         | How long should an email token last in ms          |
 | `FROM_EMAIL`              | `noreply@udia.ca`                 | Email to use for `from` field                      |

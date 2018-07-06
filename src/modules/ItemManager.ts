@@ -50,15 +50,15 @@ export default class ItemManager {
 
   /**
    * Add a new item to the database. Return the created item.
-   * @param {string} username username derived from signed JWT payload
+   * @param {string} userId user uuid derived from signed JWT payload
    * @param {ICreateItemParams} parameters GraphQL createItem parameters
    */
   public static async createItem(
-    username: string = "",
+    userId: string = "",
     { content, contentType, encItemKey, parentId }: ICreateItemParams
   ) {
     const errors: IErrorMessage[] = [];
-    const user = await ItemManager.validateUsernameJWT(username, errors);
+    const user = await ItemManager.validateUserIdJWT(userId, errors);
     const parentItem = await ItemManager.validateItemParentId(
       parentId,
       user,
@@ -191,15 +191,15 @@ export default class ItemManager {
 
   /**
    * Update an item in the database. Return the updated item.
-   * @param {string} username username derived from signed JWT payload
+   * @param {string} userId user uuid derived from signed JWT payload
    * @param {IUpdateItemParams} parameters GraphQL updateItem parameters
    */
   public static async updateItem(
-    username: string = "",
+    userId: string = "",
     { id, content, contentType, encItemKey, parentId }: IUpdateItemParams
   ) {
     const errors: IErrorMessage[] = [];
-    const user = await ItemManager.validateUsernameJWT(username, errors);
+    const user = await ItemManager.validateUserIdJWT(userId, errors);
     const parentItem = await ItemManager.validateItemParentId(
       parentId,
       user,
@@ -260,15 +260,15 @@ export default class ItemManager {
   /**
    * Clear all content fields from the item, set deleted to be true.
    * Do not run SQL DELETE. Tree structure must always be enforced.
-   * @param {string} username username derived from JWT payload
+   * @param {string} userId user uuid derived from JWT payload
    * @param {IDeleteItemParams} parameters GraphQL deleteItem parameters
    */
   public static async deleteItem(
-    username: string = "",
+    userId: string = "",
     { id, deleteDescendants = true }: IDeleteItemParams
   ) {
     const errors: IErrorMessage[] = [];
-    const user = await ItemManager.validateUsernameJWT(username, errors);
+    const user = await ItemManager.validateUserIdJWT(userId, errors);
     let item = await ItemManager.validateItemUserOwnership(id, user, errors);
     if (errors.length > 0) {
       throw new ValidationError(errors);
@@ -393,11 +393,11 @@ export default class ItemManager {
     return parentItem;
   }
 
-  private static async validateUsernameJWT(
-    username: string,
+  private static async validateUserIdJWT(
+    userId: string,
     errors: IErrorMessage[]
   ) {
-    const user = await UserManager.getUserByUsername(username);
+    const user = await UserManager.getUserById(userId);
     if (!user) {
       errors.push({ key: "id", message: "Invalid JWT." });
     }

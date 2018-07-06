@@ -102,12 +102,12 @@ describe("Item", () => {
     `;
 
     beforeAll(async () => {
-      item = await ItemManager.createItem(itemUser.lUsername, {
+      item = await ItemManager.createItem(itemUser.uuid, {
         content: "gql parent item test",
         contentType: "plaintext",
         encItemKey: "unencrypted"
       });
-      childItem = await ItemManager.createItem(itemUser.lUsername, {
+      childItem = await ItemManager.createItem(itemUser.uuid, {
         content: "gql child item test",
         contentType: "plaintext",
         encItemKey: "unencrypted",
@@ -179,13 +179,13 @@ describe("Item", () => {
     const items: Item[] = [];
 
     beforeAll(async () => {
-      parentItem = await ItemManager.createItem(itemUser.lUsername, {
+      parentItem = await ItemManager.createItem(itemUser.uuid, {
         content: `gql items test root item`,
         contentType: "plaintext",
         encItemKey: "unencrypted"
       });
       for (let i = 1; i <= 20; i++) {
-        const item = await ItemManager.createItem(itemUser.lUsername, {
+        const item = await ItemManager.createItem(itemUser.uuid, {
           content: `gql items test ${i}`,
           contentType: "plaintext",
           encItemKey: "unencrypted",
@@ -548,7 +548,7 @@ describe("Item", () => {
     let item: Item;
 
     beforeAll(async () => {
-      item = await ItemManager.createItem(itemUser.lUsername, {
+      item = await ItemManager.createItem(itemUser.uuid, {
         content: `gql items test update item`,
         contentType: "plaintext",
         encItemKey: "unencrypted"
@@ -610,7 +610,7 @@ describe("Item", () => {
     let item: Item;
 
     beforeAll(async () => {
-      item = await ItemManager.createItem(itemUser.lUsername, {
+      item = await ItemManager.createItem(itemUser.uuid, {
         content: `gql items test delete item`,
         contentType: "plaintext",
         encItemKey: "unencrypted"
