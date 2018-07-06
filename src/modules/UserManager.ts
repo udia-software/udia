@@ -105,13 +105,15 @@ export default class UserManager {
    * @param id uuid
    */
   public static async getUserById(id?: string) {
-    try {
-      const user = await getRepository(User).findOne(id);
-      if (user) {
-        return user;
+    if (id) {
+      try {
+        const user = await getRepository(User).findOne(id);
+        if (user) {
+          return user;
+        }
+      } catch {
+        // uuid is invalid exceptions
       }
-    } catch {
-      // uuid is invalid exceptions
     }
     return undefined;
   }
@@ -353,10 +355,7 @@ export default class UserManager {
    * @param uuid user's uuid derived from JWT payload
    * @param parameters delete user GQL parameters
    */
-  public static async deleteUser(
-    uuid: string = "",
-    { pw }: IDeleteUserParams
-  ) {
+  public static async deleteUser(uuid: string = "", { pw }: IDeleteUserParams) {
     const user = await this.getUserById(uuid);
     if (!user) {
       throw new ValidationError([{ key: "id", message: "Invalid JWT." }]);
@@ -374,10 +373,7 @@ export default class UserManager {
    * @param uuid user's uuid
    * @param email new email that the user wants to add
    */
-  public static async addEmail(
-    uuid: string = "",
-    { email }: IAddEmailParams
-  ) {
+  public static async addEmail(uuid: string = "", { email }: IAddEmailParams) {
     const errors: IErrorMessage[] = [];
     const user = await this.getUserById(uuid);
     if (!user) {
@@ -458,7 +454,7 @@ export default class UserManager {
   /**
    * Set a given email to be the user's primary email address
    * @param uuid user's uuid
-   * @param params set primary email parameters 
+   * @param params set primary email parameters
    */
   public static async setPrimaryEmail(
     uuid: string = "",

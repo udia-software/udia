@@ -50,14 +50,14 @@ export default class Auth {
    * Return the verified jwt payload, or return null.
    * @param jsonwebtoken raw token portion of Authorizaton header
    */
-  public static verifyUserJWT(jsonwebtoken: string) {
+  public static verifyUserJWT(jsonwebtoken: string): IJwtPayload {
     try {
       return jwtVerify(jsonwebtoken, JWT_SECRET, {
         algorithms: [JWT_ALGORITHM],
         maxAge: JWT_EXPIRES_IN
-      });
+      }) as IJwtPayload;
     } catch {
-      return null;
+      return {};
     }
   }
 
