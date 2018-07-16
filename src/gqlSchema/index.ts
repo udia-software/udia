@@ -434,6 +434,8 @@ const typeDefs: ITypedef[] = [
     depth: Int
     # Maximum number of items returned from query (Hard cap ${ITEMS_PAGE_LIMIT})
     limit: Int
+    # Should we return deleted items? (only not deleted items if not set)
+    showDeleted: Boolean
     # Datetime for keyset pagination
     datetime: DateTime
     # Sort items by? (Defaults to createdAt)

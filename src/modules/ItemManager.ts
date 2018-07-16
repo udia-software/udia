@@ -15,6 +15,7 @@ export interface IGetItemsParams {
   depth?: number;
   limit?: number;
   datetime?: Date;
+  showDeleted?: boolean;
   sort?: "createdAt" | "updatedAt";
   order?: "ASC" | "DESC";
 }
@@ -112,6 +113,7 @@ export default class ItemManager {
     parentId, // Get items from ancestor (null for root, undefined for all)
     depth = 0, // Get items at a specific depth from ancestor
     limit = 10, // Limit number of items returned
+    showDeleted, // Show deleted items?
     datetime, // Keyset pagination on date (unindexed for updatedAt)
     sort = "createdAt", // Sort by createdAt field
     order = "DESC" // Order by descending value (show newest first)
@@ -165,8 +167,12 @@ export default class ItemManager {
       itemQueryBuilder.andWhere(`"item"."parentUuid" IS NULL`);
     }
 
-    // Don't show deleted items.
-    itemQueryBuilder.andWhere(`"item"."deleted" = FALSE`);
+    // Show deleted items or not?
+    if (showDeleted) {
+      itemQueryBuilder.andWhere(`"item"."deleted" = IS NOT NULL`);
+    } else {
+      itemQueryBuilder.andWhere(`"item"."deleted" = :deleted`, { deleted: false });
+    }
 
     // Datetime is used for pagination over items
     if (datetime !== undefined) {
