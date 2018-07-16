@@ -1,6 +1,6 @@
 {
   "name": "@udia/udia",
-  "version": "0.5.8",
+  "version": "0.5.9",
   "description": "Encrypted item storage.",
   "main": "dist/index.js",
   "scripts": {
