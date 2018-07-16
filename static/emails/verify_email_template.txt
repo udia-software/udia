@@ -4,9 +4,9 @@ Please verify your account email. Your email is used for application related com
 
 By verifying your email, you also acknowledge receiving and unconditionally accept the Udia Terms of Service and Udia Privacy Policy.
 
-Terms of Service, effective July 1, 2018.
+Terms of Service, effective July 16, 2018.
   https://api.udia.ca/static/legal/Terms%20of%20Service.txt
-Privacy Policy, effective July 1, 2018.
+Privacy Policy, effective July 16, 2018.
   https://api.udia.ca/static/legal/Privacy%20Policy.txt
 
 This email was sent on @@SENT_EMAIL_TIME@@.

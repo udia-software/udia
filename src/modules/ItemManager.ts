@@ -169,7 +169,7 @@ export default class ItemManager {
 
     // Show deleted items or not?
     if (showDeleted) {
-      itemQueryBuilder.andWhere(`"item"."deleted" = IS NOT NULL`);
+      itemQueryBuilder.andWhere(`"item"."deleted" IS NOT NULL`);
     } else {
       itemQueryBuilder.andWhere(`"item"."deleted" = :deleted`, { deleted: false });
     }

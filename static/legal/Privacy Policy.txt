@@ -2,6 +2,8 @@ Udia - Privacy Policy
 
 Your privacy is important to us. It is Udia's policy to be operationally transparent, while respecting your privacy regarding any information we may collect from you across our websites, https://udia.ca, https://api.udia.ca, and other sites we own and operate (collectively the "Service").
 
+All source code is licensed under the GNU Affero General Public License (AGPL-3.0), which can be found included with the source code or at https://www.gnu.org/licenses/agpl-3.0.en.html.
+
 Udia asks for personal information only when needed to provide a service to you. All personal information is collected fairly and lawfully with your explicit knowledge and consent. You are informed why your personal information is collected and how it will be used.
 
 Udia retains collected information for as long as necessary to provide you with your requested service. What data we store, we will protect within commercially acceptable means to prevent loss and theft, as well as unauthorised access, disclosure, copying, use or modification.
@@ -14,4 +16,4 @@ You are free to refuse our request for your personal information, with the under
 
 Your continued use of our service will be regarded as acceptance of our practices around privacy and personal information.
 
-Dated and Effective: July 1, 2018
+Dated and Effective: July 16, 2018
