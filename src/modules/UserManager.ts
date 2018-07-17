@@ -137,7 +137,7 @@ export default class UserManager {
     if (userEmail && userEmail.user) {
       return userEmail.user;
     }
-    return null;
+    return undefined;
   }
 
   /**
@@ -398,7 +398,8 @@ export default class UserManager {
     newUserEmail.user = user!;
     await getRepository(UserEmail).save(newUserEmail);
     await this.sendEmailVerification({ email: newUserEmail.email });
-    return user;
+    const updatedUser = await this.getUserById(uuid);
+    return updatedUser!;
   }
 
   /**
@@ -448,7 +449,8 @@ export default class UserManager {
         primary: true
       });
     });
-    return this.getUserById(user.uuid);
+    const updatedUser = await this.getUserById(user.uuid);
+    return updatedUser!;
   }
 
   /**
@@ -489,7 +491,8 @@ export default class UserManager {
         { primary: false }
       );
     });
-    return this.getUserById(user.uuid);
+    const updatedUser = await this.getUserById(user.uuid);
+    return updatedUser!;
   }
 
   /**

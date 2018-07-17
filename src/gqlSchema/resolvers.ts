@@ -21,6 +21,7 @@ import UserManager, {
   IVerifyEmailTokenParams
 } from "../modules/UserManager";
 import metric from "../util/metric";
+import { genUserSubPayload } from "./subscriptionHelper";
 
 export interface IContext {
   jwtPayload: IJwtPayload;
@@ -79,7 +80,10 @@ const resolvers: IResolvers = {
     ) => {
       const uuid = context.jwtPayload && context.jwtPayload.uuid;
       const user = await UserManager.updatePassword(uuid, params);
-      pubSub.publish(`me:${user.lUsername}`, { me: user });
+      pubSub.publish(
+        `u:${user.uuid}`,
+        genUserSubPayload(user, "PASSWORD_UPDATED", user.updatedAt)
+      );
       return user;
     },
     signInUser: async (
@@ -96,9 +100,17 @@ const resolvers: IResolvers = {
     ) => {
       const uuid = context.jwtPayload && context.jwtPayload.uuid;
       const user = await UserManager.addEmail(uuid, params);
-      if (user) {
-        pubSub.publish(`me:${user.lUsername}`, { me: user });
-      }
+      const emailInstance = user.emails.find(userEmail => {
+        return (
+          userEmail.lEmail === (params.email as string).toLowerCase().trim()
+        );
+      });
+      const emailAddedAt = emailInstance!.createdAt;
+      const emailValue = emailInstance!.email;
+      pubSub.publish(
+        `u:${user.uuid}`,
+        genUserSubPayload(user, "EMAIL_ADDED", emailAddedAt, emailValue)
+      );
       return user;
     },
     removeEmail: async (
@@ -108,9 +120,10 @@ const resolvers: IResolvers = {
     ) => {
       const uuid = context.jwtPayload && context.jwtPayload.uuid;
       const user = await UserManager.removeEmail(uuid, params);
-      if (user) {
-        pubSub.publish(`me:${user.lUsername}`, { me: user });
-      }
+      pubSub.publish(
+        `u:${user.uuid}`,
+        genUserSubPayload(user, "EMAIL_REMOVED", new Date(), params.email)
+      );
       return user;
     },
     setPrimaryEmail: async (
@@ -120,9 +133,22 @@ const resolvers: IResolvers = {
     ) => {
       const uuid = context.jwtPayload && context.jwtPayload.uuid;
       const user = await UserManager.setPrimaryEmail(uuid, params);
-      if (user) {
-        pubSub.publish(`me:${user.lUsername}`, { me: user });
-      }
+      const emailInstance = user.emails.find(userEmail => {
+        return (
+          userEmail.lEmail === (params.email as string).toLowerCase().trim()
+        );
+      });
+      const emailUpdatedAt = emailInstance!.updatedAt;
+      const emailValue = emailInstance!.email;
+      pubSub.publish(
+        `u:${user.uuid}`,
+        genUserSubPayload(
+          user,
+          "EMAIL_SET_AS_PRIMARY",
+          emailUpdatedAt,
+          emailValue
+        )
+      );
       return user;
     },
     deleteUser: async (
@@ -131,14 +157,30 @@ const resolvers: IResolvers = {
       context: IContext
     ) => {
       const uuid = context.jwtPayload && context.jwtPayload.uuid;
-      return UserManager.deleteUser(uuid, params);
+      const deleted = await UserManager.deleteUser(uuid, params);
+      pubSub.publish(
+        `u:${uuid!}`,
+        genUserSubPayload({ uuid: uuid! }, "USER_DELETED")
+      );
+      return deleted;
     },
     sendEmailVerification: async (
       root: any,
       params: ISendEmailVerificationParams | any,
       context: IContext
     ) => {
-      return UserManager.sendEmailVerification(params);
+      const emailSent = await UserManager.sendEmailVerification(params);
+      const user = await UserManager.getUserByEmail(params.email);
+      pubSub.publish(
+        `u:${user!.uuid}`,
+        genUserSubPayload(
+          user!,
+          "EMAIL_VERIFICATION_SENT",
+          new Date(),
+          params.email
+        )
+      );
+      return emailSent;
     },
     verifyEmailToken: async (
       root: any,
@@ -147,9 +189,15 @@ const resolvers: IResolvers = {
     ) => {
       const lEmail = await UserManager.verifyEmailToken(params);
       const user = await UserManager.getUserByEmail(lEmail);
-      if (user) {
-        pubSub.publish(`me:${user.lUsername}`, { me: user });
-      }
+      const emailInstance = user!.emails.find(
+        userEmail => userEmail.lEmail === lEmail
+      );
+      const emailUpdatedAt = emailInstance!.updatedAt;
+      const emailValue = emailInstance!.email;
+      pubSub.publish(
+        `u:${user!.uuid}`,
+        genUserSubPayload(user!, "EMAIL_VERIFIED", emailUpdatedAt, emailValue)
+      );
       return true;
     },
     sendForgotPasswordEmail: async (
@@ -157,7 +205,15 @@ const resolvers: IResolvers = {
       params: ISendForgotPasswordEmailParams | any,
       context: IContext
     ) => {
-      return UserManager.sendForgotPasswordEmail(params);
+      const resetRequestSent = await UserManager.sendForgotPasswordEmail(
+        params
+      );
+      const user = await UserManager.getUserByEmail(params.email);
+      pubSub.publish(
+        `u:${user!.uuid}`,
+        genUserSubPayload(user!, "HARD_RESET_REQUESTED", user!.updatedAt)
+      );
+      return resetRequestSent;
     },
     resetPassword: async (
       root: any,
@@ -165,7 +221,10 @@ const resolvers: IResolvers = {
       context: IContext
     ) => {
       const { user, jwt } = await UserManager.resetPassword(params);
-      pubSub.publish(`me:${user.lUsername}`, { me: user });
+      pubSub.publish(
+        `u:${user.uuid}`,
+        genUserSubPayload(user, "USER_HARD_RESET", user.updatedAt)
+      );
       return { user, jwt };
     },
     refreshJWT: async (root: any, params: any, context: IContext) => {
@@ -194,23 +253,24 @@ const resolvers: IResolvers = {
     health: {
       subscribe: () => pubSub.asyncIterator("health")
     },
-    me: {
+    userSubscription: {
       subscribe: withFilter(
         (rootValue, args, context, info) => {
           // Handles splitting channels based on JWT payload username
           const { user } = context;
-          if (user && user.username) {
-            return pubSub.asyncIterator(`me:${user.username}`);
+          if (user && user.uuid) {
+            return pubSub.asyncIterator(`u:${user.uuid}`);
           }
-          // nothing publishes to `me`, unauthenticated
-          return pubSub.asyncIterator("me");
+          // nothing publishes to `me`, unauthenticated, but connected
+          return pubSub.asyncIterator("u");
         },
         (payload, variables, context) => {
           // Handles authentication filtering based on JWT
-          const { user } = context; // derived from JWT (payload) on ws conn
-          if (user && user.username) {
+          // derived from JWT (payload) on ws conn
+          const user = context && context.user;
+          if (user && user.uuid) {
             const { me } = payload;
-            return user.username === me.username;
+            return user.uuid === me.uuid;
           }
           return false;
         }

@@ -214,7 +214,7 @@ const typeDefs: ITypedef[] = [
     # Subscribe to server health metric.
     health: HealthMetric!
     # Subscribe to user changes based on JWT.
-    me: FullUser
+    userSubscription: UserSubscriptionPayload!
   }`,
   `# Public facing User type
   type User {
@@ -407,6 +407,28 @@ const typeDefs: ITypedef[] = [
     idle: Int!
     # Interrupt Request mode in seconds
     irq: Int!
+  }`,
+  `# User Subscription Payload type for user change callbacks
+  type UserSubscriptionPayload {
+    # Universally Unique Identifier for User
+    uuid: ID!
+    # Type of change that occurred for the user
+    actionType: UserActionType!
+    # Time the action occurred
+    timestamp: DateTime!
+    # Optional metadata parameter
+    meta: String
+  }`,
+  `# Enumeration for type of user action callbacks to listen on
+  enum UserActionType {
+    EMAIL_ADDED,
+    EMAIL_VERIFICATION_SENT,
+    EMAIL_VERIFIED,
+    EMAIL_REMOVED,
+    EMAIL_SET_AS_PRIMARY,
+    EMAIL_DELETED,
+    PASSWORD_UPDATED,
+    PASSWORD_RESET
   }`,
   `# Users Pagination Parameters
   input UserPaginationInput {
