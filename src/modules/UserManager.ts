@@ -826,9 +826,13 @@ export default class UserManager {
       const waitTimeTotalSec = (sentPlus15Min - Date.now()) / 1000;
       const wtMin = Math.floor(waitTimeTotalSec / 60);
       const wtSec = Math.floor(waitTimeTotalSec % 60);
-      let waitTimeStr = `${wtSec} second${wtSec > 1 ? "s" : ""}`;
+      let waitTimeStr = `${wtSec} second${
+        wtSec > 1 ? "s" /* istanbul ignore next */ : ""
+      }`;
       if (wtMin > 0) {
-        waitTimeStr = `${wtMin} minute${wtMin > 1 ? "s" : ""}, ${waitTimeStr}`;
+        waitTimeStr = `${wtMin} minute${
+          wtMin > 1 ? "s" /* istanbul ignore next */ : ""
+        }, ${waitTimeStr}`;
       }
       errors.push({
         key: "email",

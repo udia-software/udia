@@ -470,6 +470,17 @@ describe("UserManager", () => {
         "The request is invalid.\n* email: Email is taken."
       );
     });
+
+    it("should handle add too many emails", async () => {
+      expect.assertions(1);
+      await UserManager.addEmail(aeUser.uuid, { email: "addEmail1@udia.ca" });
+      return expect(
+        UserManager.addEmail(aeUser.uuid, { email: "addEmail2@udia.ca" })
+      ).rejects.toHaveProperty(
+        "message",
+        "The request is invalid.\n* email: User is limited to two emails."
+      );
+    });
   });
 
   describe("removeEmail", () => {

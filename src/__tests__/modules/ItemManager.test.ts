@@ -47,6 +47,7 @@ describe("ItemManager", () => {
       .orWhere(`lUsername = :delUser`, { delUser: "deleteitem" })
       .orWhere(`lUsername = :sDUser`, { sDUser: "deleteitemstepuser" })
       .orWhere(`lUsername = :gpUser`, { gpUser: "getparentitem" })
+      .orWhere(`lUsername = :delIUser`, { delIUser: "showdeleteditemsuser"})
       .execute();
   }
 
@@ -130,24 +131,18 @@ describe("ItemManager", () => {
 
     it("should create an item with a parent", async () => {
       expect.assertions(13);
-      const ancestorItem = await ItemManager.createItem(
-        createItemUser.uuid,
-        {
-          content: "ancestor item",
-          contentType: "plaintext",
-          encItemKey: "unencrypted"
-        }
-      );
+      const ancestorItem = await ItemManager.createItem(createItemUser.uuid, {
+        content: "ancestor item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
 
-      const descendantItem = await ItemManager.createItem(
-        createItemUser.uuid,
-        {
-          content: "descendant item",
-          contentType: "plaintext",
-          encItemKey: "unencrypted",
-          parentId: ancestorItem.uuid
-        }
-      );
+      const descendantItem = await ItemManager.createItem(createItemUser.uuid, {
+        content: "descendant item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted",
+        parentId: ancestorItem.uuid
+      });
 
       expect(descendantItem).toHaveProperty("content", "descendant item");
       expect(descendantItem).toHaveProperty("contentType", "plaintext");
@@ -273,6 +268,7 @@ describe("ItemManager", () => {
 
   describe("getItems", () => {
     let itemPaginationUser: User;
+    let showDeletedItemsUser: User;
 
     beforeAll(async () => {
       await getConnection().transaction(async transactionEntityManager => {
@@ -280,6 +276,10 @@ describe("ItemManager", () => {
         itemPaginationUser = await transactionEntityManager.save(u);
         e.user = itemPaginationUser;
         await transactionEntityManager.save(e);
+        const { u: du, e: de } = generateGenericUser("showDeletedItemsUser");
+        showDeletedItemsUser = await transactionEntityManager.save(du);
+        de.user = showDeletedItemsUser;
+        await transactionEntityManager.save(de);
       });
     });
 
@@ -302,14 +302,11 @@ describe("ItemManager", () => {
       expect.assertions(3);
       const getItemsTestReferences = [];
       for (let i = 1; i <= 20; i++) {
-        const item = await ItemManager.createItem(
-          itemPaginationUser.uuid,
-          {
-            content: `Flat Test Item ${i}`,
-            contentType: "plaintext",
-            encItemKey: "unencrypted"
-          }
-        );
+        const item = await ItemManager.createItem(itemPaginationUser.uuid, {
+          content: `Flat Test Item ${i}`,
+          contentType: "plaintext",
+          encItemKey: "unencrypted"
+        });
         getItemsTestReferences.unshift(item);
       }
       const allUserItems = await ItemManager.getItems({
@@ -351,32 +348,23 @@ describe("ItemManager", () => {
 
     it("should get items specified by depth and parentId", async () => {
       expect.assertions(3);
-      const rootItem = await ItemManager.createItem(
-        itemPaginationUser.uuid,
-        {
-          content: "Root Item",
-          contentType: "plaintext",
-          encItemKey: "unencrypted"
-        }
-      );
-      const child1 = await ItemManager.createItem(
-        itemPaginationUser.uuid,
-        {
-          content: "Child 1",
-          contentType: "plaintext",
-          encItemKey: "unencrypted",
-          parentId: rootItem.uuid
-        }
-      );
-      const child2 = await ItemManager.createItem(
-        itemPaginationUser.uuid,
-        {
-          content: "Child 2",
-          contentType: "plaintext",
-          encItemKey: "unencrypted",
-          parentId: rootItem.uuid
-        }
-      );
+      const rootItem = await ItemManager.createItem(itemPaginationUser.uuid, {
+        content: "Root Item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
+      const child1 = await ItemManager.createItem(itemPaginationUser.uuid, {
+        content: "Child 1",
+        contentType: "plaintext",
+        encItemKey: "unencrypted",
+        parentId: rootItem.uuid
+      });
+      const child2 = await ItemManager.createItem(itemPaginationUser.uuid, {
+        content: "Child 2",
+        contentType: "plaintext",
+        encItemKey: "unencrypted",
+        parentId: rootItem.uuid
+      });
 
       const childrenOfRoot = await ItemManager.getItems({
         username: itemPaginationUser.lUsername,
@@ -532,17 +520,50 @@ describe("ItemManager", () => {
 
     it("should handle negative number for limit", async () => {
       expect.assertions(2);
-      await ItemManager.createItem(
-        itemPaginationUser.uuid,
+      await ItemManager.createItem(itemPaginationUser.uuid, {
+        content: "Negative Limit Test item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
+      const { items, count } = await ItemManager.getItems({ limit: -10 });
+      expect(count).toBeGreaterThanOrEqual(0);
+      expect(items).toHaveLength(1);
+    });
+
+    it("should show deleted items", async () => {
+      expect.assertions(4);
+      let toDeleteItem = await ItemManager.createItem(
+        showDeletedItemsUser.uuid,
         {
-          content: "Negative Limit Test item",
+          content: "About to be deleted item",
           contentType: "plaintext",
           encItemKey: "unencrypted"
         }
       );
-      const { items, count } = await ItemManager.getItems({ limit: -10 });
-      expect(count).toBeGreaterThanOrEqual(0);
-      expect(items).toHaveLength(1);
+      toDeleteItem = await ItemManager.deleteItem(showDeletedItemsUser.uuid, {
+        id: toDeleteItem.uuid
+      });
+
+      const { items, count } = await ItemManager.getItems({
+        userId: showDeletedItemsUser.uuid,
+        showDeleted: true,
+      });
+      expect(count).toEqual(1);
+      expect(items).toContainEqual({
+        uuid: toDeleteItem.uuid,
+        content: toDeleteItem.content,
+        contentType: toDeleteItem.contentType,
+        encItemKey: toDeleteItem.encItemKey,
+        createdAt: toDeleteItem.createdAt,
+        updatedAt: toDeleteItem.updatedAt,
+        deleted: toDeleteItem.deleted
+      });
+      const { items: noItems, count: noCount } = await ItemManager.getItems({
+        userId: showDeletedItemsUser.uuid,
+        showDeleted: false
+      });
+      expect(noCount).toBeGreaterThanOrEqual(0);
+      expect(noItems.length).toBeGreaterThanOrEqual(0);
     });
   });
 
@@ -795,14 +816,11 @@ describe("ItemManager", () => {
 
     it("should handle item not belonging to user", async () => {
       expect.assertions(1);
-      const stepItem = await ItemManager.createItem(
-        updateItemStepUser.uuid,
-        {
-          content: "step parent value",
-          contentType: "plaintext",
-          encItemKey: "unencrypted"
-        }
-      );
+      const stepItem = await ItemManager.createItem(updateItemStepUser.uuid, {
+        content: "step parent value",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
       await expect(
         ItemManager.updateItem(updateItemUser.uuid, {
           id: stepItem.uuid,
@@ -816,14 +834,11 @@ describe("ItemManager", () => {
 
     it("should handle item update with no parameters", async () => {
       expect.assertions(1);
-      const unchangedItem = await ItemManager.createItem(
-        updateItemUser.uuid,
-        {
-          content: "unchanged item",
-          contentType: "plaintext",
-          encItemKey: "unencrypted"
-        }
-      );
+      const unchangedItem = await ItemManager.createItem(updateItemUser.uuid, {
+        content: "unchanged item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
       await expect(
         ItemManager.updateItem(updateItemUser.uuid, {
           id: unchangedItem.uuid
@@ -836,14 +851,11 @@ describe("ItemManager", () => {
 
     it("should handle update deleted item", async () => {
       expect.assertions(1);
-      const deletedItem = await ItemManager.createItem(
-        updateItemUser.uuid,
-        {
-          content: "deleted item",
-          contentType: "plaintext",
-          encItemKey: "unencrypted"
-        }
-      );
+      const deletedItem = await ItemManager.createItem(updateItemUser.uuid, {
+        content: "deleted item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
       await ItemManager.deleteItem(updateItemUser.uuid, {
         id: deletedItem.uuid
       });
@@ -924,14 +936,11 @@ describe("ItemManager", () => {
 
     it("should delete an item with subtree", async () => {
       expect.assertions(24);
-      const parentItem = await ItemManager.createItem(
-        deleteItemUser.uuid,
-        {
-          content: "parent item",
-          contentType: "plaintext",
-          encItemKey: "unencrypted"
-        }
-      );
+      const parentItem = await ItemManager.createItem(deleteItemUser.uuid, {
+        content: "parent item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
 
       const childItem = await ItemManager.createItem(deleteItemUser.uuid, {
         content: "child item",
@@ -940,15 +949,12 @@ describe("ItemManager", () => {
         parentId: parentItem.uuid
       });
 
-      const grandchildItem = await ItemManager.createItem(
-        deleteItemUser.uuid,
-        {
-          content: "grandchild item",
-          contentType: "plaintext",
-          encItemKey: "unencrypted",
-          parentId: childItem.uuid
-        }
-      );
+      const grandchildItem = await ItemManager.createItem(deleteItemUser.uuid, {
+        content: "grandchild item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted",
+        parentId: childItem.uuid
+      });
 
       await ItemManager.deleteItem(deleteItemUser.uuid, {
         id: parentItem.uuid,
@@ -993,14 +999,11 @@ describe("ItemManager", () => {
 
     it("should delete a nested item without effecting tree", async () => {
       expect.assertions(10);
-      const parentItem = await ItemManager.createItem(
-        deleteItemUser.uuid,
-        {
-          content: "parent item",
-          contentType: "plaintext",
-          encItemKey: "unencrypted"
-        }
-      );
+      const parentItem = await ItemManager.createItem(deleteItemUser.uuid, {
+        content: "parent item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
 
       const childItem = await ItemManager.createItem(deleteItemUser.uuid, {
         content: "child item",
@@ -1009,15 +1012,12 @@ describe("ItemManager", () => {
         parentId: parentItem.uuid
       });
 
-      const grandchildItem = await ItemManager.createItem(
-        deleteItemUser.uuid,
-        {
-          content: "grandchild item",
-          contentType: "plaintext",
-          encItemKey: "unencrypted",
-          parentId: childItem.uuid
-        }
-      );
+      const grandchildItem = await ItemManager.createItem(deleteItemUser.uuid, {
+        content: "grandchild item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted",
+        parentId: childItem.uuid
+      });
 
       await ItemManager.deleteItem(deleteItemUser.uuid, {
         id: childItem.uuid,
@@ -1100,24 +1100,18 @@ describe("ItemManager", () => {
     });
     it("should get a parent item given a child item id", async () => {
       expect.assertions(1);
-      const ancestorItem = await ItemManager.createItem(
-        getParentUser.uuid,
-        {
-          content: "ancestor item",
-          contentType: "plaintext",
-          encItemKey: "unencrypted"
-        }
-      );
+      const ancestorItem = await ItemManager.createItem(getParentUser.uuid, {
+        content: "ancestor item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
 
-      const descendantItem = await ItemManager.createItem(
-        getParentUser.uuid,
-        {
-          content: "descendant item",
-          contentType: "plaintext",
-          encItemKey: "unencrypted",
-          parentId: ancestorItem.uuid
-        }
-      );
+      const descendantItem = await ItemManager.createItem(getParentUser.uuid, {
+        content: "descendant item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted",
+        parentId: ancestorItem.uuid
+      });
 
       const parentItem = await ItemManager.getParentFromChildId(
         descendantItem.uuid

@@ -308,7 +308,7 @@ export default class ItemManager {
     }
     await queryRunner.commitTransaction();
     await queryRunner.release();
-    return item;
+    return item as Item;
   }
 
   public static async getParentFromChildId(id: string) {
