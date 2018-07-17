@@ -1703,6 +1703,24 @@ describe("Users", () => {
           );
         }
       });
+
+      it("should return values with no parameters set", async () => {
+        expect.assertions(3);
+        const getUsersQueryResponse = await gqlClient.query<{
+          getUsers: {
+            count: number;
+            users: IFullUser[]; // really not the full user, but whatever
+          };
+        }>({
+          query
+        });
+        expect(getUsersQueryResponse).toHaveProperty("data");
+        const {
+          getUsers: { count, users }
+        } = getUsersQueryResponse.data;
+        expect(count).toBeGreaterThanOrEqual(20);
+        expect(users).toHaveLength(10); // default limit
+      });
     });
   });
 

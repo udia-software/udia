@@ -211,10 +211,12 @@ const typeDefs: ITypedef[] = [
   }`,
   `# UDIA Server GraphQL Subscriptions
   type Subscription {
-    # Subscribe to server health metric.
+    # Real time server health metric value
     health: HealthMetric!
-    # Subscribe to user changes based on JWT.
+    # Listen to user changes (refers to the JWT to determine which user)
     userSubscription: UserSubscriptionPayload!
+    # Listen for item changes based on parameters
+    itemSubscription(params: ItemSubscriptionInput!): ItemSubscriptionPayload!
   }`,
   `# Public facing User type
   type User {
@@ -408,27 +410,45 @@ const typeDefs: ITypedef[] = [
     # Interrupt Request mode in seconds
     irq: Int!
   }`,
-  `# User Subscription Payload type for user change callbacks
+  `# User Subscription Payload for user change callbacks
   type UserSubscriptionPayload {
     # Universally Unique Identifier for User
     uuid: ID!
     # Type of change that occurred for the user
-    actionType: UserActionType!
+    type: UserActionType!
     # Time the action occurred
     timestamp: DateTime!
     # Optional metadata parameter
     meta: String
   }`,
-  `# Enumeration for type of user action callbacks to listen on
+  `# Enumeration for type of user action callbacks
   enum UserActionType {
-    EMAIL_ADDED,
-    EMAIL_VERIFICATION_SENT,
-    EMAIL_VERIFIED,
-    EMAIL_REMOVED,
-    EMAIL_SET_AS_PRIMARY,
-    EMAIL_DELETED,
-    PASSWORD_UPDATED,
-    PASSWORD_RESET
+    EMAIL_ADDED
+    EMAIL_VERIFICATION_SENT
+    EMAIL_VERIFIED
+    EMAIL_SET_AS_PRIMARY
+    EMAIL_REMOVED
+    PASSWORD_UPDATED
+    HARD_RESET_REQUESTED
+    USER_HARD_RESET
+    USER_DELETED
+  }`,
+  `# Item Subscription Payload for item change callbacks
+  type ItemSubscriptionPayload {
+    # Universally Unique Identifier for Item
+    uuid: ID!
+    # Type of change that occurred for the item
+    type: ItemActionType!
+    # Time the action occurred
+    timestamp: DateTime!
+    # Optional metadata parameter
+    meta: String
+  }`,
+  `# Enumeration for type of item callbacks
+  enum ItemActionType {
+    ITEM_CREATED
+    ITEM_UPDATED
+    ITEM_DELETED
   }`,
   `# Users Pagination Parameters
   input UserPaginationInput {
@@ -486,6 +506,15 @@ const typeDefs: ITypedef[] = [
     encItemKey: String
     # Parent item UUID.
     parentId: ID
+  }`,
+  `# Item Subscription Filter. Logical 'AND' unless specified.
+  input ItemSubscriptionInput {
+    # If set, listen for updates where an ancestor is the given UUID
+    ancestorId: ID
+    # If set, listen for updates where the immediate parent is the given UUID
+    parentId: ID
+    # If set, listen for updates from the given user UUID
+    userId: ID
   }`,
   `# Custom scalar for supporting Javascript Date
   scalar DateTime`

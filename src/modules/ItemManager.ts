@@ -171,7 +171,9 @@ export default class ItemManager {
     if (showDeleted) {
       itemQueryBuilder.andWhere(`"item"."deleted" IS NOT NULL`);
     } else {
-      itemQueryBuilder.andWhere(`"item"."deleted" = :deleted`, { deleted: false });
+      itemQueryBuilder.andWhere(`"item"."deleted" = :deleted`, {
+        deleted: false
+      });
     }
 
     // Datetime is used for pagination over items
@@ -260,7 +262,7 @@ export default class ItemManager {
     }
     await queryRunner.commitTransaction();
     await queryRunner.release();
-    return item;
+    return item as Item;
   }
 
   /**
@@ -326,6 +328,42 @@ export default class ItemManager {
       })
       .limit(1)
       .getOne();
+  }
+
+  /**
+   * If an item is a child of (or equal to) the ancestor, return true
+   * @param itemId item uuid to check for relationship
+   * @param ancestorId ancestor uuid to check relationship with
+   */
+  public static async isItemDescendantOfAncestor(
+    itemId: string,
+    ancestorId: string
+  ) {
+    const countResult = await getRepository(ItemClosure)
+      .createQueryBuilder("descendantCheck")
+      .where(`descendant = :itemId`, { itemId })
+      .andWhere(`ancestor = :ancestorId`, { ancestorId })
+      .andWhere(`depth >= 0`)
+      .getCount();
+    return countResult >= 1;
+  }
+
+  /**
+   * If an item is the immediate child (or equal to) the ancestor, return true
+   * @param itemId item uuid to check for relationship
+   * @param parentId parent uuid to check relationship with
+   */
+  public static async isItemImmediateChildOfParent(
+    itemId: string,
+    parentId: string
+  ) {
+    const countResult = await getRepository(ItemClosure)
+      .createQueryBuilder("descendantCheck")
+      .where(`descendant = :itemId`, { itemId })
+      .andWhere(`ancestor = :parentId`, { parentId })
+      .andWhere(`depth BETWEEN 0 and 1`)
+      .getCount();
+    return countResult >= 1;
   }
 
   /**

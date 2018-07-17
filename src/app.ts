@@ -10,7 +10,7 @@ import { formatError } from "graphql";
 import path from "path";
 import serveIndex from "serve-index";
 import { APP_VERSION, CORS_ORIGIN, DEV_JWT, NODE_ENV, PORT } from "./constants";
-import gqlSchema from "./gqlSchema";
+import gqlSchema from "./gqlSchema/schema";
 import Auth from "./modules/Auth";
 import { middlewareLogger } from "./util/logger";
 import metric from "./util/metric";

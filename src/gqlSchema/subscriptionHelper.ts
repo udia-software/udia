@@ -1,6 +1,7 @@
+import { Item } from "../entity/Item";
 import { User } from "../entity/User";
 
-export type IUserPayloadActionType =
+type UserPayloadActionType =
   | "EMAIL_ADDED"
   | "EMAIL_VERIFICATION_SENT"
   | "EMAIL_VERIFIED"
@@ -14,7 +15,7 @@ export type IUserPayloadActionType =
 export interface IUserSubscriptionPayload {
   userSubscription: {
     uuid: string;
-    actionType: IUserPayloadActionType;
+    type: UserPayloadActionType;
     timestamp: Date;
     meta?: string;
   };
@@ -22,13 +23,38 @@ export interface IUserSubscriptionPayload {
 
 export const genUserSubPayload = (
   user: User | { uuid: string },
-  actionType: IUserPayloadActionType,
+  type: UserPayloadActionType,
   timestamp: Date = new Date(),
   meta?: string
 ): IUserSubscriptionPayload => ({
   userSubscription: {
     uuid: user.uuid,
-    actionType,
+    type,
+    timestamp,
+    meta
+  }
+});
+
+type ItemPayloadActionType = "ITEM_CREATED" | "ITEM_UPDATED" | "ITEM_DELETED";
+
+export interface IItemSubscriptionPayload {
+  itemSubscription: {
+    uuid: string;
+    type: ItemPayloadActionType;
+    timestamp: Date;
+    meta?: string;
+  };
+}
+
+export const genItemSubPayload = (
+  item: Item | { uuid: string },
+  type: ItemPayloadActionType,
+  timestamp: Date = new Date(),
+  meta?: string
+): IItemSubscriptionPayload => ({
+  itemSubscription: {
+    uuid: item.uuid,
+    type,
     timestamp,
     meta
   }

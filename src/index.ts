@@ -22,7 +22,7 @@ import {
   SQL_PORT,
   SQL_USER
 } from "./constants";
-import gqlSchema from "./gqlSchema";
+import gqlSchema from "./gqlSchema/schema";
 import Auth from "./modules/Auth";
 import { PostgresConnectionOptions } from "./types/typeormOpts";
 import logger, { TypeORMLogger } from "./util/logger";

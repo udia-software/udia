@@ -21,7 +21,12 @@ import UserManager, {
   IVerifyEmailTokenParams
 } from "../modules/UserManager";
 import metric from "../util/metric";
-import { genUserSubPayload } from "./subscriptionHelper";
+import {
+  genItemSubPayload,
+  genUserSubPayload,
+  IItemSubscriptionPayload,
+  IUserSubscriptionPayload
+} from "./subscriptionHelper";
 
 export interface IContext {
   jwtPayload: IJwtPayload;
@@ -234,11 +239,21 @@ const resolvers: IResolvers = {
     },
     createItem: async (root: any, { params }: any, context: IContext) => {
       const uuid = context.jwtPayload && context.jwtPayload.uuid;
-      return ItemManager.createItem(uuid, params);
+      const item = await ItemManager.createItem(uuid, params);
+      pubSub.publish(
+        "i",
+        genItemSubPayload(item, "ITEM_CREATED", item.createdAt)
+      );
+      return item;
     },
     updateItem: async (root: any, { id, params }: any, context: IContext) => {
       const uuid = context.jwtPayload && context.jwtPayload.uuid;
-      return ItemManager.updateItem(uuid, { id, ...params });
+      const item = await ItemManager.updateItem(uuid, { id, ...params });
+      pubSub.publish(
+        "i",
+        genItemSubPayload(item, "ITEM_UPDATED", item.updatedAt)
+      );
+      return item;
     },
     deleteItem: async (
       root: any,
@@ -246,7 +261,12 @@ const resolvers: IResolvers = {
       context: IContext
     ) => {
       const uuid = context.jwtPayload && context.jwtPayload.uuid;
-      return ItemManager.deleteItem(uuid, params);
+      const item = await ItemManager.deleteItem(uuid, params);
+      pubSub.publish(
+        "i",
+        genItemSubPayload(item, "ITEM_DELETED", item.updatedAt)
+      );
+      return item;
     }
   },
   Subscription: {
@@ -257,22 +277,67 @@ const resolvers: IResolvers = {
       subscribe: withFilter(
         (rootValue, args, context, info) => {
           // Handles splitting channels based on JWT payload username
-          const { user } = context;
-          if (user && user.uuid) {
-            return pubSub.asyncIterator(`u:${user.uuid}`);
+          if (context && context.user && context.user.uuid) {
+            return pubSub.asyncIterator(`u:${context.user.uuid}`);
           }
           // nothing publishes to `me`, unauthenticated, but connected
           return pubSub.asyncIterator("u");
         },
-        (payload, variables, context) => {
+        (payload: IUserSubscriptionPayload, variables, context) => {
           // Handles authentication filtering based on JWT
           // derived from JWT (payload) on ws conn
           const user = context && context.user;
           if (user && user.uuid) {
-            const { me } = payload;
-            return user.uuid === me.uuid;
+            const { userSubscription } = payload;
+            return user.uuid === userSubscription.uuid;
           }
           return false;
+        }
+      )
+    },
+    itemSubscription: {
+      subscribe: withFilter(
+        (rootValue, args, context, info) => {
+          return pubSub.asyncIterator("i");
+        },
+        async (
+          payload: IItemSubscriptionPayload,
+          variables: {
+            ancestorId?: string;
+            parentId?: string;
+            userId?: string;
+          },
+          context
+        ) => {
+          // if nothing is set, return nothing
+          const { ancestorId, parentId, userId } = variables;
+          if (!ancestorId && !parentId && !userId) {
+            return false;
+          }
+          const { uuid } = payload.itemSubscription;
+          let notifyItemChange = true;
+          // check that the uuid is a descendant of the given ancestor
+          if (ancestorId) {
+            notifyItemChange = await ItemManager.isItemDescendantOfAncestor(
+              uuid,
+              ancestorId
+            );
+          }
+          // check that the uuid is an immediate child of the given parent
+          if (notifyItemChange && parentId) {
+            notifyItemChange = await ItemManager.isItemImmediateChildOfParent(
+              uuid,
+              parentId
+            );
+          }
+          // check that the uuid belongs to the user
+          if (notifyItemChange && userId) {
+            const item = await ItemManager.getItemById(uuid);
+            if (item && item.user) {
+              notifyItemChange = item.user.uuid === userId;
+            }
+          }
+          return notifyItemChange;
         }
       )
     }

@@ -26,6 +26,9 @@ describe("ItemManager", () => {
       .orWhere(`"user"."lUsername" = 'deleteitem'`)
       .orWhere(`"user"."lUsername" = 'deleteitemstepuser'`)
       .orWhere(`"user"."lUsername" = 'getparentitem'`)
+      .orWhere(`"user"."lUsername" = 'showdeleteditemsuser'`)
+      .orWhere(`"user"."lUsername" = 'checkdescendantitem'`)
+      .orWhere(`"user"."lUsername" = 'checkparentitem'`)
       .getQuery();
     await getConnection()
       .createQueryBuilder()
@@ -47,7 +50,9 @@ describe("ItemManager", () => {
       .orWhere(`lUsername = :delUser`, { delUser: "deleteitem" })
       .orWhere(`lUsername = :sDUser`, { sDUser: "deleteitemstepuser" })
       .orWhere(`lUsername = :gpUser`, { gpUser: "getparentitem" })
-      .orWhere(`lUsername = :delIUser`, { delIUser: "showdeleteditemsuser"})
+      .orWhere(`lUsername = :delIUser`, { delIUser: "showdeleteditemsuser" })
+      .orWhere(`lUsername = :chkDIUser`, { chkDIUser: "checkdescendantitem" })
+      .orWhere(`lUsername = :chkPIUser`, { chkPIUser: "checkparentitem" })
       .execute();
   }
 
@@ -546,7 +551,7 @@ describe("ItemManager", () => {
 
       const { items, count } = await ItemManager.getItems({
         userId: showDeletedItemsUser.uuid,
-        showDeleted: true,
+        showDeleted: true
       });
       expect(count).toEqual(1);
       expect(items).toContainEqual({
@@ -1098,6 +1103,7 @@ describe("ItemManager", () => {
         .getRepository(User)
         .delete(getParentUser);
     });
+
     it("should get a parent item given a child item id", async () => {
       expect.assertions(1);
       const ancestorItem = await ItemManager.createItem(getParentUser.uuid, {
@@ -1119,4 +1125,195 @@ describe("ItemManager", () => {
       expect(parentItem).toEqual({ ...ancestorItem, user: undefined });
     });
   });
+
+  describe("isItemDescendantOfAncestor", () => {
+    let chkDescUser: User;
+    beforeAll(async () => {
+      await getConnection().transaction(async transactionEntityManager => {
+        const { u, e } = generateGenericUser("checkDescendantItem");
+        chkDescUser = await transactionEntityManager.save(u);
+        e.user = chkDescUser;
+        await transactionEntityManager.save(e);
+      });
+    });
+
+    afterEach(async () => {
+      await getConnection()
+        .getRepository(Item)
+        .createQueryBuilder()
+        .delete()
+        .where({ user: chkDescUser })
+        .execute();
+    });
+
+    afterAll(async () => {
+      await getConnection()
+        .getRepository(User)
+        .delete(chkDescUser);
+    });
+
+    it("should verify if an item is a descendant of an ancestor", async () => {
+      expect.assertions(7);
+      const grandparentItem = await ItemManager.createItem(chkDescUser.uuid, {
+        content: "grandparent item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
+
+      const parentItem = await ItemManager.createItem(chkDescUser.uuid, {
+        content: "parent item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted",
+        parentId: grandparentItem.uuid
+      });
+
+      const childItem = await ItemManager.createItem(chkDescUser.uuid, {
+        content: "child item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted",
+        parentId: parentItem.uuid
+      });
+
+      // truthy
+      expect(
+        await ItemManager.isItemDescendantOfAncestor(
+          childItem.uuid,
+          parentItem.uuid
+        )
+      ).toEqual(true);
+      expect(
+        await ItemManager.isItemDescendantOfAncestor(
+          childItem.uuid,
+          grandparentItem.uuid
+        )
+      ).toEqual(true);
+      expect(
+        await ItemManager.isItemDescendantOfAncestor(
+          parentItem.uuid,
+          grandparentItem.uuid
+        )
+      ).toEqual(true);
+      expect(
+        await ItemManager.isItemDescendantOfAncestor(
+          childItem.uuid,
+          childItem.uuid
+        )
+      ).toEqual(true);
+      // falsy
+      expect(
+        await ItemManager.isItemDescendantOfAncestor(
+          parentItem.uuid,
+          childItem.uuid
+        )
+      ).toEqual(false);
+      expect(
+        await ItemManager.isItemDescendantOfAncestor(
+          grandparentItem.uuid,
+          childItem.uuid
+        )
+      ).toEqual(false);
+      expect(
+        await ItemManager.isItemDescendantOfAncestor(
+          grandparentItem.uuid,
+          parentItem.uuid
+        )
+      ).toEqual(false);
+    });
+  });
+
+  describe("isItemImmediateChildOfParent", () => {
+    let chkParentUser: User;
+    beforeAll(async () => {
+      await getConnection().transaction(async transactionEntityManager => {
+        const { u, e } = generateGenericUser("checkParentItem");
+        chkParentUser = await transactionEntityManager.save(u);
+        e.user = chkParentUser;
+        await transactionEntityManager.save(e);
+      });
+    });
+
+    afterEach(async () => {
+      await getConnection()
+        .getRepository(Item)
+        .createQueryBuilder()
+        .delete()
+        .where({ user: chkParentUser })
+        .execute();
+    });
+
+    afterAll(async () => {
+      await getConnection()
+        .getRepository(User)
+        .delete(chkParentUser);
+    });
+
+    it("should verify if an item is an immediate child of a parent", async () => {
+      expect.assertions(7);
+      const grandparentItem = await ItemManager.createItem(chkParentUser.uuid, {
+        content: "grandparent item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted"
+      });
+
+      const parentItem = await ItemManager.createItem(chkParentUser.uuid, {
+        content: "parent item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted",
+        parentId: grandparentItem.uuid
+      });
+
+      const childItem = await ItemManager.createItem(chkParentUser.uuid, {
+        content: "child item",
+        contentType: "plaintext",
+        encItemKey: "unencrypted",
+        parentId: parentItem.uuid
+      });
+
+      // truthy
+      expect(
+        await ItemManager.isItemImmediateChildOfParent(
+          childItem.uuid,
+          parentItem.uuid
+        )
+      ).toEqual(true);
+      expect(
+        await ItemManager.isItemImmediateChildOfParent(
+          parentItem.uuid,
+          grandparentItem.uuid
+        )
+      ).toEqual(true);
+      expect(
+        await ItemManager.isItemImmediateChildOfParent(
+          childItem.uuid,
+          childItem.uuid
+        )
+      ).toEqual(true);
+      // falsy
+      expect(
+        await ItemManager.isItemImmediateChildOfParent(
+          childItem.uuid,
+          grandparentItem.uuid,
+        )
+      ).toEqual(false);
+      expect(
+        await ItemManager.isItemImmediateChildOfParent(
+          parentItem.uuid,
+          childItem.uuid
+        )
+      ).toEqual(false);
+      expect(
+        await ItemManager.isItemImmediateChildOfParent(
+          grandparentItem.uuid,
+          childItem.uuid
+        )
+      ).toEqual(false);
+      expect(
+        await ItemManager.isItemImmediateChildOfParent(
+          grandparentItem.uuid,
+          parentItem.uuid
+        )
+      ).toEqual(false);
+    });
+  });
+
 });

@@ -107,10 +107,7 @@ export default class UserManager {
   public static async getUserById(id?: string) {
     if (id) {
       try {
-        const user = await getRepository(User).findOne(id);
-        if (user) {
-          return user;
-        }
+        return await getRepository(User).findOne(id);
       } catch {
         // uuid is invalid exceptions
       }
