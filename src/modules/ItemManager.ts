@@ -13,6 +13,7 @@ export interface IGetItemsParams {
   username?: string;
   parentId?: string | null;
   depth?: number;
+  contentTypeIn?: string[];
   limit?: number;
   datetime?: Date;
   showDeleted?: boolean;
@@ -112,6 +113,7 @@ export default class ItemManager {
     username, // Get items that belong to the given user (username) or undefined
     parentId, // Get items from ancestor (null for root, undefined for all)
     depth = 0, // Get items at a specific depth from ancestor
+    contentTypeIn, // Get items where the content type is in this array
     limit = 10, // Limit number of items returned
     showDeleted, // Show deleted items?
     datetime, // Keyset pagination on date (unindexed for updatedAt)
@@ -161,6 +163,14 @@ export default class ItemManager {
         return `"item"."userUuid" IN ${userSubQuery}`;
       });
     }
+
+    // if contentTypeIn array is set, filter items with IN array clause
+    if (contentTypeIn) {
+      itemQueryBuilder.andWhere(`"item"."contentType" IN (:...contentTypeIn)`, {
+        contentTypeIn
+      });
+    }
+
     // if parentId is null, enforce only root items.
     // depth should be 0 otherwise the returned array will always be empty
     if (parentId === null) {
@@ -238,7 +248,7 @@ export default class ItemManager {
     item = await queryRunner.manager.save(item);
 
     // Subtree moved, updated closure relations
-    if (!!parentItem) {
+    if (parentItem) {
       // Disconnect from current ancestors
       await queryRunner.query(
         `DELETE FROM "item_closure" WHERE "descendant" IN ` +

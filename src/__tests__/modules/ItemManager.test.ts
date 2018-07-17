@@ -570,6 +570,32 @@ describe("ItemManager", () => {
       expect(noCount).toBeGreaterThanOrEqual(0);
       expect(noItems.length).toBeGreaterThanOrEqual(0);
     });
+
+    it("should get items by content type", async () => {
+      expect.assertions(2);
+      const b64Item = await ItemManager.createItem(
+        itemPaginationUser.uuid,
+        {
+          content: "SGkgQ3V0aWU=",
+          contentType: "base64Text",
+          encItemKey: "unencrypted"
+        }
+      );
+      const { items, count } = await ItemManager.getItems({
+        userId: itemPaginationUser.uuid,
+        contentTypeIn: ["base64Text"]
+      });
+      expect(count).toEqual(1);
+      expect(items).toContainEqual({
+        uuid: b64Item.uuid,
+        content: b64Item.content,
+        contentType: b64Item.contentType,
+        encItemKey: b64Item.encItemKey,
+        createdAt: b64Item.createdAt,
+        updatedAt: b64Item.updatedAt,
+        deleted: b64Item.deleted
+      });
+    });
   });
 
   describe("updateItem", () => {

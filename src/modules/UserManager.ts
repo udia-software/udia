@@ -687,8 +687,7 @@ export default class UserManager {
       user.forgotPwHash,
       resetToken
     );
-    const isDateValid =
-      !!user.forgotPwExpiry && user.forgotPwExpiry > new Date();
+    const isDateValid = user.forgotPwExpiry && user.forgotPwExpiry > new Date();
     if (isSecretValid && isDateValid) {
       validityPayload.isValid = true;
       validityPayload.expiry = user.forgotPwExpiry;

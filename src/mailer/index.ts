@@ -50,7 +50,7 @@ if (NODE_ENV === "development") {
 
 /* istanbul ignore next: test coverage does not use AWS */
 if (NODE_ENV !== "test") {
-  if (!!AWS_ACCESS_KEY_ID && !!AWS_SECRET_ACCESS_KEY) {
+  if (AWS_ACCESS_KEY_ID && AWS_SECRET_ACCESS_KEY) {
     logger.info(
       `Mailer is AWS-SES in ${AWS_SES_REGION} using ${AWS_ACCESS_KEY_ID}.`
     );

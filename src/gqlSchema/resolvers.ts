@@ -297,9 +297,7 @@ const resolvers: IResolvers = {
     },
     itemSubscription: {
       subscribe: withFilter(
-        (rootValue, args, context, info) => {
-          return pubSub.asyncIterator("i");
-        },
+        () => pubSub.asyncIterator("i"),
         async (
           payload: IItemSubscriptionPayload,
           variables: {

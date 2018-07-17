@@ -466,7 +466,7 @@ const typeDefs: ITypedef[] = [
     order: KeysetOrderValue
   }
   `,
-  `# Items Pagination Parameters
+  `# Items Pagination Parameters (logical "AND" all set parameters)
   input ItemPaginationInput {
     # Filter items by username (or null for orphaned by deleted user)
     username: String
@@ -474,6 +474,8 @@ const typeDefs: ITypedef[] = [
     parentId: ID
     # Filter items by depth in relation to parentId
     depth: Int
+    # Filter items with item content type
+    contentTypeIn: [String!]
     # Maximum number of items returned from query (Hard cap ${ITEMS_PAGE_LIMIT})
     limit: Int
     # Should we return deleted items? (only not deleted items if not set)
