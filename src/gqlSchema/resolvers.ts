@@ -301,14 +301,15 @@ const resolvers: IResolvers = {
         async (
           payload: IItemSubscriptionPayload,
           variables: {
-            ancestorId?: string;
-            parentId?: string;
-            userId?: string;
-          },
-          context
+            params: {
+              ancestorId?: string;
+              parentId?: string;
+              userId?: string;
+            }
+          }
         ) => {
           // if nothing is set, return nothing
-          const { ancestorId, parentId, userId } = variables;
+          const { ancestorId, parentId, userId } = variables.params;
           if (!ancestorId && !parentId && !userId) {
             return false;
           }
