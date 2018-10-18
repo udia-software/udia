@@ -9,6 +9,9 @@ cache:
   directories:
     - node_modules
 
+script:
+  - yarn test --ci --forceExit
+
 addons:
   postgresql: "9.6"
 

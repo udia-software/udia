@@ -1,6 +1,17 @@
 import dotenv from "dotenv";
 import path from "path";
-import { name, version } from "../package.json";
+import {
+  database as dbValue,
+  host as dbHost,
+  password as dbPassword,
+  port as dbPort,
+  username as dbUsername
+} from "../ormconfig.js";
+import {
+  name,
+  version
+} from "../package.json";
+
 dotenv.config(); // can also set environment variables using .env file
 
 /* istanbul ignore next: node env always test */
@@ -20,11 +31,11 @@ export const LEGAL_DIR = path.join(__dirname, "..", "static", "legal");
 
 // Environment Variables (SEE README)
 export const PORT = process.env.PORT || "3000";
-export const SQL_USER = process.env.SQL_USER || "pguser";
-export const SQL_HOST = process.env.SQL_HOST || "127.0.0.1";
-export const SQL_PASSWORD = process.env.SQL_PASSWORD || "mysecretpassword";
-export const SQL_DB = process.env.SQL_DB || "udiadb";
-export const SQL_PORT = process.env.SQL_PORT || "5432";
+export const SQL_USER = process.env.SQL_USER || dbUsername;
+export const SQL_HOST = process.env.SQL_HOST || dbHost;
+export const SQL_PASSWORD = process.env.SQL_PASSWORD || dbPassword;
+export const SQL_DB = process.env.SQL_DB || dbValue;
+export const SQL_PORT = process.env.SQL_PORT || dbPort;
 export const JWT_SECRET = process.env.JWT_SECRET || "DEVELOPMENT_SECRET";
 export const JWT_ALGORITHM = process.env.JWT_ALGORITHM || "HS256";
 export const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "7d";

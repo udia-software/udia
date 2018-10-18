@@ -1,15 +1,11 @@
-import {
-  ExpressGraphQLOptionsFunction,
-  graphiqlExpress,
-  graphqlExpress
-} from "apollo-server-express";
+import { ApolloServer } from "apollo-server-express";
 import bodyParser from "body-parser";
 import cors, { CorsOptions } from "cors";
 import express from "express";
 import { formatError } from "graphql";
 import path from "path";
 import serveIndex from "serve-index";
-import { APP_VERSION, CORS_ORIGIN, DEV_JWT, NODE_ENV, PORT } from "./constants";
+import { APP_VERSION, CORS_ORIGIN } from "./constants";
 import gqlSchema from "./gqlSchema/schema";
 import Auth from "./modules/Auth";
 import { middlewareLogger } from "./util/logger";
@@ -29,24 +25,24 @@ app.use(
 // serve favicons at the root level
 app.use("/", express.static(path.join(__dirname, "..", "static", "favicons")));
 
-const graphqlBuildOptions: ExpressGraphQLOptionsFunction = req => {
-  return {
-    context: {
-      jwtPayload: req && req.user,
-      originIp: req && req.ip,
-      originIps: req && req.ips,
-      pubSub: app.get("pubSub")
-    },
-    formatError: (error: any) => {
-      return {
-        ...formatError(error),
-        state: error.originalError && error.originalError.state
-      };
-    },
-    schema: gqlSchema,
-    debug: false
-  };
+const graphqlBuildOptions = {
+  context: ({ req }: { req: express.Request }) => ({
+    jwtPayload: req && req.user,
+    originIp: req && req.ip,
+    originIps: req && req.ips,
+    pubSub: app.get("pubSub")
+  }),
+  formatError: (error: any) => {
+    return {
+      ...formatError(error),
+      state: error.originalError && error.originalError.state
+    };
+  },
+  schema: gqlSchema,
+  debug: false
 };
+const server = new ApolloServer(graphqlBuildOptions);
+
 const CORS_OPTIONS: CorsOptions = {
   origin: CORS_ORIGIN,
   allowedHeaders: ["Origin", "Content-Type", "Accept", "Authorization"],
@@ -58,19 +54,7 @@ app.use(middlewareLogger);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(Auth.jwtMiddleware());
-app.use("/graphql", graphqlExpress(graphqlBuildOptions));
 
-/* istanbul ignore next: don't vet developer graphiql route */
-if (NODE_ENV !== "production") {
-  app.use(
-    "/graphiql",
-    graphiqlExpress({
-      endpointURL: "/graphql",
-      passHeader: DEV_JWT ? `Authorization: Bearer ${DEV_JWT}` : undefined,
-      subscriptionsEndpoint: `ws://localhost:${PORT}/subscriptions`
-    })
-  );
-}
 app.get("/health", (req: express.Request, res: express.Response) =>
   res.json(metric())
 );
@@ -130,5 +114,6 @@ app.get("/", (req: express.Request, res: express.Response) => {
   </html>`);
   res.end();
 });
+server.applyMiddleware({ app });
 
 export default app;
