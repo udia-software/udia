@@ -47,6 +47,7 @@ These environment variables can be set by modifying your `~/.*rc` or `~/.*profil
 | `SQL_PORT`                | `5432`                            | SQL Port Number for serving                        |
 | `SQL_TEST_DB`             | `udiadbtest`                      | SQL Database name for testing                      |
 | `SQL_TEST_PORT`           | `5433`                            | SQL Port number for testing                        |
+| `DATABASE_URL`            | `driver://user:pw@host:port/db`   | (Optional) Shorthand for SQL_* non test fields     |
 | `JWT_SECRET`              | `DEVELOPMENT_SECRET`              | Secret string to use for JWT encryption            |
 | `JWT_ALGORITHM`           | `HS256`                           | Signing algorithm to use for JWT                   |
 | `JWT_EXPIRES_IN`          | `7d`                              | How long the JWT should be valid for               |
