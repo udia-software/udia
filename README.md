@@ -30,6 +30,22 @@ Clone Repo: `git clone git@github.com:udia-software/udia.git && cd udia`
 4.  Run database migrations `yarn runMigrations`
 5.  Watch application: `yarn watch` or run application `yarn start` or test application `yarn test`
 
+    Without Docker Compose
+```bash
+docker pull postgres:11
+mkdir -p $HOME/docker/volumes/postgres
+docker run \
+  --rm \
+  --name pg-docker \
+  --env POSTGRES_DB=udiadb \
+  --env POSTGRES_USER=pguser \
+  --env POSTGRES_PASSWORD=mysecretpassword \
+  --publish 5432:5432 \
+  --volume $HOME/docker/volumes/postgres:/var/lib/postgresql/data \
+  --detach \
+  postgres:11
+```
+
 ## Environment Variables
 
 These environment variables can be set by modifying your `~/.*rc` or `~/.*profile` files. Alternatively, modify the environment variables in the `docker-compose` files.
